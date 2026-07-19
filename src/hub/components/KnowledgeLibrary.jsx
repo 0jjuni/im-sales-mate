@@ -8,7 +8,7 @@ const KnowledgeCard = ({ category }) => {
   return (
     <div className="flex flex-col rounded-lg border border-slate-200 bg-white p-4">
       <div className="flex items-center gap-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-md bg-blue-50 text-blue-700">
+        <div className="flex h-9 w-9 items-center justify-center rounded-md bg-im-50 text-im-700">
           <Icon className="h-4 w-4" />
         </div>
         <div>
