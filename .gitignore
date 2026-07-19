@@ -28,3 +28,6 @@ dist-ssr
 
 # Vercel
 .vercel
+
+# Claude Code local tooling
+.claude/
