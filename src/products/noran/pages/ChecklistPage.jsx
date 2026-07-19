@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { REASON_DOCUMENTS } from "../data/guides";
-import { SourceBadge } from "../components/SourceBadge";
-import { WarningBox } from "../components/WarningBox";
-import { cn } from "../lib/format";
+import { SourceBadge } from "@shared/components/SourceBadge";
+import { WarningBox } from "@shared/components/WarningBox";
+import { cn } from "@shared/lib/format";
 
 export const ChecklistPage = ({ onOpenArticle, initialReason }) => {
   const [activeReason, setActiveReason] = useState(

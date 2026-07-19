@@ -1,5 +1,5 @@
 import { AlertTriangle } from "lucide-react";
-import { cn } from "../lib/format";
+import { cn } from "@shared/lib/format";
 
 export const WarningBox = ({ items, title = "직원 주의사항", compact = false }) => (
   <div

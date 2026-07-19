@@ -1,9 +1,9 @@
 import { BookOpen, ArrowLeft, CheckCircle2, MessageCircle, FileText } from "lucide-react";
 import { CATEGORIES } from "../data/categories";
 import { ARTICLES } from "../data/articles";
-import { SourceBadge } from "../components/SourceBadge";
-import { WarningBox } from "../components/WarningBox";
-import { CopyButton } from "../components/CopyButton";
+import { SourceBadge } from "@shared/components/SourceBadge";
+import { WarningBox } from "@shared/components/WarningBox";
+import { CopyButton } from "@shared/components/CopyButton";
 
 export const GuideDetailPage = ({ guide, onBack, onOpenArticle }) => {
   if (!guide) return null;

@@ -22,8 +22,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { INCOME_BRACKETS } from "../../data/tax";
-import { SectionTitle } from "../../components/SectionTitle";
-import { cn, formatKRW, formatKRWShort } from "../../lib/format";
+import { SectionTitle } from "@shared/components/SectionTitle";
+import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
 
 /* 공통 적립식 미래가치 — RefundSimulator와 같은 공식
    매월 P씩 N개월 납입 → 연단위 복리, 매월 평균 6개월 추가 적립 보정 (√(1+r) 가산) */

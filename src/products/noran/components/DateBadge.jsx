@@ -1,4 +1,4 @@
-import { cn } from "../lib/format";
+import { cn } from "@shared/lib/format";
 
 /* 사이드바용 — 오늘 날짜 + 영업일 표시 */
 export const DateBadge = () => {

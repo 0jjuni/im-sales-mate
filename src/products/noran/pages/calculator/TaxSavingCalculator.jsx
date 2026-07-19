@@ -11,9 +11,9 @@ import {
   Cell,
 } from "recharts";
 import { INCOME_BRACKETS } from "../../data/tax";
-import { SectionTitle } from "../../components/SectionTitle";
+import { SectionTitle } from "@shared/components/SectionTitle";
 import { PrintReport } from "../../components/PrintReport";
-import { cn, formatKRW, formatKRWShort } from "../../lib/format";
+import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
 
 /* A. 소득공제 절세효과 계산기 */
 export const TaxSavingCalculator = ({ onOpenArticle }) => {

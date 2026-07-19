@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { CheckSquare, ChevronRight } from "lucide-react";
 import { REASON_DOCUMENTS } from "../data/guides";
-import { cn } from "../lib/format";
+import { cn } from "@shared/lib/format";
 
 /* 시뮬레이터 결과 페이지 등에서 사용. 단일 사유면 바로 표시,
    복수 사유면 사용자가 선택. "전체 체크리스트로 이동" 버튼 포함. */

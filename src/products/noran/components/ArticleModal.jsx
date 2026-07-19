@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 import { ARTICLES } from "../data/articles";
-import { cn } from "../lib/format";
+import { cn } from "@shared/lib/format";
 
 export const ArticleModal = ({ articleNo, onClose }) => {
   if (!articleNo) return null;

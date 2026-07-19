@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { SIMULATOR_TREE, SIMULATOR_RESULTS } from "../data/simulator";
 import { CoachCard } from "../components/CoachCard";
-import { SourceBadge } from "../components/SourceBadge";
-import { WarningBox } from "../components/WarningBox";
-import { SectionTitle } from "../components/SectionTitle";
-import { CopyButton } from "../components/CopyButton";
+import { SourceBadge } from "@shared/components/SourceBadge";
+import { WarningBox } from "@shared/components/WarningBox";
+import { SectionTitle } from "@shared/components/SectionTitle";
+import { CopyButton } from "@shared/components/CopyButton";
 import { ChecklistPreview } from "../components/ChecklistPreview";
-import { cn } from "../lib/format";
+import { cn } from "@shared/lib/format";
 
 /* initialNode가 SIMULATOR_TREE에 있고 root가 아니면 해당 노드로 바로 진입 */
 const buildInitialPath = (initialNode) =>

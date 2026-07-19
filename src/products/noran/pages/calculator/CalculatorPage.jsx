@@ -4,7 +4,7 @@ import { CalculatorDisclaimer } from "../../components/CalculatorDisclaimer";
 import { TaxSavingCalculator } from "./TaxSavingCalculator";
 import { RefundSimulator } from "./RefundSimulator";
 import { ProductCompare } from "./ProductCompare";
-import { cn } from "../../lib/format";
+import { cn } from "@shared/lib/format";
 
 /* 계산기 페이지 (탭 컨테이너) */
 export const CalculatorPage = ({ onOpenArticle }) => {

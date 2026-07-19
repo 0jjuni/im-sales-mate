@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { CATEGORIES } from "../data/categories";
 import { GUIDES } from "../data/guides";
-import { SourceBadge } from "../components/SourceBadge";
-import { cn } from "../lib/format";
+import { SourceBadge } from "@shared/components/SourceBadge";
+import { cn } from "@shared/lib/format";
 
 export const GuideListPage = ({ onSelectGuide }) => {
   const [activeCategory, setActiveCategory] = useState("all");

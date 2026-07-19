@@ -12,8 +12,8 @@ import {
 import { CATEGORIES } from "../data/categories";
 import { GUIDES } from "../data/guides";
 import { FAQS } from "../data/faqs";
-import { SectionTitle } from "../components/SectionTitle";
-import { SourceBadge } from "../components/SourceBadge";
+import { SectionTitle } from "@shared/components/SectionTitle";
+import { SourceBadge } from "@shared/components/SourceBadge";
 
 export const Dashboard = ({ onNavigate, onOpenArticle }) => {
   const quickActions = [

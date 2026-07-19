@@ -11,9 +11,9 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { REFUND_TABLE_GENERAL, REFUND_TABLE_DEEMED } from "../../data/tax";
-import { SectionTitle } from "../../components/SectionTitle";
+import { SectionTitle } from "@shared/components/SectionTitle";
 import { PrintReport } from "../../components/PrintReport";
-import { cn, formatKRW, formatKRWShort } from "../../lib/format";
+import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
 
 /* 적립이자 추정 — 약관 별표 정의: 각 납부한 날의 다음 날부터 해약일까지 기준이율로 부리 적립
    매월 P씩 N개월 납입 → 연단위 복리 적립식 FV 근사

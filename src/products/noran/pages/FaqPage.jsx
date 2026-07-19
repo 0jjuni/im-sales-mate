@@ -2,8 +2,8 @@ import { useState, useMemo } from "react";
 import { Search, HelpCircle } from "lucide-react";
 import { CATEGORIES } from "../data/categories";
 import { FAQS } from "../data/faqs";
-import { SourceBadge } from "../components/SourceBadge";
-import { cn } from "../lib/format";
+import { SourceBadge } from "@shared/components/SourceBadge";
+import { cn } from "@shared/lib/format";
 
 export const FaqPage = ({ onOpenArticle }) => {
   const [query, setQuery] = useState("");
