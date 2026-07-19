@@ -1,6 +1,8 @@
 import { LayoutGrid, Library } from "lucide-react";
 import { HubShell } from "./HubShell";
-import { MorningBriefingCard } from "./components/MorningBriefingCard";
+import { useMorningBriefing } from "./hooks/useMorningBriefing";
+import { MarketBoard } from "./components/MarketBoard";
+import { MorningNews } from "./components/MorningNews";
 import { ProductGrid } from "./components/ProductGrid";
 import { KnowledgeLibrary } from "./components/KnowledgeLibrary";
 
@@ -17,11 +19,15 @@ const SectionHeader = ({ icon: Icon, title, sub }) => (
 );
 
 export function HubHome() {
+  /* 마켓 보드와 뉴스 카드가 같은 브리핑 데이터를 공유 — fetch는 한 번만 */
+  const { data, status, reload } = useMorningBriefing();
+
   return (
     <HubShell>
-      {/* 상단: AI 모닝 시황 브리핑 */}
-      <div id="top" className="scroll-mt-4">
-        <MorningBriefingCard />
+      {/* 상단: 마켓 보드(지표 스트립) + 오늘 아침 필수 뉴스 */}
+      <div id="top" className="scroll-mt-4 space-y-4">
+        <MarketBoard markets={data?.markets} status={status} />
+        <MorningNews data={data} status={status} onReload={reload} />
       </div>
 
       {/* 중단: 상품 모듈 */}
