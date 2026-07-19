@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { HubPage } from "@shared/pages/HubPage";
+import { HubHome } from "@hub/HubHome";
 import NoranApp from "@noran/NoranApp";
 
 /* 세일즈브릿지 루트 라우터.
@@ -8,7 +8,7 @@ import NoranApp from "@noran/NoranApp";
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<HubPage />} />
+      <Route path="/" element={<HubHome />} />
       <Route path="/noran/*" element={<NoranApp />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

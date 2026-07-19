@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
+      '@hub': fileURLToPath(new URL('./src/hub', import.meta.url)),
       '@shared': fileURLToPath(new URL('./src/shared', import.meta.url)),
       '@noran': fileURLToPath(new URL('./src/products/noran', import.meta.url)),
     },
