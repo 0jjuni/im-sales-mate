@@ -3,7 +3,7 @@ import { PersonalizationProvider } from "@hub/personalization/PersonalizationCon
 import { HubHome } from "@hub/HubHome";
 import NoranApp from "@noran/NoranApp";
 
-/* 세일즈브릿지 루트 라우터.
+/* iM 세일즈메이트 루트 라우터.
    "/"        → 허브(대시보드)
    "/noran/*" → 노란우산공제 모듈(내부에서 자체 라우팅)
    개인화(핀·최근 사용)는 허브와 모듈 양쪽에서 쓰므로 라우터 전체를 Provider로 감싼다. */

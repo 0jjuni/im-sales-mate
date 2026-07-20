@@ -1,20 +1,32 @@
-import { Building2, Settings2, Check, CalendarDays } from "lucide-react";
+import { Settings2, Check, CalendarDays } from "lucide-react";
+import { SalesMateMark } from "./components/SalesMateMark";
 import { cn } from "@shared/lib/format";
 
-/* 서비스명 미정 — 확정되면 이 상수만 변경하면 전체에 반영된다. */
-export const HUB_NAME = "SalesBridge";
-export const HUB_SUBTITLE = "PB·VM 상품 상담 허브";
+export const HUB_NAME = "iM 세일즈메이트";
+export const HUB_SUBTITLE = "상담 옆자리를 지키는 AI 세일즈 파트너";
 
 const Brand = () => (
   <div className="flex items-center gap-2.5">
-    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-im-500 to-im-700 shadow-sm">
-      <Building2 className="h-5 w-5 text-white" />
-    </div>
+    <SalesMateMark className="h-9 w-9 flex-shrink-0 drop-shadow-sm" />
     <div className="min-w-0 leading-tight">
-      <div className="text-[14px] font-black text-slate-900">{HUB_NAME}</div>
+      <div className="flex items-baseline gap-1 text-[14px] font-black text-slate-900">
+        {HUB_NAME}
+        <span className="text-[9px] font-bold uppercase tracking-wider text-im-600">
+          SalesMate
+        </span>
+      </div>
       <div className="text-[10px] text-slate-500">{HUB_SUBTITLE}</div>
     </div>
   </div>
+);
+
+/* iM뱅크 표기 — 공식 CI 로고 파일을 받으면 public/에 넣고 아래를
+   <img src="/im-bank-logo.svg" .../> 로 교체 (README 「브랜딩」 참고) */
+const BankMark = () => (
+  <span className="hidden items-center gap-1 rounded-md border border-im-100 bg-im-50/60 px-2 py-1.5 text-[10px] font-bold text-im-700 md:inline-flex">
+    iM뱅크
+    <span className="font-medium text-im-600/70">영업점 전용</span>
+  </span>
 );
 
 const TodayBadge = () => {
@@ -42,6 +54,7 @@ export function HubShell({ children, editMode = false, onToggleEdit }) {
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 md:px-8">
           <Brand />
           <div className="flex items-center gap-2">
+            <BankMark />
             <TodayBadge />
             {onToggleEdit && (
               <button

@@ -118,6 +118,15 @@ export default function NoranApp() {
     if (currentToolId) recordToolVisit(currentToolId);
   }, [currentToolId, recordToolVisit]);
 
+  /* 모듈 체류 중 브라우저 탭 제목 — 허브로 돌아가면 원래 제목 복원 */
+  useEffect(() => {
+    const prev = document.title;
+    document.title = "노란우산공제 상담 가이드 · iM 세일즈메이트";
+    return () => {
+      document.title = prev;
+    };
+  }, []);
+
   /* 라우트 변경 — 경로 이동 → useParams 재평가로 자동 렌더 */
   const navigate = (p, s = null) => {
     routerNavigate(buildPath(p, s));

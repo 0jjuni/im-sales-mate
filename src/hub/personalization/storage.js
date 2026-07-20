@@ -6,6 +6,7 @@
    스키마를 바꿀 때는 SCHEMA_VERSION을 올리고 migrate()에 이전 버전 → 새 버전
    변환을 추가한다. 버전 불일치 데이터는 기본값으로 초기화된다. */
 
+/* 키는 초기 가제(salesbridge) 시절 값 유지 — 바꾸면 기존 사용자 저장분이 초기화된다 */
 const STORAGE_KEY = "salesbridge.dashboard";
 const SCHEMA_VERSION = 1;
 

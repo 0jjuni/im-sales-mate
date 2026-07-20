@@ -1,8 +1,9 @@
-# 세일즈브릿지 (SalesBridge) — PB·VM 상품 상담 허브
+# iM 세일즈메이트 (iM SalesMate)
 
-> 서비스명은 가제입니다. 확정 시 `src/hub/HubShell.jsx`의 `HUB_NAME` 상수만 변경하면 전체에 반영됩니다.
+> **모든 창구에 숙련 PB 한 명씩, 상담 옆자리를 지키는 AI 세일즈 파트너**
+> 서비스명·부제는 `src/hub/HubShell.jsx`의 `HUB_NAME`/`HUB_SUBTITLE` 상수에서 관리합니다.
 
-고객 상담 중 옆에 띄워놓고 바로 참고하는 **영업점 직원용 실시간 세일즈 보조 플랫폼**입니다.
+고객 상담 중 옆에 띄워놓고 바로 참고하는 **영업점 직원용 실시간 상담 보조 플랫폼**입니다.
 허브(대시보드)를 중심으로 상품마다 동일한 템플릿의 **상품 모듈**이 붙는 구조라, 신상품이 나와도 빠르게 확장할 수 있습니다. 1호 모듈로 **노란우산공제**가 구현되어 있습니다.
 
 ## 화면 구성
@@ -70,7 +71,12 @@ src/
 `src/hub/data/morningBriefing.js`의 `fetchMorningBriefing()` 본문만 교체합니다.
 파이프라인(제안서 기준): Apps Script 시간 트리거 → GOOGLEFINANCE·뉴스 수집 → Gemini API 요약 → 구글시트 적재 → 이 함수가 fetch. 시트 스키마는 파일 상단의 `BriefingShape` 주석(뉴스: `importance / category / headline / summary / pbNote / source`)을 따르면 됩니다.
 
-### 4. 대시보드 섹션 추가
+### 4. 브랜딩 (로고·iM뱅크 CI)
+
+- **세일즈메이트 마크**: `src/hub/components/SalesMateMark.jsx` (말풍선 + 상승 화살표, 민트/라임). 파비콘 `public/favicon.svg`와 동일 도안 — 수정 시 두 파일을 함께.
+- **iM뱅크 로고**: 현재는 헤더 우측에 텍스트 표기(`HubShell.jsx`의 `BankMark`). 공식 CI 파일을 확보하면 `public/im-bank-logo.svg`로 넣고 `BankMark`를 `<img src="/im-bank-logo.svg" alt="iM뱅크" className="h-5" />` 형태로 교체하면 됩니다. 공식 아트워크를 임의로 그려 넣지 말 것(CI 가이드 위반).
+
+### 5. 대시보드 섹션 추가
 
 `src/hub/sections.js`에 섹션 등록 → `HubHome.jsx`의 `renderSection()`에 렌더러 추가. 순서·숨김은 자동으로 개인화에 편입됩니다(기존 사용자 저장분에는 새 섹션이 맨 뒤에 자동 병합). 섹션 라벨은 은행원 언어로 — 내부 용어(모듈 등) 노출 금지.
 
