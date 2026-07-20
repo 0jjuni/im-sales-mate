@@ -6,9 +6,10 @@ import { RefundSimulator } from "./RefundSimulator";
 import { ProductCompare } from "./ProductCompare";
 import { cn } from "@shared/lib/format";
 
-/* 계산기 페이지 (탭 컨테이너) */
-export const CalculatorPage = ({ onOpenArticle }) => {
-  const [activeTab, setActiveTab] = useState("tax");
+/* 계산기 페이지 (탭 컨테이너).
+   탭은 URL(/noran/calculator/:tab)로 제어된다 — 개별 계산기를 허브 「내 도구」에
+   등록하고 딥링크로 바로 진입할 수 있게 하기 위함. (NoranApp이 activeTab을 내려줌) */
+export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }) => {
   const [accepted, setAccepted] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(true);
 
@@ -99,7 +100,7 @@ export const CalculatorPage = ({ onOpenArticle }) => {
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => onTabChange?.(tab.id)}
               className={cn(
                 "text-left p-4 border rounded-md transition-all",
                 isActive

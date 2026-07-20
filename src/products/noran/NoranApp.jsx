@@ -24,7 +24,10 @@ import { ChecklistPage } from "./pages/ChecklistPage";
 import { SimulatorPage } from "./pages/SimulatorPage";
 import { IntroPage } from "./pages/IntroPage";
 import { CalculatorPage } from "./pages/calculator/CalculatorPage";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { usePersonalization } from "@hub/personalization/PersonalizationContext";
+import { PinToolButton } from "@hub/personalization/PinToolButton";
+import { findToolByPath } from "@hub/registry/toolRegistry";
 import { cn } from "@shared/lib/format";
 
 const NAV_ITEMS = [
@@ -50,6 +53,11 @@ const parseSplat = (splat) => {
 };
 
 const buildPath = (page, sub) => (sub ? `/noran/${page}/${sub}` : `/noran/${page}`);
+
+/* 계산기 탭 — URL 서브경로로 제어 (/noran/calculator/:tab).
+   개별 계산기를 허브 「내 도구」에 등록·딥링크하기 위함 */
+const CALC_TABS = ["tax", "refund", "compare"];
+const calcTab = (sub) => (CALC_TABS.includes(sub) ? sub : "tax");
 
 const Brand = () => (
   <div className="flex items-center gap-2.5">
@@ -98,6 +106,18 @@ export default function NoranApp() {
     page === "guide" && sub ? GUIDES.find((g) => g.id === sub) : null;
   const checklistReason = page === "checklist" ? sub : null;
 
+  /* 현재 화면이 허브 도구 레지스트리에 등록된 도구인지 역조회 —
+     맞으면 핀 버튼을 띄우고 「최근 사용」에 자동 기록한다 */
+  const { recordToolVisit } = usePersonalization();
+  const toolPath =
+    page === "calculator" ? `/noran/calculator/${calcTab(sub)}` : buildPath(page, sub);
+  const currentTool = findToolByPath(toolPath);
+  const currentToolId = currentTool?.id ?? null;
+
+  useEffect(() => {
+    if (currentToolId) recordToolVisit(currentToolId);
+  }, [currentToolId, recordToolVisit]);
+
   /* 라우트 변경 — 경로 이동 → useParams 재평가로 자동 렌더 */
   const navigate = (p, s = null) => {
     routerNavigate(buildPath(p, s));
@@ -140,7 +160,13 @@ export default function NoranApp() {
           />
         );
       case "calculator":
-        return <CalculatorPage onOpenArticle={setOpenArticle} />;
+        return (
+          <CalculatorPage
+            onOpenArticle={setOpenArticle}
+            activeTab={calcTab(sub)}
+            onTabChange={(tabId) => navigate("calculator", tabId)}
+          />
+        );
       case "guide":
         return <GuideListPage onSelectGuide={handleSelectGuide} />;
       case "checklist":
@@ -160,6 +186,12 @@ export default function NoranApp() {
   const sidebarContent = (
     <>
       <div className="p-4 border-b border-stone-200 space-y-3">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1 text-[10px] font-semibold text-stone-400 hover:text-stone-700 transition-colors"
+        >
+          ← 허브 대시보드
+        </Link>
         <div className="flex items-center justify-between gap-2">
           <Brand />
           <button
@@ -293,7 +325,15 @@ export default function NoranApp() {
         {/* Main */}
         <main className="flex-1 min-h-screen min-w-0 print:min-h-0">
           <GlobalWarning />
-          <div className="p-4 md:p-8 max-w-6xl print:p-0 print:max-w-none">{renderPage()}</div>
+          <div className="p-4 md:p-8 max-w-6xl print:p-0 print:max-w-none">
+            {/* 등록 가능한 도구 화면이면 허브 고정 버튼 노출 */}
+            {currentTool && (
+              <div className="flex justify-end mb-3 print:hidden">
+                <PinToolButton toolId={currentTool.id} />
+              </div>
+            )}
+            {renderPage()}
+          </div>
         </main>
       </div>
 

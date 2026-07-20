@@ -1,18 +1,10 @@
 import { useState } from "react";
-import { Home, LayoutGrid, Library, Building2 } from "lucide-react";
+import { Home, Building2, Settings2, Check } from "lucide-react";
 import { cn } from "@shared/lib/format";
 
 /* 서비스명 미정 — 확정되면 이 상수만 변경하면 전체에 반영된다. */
 export const HUB_NAME = "SalesBridge";
 export const HUB_SUBTITLE = "PB·VM 상품 상담 허브";
-
-/* 허브 네비게이션 — 홈은 단일 페이지 스크롤이므로 섹션 앵커로 이동.
-   지식 라이브러리 등이 별도 라우트로 분리되면 여기서 라우트로 교체. */
-const NAV_ITEMS = [
-  { id: "top", label: "홈", icon: Home },
-  { id: "products", label: "상품 모듈", icon: LayoutGrid },
-  { id: "knowledge", label: "지식 라이브러리", icon: Library },
-];
 
 const scrollToSection = (id) => {
   if (id === "top") {
@@ -34,9 +26,9 @@ const Brand = () => (
   </div>
 );
 
-const NavTabs = ({ active, onSelect, className }) => (
+const NavTabs = ({ items, active, onSelect, className }) => (
   <nav className={cn("flex items-center gap-1", className)}>
-    {NAV_ITEMS.map((item) => {
+    {items.map((item) => {
       const Icon = item.icon;
       const isActive = active === item.id;
       return (
@@ -62,13 +54,31 @@ const NavTabs = ({ active, onSelect, className }) => (
   </nav>
 );
 
-export function HubShell({ children }) {
+/* navSections: 표시 중인 섹션 중 nav:true인 것들(개인화 반영) — HubHome이 내려준다 */
+export function HubShell({ children, navSections = [], editMode = false, onToggleEdit }) {
   const [active, setActive] = useState("top");
+
+  const navItems = [{ id: "top", label: "홈", icon: Home }, ...navSections];
 
   const go = (id) => {
     setActive(id);
     scrollToSection(id);
   };
+
+  const editButton = onToggleEdit && (
+    <button
+      onClick={onToggleEdit}
+      className={cn(
+        "flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-[12px] font-semibold transition-colors",
+        editMode
+          ? "border-im-500 bg-im-500 text-white hover:bg-im-600"
+          : "border-slate-300 bg-white text-slate-600 hover:border-im-400 hover:text-im-700"
+      )}
+    >
+      {editMode ? <Check className="h-3.5 w-3.5" /> : <Settings2 className="h-3.5 w-3.5" />}
+      {editMode ? "편집 완료" : "대시보드 편집"}
+    </button>
+  );
 
   return (
     <div
@@ -82,11 +92,17 @@ export function HubShell({ children }) {
         <div className="mx-auto max-w-6xl px-4 md:px-8">
           <div className="flex h-14 items-center justify-between gap-4">
             <Brand />
-            {/* 데스크톱: 우측 인라인 탭 */}
-            <NavTabs active={active} onSelect={go} className="hidden md:flex" />
+            {/* 데스크톱: 우측 인라인 탭 + 편집 버튼 */}
+            <div className="hidden items-center gap-2 md:flex">
+              <NavTabs items={navItems} active={active} onSelect={go} />
+              {editButton}
+            </div>
+            {/* 모바일: 편집 버튼만 우측 상단 */}
+            <div className="md:hidden">{editButton}</div>
           </div>
           {/* 모바일: 하단 가로 스크롤 탭 */}
           <NavTabs
+            items={navItems}
             active={active}
             onSelect={go}
             className="-mx-1 overflow-x-auto pb-2 md:hidden"
