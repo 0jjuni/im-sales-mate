@@ -46,7 +46,7 @@ export function ToolLibrary({ onClose }) {
             return (
               <div key={module.id} className="mb-5 last:mb-0">
                 <div className="mb-2.5 flex items-center gap-2">
-                  <span className={cn("rounded-sm px-2 py-0.5 text-[11px] font-bold", accent.chip)}>
+                  <span className={cn("whitespace-nowrap rounded-sm px-2 py-0.5 text-[11px] font-bold", accent.chip)}>
                     {module.name}
                   </span>
                   <span className="text-[11px] text-slate-400">{tools.length}개 도구</span>

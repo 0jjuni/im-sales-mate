@@ -111,7 +111,7 @@ export function HubHome() {
         const meta = getSection("products");
         return (
           <>
-            <SectionHeader icon={meta.icon} title="상품 모듈" sub="상담을 시작할 상품을 선택하세요" />
+            <SectionHeader icon={meta.icon} title="상품 상담" sub="상담할 상품을 선택해 시작하세요" />
             <ProductGrid />
           </>
         );
@@ -137,17 +137,8 @@ export function HubHome() {
     );
   };
 
-  const visibleNavSections = sectionOrder
-    .filter((id) => !isSectionHidden(id))
-    .map(getSection)
-    .filter((s) => s?.nav);
-
   return (
-    <HubShell
-      navSections={visibleNavSections}
-      editMode={editMode}
-      onToggleEdit={() => setEditMode((v) => !v)}
-    >
+    <HubShell editMode={editMode} onToggleEdit={() => setEditMode((v) => !v)}>
       {editMode ? (
         <>
           <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-im-200 bg-im-50/60 px-4 py-2.5">
@@ -193,10 +184,8 @@ export function HubHome() {
         <div className="space-y-8">
           {sectionOrder
             .filter((id) => !isSectionHidden(id))
-            .map((id, i) => (
-              <section key={id} id={i === 0 ? "top" : id} className="scroll-mt-20">
-                {/* 첫 섹션은 상단 앵커를 겸한다 */}
-                {i === 0 && <span id={id} />}
+            .map((id) => (
+              <section key={id} id={id} className="scroll-mt-20">
                 {renderSection(id)}
               </section>
             ))}

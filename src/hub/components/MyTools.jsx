@@ -3,18 +3,18 @@ import { Link } from "react-router-dom";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, X, Plus, Clock, ArrowRight } from "lucide-react";
+import { GripVertical, X, Plus, Clock, ChevronRight } from "lucide-react";
 import { usePersonalization } from "../personalization/PersonalizationContext";
 import { getToolById } from "../registry/toolRegistry";
 import { getToolIcon, getToolAccent } from "../registry/toolPresentation";
 import { ToolLibrary } from "./ToolLibrary";
 import { cn } from "@shared/lib/format";
 
-/* 내 도구 — 사용자가 직접 등록한 도구 퀵 액세스.
-   카드 드래그(손잡이)로 순서 변경, X로 해제, 「도구 추가」로 전체 라이브러리 탐색.
-   하단에 최근 사용한 도구가 자동 표시된다. */
+/* 내 도구 — 자주 쓰는 도구를 바로 여는 런처.
+   타일은 이름·소속만 간결하게 보여주고(설명은 툴팁), 정리 컨트롤(드래그·해제)은
+   호버 시에만 나타나 평소에는 실행에만 집중되는 화면을 유지한다. */
 
-const SortableToolCard = ({ tool, onUnpin }) => {
+const SortableToolTile = ({ tool, onUnpin }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: tool.id });
   const Icon = getToolIcon(tool.icon);
@@ -25,47 +25,70 @@ const SortableToolCard = ({ tool, onUnpin }) => {
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform), transition }}
       className={cn(
-        "group relative flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3.5 transition-shadow",
-        isDragging ? "z-10 shadow-lg ring-2 ring-im-300" : "hover:shadow-sm"
+        "group relative rounded-xl border bg-white transition-all",
+        isDragging
+          ? "z-10 border-im-400 shadow-lg"
+          : "border-slate-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
       )}
     >
-      <div className={cn("flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md shadow-sm", accent.icon)}>
-        <Icon className="h-5 w-5" />
-      </div>
-
-      <Link to={tool.to} className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5">
-          <span className="truncate text-[13px] font-bold text-slate-900">{tool.name}</span>
+      <Link
+        to={tool.to}
+        title={tool.desc}
+        className="flex items-center gap-3 px-4 py-3.5"
+      >
+        <div
+          className={cn(
+            "flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg shadow-sm transition-transform group-hover:scale-105",
+            accent.icon
+          )}
+        >
+          <Icon className="h-5 w-5" />
         </div>
-        <div className="mt-0.5 flex items-center gap-1.5">
-          <span className={cn("rounded-sm px-1.5 py-0.5 text-[9px] font-bold", accent.chip)}>
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-[13px] font-bold text-slate-900">{tool.name}</div>
+          <div className="mt-0.5 whitespace-nowrap text-[11px] text-slate-400">
             {tool.moduleName}
-          </span>
-          <span className="truncate text-[11px] text-slate-500">{tool.desc}</span>
+          </div>
         </div>
+        <ChevronRight className="h-4 w-4 flex-shrink-0 text-slate-200 transition-colors group-hover:text-im-500" />
       </Link>
 
-      {/* 드래그 손잡이 + 해제 — 호버 시 표시 */}
-      <div className="flex flex-shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+      {/* 정리 컨트롤 — 호버 시에만, 타일 우상단에 살짝 */}
+      <div className="absolute -right-2 -top-2 flex items-center gap-0.5 rounded-full border border-slate-200 bg-white p-0.5 opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
         <button
           {...attributes}
           {...listeners}
           title="끌어서 순서 변경"
-          className="cursor-grab rounded p-1 text-slate-300 hover:bg-slate-100 hover:text-slate-500 active:cursor-grabbing"
+          className="cursor-grab rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 active:cursor-grabbing"
         >
-          <GripVertical className="h-4 w-4" />
+          <GripVertical className="h-3.5 w-3.5" />
         </button>
         <button
           onClick={() => onUnpin(tool.id)}
-          title="대시보드에서 해제"
-          className="rounded p-1 text-slate-300 hover:bg-rose-50 hover:text-rose-500"
+          title="내 도구에서 해제"
+          className="rounded-full p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-500"
         >
-          <X className="h-4 w-4" />
+          <X className="h-3.5 w-3.5" />
         </button>
       </div>
     </div>
   );
 };
+
+const AddTile = ({ onClick, emphasized }) => (
+  <button
+    onClick={onClick}
+    className={cn(
+      "flex items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-colors",
+      emphasized
+        ? "min-h-[4.5rem] w-full border-slate-300 bg-white/60 px-4 py-6 hover:border-im-400 hover:bg-im-50/40"
+        : "border-slate-200 px-4 py-3.5 text-slate-400 hover:border-im-400 hover:bg-im-50/40 hover:text-im-700"
+    )}
+  >
+    <Plus className={emphasized ? "h-5 w-5 text-slate-400" : "h-4 w-4"} />
+    <span className="text-[13px] font-semibold">도구 추가</span>
+  </button>
+);
 
 export function MyTools() {
   const { pinnedTools, reorderPinnedTools, togglePin, recentTools } = usePersonalization();
@@ -88,36 +111,21 @@ export function MyTools() {
 
   return (
     <div>
-      <div className="mb-3 flex items-center justify-end">
-        <button
-          onClick={() => setLibraryOpen(true)}
-          className="inline-flex items-center gap-1.5 rounded-md border border-im-200 bg-im-50 px-3 py-1.5 text-[12px] font-semibold text-im-700 transition-colors hover:bg-im-100"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          도구 추가
-        </button>
-      </div>
-
       {pinned.length === 0 ? (
-        <button
-          onClick={() => setLibraryOpen(true)}
-          className="flex w-full flex-col items-center gap-2 rounded-lg border-2 border-dashed border-slate-200 bg-white/60 px-4 py-8 text-center transition-colors hover:border-im-300 hover:bg-im-50/40"
-        >
-          <Plus className="h-6 w-6 text-slate-300" />
-          <span className="text-[13px] font-medium text-slate-500">
-            자주 쓰는 계산기·시뮬레이터를 등록해 보세요
-          </span>
-          <span className="text-[11px] text-slate-400">
-            모듈 안에서 「대시보드에 고정」을 누르거나 여기서 바로 추가할 수 있습니다
-          </span>
-        </button>
+        <div className="space-y-1.5">
+          <AddTile emphasized onClick={() => setLibraryOpen(true)} />
+          <p className="text-center text-[11px] text-slate-400">
+            자주 쓰는 계산기·시뮬레이터를 등록해 두면 여기서 바로 열 수 있습니다
+          </p>
+        </div>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={pinned.map((t) => t.id)} strategy={rectSortingStrategy}>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {pinned.map((tool) => (
-                <SortableToolCard key={tool.id} tool={tool} onUnpin={togglePin} />
+                <SortableToolTile key={tool.id} tool={tool} onUnpin={togglePin} />
               ))}
+              <AddTile onClick={() => setLibraryOpen(true)} />
             </div>
           </SortableContext>
         </DndContext>
@@ -135,11 +143,11 @@ export function MyTools() {
               <Link
                 key={tool.id}
                 to={tool.to}
-                className="group inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 transition-colors hover:border-im-300 hover:text-im-700"
+                title={tool.desc}
+                className="group inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-500 transition-colors hover:border-im-300 hover:text-im-700"
               >
                 <Icon className="h-3 w-3 text-slate-400 group-hover:text-im-600" />
                 {tool.name}
-                <ArrowRight className="h-2.5 w-2.5 text-slate-300 group-hover:text-im-500" />
               </Link>
             );
           })}
