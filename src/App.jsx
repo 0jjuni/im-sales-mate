@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { PersonalizationProvider } from "@hub/personalization/PersonalizationContext";
 import { HubHome } from "@hub/HubHome";
 import NoranApp from "@noran/NoranApp";
+import IsaApp from "@isa/IsaApp";
 
 /* iM 세일즈메이트 루트 라우터.
    "/"        → 허브(대시보드)
@@ -13,6 +14,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HubHome />} />
         <Route path="/noran/*" element={<NoranApp />} />
+        <Route path="/isa/*" element={<IsaApp />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </PersonalizationProvider>

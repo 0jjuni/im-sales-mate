@@ -12,7 +12,8 @@ import {
 } from "recharts";
 import { INCOME_BRACKETS } from "../../data/tax";
 import { SectionTitle } from "@shared/components/SectionTitle";
-import { PrintReport } from "../../components/PrintReport";
+import { PrintReport } from "@shared/components/PrintReport";
+import { NORAN_PRINT_META } from "../../printMeta";
 import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
 
 /* A. 소득공제 절세효과 계산기 */
@@ -403,6 +404,7 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
             "부동산임대업소득자는 본 공제 대상에서 제외됩니다.",
           ]}
           legalBasis="조세특례제한법 제86조의3 (소기업·소상공인 공제부금에 대한 소득공제)"
+          {...NORAN_PRINT_META}
         />
       )}
     </div>

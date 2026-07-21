@@ -1,7 +1,10 @@
-/* 계산기 결과를 고객에게 인쇄·전달하기 위한 표준 양식.
+/* 계산기 결과를 고객에게 인쇄·전달하기 위한 범용 표준 양식.
    화면에는 hidden, 인쇄(window.print) 시에만 print:block 적용.
    디스클레이머·입력 조건·결과·차트·법령 근거를 모두 포함하여 고객에게 전달 시
-   오해를 줄이는 것이 목적. A4 한 페이지에 들어가도록 압축 디자인. */
+   오해를 줄이는 것이 목적. A4 한 페이지에 들어가도록 압축 디자인.
+
+   모듈별로 다른 부분(브랜드 라벨·출처·문의·하단 고지)은 props로 주입한다 —
+   상품 모듈이 늘어나도 이 컴포넌트 하나를 공유한다. */
 export const PrintReport = ({
   title,
   subtitle,
@@ -12,6 +15,10 @@ export const PrintReport = ({
   notes = [],
   legalBasis,
   showId,
+  brandLabel = "iM 세일즈메이트 상담 자료 · iM뱅크",
+  sourceLine,
+  contactLine,
+  footerNote = "본 자료는 iM뱅크 영업점 직원이 고객 상담 시 참고용으로 제공하는 추정 안내입니다. 실제 금액·세액·이율은 다른 소득·공제 항목, 시점, 세법 개정 등에 따라 달라질 수 있으니 정확한 내용은 관련 기관·시스템 조회 결과로 확인해 주시기 바랍니다.",
 }) => {
   const now = new Date();
   const printedAt = `${now.getFullYear()}. ${String(now.getMonth() + 1).padStart(2, "0")}. ${String(
@@ -30,7 +37,7 @@ export const PrintReport = ({
           <div className="flex items-baseline justify-between gap-3">
             <div>
               <div className="text-[9px] uppercase tracking-widest text-stone-500 font-bold">
-                노란우산공제 상담 자료 · iM뱅크
+                {brandLabel}
               </div>
               <h1 className="text-base font-black text-stone-900 mt-0.5 leading-tight">
                 {title}
@@ -154,27 +161,24 @@ export const PrintReport = ({
           </section>
         )}
 
-        {/* 푸터 — 법령 근거 + 콜센터 + 단정 안내 금지 */}
+        {/* 푸터 — 법령 근거 + 출처 + 문의 + 단정 안내 금지 고지 */}
         <div className="border-t-2 border-stone-900 pt-1.5 mt-2 text-[9.5px] text-stone-700 leading-snug space-y-0.5 break-inside-avoid">
           {legalBasis && (
             <p>
               <strong className="text-stone-900">법령 근거:</strong> {legalBasis}
             </p>
           )}
-          <p>
-            <strong className="text-stone-900">출처:</strong> 소기업·소상공인공제 약관(2026.7.1
-            시행), 조세특례제한법(법률 2025.7.1 시행 / 시행령 2026.2.27 시행), 중소기업협동조합법(제121조의2 2026.6.3 시행)
-          </p>
-          <p>
-            <strong className="text-stone-900">문의:</strong> 중소기업중앙회 노란우산공제 1666-9988
-            · https://www.8899.or.kr/
-          </p>
-          <p className="text-stone-500 mt-1">
-            본 자료는 iM뱅크 영업점 직원이 고객 상담 시 참고용으로 제공하는 추정 안내입니다. 실제
-            공제금·환급금·세액·이율은 다른 소득공제 항목, 추가 소득, 시점, 세법 개정, 분기별 기준이율
-            변동 등에 따라 달라질 수 있으니 정확한 금액은 중앙회 시스템 조회 결과로 확인해 주시기
-            바랍니다.
-          </p>
+          {sourceLine && (
+            <p>
+              <strong className="text-stone-900">출처:</strong> {sourceLine}
+            </p>
+          )}
+          {contactLine && (
+            <p>
+              <strong className="text-stone-900">문의:</strong> {contactLine}
+            </p>
+          )}
+          <p className="text-stone-500 mt-1">{footerNote}</p>
         </div>
       </div>
     </div>

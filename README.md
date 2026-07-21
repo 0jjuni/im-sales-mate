@@ -12,6 +12,14 @@
 |---|---|
 | **허브 대시보드** (`/`) | 내 도구(개인화 런처) · 상품 상담 · 마켓 보드 · AI 모닝 브리핑(아침 필수 뉴스) · PB 지식 라이브러리 — 기본 순서는 실행 도구 위, 시황 아래 |
 | **노란우산공제 모듈** (`/noran/*`) | 5분 입문 · 상담 시뮬레이터(세일즈 코치) · 세일즈 계산기 3종 · 업무별 가이드 20건 · FAQ 60건 · 구비서류 체크리스트(11개 사유) · 고객 전달용 인쇄 |
+| **ISA 모듈** (`/isa/*`) | 세제 한눈에 · ISA 세제 절세 계산기(ISA vs 일반계좌) · 조특법 근거 FAQ · 고객 전달용 인쇄 — **데모 스캐폴드**(조특법 제91조의18 근거, 자사 상품 자료·최신 개정 반영 전) |
+
+### 모듈의 두 가지 체급
+
+모든 상품이 노란우산처럼 깊을 필요는 없다. 상품 성격에 따라 모듈 규모를 달리한다.
+- **풀 모듈**(노란우산): 가이드·FAQ·시뮬레이터가 갖춰진 작업 공간. 자체 사이드바.
+- **얇은 모듈**(ISA 데모): 세제 계산기 + 세제 요약 + 얇은 FAQ 중심. 계좌형 상품(ISA·연금·IRP)은 단일 약관이 없고 세제·비교가 핵심이라 이 형태가 자연스럽다.
+- **단일 도구**(방카 예금비교 등): 사이트 없이 도구 한 페이지만. 도구 매니페스트에 도구만 선언하고 허브 셸 안에서 여는 방식(향후).
 
 ### 대시보드 개인화
 
@@ -44,23 +52,34 @@ src/
     noran/                 # 노란우산공제 모듈 (amber 테마)
       NoranApp.jsx         # 모듈 셸 (사이드바 + 내부 라우팅)
       tools.js             # ★ 도구 매니페스트 — 허브에 노출할 도구 선언
+      printMeta.js         # 인쇄물 브랜드·출처·문의 문구
       pages/  components/  data/
-  shared/                  # 범용 컴포넌트·유틸 (CopyButton · WarningBox · format 등)
+    isa/                   # ISA 모듈 (emerald 테마, 데모 스캐폴드)
+      IsaApp.jsx           # 모듈 셸
+      tools.js  printMeta.js
+      pages/               # Overview(세제 한눈에) · CalculatorPage · TaxCalculator · FaqPage
+      data/isa.js          # ★ 세제 상수 + 근거 조문 + FAQ (개정 시 이 파일만 수정)
+  shared/                  # 범용 (CopyButton · WarningBox · SectionTitle · SourceBadge · PrintReport · format)
 ```
 
-경로 별칭: `@hub` `@noran` `@shared` (`vite.config.js`)
+경로 별칭: `@hub` `@noran` `@isa` `@shared` (`vite.config.js`)
 
 ## 확장 가이드
 
-### 1. 새 상품 모듈 추가 (예: ISA)
+### 1. 새 상품 모듈 추가 — **ISA 모듈(`src/products/isa/`)이 실제 예시**
 
-1. `src/products/isa/` 생성 — `IsaApp.jsx`(모듈 셸) + `pages/` `data/` (노란우산 구조 복제)
-2. `src/App.jsx`에 라우트 추가: `<Route path="/isa/*" element={<IsaApp />} />`
-3. `src/hub/data/products.js`의 해당 항목을 `status: "coming"` → `"active"` + `to: "/isa"` 로 변경
-4. **도구 등록**: `src/products/isa/tools.js` 매니페스트 작성 → `src/hub/registry/toolRegistry.js`의 `MODULE_MANIFESTS`에 한 줄 추가
-   - 도구 `id`는 `"모듈id.도구id"` 형식의 전역 유일 키 — **사용자 저장소(핀·최근 사용)에 기록되므로 한번 배포하면 변경 금지**
-   - 새 아이콘을 쓰면 `toolRegistry` 옆 `toolPresentation.js`의 `TOOL_ICONS`에 추가
-5. 모듈 셸에서 핀·최근 사용 연동: `findToolByPath`로 현재 화면의 도구를 역조회해 `PinToolButton` 노출 + `recordToolVisit` 호출 (NoranApp.jsx 참고)
+ISA 모듈은 "조특법만 바꿔 끼우면 확장된다"를 증명하는 얇은 모듈 예시다. 새 모듈은 이 5단계를 따른다(ISA 커밋 참고):
+
+1. `src/products/<id>/` 생성 — `<Id>App.jsx`(모듈 셸) + `pages/` `data/`. 셸은 IsaApp.jsx를 복제하는 게 가장 빠르다(사이드바 + splat 라우팅 + 핀/최근사용 연동이 이미 들어있음).
+2. `vite.config.js`에 `@<id>` 별칭 추가 → `src/App.jsx`에 `<Route path="/<id>/*" element={<XApp />} />`
+3. `src/hub/data/products.js`의 항목을 `status: "coming"` → `"active"` + `to: "/<id>"` 로 변경
+4. **도구 등록**: `src/products/<id>/tools.js` 매니페스트 작성 → `src/hub/registry/toolRegistry.js`의 `MODULE_MANIFESTS`에 한 줄 추가
+   - 도구 `id`는 `"모듈id.도구id"` 형식의 전역 유일 키 — **사용자 저장소(핀·최근 사용)에 기록되므로 배포 후 변경 금지**
+   - 새 아이콘을 쓰면 `toolPresentation.js`의 `TOOL_ICONS`에 추가
+5. 모듈 셸에서 핀·최근 사용 연동: `findToolByPath`로 현재 화면 도구를 역조회해 `PinToolButton` 노출 + `recordToolVisit` 호출 (IsaApp/NoranApp 참고)
+6. **고객 전달용 인쇄**: 공용 `@shared/components/PrintReport`에 계산 결과 + 모듈별 `printMeta.js`(브랜드·출처·문의·고지)를 스프레드로 주입.
+
+**세제 데이터 소싱(계좌형 상품)**: ISA/연금/IRP는 단일 약관이 없으므로 ① 법령 원문(law.go.kr — 조특법·소득세법·근퇴법), ② iM뱅크 자사 상품설명서, ③ 협회 비교공시 순으로 채운다. `data/isa.js`처럼 세제 상수를 한 파일에 모으고 근거 조문·검증 주석을 붙일 것.
 
 ### 2. 개인화 저장소를 서버로 전환
 
@@ -82,12 +101,16 @@ src/
 
 ## 로드맵
 
+- [x] 1호 모듈 노란우산공제 (풀 모듈)
+- [x] 2호 모듈 ISA — 세제 계산기 데모 스캐폴드 (조특법 근거)
+- [ ] ISA 모듈에 자사 상품(중개형·신탁형) 조건·수수료·최신 개정 반영
+- [ ] 연금저축(기존 신탁 해지·이전 안내)·IRP(실물이전+세액공제) 모듈 — 얇은/단일 도구 형태 검토
 - [ ] 마켓 보드 지표 선택·순서 개인화 (현재는 고정 6종)
 - [ ] 개인화 서버 저장 (직원 계정 연동) — 어댑터 교체
 - [ ] 모닝 브리핑 구글시트 파이프라인 연결
 - [ ] 최근 조회 FAQ 대시보드 표시
 - [ ] PB 지식 라이브러리 상세 콘텐츠·검색
-- [ ] 2호 모듈 ISA → 연금저축·IRP → 예·적금 → 펀드 → 방카슈랑스 (제도 변경이 잦고 문의 많은 상품 우선)
+- [ ] 이후 예·적금 → 펀드 → 방카슈랑스 (제도 변경이 잦고 문의 많은 상품 우선)
 
 ## 노란우산공제 모듈 데이터 출처
 

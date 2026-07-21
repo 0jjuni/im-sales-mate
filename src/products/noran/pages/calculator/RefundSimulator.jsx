@@ -12,7 +12,8 @@ import {
 } from "recharts";
 import { REFUND_TABLE_GENERAL, REFUND_TABLE_DEEMED } from "../../data/tax";
 import { SectionTitle } from "@shared/components/SectionTitle";
-import { PrintReport } from "../../components/PrintReport";
+import { PrintReport } from "@shared/components/PrintReport";
+import { NORAN_PRINT_META } from "../../printMeta";
 import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
 
 /* 적립이자 추정 — 약관 별표 정의: 각 납부한 날의 다음 날부터 해약일까지 기준이율로 부리 적립
@@ -394,6 +395,7 @@ ${lines.join("\n")}
           "임의해약 시 1~6회 단기 해약은 원금 손실(80~90% 환급)이 발생합니다. 가입 후 일시 자금이 필요하시면 공제계약 대출(해약환급금 범위 내 무담보)을 우선 검토해 주세요.",
         ]}
         legalBasis="약관 제17조·제18조(공제금), 제24조(해약환급금), 별표1·별표2·별표3, 조세특례제한법 시행령 제80조의3"
+        {...NORAN_PRINT_META}
       />
     </div>
   );
