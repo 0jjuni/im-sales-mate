@@ -1,13 +1,14 @@
 import { Settings2, Check, CalendarDays } from "lucide-react";
-import { SalesMateMark } from "./components/SalesMateMark";
+import { IMSymbol } from "./components/IMSymbol";
 import { cn } from "@shared/lib/format";
 
 export const HUB_NAME = "iM 세일즈메이트";
 export const HUB_SUBTITLE = "상담 옆자리를 지키는 AI 세일즈 파트너";
 
+/* 브랜드 락업 — iM CI 심볼 + 서비스명 (시그니처 좌우조합 방식) */
 const Brand = () => (
   <div className="flex items-center gap-2.5">
-    <SalesMateMark className="h-9 w-9 flex-shrink-0 drop-shadow-sm" />
+    <IMSymbol className="h-7 w-11 flex-shrink-0" />
     <div className="min-w-0 leading-tight">
       <div className="flex items-baseline gap-1 text-[14px] font-black text-slate-900">
         {HUB_NAME}
@@ -18,15 +19,6 @@ const Brand = () => (
       <div className="text-[10px] text-slate-500">{HUB_SUBTITLE}</div>
     </div>
   </div>
-);
-
-/* iM뱅크 표기 — 공식 CI 로고 파일을 받으면 public/에 넣고 아래를
-   <img src="/im-bank-logo.svg" .../> 로 교체 (README 「브랜딩」 참고) */
-const BankMark = () => (
-  <span className="hidden items-center gap-1 rounded-md border border-im-100 bg-im-50/60 px-2 py-1.5 text-[10px] font-bold text-im-700 md:inline-flex">
-    iM뱅크
-    <span className="font-medium text-im-600/70">영업점 전용</span>
-  </span>
 );
 
 const TodayBadge = () => {
@@ -54,7 +46,6 @@ export function HubShell({ children, editMode = false, onToggleEdit }) {
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 md:px-8">
           <Brand />
           <div className="flex items-center gap-2">
-            <BankMark />
             <TodayBadge />
             {onToggleEdit && (
               <button

@@ -73,8 +73,8 @@ src/
 
 ### 4. 브랜딩 (로고·iM뱅크 CI)
 
-- **세일즈메이트 마크**: `src/hub/components/SalesMateMark.jsx` (말풍선 + 상승 화살표, 민트/라임). 파비콘 `public/favicon.svg`와 동일 도안 — 수정 시 두 파일을 함께.
-- **iM뱅크 로고**: 현재는 헤더 우측에 텍스트 표기(`HubShell.jsx`의 `BankMark`). 공식 CI 파일을 확보하면 `public/im-bank-logo.svg`로 넣고 `BankMark`를 `<img src="/im-bank-logo.svg" alt="iM뱅크" className="h-5" />` 형태로 교체하면 됩니다. 공식 아트워크를 임의로 그려 넣지 말 것(CI 가이드 위반).
+- **브랜드 락업**: 헤더는 iM CI 심볼 + 「iM 세일즈메이트」 워드마크의 좌우조합(시그니처 방식). `HubShell.jsx`의 `Brand`.
+- **iM CI 심볼**: `src/hub/components/IMSymbol.jsx` — 제공받은 공식 CI 이미지를 기반으로 한 **벡터 재현본**(스템 + 두 아치, 교차부 민트→라임 그라데이션). 파비콘 `public/favicon.svg`와 동일 도안이므로 수정 시 두 파일을 함께. **원본 CI 벡터 파일(SVG/AI)을 확보하면 재현본 대신 원본 경로로 교체 권장** — 대외 노출 전에는 CI 가이드(최소 사용 크기·여백·색상값) 검수 필요.
 
 ### 5. 대시보드 섹션 추가
 
