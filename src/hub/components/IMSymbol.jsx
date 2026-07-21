@@ -13,9 +13,9 @@ export const IMSymbol = ({ className }) => (
     </defs>
     {/* 스템 */}
     <rect x="0" y="43" width="17" height="29" fill="#00C4A4" />
-    {/* 왼쪽 아치 — 끝이 뾰족하게 모이며 교차부로 갈수록 라임 */}
-    <path d="M24 28 A44 44 0 0 1 68 72 A25 25 0 0 0 43 47 L24 47 Z" fill="url(#imArc)" />
+    {/* 왼쪽 아치 — 교차부로 갈수록 라임 */}
+    <path d="M24 28 A44 44 0 0 1 68 72 L49 72 A25 25 0 0 0 24 47 Z" fill="url(#imArc)" />
     {/* 오른쪽 아치 */}
-    <path d="M96 28 A44 44 0 0 0 52 72 A25 25 0 0 1 77 47 L96 47 Z" fill="#00C4A4" />
+    <path d="M96 28 A44 44 0 0 0 52 72 L71 72 A25 25 0 0 1 96 47 Z" fill="#00C4A4" />
   </svg>
 );
