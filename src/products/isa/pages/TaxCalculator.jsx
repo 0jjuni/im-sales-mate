@@ -34,8 +34,10 @@ export const TaxCalculator = () => {
   const isDeposit = mode === "deposit";
 
   const result = useMemo(() => {
-    // 예금 이자: 만기일시지급식 단리
-    const interest = principal * (rate / 100) * years;
+    // 예금 이자: 월단위 복리식, 만기일시지급 (iM뱅크 판매 ISA 정기예금 설명서 기준)
+    // 원금 × {(1+이율/12)^n − 1}, n = 경과월수
+    const monthlyRate = rate / 100 / 12;
+    const interest = principal * (Math.pow(1 + monthlyRate, years * 12) - 1);
     const netProfit = isDeposit ? interest : directProfit;
 
     const taxFreeLimit = type.taxFreeLimit;
@@ -84,7 +86,7 @@ export const TaxCalculator = () => {
     if (isDeposit) {
       return `${type.label} ISA에서 ${formatKRW(principal)}을 연 ${rate.toFixed(
         1
-      )}% 예금으로 ${years}년 예치한다고 가정하면(단리),
+      )}% 예금으로 ${years}년 예치한다고 가정하면(월복리·만기일시지급),
 ▸ 예상 이자: 약 ${formatKRW(result.interest)}
 ▸ ISA 예금 세금: 약 ${formatKRW(result.isaTax)} (비과세 한도 ${formatKRW(
         result.taxFreeLimit
@@ -95,7 +97,7 @@ export const TaxCalculator = () => {
         2
       )}%
 
-※ 단리·가정 금리 기준 추정치이며, 실제 상품 금리·이자지급 방식(단리/복리)에 따라 달라집니다.
+※ 월복리·가정 금리 기준 추정치이며, 신탁보수(연 0.1~0.7%) 차감 전입니다. 최신 고시금리·요율은 상품설명서로 확인해 주세요.
 ※ 비과세·분리과세 혜택은 의무가입기간 3년 충족 전제이며, 현행 조특법과 자사 ISA 상품설명서로 확인해 주세요.
 
 — 근거: 조세특례제한법 제91조의18 (개인종합자산관리계좌에 대한 과세특례)`;
@@ -279,7 +281,7 @@ export const TaxCalculator = () => {
           <div className="bg-blue-50/40 border border-blue-200 rounded-md p-3 text-xs text-stone-700 leading-relaxed">
             <Info className="w-3.5 h-3.5 inline-block mr-1 text-blue-600" />
             {isDeposit
-              ? "같은 예금을 ISA 안에서 예치할 때와 일반 예금으로 둘 때의 이자 세금을 비교합니다. 이자는 단리(만기일시지급) 가정이며, 실제 금리·지급방식은 상품에 따라 다릅니다."
+              ? "같은 예금을 ISA 안에서 예치할 때와 일반 예금으로 둘 때의 이자 세금을 비교합니다. 이자는 월복리·만기일시지급(iM뱅크 판매 ISA 정기예금 기준) 가정이며 신탁보수 차감 전입니다. 기본 금리는 설명서 고시(2025.3.7)의 12개월 약정이율 2.8%입니다."
               : "'순이익'은 계좌 내 이익·손실을 통산한 뒤의 금액입니다. 일반계좌는 손실을 인정받지 못하므로, 손실 상품이 있으면 ISA의 실제 절세폭은 더 커집니다."}
           </div>
         </div>
@@ -318,12 +320,12 @@ export const TaxCalculator = () => {
               {isDeposit && (
                 <div className="col-span-2">
                   <div className="text-[11px] uppercase tracking-wider text-stone-500 font-semibold mb-0.5">
-                    예상 이자 (단리)
+                    예상 이자 (월복리)
                   </div>
                   <div className="text-base font-bold text-stone-900">
                     {formatKRW(result.interest)}
                     <span className="text-[11px] font-normal text-stone-500 ml-1">
-                      {formatKRWShort(principal)} × {rate.toFixed(1)}% × {years}년
+                      {formatKRWShort(principal)} · 연 {rate.toFixed(1)}% · {years}년 · 만기일시지급
                     </span>
                   </div>
                 </div>
@@ -430,7 +432,7 @@ export const TaxCalculator = () => {
           <div className="bg-stone-50 border border-stone-200 rounded-md p-3 text-xs text-stone-600 leading-relaxed">
             <strong className="text-stone-800">계산 근거:</strong> 조세특례제한법 제91조의18(개인종합자산관리계좌 과세특례) — 비과세 한도(일반형 200만원/서민·농어민형 400만원) + 초과분 9.9% 분리과세, 일반 이자소득 15.4% 원천징수 가정.{" "}
             {isDeposit
-              ? "예금 이자는 단리(만기일시지급) 가정이며 실제 금리·지급방식·세법 개정에 따라 달라집니다."
+              ? "예금 이자는 월복리·만기일시지급(iM뱅크 판매 ISA 정기예금 기준) 가정이며 신탁보수(연 0.1~0.7%) 차감 전입니다. 실제 금리·요율·세법 개정에 따라 달라집니다."
               : "순이익은 손익통산 후 기준이며 실제 세액은 상품 구성·세법 개정에 따라 달라집니다."}
           </div>
         </div>
@@ -441,12 +443,12 @@ export const TaxCalculator = () => {
         title="ISA 세제 절세효과 추정 안내"
         subtitle={
           isDeposit
-            ? `${type.label} · 예금 ${formatKRW(principal)} × 연 ${rate.toFixed(1)}% × ${years}년(단리) 가정`
+            ? `${type.label} · 예금 ${formatKRW(principal)} · 연 ${rate.toFixed(1)}% · ${years}년(월복리·만기일시지급) 가정`
             : `${type.label} · 계좌 내 순이익(손익통산 후) ${formatKRW(result.netProfit)} 가정`
         }
         disclaimer={
           isDeposit
-            ? `본 절세액은 단리·가정 금리 기준 추정치이며 실제 상품 금리·이자지급 방식(단리/복리)·세법 개정에 따라 달라집니다.\n비과세·분리과세 혜택은 의무가입기간(3년) 충족을 전제로 하며, 3년 경과 전 해지 시 일반과세로 추징됩니다.\n정확한 내용은 현행 조세특례제한법과 자사 ISA 상품설명서로 확인해 주세요.`
+            ? `본 절세액은 월복리·가정 금리 기준 추정치이며 신탁보수(연 0.1~0.7%) 차감 전입니다. 실제 상품 금리·요율·세법 개정에 따라 달라집니다.\n비과세·분리과세 혜택은 의무가입기간(3년) 충족을 전제로 하며, 3년 경과 전 해지 시 일반과세로 추징됩니다.\n정확한 내용은 현행 조세특례제한법과 자사 ISA 상품설명서로 확인해 주세요.`
             : `본 절세액은 추정치이며 계좌 내 상품 구성·운용성과·시점·세법 개정에 따라 실제 세액은 달라집니다.\n비과세·분리과세 혜택은 의무가입기간(3년) 충족을 전제로 하며, 3년 경과 전 해지 시 일반과세로 추징됩니다.\n정확한 내용은 현행 조세특례제한법과 자사 ISA 상품설명서로 확인해 주세요.`
         }
         inputs={
@@ -454,7 +456,7 @@ export const TaxCalculator = () => {
             ? [
                 { label: "ISA 유형", value: type.label },
                 { label: "예치금액", value: formatKRW(principal) },
-                { label: "예금 연 금리", value: `${rate.toFixed(1)}% (단리)` },
+                { label: "예금 연 금리", value: `${rate.toFixed(1)}% (월복리·만기일시지급)` },
                 { label: "예치 기간", value: `${years}년` },
                 { label: "비과세 한도", value: formatKRW(result.taxFreeLimit) },
               ]
@@ -467,7 +469,7 @@ export const TaxCalculator = () => {
         results={
           isDeposit
             ? [
-                { label: "예상 이자 (단리)", value: formatKRW(result.interest) },
+                { label: "예상 이자 (월복리·만기일시지급)", value: formatKRW(result.interest) },
                 {
                   label: "ISA 예금 세금",
                   value: formatKRW(result.isaTax),
@@ -512,7 +514,7 @@ export const TaxCalculator = () => {
         notes={[
           "추정 절세액 = 일반계좌 세금 − ISA 세금. ISA는 비과세 한도까지 0%, 초과분만 9.9% 분리과세.",
           isDeposit
-            ? "예금 이자는 원금 × 금리 × 기간(단리, 만기일시지급) 가정입니다. 복리·중도해지·우대금리 조건은 실제 상품 약관을 따릅니다."
+            ? "예금 이자는 월복리(원금×{(1+이율/12)^경과월수−1}), 만기일시지급 가정입니다(iM뱅크 판매 ISA 정기예금 기준). 신탁형 신탁보수(연 0.1~0.7%)는 미반영이며, 중도해지·우대금리 조건은 실제 상품 약관을 따릅니다."
             : "ISA는 계좌 내 이익·손실을 통산한 순이익에만 과세됩니다. 손실 상품이 있으면 일반계좌 대비 절세폭이 더 커집니다.",
           "비과세 한도: 일반형 200만원 / 서민형·농어민형 400만원.",
           "납입한도 연 2,000만원·총 1억원, 의무가입기간 3년. 3년 경과 전 해지 시 세제 혜택 소멸.",

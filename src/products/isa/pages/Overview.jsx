@@ -1,5 +1,5 @@
 import { Percent, HelpCircle, PiggyBank, CalendarClock, Wallet, ArrowRight, FileText } from "lucide-react";
-import { ISA_TYPES, ISA_RULES, ISA_ELIGIBILITY_NOTES, ISA_META } from "../data/isa";
+import { ISA_TYPES, ISA_RULES, ISA_ELIGIBILITY_NOTES, ISA_META, ISA_SOURCES } from "../data/isa";
 import { formatKRWShort } from "@shared/lib/format";
 
 /* ISA 개요 — 세제 한눈에 요약 + 가입 자격 확인 포인트 + 자사 상품 자리(placeholder).
@@ -31,7 +31,7 @@ export const Overview = ({ onNavigate }) => (
 
     {/* 데모 안내 배너 */}
     <div className="bg-amber-50/60 border-l-4 border-amber-500 px-4 py-2.5 rounded-r-sm text-xs text-stone-800 leading-relaxed">
-      <strong>데모 모듈입니다.</strong> 세제 정보는 조세특례제한법 근거로 구성했으며, 자사 ISA 상품(중개형·신탁형)의 구체적 조건·수수료·운용 라인업은 자사 상품 자료 확보 후 채워집니다.
+      <strong>데모 모듈입니다.</strong> 세제는 조세특례제한법, 예금 조건·금리는 iM뱅크 판매 ISA 정기예금 상품설명서를 반영했습니다. 신탁보수 정확 요율·운용 라인업 등 나머지 자사 상품 조건은 iM뱅크 핵심설명서 확보 후 채워집니다.
     </div>
 
     {/* 세제 요약 스탯 */}
@@ -119,9 +119,9 @@ export const Overview = ({ onNavigate }) => (
     {/* 자사 상품 자리 placeholder */}
     <div className="border-2 border-dashed border-stone-300 rounded-md p-5 text-center">
       <FileText className="w-6 h-6 text-stone-300 mx-auto mb-2" />
-      <div className="text-sm font-semibold text-stone-500">자사 ISA 상품 안내 (준비 중)</div>
+      <div className="text-sm font-semibold text-stone-500">자사 신탁형 ISA 핵심설명서 (일부 준비 중)</div>
       <p className="text-[12px] text-stone-400 mt-1 leading-relaxed">
-        iM뱅크 중개형/신탁형 ISA 상품설명서·수수료·운용 라인업이 확보되면 이 자리에 채워집니다.
+        ISA 정기예금(금리·중도해지·예금자보호)은 반영됨. 신탁보수 확정 요율·운용 라인업·일임형 조건은 iM뱅크 핵심설명서 확보 후 보강.
       </p>
     </div>
 
@@ -132,5 +132,20 @@ export const Overview = ({ onNavigate }) => (
       <HelpCircle className="w-4 h-4" />
       자주 묻는 질문 보기
     </button>
+
+    {/* 출처 */}
+    <div className="border-t border-stone-200 pt-4">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1.5">
+        데이터 출처
+      </div>
+      <ul className="space-y-1">
+        {ISA_SOURCES.map((s, i) => (
+          <li key={i} className="text-[11px] text-stone-500 leading-relaxed flex gap-1.5">
+            <span className="text-stone-300">·</span>
+            {s}
+          </li>
+        ))}
+      </ul>
+    </div>
   </div>
 );
