@@ -17,7 +17,7 @@ export const PRODUCTS = [
     id: "isa",
     name: "ISA",
     tagline: "개인종합자산관리계좌",
-    desc: "세제 절세 계산기 · 세제 한눈에 · 조특법 근거 FAQ (데모)",
+    desc: "예금 절세 비교 계산기 · 세제 한눈에 · 조특법 근거 FAQ (데모)",
     to: "/isa",
     status: "active",
     accent: "emerald",

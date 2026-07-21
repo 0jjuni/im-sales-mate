@@ -93,10 +93,10 @@ export const Overview = ({ onNavigate }) => (
             세일즈 계산기
           </div>
           <h3 className="text-base font-bold text-stone-900">
-            "일반계좌보다 얼마나 이득?" 절세액 즉시 계산
+            "일반 예금보다 얼마나 이득?" 절세액 즉시 계산
           </h3>
           <p className="text-[12px] text-stone-600 mt-1">
-            순이익만 입력하면 ISA vs 일반계좌 세부담을 비교하고 고객 전달용 출력물을 생성합니다.
+            예금 원금·금리·기간을 넣으면 ISA 예금 vs 일반 예금의 세후 실수령·실효금리를 비교합니다. (펀드 등은 순이익 직접입력 모드)
           </p>
         </div>
         <ArrowRight className="w-5 h-5 text-emerald-600 flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
