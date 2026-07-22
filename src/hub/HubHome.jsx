@@ -10,6 +10,7 @@ import { useMorningBriefing } from "./hooks/useMorningBriefing";
 import { MarketBoard } from "./components/MarketBoard";
 import { MorningNews } from "./components/MorningNews";
 import { MyTools } from "./components/MyTools";
+import { FollowupBoard } from "./components/FollowupBoard";
 import { ProductGrid } from "./components/ProductGrid";
 import { KnowledgeLibrary } from "./components/KnowledgeLibrary";
 import { cn } from "@shared/lib/format";
@@ -104,6 +105,15 @@ export function HubHome() {
           <>
             <SectionHeader icon={meta.icon} title="내 도구" sub="자주 쓰는 계산기·도구를 등록해 바로 진입하세요" />
             <MyTools />
+          </>
+        );
+      }
+      case "followups": {
+        const meta = getSection("followups");
+        return (
+          <>
+            <SectionHeader icon={meta.icon} title="고객 후속 관리" sub="상담 중 나온 후속 약속을 고객번호·연락일과 함께 기록하세요" />
+            <FollowupBoard />
           </>
         );
       }
