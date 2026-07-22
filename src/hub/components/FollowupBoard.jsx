@@ -11,8 +11,18 @@ import {
 import { useFollowups, ddayOf } from "../followups/useFollowups";
 import { cn } from "@shared/lib/format";
 
-/* 자주 쓰는 태그 프리셋 — 자유 입력 대신 빠른 분류용 */
-const TAG_PRESETS = ["상담대기", "만기예정", "재예치", "서류", "기타"];
+/* 권유 상품 태그 — 다중선택. 색은 각 상품 아이덴티티(모듈 accent)와 맞춘다.
+   on: 폼에서 선택된 칩, chip: 목록에 표시되는 작은 칩. (Tailwind 정적 클래스) */
+const PRODUCT_TAGS = [
+  { id: "noran", label: "노란우산", on: "bg-amber-500 text-white border-amber-500", chip: "bg-amber-100 text-amber-800" },
+  { id: "isa", label: "ISA", on: "bg-emerald-600 text-white border-emerald-600", chip: "bg-emerald-100 text-emerald-800" },
+  { id: "pension", label: "연금저축", on: "bg-violet-600 text-white border-violet-600", chip: "bg-violet-100 text-violet-800" },
+  { id: "irp", label: "IRP", on: "bg-sky-600 text-white border-sky-600", chip: "bg-sky-100 text-sky-800" },
+  { id: "deposit", label: "예금", on: "bg-slate-600 text-white border-slate-600", chip: "bg-slate-200 text-slate-700" },
+  { id: "banca", label: "방카", on: "bg-rose-500 text-white border-rose-500", chip: "bg-rose-100 text-rose-700" },
+  { id: "fund", label: "펀드", on: "bg-indigo-600 text-white border-indigo-600", chip: "bg-indigo-100 text-indigo-800" },
+];
+const PRODUCT_BY_ID = Object.fromEntries(PRODUCT_TAGS.map((p) => [p.id, p]));
 
 const fmtDate = (iso) => {
   if (!iso) return null;
@@ -54,6 +64,21 @@ const DdayBadge = ({ date }) => {
   );
 };
 
+const ProductChips = ({ ids }) =>
+  (ids || []).length === 0 ? null : (
+    <span className="inline-flex flex-wrap gap-1">
+      {ids.map((id) => {
+        const p = PRODUCT_BY_ID[id];
+        if (!p) return null;
+        return (
+          <span key={id} className={cn("rounded-sm px-1.5 py-0.5 text-[9px] font-bold", p.chip)}>
+            {p.label}
+          </span>
+        );
+      })}
+    </span>
+  );
+
 const FollowupRow = ({ item, onToggle, onRemove }) => {
   const done = item.status === "done";
   return (
@@ -81,11 +106,7 @@ const FollowupRow = ({ item, onToggle, onRemove }) => {
           {item.followUpDate && (
             <span className="text-[11px] text-slate-400">· {fmtDate(item.followUpDate)}</span>
           )}
-          {item.tag && (
-            <span className="rounded-sm bg-slate-100 px-1.5 py-0.5 text-[9px] font-bold text-slate-500">
-              {item.tag}
-            </span>
-          )}
+          <ProductChips ids={item.products} />
         </div>
         <p className={cn("mt-0.5 whitespace-pre-wrap break-words text-[12.5px] leading-relaxed text-slate-700", done && "line-through")}>
           {item.memo}
@@ -120,17 +141,20 @@ export function FollowupBoard() {
   const [customerNo, setCustomerNo] = useState("");
   const [memo, setMemo] = useState("");
   const [date, setDate] = useState("");
-  const [tag, setTag] = useState("");
+  const [products, setProducts] = useState([]);
 
   const canAdd = memo.trim().length > 0 || customerNo.trim().length > 0;
 
+  const toggleProduct = (id) =>
+    setProducts((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
+
   const submit = () => {
     if (!canAdd) return;
-    add({ customerNo, memo, followUpDate: date, tag });
+    add({ customerNo, memo, followUpDate: date, products });
     setCustomerNo("");
     setMemo("");
     setDate("");
-    setTag("");
+    setProducts([]);
   };
 
   const list = tab === "open" ? openItems : doneItems;
@@ -186,25 +210,34 @@ export function FollowupBoard() {
           placeholder="메모 (예: 방카 만기자금 12/3 나오면 재예치 상담 원함 / 오늘 시간없어 나중에 연락 요청)"
           className="w-full resize-y rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] leading-relaxed focus:border-im-500 focus:outline-none"
         />
-        <div className="flex flex-wrap items-center gap-1.5">
-          {TAG_PRESETS.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTag(tag === t ? "" : t)}
-              className={cn(
-                "rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors",
-                tag === t
-                  ? "border-im-500 bg-im-500 text-white"
-                  : "border-slate-300 bg-white text-slate-500 hover:border-im-400"
-              )}
-            >
-              {t}
-            </button>
-          ))}
+        {/* 권유 상품 (다중선택) */}
+        <div>
+          <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            권유 상품 <span className="font-medium normal-case">(선택 · 복수 가능)</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {PRODUCT_TAGS.map((p) => {
+              const on = products.includes(p.id);
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => toggleProduct(p.id)}
+                  className={cn(
+                    "rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-colors",
+                    on ? p.on : "border-slate-300 bg-white text-slate-500 hover:border-slate-400"
+                  )}
+                >
+                  {p.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div className="flex justify-end">
           <button
             onClick={submit}
             disabled={!canAdd}
-            className="ml-auto inline-flex items-center gap-1 rounded-md bg-im-600 px-3 py-1.5 text-[12px] font-bold text-white transition-colors hover:bg-im-700 disabled:opacity-40"
+            className="inline-flex items-center gap-1 rounded-md bg-im-600 px-3.5 py-1.5 text-[12px] font-bold text-white transition-colors hover:bg-im-700 disabled:opacity-40"
           >
             <Plus className="h-3.5 w-3.5" />
             기록

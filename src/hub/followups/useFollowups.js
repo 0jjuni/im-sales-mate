@@ -21,13 +21,13 @@ export function useFollowups() {
     followupStore.save({ version: 1, items });
   }, [items]);
 
-  const add = useCallback(({ customerNo, memo, followUpDate, tag }) => {
+  const add = useCallback(({ customerNo, memo, followUpDate, products }) => {
     const item = {
       id: uid(),
       customerNo: (customerNo || "").trim(),
       memo: (memo || "").trim(),
       followUpDate: followUpDate || null,
-      tag: tag || null,
+      products: Array.isArray(products) ? products : [],
       status: "open",
       createdAt: Date.now(),
     };
