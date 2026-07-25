@@ -280,7 +280,7 @@ export function FollowupBoard() {
       )}
 
       {/* 개인정보 안내 */}
-      <div className="flex items-start gap-1.5 border-t border-slate-100 bg-amber-50/40 px-3 py-2 text-[10.5px] leading-relaxed text-stone-600">
+      <div className="flex items-start gap-1.5 border-t border-slate-100 bg-amber-50/40 px-3 py-2 text-[10.5px] leading-relaxed text-slate-600">
         <ShieldAlert className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-amber-600" />
         <span>
           고객번호(관리번호)와 메모만 기록하세요. <strong>이름·주민번호·연락처 등 개인정보 입력 금지.</strong> 현재는 이 브라우저에만 저장되는 데모 기능으로, 실서비스에서는 직원 계정 인증·서버 저장·접근통제가 적용됩니다.

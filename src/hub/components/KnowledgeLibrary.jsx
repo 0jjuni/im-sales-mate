@@ -22,8 +22,9 @@ const KnowledgeCard = ({ category }) => {
           <li key={i}>
             <button
               type="button"
-              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-slate-50"
+              className="flex w-full cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-left"
               title="준비 중"
+              disabled
             >
               <span className="rounded-sm bg-slate-100 px-1.5 py-0.5 text-[9px] font-bold text-slate-500">
                 {item.tag}

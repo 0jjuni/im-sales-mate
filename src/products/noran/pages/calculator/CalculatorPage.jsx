@@ -37,30 +37,6 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
     },
   ];
 
-  if (!accepted && showDisclaimer) {
-    return (
-      <>
-        <div className="space-y-6 opacity-30 pointer-events-none">
-          <div>
-            <span className="text-xs uppercase tracking-widest text-amber-700 font-semibold">
-              Calculator
-            </span>
-            <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">
-              세일즈 보조 계산기
-            </h1>
-          </div>
-        </div>
-        <CalculatorDisclaimer
-          onAccept={() => {
-            setAccepted(true);
-            setShowDisclaimer(false);
-          }}
-          onClose={() => setShowDisclaimer(false)}
-        />
-      </>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between print:hidden">
@@ -140,12 +116,36 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
         })}
       </div>
 
-      {/* 활성 계산기 */}
-      <div>
-        {activeTab === "tax" && <TaxSavingCalculator onOpenArticle={onOpenArticle} />}
-        {activeTab === "refund" && <RefundSimulator onOpenArticle={onOpenArticle} />}
-        {activeTab === "compare" && <ProductCompare />}
-      </div>
+      {/* 활성 계산기 — 사용 안내 동의 후에만 노출 (ISA 계산기와 동일한 게이트) */}
+      {accepted ? (
+        <div>
+          {activeTab === "tax" && <TaxSavingCalculator onOpenArticle={onOpenArticle} />}
+          {activeTab === "refund" && <RefundSimulator onOpenArticle={onOpenArticle} />}
+          {activeTab === "compare" && <ProductCompare />}
+        </div>
+      ) : (
+        <div className="border-2 border-dashed border-stone-300 rounded-md p-8 text-center print:hidden">
+          <p className="text-sm text-stone-500">
+            계산기는 사용 안내 확인 후 이용할 수 있습니다.
+          </p>
+          <button
+            onClick={() => setShowDisclaimer(true)}
+            className="mt-3 px-4 py-2 text-sm bg-stone-900 text-white hover:bg-stone-800 rounded-sm font-semibold"
+          >
+            사용 안내 보기
+          </button>
+        </div>
+      )}
+
+      {!accepted && showDisclaimer && (
+        <CalculatorDisclaimer
+          onAccept={() => {
+            setAccepted(true);
+            setShowDisclaimer(false);
+          }}
+          onClose={() => setShowDisclaimer(false)}
+        />
+      )}
     </div>
   );
 };

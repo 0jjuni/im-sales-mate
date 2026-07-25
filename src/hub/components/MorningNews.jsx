@@ -44,7 +44,7 @@ const NewsItem = ({ item, index }) => {
           <span className="rounded-sm border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">
             {item.category}
           </span>
-          <span className="text-[10px] text-slate-400">{item.source}</span>
+          <span className="text-[10px] text-slate-500">{item.source}</span>
         </div>
 
         {/* 헤드라인 + 요약 */}
@@ -135,7 +135,7 @@ export function MorningNews({ data, status, onReload }) {
         </ul>
       )}
 
-      <div className="border-t border-slate-100 bg-slate-50/60 px-5 py-2.5 text-[10px] text-slate-400">
+      <div className="border-t border-slate-100 bg-slate-50/60 px-5 py-2.5 text-[10px] text-slate-500">
         더미 데이터 (구글시트 연동 예정) · 내부 참고용이며 특정 종목·상품의 투자권유가 아닙니다.
       </div>
     </section>

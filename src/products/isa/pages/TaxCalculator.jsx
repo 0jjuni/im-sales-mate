@@ -56,11 +56,11 @@ export const TaxCalculator = () => {
 
     const chartData = isDeposit
       ? [
-          { name: "일반예금 세후이자", value: normalNet, fill: "#94a3b8" },
+          { name: "일반예금 세후이자", value: normalNet, fill: "#a8a29e" },
           { name: "ISA예금 세후이자", value: isaNet, fill: "#059669" },
         ]
       : [
-          { name: "일반계좌 세금", value: normalTax, fill: "#94a3b8" },
+          { name: "일반계좌 세금", value: normalTax, fill: "#a8a29e" },
           { name: "ISA 세금", value: isaTax, fill: "#059669" },
           { name: "추정 절세액", value: saving, fill: "#10b981" },
         ];
@@ -353,7 +353,7 @@ export const TaxCalculator = () => {
                   </div>
                   <div className="text-base font-bold text-stone-900">
                     ISA 약 {result.isaEffRate.toFixed(2)}%
-                    <span className="text-stone-400 mx-1.5">vs</span>
+                    <span className="text-stone-500 mx-1.5">vs</span>
                     <span className="text-stone-500">일반 약 {result.normalEffRate.toFixed(2)}%</span>
                     <span className="ml-2 text-[12px] font-bold text-emerald-700">
                       +{(result.isaEffRate - result.normalEffRate).toFixed(2)}%p

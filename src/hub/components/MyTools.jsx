@@ -46,7 +46,7 @@ const SortableToolTile = ({ tool, onUnpin }) => {
         </div>
         <div className="min-w-0 flex-1">
           <div className="truncate text-[13px] font-bold text-slate-900">{tool.name}</div>
-          <div className="mt-0.5 whitespace-nowrap text-[11px] text-slate-400">
+          <div className="mt-0.5 truncate text-[11px] text-slate-400">
             {tool.moduleName}
           </div>
         </div>
@@ -114,7 +114,7 @@ export function MyTools() {
       {pinned.length === 0 ? (
         <div className="space-y-1.5">
           <AddTile emphasized onClick={() => setLibraryOpen(true)} />
-          <p className="text-center text-[11px] text-slate-400">
+          <p className="text-center text-[11px] text-slate-500">
             자주 쓰는 계산기·시뮬레이터를 등록해 두면 여기서 바로 열 수 있습니다
           </p>
         </div>

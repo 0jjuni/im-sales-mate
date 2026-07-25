@@ -1,12 +1,23 @@
+import { useEffect } from "react";
 import { AlertTriangle } from "lucide-react";
 
 /* 계산기 디스클레이머 모달 */
-export const CalculatorDisclaimer = ({ onAccept, onClose }) => (
+export const CalculatorDisclaimer = ({ onAccept, onClose }) => {
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
   <div
     className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
     onClick={onClose}
   >
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="계산기 사용 안내"
       className="bg-white max-w-md w-full rounded-md shadow-2xl border border-stone-200"
       onClick={(e) => e.stopPropagation()}
     >
@@ -54,4 +65,5 @@ export const CalculatorDisclaimer = ({ onAccept, onClose }) => (
       </div>
     </div>
   </div>
-);
+  );
+};

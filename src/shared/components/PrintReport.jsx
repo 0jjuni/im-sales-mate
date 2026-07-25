@@ -5,6 +5,24 @@
 
    모듈별로 다른 부분(브랜드 라벨·출처·문의·하단 고지)은 props로 주입한다 —
    상품 모듈이 늘어나도 이 컴포넌트 하나를 공유한다. */
+
+/* 모듈 아이덴티티 색 — 디스클레이머 박스·강조 결과행에 사용.
+   (Tailwind JIT 스캔을 위해 정적 클래스 문자열로 보관) */
+const ACCENTS = {
+  amber: {
+    box: "border-amber-600 bg-amber-50",
+    boxTitle: "text-amber-900",
+    rowBorder: "border-b-2 border-amber-600 bg-amber-50",
+    rowText: "text-amber-900",
+  },
+  emerald: {
+    box: "border-emerald-600 bg-emerald-50",
+    boxTitle: "text-emerald-900",
+    rowBorder: "border-b-2 border-emerald-600 bg-emerald-50",
+    rowText: "text-emerald-900",
+  },
+};
+
 export const PrintReport = ({
   title,
   subtitle,
@@ -19,7 +37,9 @@ export const PrintReport = ({
   sourceLine,
   contactLine,
   footerNote = "본 자료는 iM뱅크 영업점 직원이 고객 상담 시 참고용으로 제공하는 추정 안내입니다. 실제 금액·세액·이율은 다른 소득·공제 항목, 시점, 세법 개정 등에 따라 달라질 수 있으니 정확한 내용은 관련 기관·시스템 조회 결과로 확인해 주시기 바랍니다.",
+  accent = "amber",
 }) => {
+  const ac = ACCENTS[accent] ?? ACCENTS.amber;
   const now = new Date();
   const printedAt = `${now.getFullYear()}. ${String(now.getMonth() + 1).padStart(2, "0")}. ${String(
     now.getDate()
@@ -54,11 +74,11 @@ export const PrintReport = ({
         </div>
 
         {/* 디스클레이머 — 가장 눈에 띄게 */}
-        <div className="border border-amber-600 bg-amber-50 rounded-sm p-2 mb-3 break-inside-avoid">
+        <div className={`border ${ac.box} rounded-sm p-2 mb-3 break-inside-avoid`}>
           <div className="flex items-start gap-1.5">
             <span className="text-sm leading-none mt-0.5">⚠</span>
             <div className="flex-1">
-              <div className="text-[10px] font-black text-amber-900 uppercase tracking-wider mb-0.5">
+              <div className={`text-[10px] font-black ${ac.boxTitle} uppercase tracking-wider mb-0.5`}>
                 본 안내는 추정치입니다 — 반드시 확인해 주세요
               </div>
               <p className="text-[10.5px] text-stone-900 leading-snug whitespace-pre-line">
@@ -101,14 +121,12 @@ export const PrintReport = ({
                   <tr
                     key={i}
                     className={
-                      emphasis
-                        ? "border-b-2 border-amber-600 bg-amber-50"
-                        : "border-b border-stone-100"
+                      emphasis ? ac.rowBorder : "border-b border-stone-100"
                     }
                   >
                     <td
                       className={`py-1 px-1.5 text-stone-600 w-2/5 align-top ${
-                        emphasis ? "font-bold text-amber-900" : ""
+                        emphasis ? `font-bold ${ac.rowText}` : ""
                       }`}
                     >
                       {label}
@@ -116,7 +134,7 @@ export const PrintReport = ({
                     <td
                       className={`py-1 px-1.5 ${
                         emphasis
-                          ? "text-sm font-black text-amber-900"
+                          ? `text-sm font-black ${ac.rowText}`
                           : "text-stone-900 font-semibold"
                       }`}
                     >

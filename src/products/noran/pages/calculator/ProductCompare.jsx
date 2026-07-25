@@ -390,7 +390,7 @@ ${withIncentive ? `✓ 지자체 가입(희망)장려금 (월 ${formatKRW(incent
 
           <div className="bg-blue-50/40 border border-blue-200 rounded-md p-3 text-xs text-stone-700 leading-relaxed">
             <Info className="w-3.5 h-3.5 inline-block mr-1 text-blue-600" />
-            노란우산공제·연금저축은 연단위 복리 적립식 + 매월 평균 6개월 추가 적립 보정. 적금은 매월 단리. 모든 결과는 세후 추정치이며 ±5~10% 편차 가능.
+            노란우산공제·연금저축은 연단위 복리 적립식 + 매월 평균 6개월 추가 적립 보정. 적금은 매월 단리. 모든 결과는 세전 추정치이며 ±5~10% 편차 가능.
           </div>
         </div>
 

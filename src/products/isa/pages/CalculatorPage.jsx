@@ -1,12 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { TaxCalculator } from "./TaxCalculator";
 
 /* ISA 계산기 페이지 — 디스클레이머 게이트 후 세제 절세 계산기 표시.
    현재 계산기 1종(세제 절세)이라 탭은 없다. 도구가 늘면 노란처럼 탭 컨테이너로 확장. */
-const IsaDisclaimer = ({ onAccept, onClose }) => (
+const IsaDisclaimer = ({ onAccept, onClose }) => {
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
   <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose}>
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="계산기 사용 안내"
       className="bg-white max-w-md w-full rounded-md shadow-2xl border border-stone-200"
       onClick={(e) => e.stopPropagation()}
     >
@@ -49,7 +59,8 @@ const IsaDisclaimer = ({ onAccept, onClose }) => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export const CalculatorPage = () => {
   const [accepted, setAccepted] = useState(false);

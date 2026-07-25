@@ -1,8 +1,17 @@
+import { useEffect } from "react";
 import { X } from "lucide-react";
 import { ARTICLES } from "../data/articles";
 import { cn } from "@shared/lib/format";
 
 export const ArticleModal = ({ articleNo, onClose }) => {
+  /* 열려 있을 때만 Escape로 닫기 (훅은 조기 return보다 앞에) */
+  useEffect(() => {
+    if (!articleNo) return;
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [articleNo, onClose]);
+
   if (!articleNo) return null;
   const article = ARTICLES[articleNo] || {
     title: "외부 법령 또는 내부 규정",
@@ -27,6 +36,9 @@ export const ArticleModal = ({ articleNo, onClose }) => {
       onClick={onClose}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${articleNo} ${article.title}`}
         className="bg-white max-w-lg w-full max-h-[85vh] flex flex-col rounded-md shadow-2xl border border-stone-200"
         onClick={(e) => e.stopPropagation()}
       >

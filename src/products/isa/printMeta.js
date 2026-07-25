@@ -1,5 +1,6 @@
 /* ISA 계산기 인쇄물(PrintReport) 공통 문구. shared/components/PrintReport에 주입. */
 export const ISA_PRINT_META = {
+  accent: "emerald", // 인쇄물 강조색 — ISA 모듈 아이덴티티
   brandLabel: "ISA 상담 자료 · iM뱅크",
   sourceLine:
     "조세특례제한법 제91조의18(개인종합자산관리계좌에 대한 과세특례) 및 동법 시행령. ※ 데모 — 최신 개정·자사 상품 조건 반영 전",

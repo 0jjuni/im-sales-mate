@@ -32,13 +32,13 @@ export const FaqPage = () => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="질문 검색 (예: 비과세, 납입한도, 손익통산)"
-          className="w-full pl-9 pr-3 py-2.5 text-sm border border-stone-300 rounded-md focus:outline-none focus:border-emerald-500"
+          className="w-full pl-9 pr-3 py-2.5 text-sm border border-stone-300 rounded-md focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200"
         />
       </div>
 
       <div className="space-y-2">
         {filtered.length === 0 && (
-          <div className="text-center text-sm text-stone-400 py-8">
+          <div className="text-center text-sm text-stone-500 py-8">
             검색 결과가 없습니다.
           </div>
         )}

@@ -30,7 +30,7 @@ export const Dashboard = ({ onNavigate, onOpenArticle }) => {
       <div>
         <div className="flex items-center gap-2 mb-1">
           <span className="text-xs uppercase tracking-widest text-amber-700 font-semibold">Dashboard</span>
-          <span className="text-xs text-stone-400">약관 2026.7.1 + 조특법 법률 2025.7.1 / 시행령 2026.2.27 + 중협법 2026.6.3 시행</span>
+          <span className="text-xs text-stone-500">약관 2026.7.1 + 조특법 법률 2025.7.1 / 시행령 2026.2.27 + 중협법 2026.6.3 시행</span>
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">상담을 시작합니다</h1>
         <p className="text-sm text-stone-600 mt-1">고객 상황을 빠르게 분류하고 약관·법령 근거가 명확한 안내를 진행하세요.</p>

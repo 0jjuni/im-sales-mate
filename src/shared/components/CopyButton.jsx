@@ -13,7 +13,7 @@ export const CopyButton = ({ text }) => {
       onClick={handleCopy}
       className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 rounded-sm transition-colors"
     >
-      {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+      {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
       {copied ? "복사됨" : "복사"}
     </button>
   );

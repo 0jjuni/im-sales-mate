@@ -92,7 +92,7 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
             </ul>
           </Card>
           <Card title="가입 제한 7개 업종" color="red">
-            <ul className="text-sm text-stone-800 space-y-2 leading-relaxed">
+            <ul className="text-[15px] text-stone-800 space-y-2.5 leading-relaxed">
               <li>· 일반/무도유흥주점업 (56211/56212)</li>
               <li>· 무도장 운영업 (91291)</li>
               <li>· 기타 사행시설 관리·운영업 (91249)</li>

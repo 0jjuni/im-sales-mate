@@ -71,7 +71,7 @@ export const Overview = ({ onNavigate }) => (
       <div className="divide-y divide-stone-100">
         {ISA_TYPES.map((t) => (
           <div key={t.id} className="flex items-center gap-3 px-4 py-3">
-            <div className="flex-shrink-0 w-24 text-sm font-bold text-emerald-700">{t.label}</div>
+            <div className="flex-shrink-0 w-28 text-sm font-bold text-emerald-700">{t.label}</div>
             <div className="flex-shrink-0 text-base font-black text-stone-900 tabular-nums">
               {formatKRWShort(t.taxFreeLimit)}
             </div>
@@ -120,7 +120,7 @@ export const Overview = ({ onNavigate }) => (
     <div className="border-2 border-dashed border-stone-300 rounded-md p-5 text-center">
       <FileText className="w-6 h-6 text-stone-300 mx-auto mb-2" />
       <div className="text-sm font-semibold text-stone-500">자사 신탁형 ISA 핵심설명서 (일부 준비 중)</div>
-      <p className="text-[12px] text-stone-400 mt-1 leading-relaxed">
+      <p className="text-[12px] text-stone-500 mt-1 leading-relaxed">
         ISA 정기예금(금리·중도해지·예금자보호)은 반영됨. 신탁보수 확정 요율·운용 라인업·일임형 조건은 iM뱅크 핵심설명서 확보 후 보강.
       </p>
     </div>
