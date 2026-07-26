@@ -124,8 +124,8 @@ export const Overview = ({ onNavigate }) => (
             "연말정산 때 얼마나 돌려받나요?" 즉시 계산
           </h3>
           <p className="text-[12px] text-stone-600 mt-1">
-            소득과 납입액을 넣으면 환급액을 계산하고, 같은 금액으로 더 받는 배분(연금저축 600 + IRP
-            300)까지 제안합니다.
+            소득과 납입액을 넣으면 환급액이 바로 나옵니다. 타사 연금저축이 600만원을 넘으면 초과분을
+            IRP로 옮길 때의 추가 환급액까지 제시합니다.
           </p>
         </div>
         <ArrowRight className="w-5 h-5 text-violet-600 flex-shrink-0 transition-transform group-hover:translate-x-0.5" />

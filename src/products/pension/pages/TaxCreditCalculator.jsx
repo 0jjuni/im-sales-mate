@@ -16,11 +16,14 @@ import { PrintReport } from "@shared/components/PrintReport";
 import { PENSION_PRINT_META } from "../printMeta";
 import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
 
-/* 연금계좌 세액공제 계산기.
-   연금저축과 IRP는 세액공제 한도를 공유한다 — 연금저축 단독 600만원,
-   두 계좌 합산 900만원. 이 구조 때문에 「연금저축에만 900만원」을 넣으면
-   300만원이 공제에서 빠진다. 이 계산기의 핵심은 그 손해를 눈에 보이게 하고
-   같은 돈으로 얼마나 더 받을 수 있는지(배분 최적화·잔여 한도)를 즉시 제시하는 것. */
+/* 연금계좌 세액공제 계산기 — IRP 중심.
+   은행 창구에서 「납입」 상담이 일어나는 상품은 IRP다. 연금저축신탁은 2018년
+   판매중단이라 신규 납입 권유 대상이 아니고, 고객이 타사(증권사 연금저축펀드 등)에
+   이미 납입 중인 금액은 「우리가 권유할 대상」이 아니라 900만원 한도를 깎아먹는 변수다.
+
+   그래서 입력은 ① 기존 연금저축 납입액(타사 포함) → ② IRP 납입액 순으로 받고,
+   연금저축이 600만원을 넘으면 초과분이 공제에서 빠진다는 사실을 IRP 유치 화법
+   ("그 금액을 IRP로 돌리시면 얼마 더 받습니다")으로 전환해 제시한다. */
 
 const SLIDER_MAX = 9_000_000;
 const SLIDER_STEP = 100_000;
@@ -49,12 +52,16 @@ export const TaxCreditCalculator = () => {
     const totalPaid = pensionSaving + irp;
     const wasted = totalPaid - eligible; // 넣었지만 공제 못 받는 금액
 
-    /* 같은 총액을 최적 배분했을 때 — 연금저축을 600만원까지만 쓰고 나머지는 IRP로 */
+    /* 연금저축 600만원 초과분을 IRP로 옮겼을 때 — IRP 유치 화법의 근거.
+       연금저축은 600만원까지만 인정되므로, 초과분을 IRP로 돌리면 합산 900만원
+       한도 안에서 추가 공제를 받을 수 있다. */
+    const savingExcess = Math.max(pensionSaving - CREDIT_RULES.pensionSavingLimit, 0);
     const optSaving = Math.min(totalPaid, CREDIT_RULES.pensionSavingLimit);
     const optIrp = Math.min(totalPaid - optSaving, CREDIT_RULES.totalLimit - optSaving);
     const optEligible = optSaving + optIrp;
     const optCredit = optEligible * rate;
-    const reallocGain = optCredit - credit; // 배분만 바꿔서 더 받는 금액
+    const reallocGain = optCredit - credit; // 초과분을 IRP로 옮겨 더 받는 금액
+    const moveToIrp = Math.max(optIrp - irp, 0); // IRP로 옮길 금액 = 유치 가능액
 
     /* 한도(900만원)를 모두 채웠을 때 */
     const maxCredit = CREDIT_RULES.totalLimit * rate;
@@ -64,11 +71,11 @@ export const TaxCreditCalculator = () => {
     /* 납입액 대비 실제 환급률 — 배분이 어긋나면 공제율보다 떨어진다 */
     const effectiveRate = totalPaid > 0 ? credit / totalPaid : 0;
 
-    const chartData = [{ name: "현재 납입", value: credit, fill: "#a8a29e" }];
+    const chartData = [{ name: "현재", value: credit, fill: "#a8a29e" }];
     if (reallocGain > 0)
-      chartData.push({ name: "배분만 조정", value: optCredit, fill: "#8b5cf6" });
+      chartData.push({ name: "초과분 IRP 이동", value: optCredit, fill: "#8b5cf6" });
     if (roomGain > 0)
-      chartData.push({ name: "한도 900만 채움", value: maxCredit, fill: "#6d28d9" });
+      chartData.push({ name: "IRP 한도까지", value: maxCredit, fill: "#6d28d9" });
 
     return {
       rate,
@@ -78,10 +85,12 @@ export const TaxCreditCalculator = () => {
       credit,
       totalPaid,
       wasted,
+      savingExcess,
       optSaving,
       optIrp,
       optCredit,
       reallocGain,
+      moveToIrp,
       maxCredit,
       roomToLimit,
       roomGain,
@@ -92,9 +101,9 @@ export const TaxCreditCalculator = () => {
   }, [income, threshold, pensionSaving, irp]);
 
   const generateScript = () =>
-    `연금저축 ${formatKRW(pensionSaving)} + IRP ${formatKRW(irp)}, 총 ${formatKRW(
-      result.totalPaid
-    )}을 납입하시는 경우(${isSalary ? "총급여" : "종합소득금액"} ${formatKRW(income)} 기준),
+    `${isSalary ? "총급여" : "종합소득금액"} ${formatKRW(income)} 기준으로, 현재 연금저축 ${formatKRW(
+      pensionSaving
+    )} + IRP ${formatKRW(irp)}를 납입하고 계신 경우
 ▸ 세액공제 대상액: ${formatKRW(result.eligible)} (연금저축 ${formatKRW(
       result.savingEligible
     )} + IRP ${formatKRW(result.irpEligible)})
@@ -103,19 +112,24 @@ export const TaxCreditCalculator = () => {
       result.reallocGain > 0
         ? `
 
-⚠ 같은 금액이라도 연금저축 ${formatKRW(result.optSaving)} + IRP ${formatKRW(
-            result.optIrp
-          )}로 나눠 넣으시면 약 ${formatKRW(
+⚠ 연금저축은 단독으로 600만원까지만 공제됩니다. 지금 넣고 계신 ${formatKRW(
+            pensionSaving
+          )} 중 ${formatKRW(result.savingExcess)}은 공제를 받지 못하고 있습니다.
+▸ 그 ${formatKRW(
+            result.moveToIrp
+          )}을 IRP로 옮기시면 환급액이 약 ${formatKRW(
             result.optCredit
-          )}까지 공제받으실 수 있습니다 (약 ${formatKRW(result.reallocGain)} 추가).`
+          )}으로 늘어납니다 (약 ${formatKRW(result.reallocGain)} 추가).`
         : ""
     }${
       result.roomToLimit > 0
         ? `
 
-▸ 세액공제 한도(900만원)까지 ${formatKRW(
+▸ IRP에 ${formatKRW(
             result.roomToLimit
-          )} 더 납입하시면 약 ${formatKRW(result.roomGain)}을 추가로 환급받으실 수 있습니다.`
+          )} (월 ${formatKRWShort(
+            result.roomToLimit / 12
+          )})을 더 납입하시면 약 ${formatKRW(result.roomGain)}을 추가로 환급받으실 수 있습니다.`
         : ""
     }
 
@@ -204,7 +218,7 @@ export const TaxCreditCalculator = () => {
 
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1.5">
-                연금저축 연 납입액: {formatKRW(pensionSaving)}
+                기존 연금저축 연 납입액: {formatKRW(pensionSaving)}
                 <span className="ml-1 font-normal text-stone-500">
                   (월 {formatKRWShort(pensionSaving / 12)})
                 </span>
@@ -216,17 +230,20 @@ export const TaxCreditCalculator = () => {
                 step={SLIDER_STEP}
                 value={pensionSaving}
                 onChange={(e) => setPensionSaving(Number(e.target.value))}
-                className="w-full accent-violet-600"
+                className="w-full accent-stone-500"
               />
               <div className="flex justify-between text-[11px] text-stone-500 mt-1">
                 <span>0</span>
-                <span className="font-semibold text-violet-700">공제한도 600만원</span>
+                <span className="font-semibold text-stone-600">공제한도 600만원</span>
                 <span>900만원</span>
               </div>
+              <p className="mt-1 text-[11px] text-stone-500 leading-relaxed">
+                타사 연금저축(증권사 펀드 등) 포함. 900만원 한도를 함께 쓰므로 먼저 확인하세요.
+              </p>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1.5">
+            <div className="rounded-md border-2 border-violet-200 bg-violet-50/40 p-3">
+              <label className="block text-xs font-bold text-violet-900 mb-1.5">
                 IRP 연 납입액: {formatKRW(irp)}
                 <span className="ml-1 font-normal text-stone-500">
                   (월 {formatKRWShort(irp / 12)})
@@ -243,7 +260,9 @@ export const TaxCreditCalculator = () => {
               />
               <div className="flex justify-between text-[11px] text-stone-500 mt-1">
                 <span>0</span>
-                <span>합산 900만원까지 공제</span>
+                <span className="font-semibold text-violet-700">
+                  공제 여지 {formatKRWShort(CREDIT_RULES.totalLimit - result.savingEligible)}
+                </span>
               </div>
             </div>
 
@@ -306,7 +325,7 @@ export const TaxCreditCalculator = () => {
                     {formatKRW(result.wasted)}은 세액공제를 받지 못합니다.
                   </strong>{" "}
                   {result.reallocGain > 0
-                    ? "연금저축은 단독 600만원까지만 공제되기 때문입니다. 아래 제안대로 나눠 넣으면 공제받을 수 있습니다."
+                    ? "연금저축은 단독으로 600만원까지만 공제되기 때문입니다. 초과분을 IRP로 옮기면 공제받을 수 있습니다."
                     : "합산 세액공제 한도(900만원)를 초과한 금액입니다. (납입 자체는 연 1,800만원까지 가능하며, 초과 납입분은 나중에 인출할 때 과세되지 않습니다.)"}
                 </div>
               </div>
@@ -318,7 +337,7 @@ export const TaxCreditCalculator = () => {
                 <div className="flex items-center gap-1.5 mb-2">
                   <Sparkles className="h-4 w-4 text-violet-700" />
                   <span className="text-[12px] font-bold text-violet-900">
-                    이렇게 하시면 더 받으실 수 있습니다
+                    IRP 권유 포인트
                   </span>
                 </div>
                 <ul className="space-y-1.5 text-[12.5px] leading-relaxed text-stone-800">
@@ -326,13 +345,11 @@ export const TaxCreditCalculator = () => {
                     <li className="flex gap-2">
                       <span className="text-violet-600 mt-1 text-[9px] flex-shrink-0">●</span>
                       <span>
-                        같은 <strong>{formatKRW(result.totalPaid)}</strong>을 연금저축{" "}
-                        <strong>{formatKRW(result.optSaving)}</strong> + IRP{" "}
-                        <strong>{formatKRW(result.optIrp)}</strong>로 나누면 환급액이{" "}
-                        <strong className="text-violet-800">
-                          {formatKRW(result.optCredit)}
-                        </strong>
-                        로 늘어납니다 (
+                        연금저축 <strong>{formatKRW(result.savingExcess)}</strong>이 공제 한도를
+                        넘습니다. 이 중 <strong>{formatKRW(result.moveToIrp)}</strong>을{" "}
+                        <strong className="text-violet-800">IRP로 옮기시면</strong> 환급액이{" "}
+                        <strong className="text-violet-800">{formatKRW(result.optCredit)}</strong>
+                        으로 늘어납니다 (
                         <strong className="text-violet-800">
                           +{formatKRW(result.reallocGain)}
                         </strong>
@@ -344,7 +361,8 @@ export const TaxCreditCalculator = () => {
                     <li className="flex gap-2">
                       <span className="text-violet-600 mt-1 text-[9px] flex-shrink-0">●</span>
                       <span>
-                        세액공제 한도까지 <strong>{formatKRW(result.roomToLimit)}</strong> (월{" "}
+                        <strong className="text-violet-800">IRP에</strong>{" "}
+                        <strong>{formatKRW(result.roomToLimit)}</strong> (월{" "}
                         {formatKRWShort(result.roomToLimit / 12)}) 더 납입하시면{" "}
                         <strong className="text-violet-800">
                           +{formatKRW(result.roomGain)}
@@ -353,6 +371,13 @@ export const TaxCreditCalculator = () => {
                       </span>
                     </li>
                   )}
+                  <li className="flex gap-2 pt-0.5 border-t border-violet-200/70 mt-1">
+                    <span className="text-violet-600 mt-1 text-[9px] flex-shrink-0">●</span>
+                    <span className="text-[11.5px] text-stone-600">
+                      iM뱅크 IRP는 <strong>비대면 신규가입 시 수수료 면제</strong>(운용관리·자산관리),
+                      연금 수령 신청 시 운용관리수수료 0.01%p 감면입니다.
+                    </span>
+                  </li>
                 </ul>
               </div>
             )}
@@ -457,9 +482,9 @@ export const TaxCreditCalculator = () => {
             emphasis: true,
             sub:
               result.reallocGain > 0
-                ? `연금저축 ${formatKRW(result.optSaving)} + IRP ${formatKRW(result.optIrp)}로 배분 시 ${formatKRW(result.optCredit)}까지 가능`
+                ? `연금저축 한도 초과분 ${formatKRW(result.moveToIrp)}을 IRP로 옮기면 ${formatKRW(result.optCredit)}까지 가능`
                 : result.roomToLimit > 0
-                ? `한도까지 ${formatKRW(result.roomToLimit)} 추가 납입 시 ${formatKRW(result.maxCredit)}까지 가능`
+                ? `IRP에 ${formatKRW(result.roomToLimit)} 추가 납입 시 ${formatKRW(result.maxCredit)}까지 가능`
                 : "세액공제 한도 최대 활용",
           },
         ]}

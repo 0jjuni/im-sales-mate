@@ -88,10 +88,10 @@ export const CalculatorPage = () => {
             Calculator
           </span>
           <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">
-            연금 세액공제 계산기
+            IRP 세액공제 계산기
           </h1>
           <p className="text-sm text-stone-600 mt-1">
-            연금저축·IRP 납입액별 환급액을 계산하고, 같은 금액으로 더 받는 배분을 제안합니다.
+            "연말정산 때 얼마나 돌려받나요?"에 숫자로 답하고, IRP 권유 포인트를 함께 제시합니다.
           </p>
         </div>
         {!accepted && (
@@ -107,8 +107,9 @@ export const CalculatorPage = () => {
       <div className="bg-violet-50/60 border-l-4 border-violet-500 px-4 py-2.5 rounded-r-sm flex items-start gap-2 print:hidden">
         <AlertTriangle className="w-4 h-4 text-violet-600 flex-shrink-0 mt-0.5" />
         <p className="text-xs text-stone-800 leading-relaxed">
-          연금저축과 IRP는 세액공제 한도를 <strong>공유</strong>합니다 — 연금저축 단독 600만원,
-          두 계좌 합산 900만원. 따로 계산하면 틀리므로 두 납입액을 함께 입력해 주세요.
+          연금저축과 IRP는 세액공제 한도를 <strong>공유</strong>합니다 — 연금저축 단독 600만원, 두
+          계좌 합산 900만원. <strong>타사 연금저축 납입액을 먼저 확인</strong>해야 IRP로 받을 수
+          있는 공제 여지가 나옵니다.
         </p>
       </div>
 
