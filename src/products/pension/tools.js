@@ -9,15 +9,15 @@ export const PENSION_MODULE = {
 export const PENSION_TOOLS = [
   {
     id: "pension.calc.credit",
-    name: "연금 세액공제 계산기",
-    desc: "연금저축·IRP 배분별 환급액 + 최적 배분 제안",
+    name: "IRP 세액공제 계산기",
+    desc: "연말정산 환급액 계산 + 타사 연금저축 초과분 IRP 유치 포인트",
     to: "/pension/calculator",
     icon: "Coins",
     group: "세일즈 계산기",
   },
   {
     id: "pension.faq",
-    name: "연금계좌 FAQ",
+    name: "연금 FAQ 검색",
     desc: "세액공제·연금수령·중도해지 등 소득세법 근거 FAQ",
     to: "/pension/faq",
     icon: "HelpCircle",

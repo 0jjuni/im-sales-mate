@@ -46,7 +46,8 @@ const SortableToolTile = ({ tool, onUnpin }) => {
         </div>
         <div className="min-w-0 flex-1">
           <div className="truncate text-[13px] font-bold text-slate-900">{tool.name}</div>
-          <div className="mt-0.5 truncate text-[11px] text-slate-400">
+          {/* 도구 이름에 상품명을 넣지 않으므로, 어느 상품 도구인지는 이 줄이 알려준다 */}
+          <div className="mt-0.5 truncate text-[12px] font-medium text-slate-500">
             {tool.moduleName}
           </div>
         </div>
@@ -144,10 +145,12 @@ export function MyTools() {
                 key={tool.id}
                 to={tool.to}
                 title={tool.desc}
-                className="group inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-500 transition-colors hover:border-im-300 hover:text-im-700"
+                className="group inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 transition-colors hover:border-im-300 hover:text-im-700"
               >
                 <Icon className="h-3 w-3 text-slate-400 group-hover:text-im-600" />
                 {tool.name}
+                {/* 칩은 이름만으로는 어느 상품인지 알 수 없다 — 모듈명을 함께 표기 */}
+                <span className="text-slate-400">· {tool.moduleName}</span>
               </Link>
             );
           })}

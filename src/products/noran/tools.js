@@ -15,6 +15,9 @@ export const NORAN_MODULE = {
   accent: "amber",
 };
 
+/* 도구 이름에는 상품명을 넣지 않는다 — 허브의 타일·라이브러리·최근사용 칩이
+   모두 소속 모듈명(노란우산공제)을 함께 보여주므로 중복이 된다.
+   이름은 「무엇을 하는 도구인지」만 담는다. (ISA·연금계좌 모듈도 같은 규칙) */
 export const NORAN_TOOLS = [
   {
     id: "noran.calc.tax",
@@ -26,7 +29,7 @@ export const NORAN_TOOLS = [
   },
   {
     id: "noran.calc.refund",
-    name: "해약환급금 시나리오",
+    name: "해약환급금 계산기",
     desc: "해약 시점별 환급금 추정 + 유지 시 비교",
     to: "/noran/calculator/refund",
     icon: "TrendingDown",
@@ -50,16 +53,18 @@ export const NORAN_TOOLS = [
   },
   {
     id: "noran.checklist",
-    name: "구비서류 체크리스트",
-    desc: "11개 사유별 구비서류 + 고객 안내 스크립트 생성",
+    /* 11개 사유는 폐업·사망·노령급부·재해 등 「공제금 지급사유」가 대부분이고
+       임의해약은 그중 1건 — 「해약 서류」로 좁히면 나머지 10개를 못 담는다 */
+    name: "공제금 청구 서류 체크리스트",
+    desc: "폐업·사망·노령 등 11개 지급사유별 구비서류 + 행정정보 자동조회 안내",
     to: "/noran/checklist",
     icon: "CheckSquare",
     group: "상담 지원",
   },
   {
     id: "noran.faq",
-    name: "FAQ 즉시 검색",
-    desc: "약관·법령 근거 FAQ 60건 검색",
+    name: "약관·법령 FAQ 검색",
+    desc: "약관·법령 근거 FAQ 61건 즉시 검색",
     to: "/noran/faq",
     icon: "HelpCircle",
     group: "상담 지원",
