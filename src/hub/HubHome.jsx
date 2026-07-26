@@ -112,7 +112,7 @@ export function HubHome() {
         const meta = getSection("followups");
         return (
           <>
-            <SectionHeader icon={meta.icon} title="고객 후속 관리" sub="상담 중 나온 후속 약속을 고객번호·연락일과 함께 기록하세요" />
+            <SectionHeader icon={meta.icon} title="고객 후속 관리" sub="후속 연락 약속과 나만의 고객 기억 메모를 고객번호로 기록·검색하세요" />
             <FollowupBoard />
           </>
         );

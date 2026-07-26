@@ -9,7 +9,8 @@ const STORAGE_KEY = "salesbridge.followups";
 const SCHEMA_VERSION = 1;
 
 /* FollowupItem:
-   { id, customerNo, memo, followUpDate(YYYY-MM-DD|null), tag(string|null),
+   { id, type: "followup"|"note"(기억 메모 — 없으면 followup으로 간주),
+     customerNo, memo, followUpDate(YYYY-MM-DD|null), products(string[]),
      status: "open"|"done", createdAt(epoch ms) } */
 const DEFAULT_STATE = {
   version: SCHEMA_VERSION,

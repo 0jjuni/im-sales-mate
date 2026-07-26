@@ -1,14 +1,19 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   UserRound,
   CalendarClock,
   Plus,
   Check,
+  Copy,
   RotateCcw,
   Trash2,
   ShieldAlert,
+  StickyNote,
+  Search,
+  X,
 } from "lucide-react";
 import { useFollowups, ddayOf } from "../followups/useFollowups";
+import { FollowupCalendar } from "./FollowupCalendar";
 import { cn } from "@shared/lib/format";
 
 /* 권유 상품 태그 — 다중선택. 색은 각 상품 아이덴티티(모듈 accent)와 맞춘다.
@@ -32,16 +37,10 @@ const fmtDate = (iso) => {
   return `${d.getMonth() + 1}.${d.getDate()}(${day})`;
 };
 
-/* D-day 배지 — 지남(빨강)/오늘(호박)/임박(민트)/예정(슬레이트)/날짜없음 */
+/* D-day 배지 — 지남(빨강)/오늘(호박)/임박(민트)/예정(슬레이트) */
 const DdayBadge = ({ date }) => {
   const d = ddayOf(date);
-  if (d === null) {
-    return (
-      <span className="inline-flex items-center rounded-sm bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-400">
-        날짜 미정
-      </span>
-    );
-  }
+  if (d === null) return null;
   let label;
   let cls;
   if (d < 0) {
@@ -79,33 +78,113 @@ const ProductChips = ({ ids }) =>
     </span>
   );
 
-const FollowupRow = ({ item, onToggle, onRemove }) => {
-  const done = item.status === "done";
+/* 고객번호 — 클릭하면 복사. 번호 전체를 항상 표시한다 */
+const CustomerNo = ({ no, onSearch }) => {
+  const [copied, setCopied] = useState(false);
+  if (!no) {
+    return <span className="text-[12px] font-semibold text-slate-400">(번호 미기재)</span>;
+  }
+  const copy = () => {
+    navigator.clipboard?.writeText(no);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
+  };
   return (
-    <li className={cn("flex gap-3 px-3 py-2.5", done && "opacity-55")}>
+    <span className="inline-flex items-center gap-0.5">
       <button
-        onClick={() => onToggle(item.id)}
-        title={done ? "예정으로 되돌리기" : "완료 처리"}
+        onClick={onSearch ? () => onSearch(no) : undefined}
+        title={onSearch ? "이 고객의 기록 모두 보기" : undefined}
         className={cn(
-          "mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border transition-colors",
-          done
-            ? "border-im-500 bg-im-500 text-white"
-            : "border-slate-300 text-transparent hover:border-im-400"
+          "inline-flex items-center gap-1 text-[12px] font-bold tabular-nums text-slate-900",
+          onSearch && "hover:text-im-700 hover:underline"
         )}
       >
-        <Check className="h-3 w-3" />
+        <UserRound className="h-3 w-3 flex-shrink-0 text-slate-400" />
+        {no}
       </button>
+      <button
+        onClick={copy}
+        title="고객번호 복사"
+        className={cn(
+          "rounded p-0.5 transition-colors",
+          copied ? "text-im-600" : "text-slate-300 hover:bg-slate-100 hover:text-slate-500"
+        )}
+      >
+        {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+      </button>
+    </span>
+  );
+};
+
+/* 연락일 — 클릭하면 그 자리에서 날짜 변경 (비우면 날짜 미정) */
+const EditableDate = ({ item, onUpdate }) => {
+  const [editing, setEditing] = useState(false);
+  if (editing) {
+    return (
+      <input
+        type="date"
+        autoFocus
+        defaultValue={item.followUpDate ?? ""}
+        onChange={(e) => onUpdate(item.id, { followUpDate: e.target.value || null })}
+        onBlur={() => setEditing(false)}
+        className="rounded-sm border border-slate-300 px-1 py-0.5 text-[11px] text-slate-600 focus:border-im-500 focus:outline-none"
+      />
+    );
+  }
+  return (
+    <button
+      onClick={() => setEditing(true)}
+      title="연락일 변경"
+      className="inline-flex items-center gap-1 rounded-sm px-1 py-0.5 text-[11px] text-slate-400 transition-colors hover:bg-slate-100 hover:text-im-700"
+    >
+      <CalendarClock className="h-3 w-3" />
+      {item.followUpDate ? fmtDate(item.followUpDate) : "날짜 지정"}
+    </button>
+  );
+};
+
+const FollowupRow = ({ item, onToggle, onUpdate, onRemove, onSearch }) => {
+  const isNote = item.type === "note";
+  const done = !isNote && item.status === "done";
+  return (
+    <li className={cn("flex gap-3 px-3 py-2.5", done && "opacity-55")}>
+      {isNote ? (
+        <span
+          title="고객 기억 메모"
+          className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-500"
+        >
+          <StickyNote className="h-3 w-3" />
+        </span>
+      ) : (
+        <button
+          onClick={() => onToggle(item.id)}
+          title={done ? "예정으로 되돌리기" : "완료 처리"}
+          className={cn(
+            "mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border transition-colors",
+            done
+              ? "border-im-500 bg-im-500 text-white"
+              : "border-slate-300 text-transparent hover:border-im-400"
+          )}
+        >
+          <Check className="h-3 w-3" />
+        </button>
+      )}
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
-          {!done && <DdayBadge date={item.followUpDate} />}
-          <span className="inline-flex items-center gap-1 text-[12px] font-bold text-slate-900">
-            <UserRound className="h-3 w-3 text-slate-400" />
-            {item.customerNo || "(번호 미기재)"}
-          </span>
-          {item.followUpDate && (
-            <span className="text-[11px] text-slate-400">· {fmtDate(item.followUpDate)}</span>
+          {isNote && (
+            <span className="inline-flex items-center rounded-sm bg-violet-50 px-1.5 py-0.5 text-[10px] font-bold text-violet-600">
+              기억 메모
+            </span>
           )}
+          {!isNote && !done && <DdayBadge date={item.followUpDate} />}
+          {!isNote && done && (
+            <span className="inline-flex items-center rounded-sm bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500">
+              완료
+            </span>
+          )}
+          <CustomerNo no={item.customerNo} onSearch={onSearch} />
+          {!isNote && <EditableDate item={item} onUpdate={onUpdate} />}
           <ProductChips ids={item.products} />
         </div>
         <p className={cn("mt-0.5 whitespace-pre-wrap break-words text-[12.5px] leading-relaxed text-slate-700", done && "line-through")}>
@@ -136,35 +215,70 @@ const FollowupRow = ({ item, onToggle, onRemove }) => {
 };
 
 export function FollowupBoard() {
-  const { openItems, doneItems, summary, add, remove, toggleDone } = useFollowups();
-  const [tab, setTab] = useState("open"); // open | done
+  const { items, openItems, doneItems, noteItems, summary, add, update, remove, toggleDone } =
+    useFollowups();
+  const [tab, setTab] = useState("open"); // open | done | note
+  const [entryType, setEntryType] = useState("followup"); // followup | note
   const [customerNo, setCustomerNo] = useState("");
   const [memo, setMemo] = useState("");
   const [date, setDate] = useState("");
   const [products, setProducts] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null); // 캘린더에서 고른 날짜(ISO) — 목록 필터
+  const [query, setQuery] = useState(""); // 고객번호 검색어
 
-  const canAdd = memo.trim().length > 0 || customerNo.trim().length > 0;
+  const isNoteEntry = entryType === "note";
+  /* 기억 메모는 나중에 고객번호로 다시 찾는 게 목적이라 번호가 필수 */
+  const canAdd = isNoteEntry
+    ? customerNo.trim().length > 0 && memo.trim().length > 0
+    : memo.trim().length > 0 || customerNo.trim().length > 0;
 
   const toggleProduct = (id) =>
     setProducts((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
 
   const submit = () => {
     if (!canAdd) return;
-    add({ customerNo, memo, followUpDate: date, products });
+    add({ customerNo, memo, followUpDate: date, products, type: entryType });
     setCustomerNo("");
     setMemo("");
     setDate("");
     setProducts([]);
   };
 
-  const list = tab === "open" ? openItems : doneItems;
+  /* 캘린더 날짜 선택 — 같은 날짜 재클릭 시 해제. 선택하면 새 메모 연락일도 채운다 */
+  const handleSelectDate = (iso) => {
+    setSelectedDate((prev) => {
+      const next = prev === iso ? null : iso;
+      setDate(next ?? "");
+      return next;
+    });
+  };
+
+  /* 고객번호 검색 — 후속 연락·기억 메모를 가리지 않고 그 고객의 기록 전부 */
+  const q = query.trim();
+  const searchResults = useMemo(() => {
+    if (!q) return null;
+    const matched = items.filter((i) => (i.customerNo || "").includes(q));
+    const rank = (i) => (i.type === "note" ? 0 : i.status === "open" ? 1 : 2);
+    return matched.sort(
+      (a, b) => rank(a) - rank(b) || (b.createdAt ?? 0) - (a.createdAt ?? 0)
+    );
+  }, [items, q]);
+
+  const searchFor = (no) => setQuery(no);
+
+  const baseList = tab === "open" ? openItems : tab === "done" ? doneItems : noteItems;
+  /* 날짜 필터는 연락일이 있는 후속 연락 탭에만 적용 */
+  const list =
+    selectedDate && tab !== "note"
+      ? baseList.filter((i) => i.followUpDate === selectedDate)
+      : baseList;
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white">
       {/* 요약 바 */}
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 px-3 py-2.5">
         <CalendarClock className="h-4 w-4 text-im-600" />
-        <span className="text-[12px] font-semibold text-slate-700">후속 연락</span>
+        <span className="text-[12px] font-semibold text-slate-700">후속 연락 · 고객 메모</span>
         {summary.overdue > 0 && (
           <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700">
             지남 {summary.overdue}
@@ -185,20 +299,55 @@ export function FollowupBoard() {
 
       {/* 입력 폼 */}
       <div className="space-y-2 border-b border-slate-100 bg-slate-50/50 p-3">
+        {/* 기록 유형 — 후속 연락 / 고객 기억 메모 */}
+        <div className="flex items-center gap-1">
+          {[
+            { id: "followup", label: "후속 연락", icon: CalendarClock },
+            { id: "note", label: "고객 기억 메모", icon: StickyNote },
+          ].map((t) => {
+            const Icon = t.icon;
+            const on = entryType === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setEntryType(t.id)}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors",
+                  on
+                    ? t.id === "note"
+                      ? "bg-violet-600 text-white"
+                      : "bg-im-600 text-white"
+                    : "bg-white text-slate-500 ring-1 ring-inset ring-slate-200 hover:text-slate-700"
+                )}
+              >
+                <Icon className="h-3 w-3" />
+                {t.label}
+              </button>
+            );
+          })}
+          {isNoteEntry && (
+            <span className="text-[10px] text-slate-400">
+              나만 보는 메모 — 얼굴은 아는데 기억이 안 나는 고객, 번호로 다시 찾아보세요
+            </span>
+          )}
+        </div>
+
         <div className="flex flex-col gap-2 sm:flex-row">
           <input
             value={customerNo}
             onChange={(e) => setCustomerNo(e.target.value)}
-            placeholder="고객번호(관리번호)"
-            className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] focus:border-im-500 focus:outline-none sm:w-40"
+            placeholder={isNoteEntry ? "고객번호(관리번호) — 필수" : "고객번호(관리번호)"}
+            className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] focus:border-im-500 focus:outline-none sm:w-44"
           />
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            title="후속 연락일(선택)"
-            className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] text-slate-600 focus:border-im-500 focus:outline-none sm:w-40"
-          />
+          {!isNoteEntry && (
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              title="후속 연락일(선택)"
+              className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] text-slate-600 focus:border-im-500 focus:outline-none sm:w-40"
+            />
+          )}
         </div>
         <textarea
           value={memo}
@@ -207,7 +356,11 @@ export function FollowupBoard() {
             if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit();
           }}
           rows={2}
-          placeholder="메모 (예: 방카 만기자금 12/3 나오면 재예치 상담 원함 / 오늘 시간없어 나중에 연락 요청)"
+          placeholder={
+            isNoteEntry
+              ? "이 고객에 대해 기억해 둘 내용 (예: 부부가 함께 방문하는 단골 / 매장 확장 준비 중 / 겸양어 선호)"
+              : "메모 (예: 방카 만기자금 12/3 나오면 재예치 상담 원함 / 오늘 시간없어 나중에 연락 요청)"
+          }
           className="w-full resize-y rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] leading-relaxed focus:border-im-500 focus:outline-none"
         />
         {/* 권유 상품 (다중선택) */}
@@ -237,7 +390,10 @@ export function FollowupBoard() {
           <button
             onClick={submit}
             disabled={!canAdd}
-            className="inline-flex items-center gap-1 rounded-md bg-im-600 px-3.5 py-1.5 text-[12px] font-bold text-white transition-colors hover:bg-im-700 disabled:opacity-40"
+            className={cn(
+              "inline-flex items-center gap-1 rounded-md px-3.5 py-1.5 text-[12px] font-bold text-white transition-colors disabled:opacity-40",
+              isNoteEntry ? "bg-violet-600 hover:bg-violet-700" : "bg-im-600 hover:bg-im-700"
+            )}
           >
             <Plus className="h-3.5 w-3.5" />
             기록
@@ -245,39 +401,126 @@ export function FollowupBoard() {
         </div>
       </div>
 
-      {/* 탭 */}
-      <div className="flex items-center gap-1 px-3 pt-2">
-        {[
-          { id: "open", label: `예정 ${openItems.length}` },
-          { id: "done", label: `완료 ${doneItems.length}` },
-        ].map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={cn(
-              "rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors",
-              tab === t.id ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"
-            )}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* 목록 */}
-      {list.length === 0 ? (
-        <div className="px-3 py-6 text-center text-[12px] text-slate-400">
-          {tab === "open"
-            ? "예정된 후속 연락이 없습니다. 상담 중 나온 약속을 위에 기록해 두세요."
-            : "완료된 항목이 없습니다."}
+      {/* 캘린더 + 목록 — 데스크톱은 좌우, 모바일은 상하 */}
+      <div className="md:flex">
+        <div className="border-b border-slate-100 p-3 md:w-64 md:flex-shrink-0 md:border-b-0 md:border-r">
+          <FollowupCalendar
+            items={items}
+            selectedDate={selectedDate}
+            onSelectDate={handleSelectDate}
+          />
         </div>
-      ) : (
-        <ul className="divide-y divide-slate-100 py-1">
-          {list.map((item) => (
-            <FollowupRow key={item.id} item={item} onToggle={toggleDone} onRemove={remove} />
-          ))}
-        </ul>
-      )}
+
+        <div className="min-w-0 flex-1">
+          {/* 고객번호 검색 — 후속 연락·기억 메모 통합 조회 */}
+          <div className="px-3 pt-2.5">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="고객번호로 검색 — 이 고객에게 남긴 후속 연락·기억 메모 전부"
+                className="w-full rounded-md border border-slate-200 py-1.5 pl-8 pr-8 text-[12px] focus:border-im-500 focus:outline-none"
+              />
+              {q && (
+                <button
+                  onClick={() => setQuery("")}
+                  title="검색 지우기"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-1 text-slate-300 hover:bg-slate-100 hover:text-slate-500"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {searchResults ? (
+            /* 검색 모드 — 탭 무시하고 해당 고객의 모든 기록 */
+            <>
+              <div className="px-3 pt-2 text-[11px] text-slate-500">
+                「<span className="font-bold text-slate-800">{q}</span>」 검색 결과{" "}
+                <span className="font-bold text-im-700">{searchResults.length}건</span>
+                {searchResults.length > 0 && " — 기억 메모 · 예정 · 완료 순"}
+              </div>
+              {searchResults.length === 0 ? (
+                <div className="px-3 py-6 text-center text-[12px] text-slate-400">
+                  이 고객번호로 남긴 기록이 없습니다.
+                </div>
+              ) : (
+                <ul className="divide-y divide-slate-100 py-1">
+                  {searchResults.map((item) => (
+                    <FollowupRow
+                      key={item.id}
+                      item={item}
+                      onToggle={toggleDone}
+                      onUpdate={update}
+                      onRemove={remove}
+                    />
+                  ))}
+                </ul>
+              )}
+            </>
+          ) : (
+            <>
+              {/* 탭 + 날짜 필터 */}
+              <div className="flex flex-wrap items-center gap-1 px-3 pt-2">
+                {[
+                  { id: "open", label: `예정 ${openItems.length}` },
+                  { id: "done", label: `완료 ${doneItems.length}` },
+                  { id: "note", label: `기억 메모 ${noteItems.length}` },
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setTab(t.id)}
+                    className={cn(
+                      "rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors",
+                      tab === t.id ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"
+                    )}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+                {selectedDate && tab !== "note" && (
+                  <button
+                    onClick={() => handleSelectDate(selectedDate)}
+                    title="날짜 필터 해제"
+                    className="inline-flex items-center gap-1 rounded-full bg-im-50 px-2.5 py-1 text-[11px] font-semibold text-im-700 transition-colors hover:bg-im-100"
+                  >
+                    {fmtDate(selectedDate)}
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+
+              {/* 목록 */}
+              {list.length === 0 ? (
+                <div className="px-3 py-6 text-center text-[12px] text-slate-400">
+                  {selectedDate && tab !== "note"
+                    ? `${fmtDate(selectedDate)}에 잡힌 ${tab === "open" ? "예정" : "완료"} 메모가 없습니다.`
+                    : tab === "open"
+                    ? "예정된 후속 연락이 없습니다. 상담 중 나온 약속을 위에 기록해 두세요."
+                    : tab === "done"
+                    ? "완료된 항목이 없습니다."
+                    : "기억용 메모가 없습니다. 얼굴은 아는데 기억이 가물가물한 고객 — 다음에 알아볼 수 있게 나만의 메모를 남겨 보세요."}
+                </div>
+              ) : (
+                <ul className="divide-y divide-slate-100 py-1">
+                  {list.map((item) => (
+                    <FollowupRow
+                      key={item.id}
+                      item={item}
+                      onToggle={toggleDone}
+                      onUpdate={update}
+                      onRemove={remove}
+                      onSearch={searchFor}
+                    />
+                  ))}
+                </ul>
+              )}
+            </>
+          )}
+        </div>
+      </div>
 
       {/* 개인정보 안내 */}
       <div className="flex items-start gap-1.5 border-t border-slate-100 bg-amber-50/40 px-3 py-2 text-[10.5px] leading-relaxed text-slate-600">
