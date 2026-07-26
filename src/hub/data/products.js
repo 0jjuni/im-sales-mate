@@ -24,21 +24,24 @@ export const PRODUCTS = [
     icon: "PiggyBank",
   },
   {
+    /* 연금저축과 IRP는 세액공제 한도(900만원)를 공유하므로 한 모듈로 묶는다.
+       따로 만들면 계산기가 반쪽이 된다. */
     id: "pension",
-    name: "연금저축",
-    tagline: "세액공제 연금계좌",
-    desc: "노후 설계 · 세액공제 한도 · 연금수령 과세",
-    status: "coming",
+    name: "연금계좌",
+    tagline: "연금저축 · IRP",
+    desc: "세액공제 계산기(배분 최적화) · 가입 시기별 과세 판별 · 소득세법 근거 FAQ (데모)",
+    to: "/pension",
+    status: "active",
     accent: "violet",
     icon: "Landmark",
   },
   {
-    id: "irp",
-    name: "IRP",
-    tagline: "개인형 퇴직연금",
-    desc: "퇴직급여 이전 · 세액공제 · 운용 규제",
+    id: "banca",
+    name: "방카슈랑스",
+    tagline: "연금보험 · 저축성보험",
+    desc: "예금 대비 비교 · 비과세 요건 · 사업비 안내",
     status: "coming",
     accent: "sky",
-    icon: "Wallet",
+    icon: "Shield",
   },
 ];

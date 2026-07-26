@@ -1,5 +1,6 @@
 import { NORAN_MODULE, NORAN_TOOLS } from "@noran/tools";
 import { ISA_MODULE, ISA_TOOLS } from "@isa/tools";
+import { PENSION_MODULE, PENSION_TOOLS } from "@pension/tools";
 
 /* 도구 레지스트리 — 각 상품 모듈의 도구 매니페스트를 집계하는 단일 지점.
    새 모듈 추가 시: ① 모듈에 tools.js 매니페스트 작성 → ② 아래 배열에 한 줄 추가.
@@ -8,6 +9,7 @@ import { ISA_MODULE, ISA_TOOLS } from "@isa/tools";
 const MODULE_MANIFESTS = [
   { module: NORAN_MODULE, tools: NORAN_TOOLS },
   { module: ISA_MODULE, tools: ISA_TOOLS },
+  { module: PENSION_MODULE, tools: PENSION_TOOLS },
 ];
 
 /* 평탄화된 전체 도구 목록 — 각 도구에 소속 모듈 정보를 부착 */

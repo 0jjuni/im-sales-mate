@@ -10,6 +10,7 @@ export default defineConfig({
       '@shared': fileURLToPath(new URL('./src/shared', import.meta.url)),
       '@noran': fileURLToPath(new URL('./src/products/noran', import.meta.url)),
       '@isa': fileURLToPath(new URL('./src/products/isa', import.meta.url)),
+      '@pension': fileURLToPath(new URL('./src/products/pension', import.meta.url)),
     },
   },
 })

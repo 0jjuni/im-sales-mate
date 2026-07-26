@@ -4,11 +4,12 @@ import {
   PiggyBank,
   Landmark,
   Wallet,
+  Shield,
   ArrowRight,
 } from "lucide-react";
 import { PRODUCTS } from "../data/products";
 
-const ICONS = { Umbrella, PiggyBank, Landmark, Wallet };
+const ICONS = { Umbrella, PiggyBank, Landmark, Wallet, Shield };
 
 /* 상품 아이덴티티 컬러 — Tailwind JIT가 스캔할 수 있도록 정적 클래스 문자열로 보관.
    (동적 문자열 조합 `bg-${x}-500` 은 purge에 잡히지 않으므로 사용하지 않는다) */

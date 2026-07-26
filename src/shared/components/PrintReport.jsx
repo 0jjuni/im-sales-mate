@@ -21,6 +21,12 @@ const ACCENTS = {
     rowBorder: "border-b-2 border-emerald-600 bg-emerald-50",
     rowText: "text-emerald-900",
   },
+  violet: {
+    box: "border-violet-600 bg-violet-50",
+    boxTitle: "text-violet-900",
+    rowBorder: "border-b-2 border-violet-600 bg-violet-50",
+    rowText: "text-violet-900",
+  },
 };
 
 export const PrintReport = ({
