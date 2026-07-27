@@ -67,7 +67,8 @@ export const PrintReport = ({
         <div className="border-b-2 border-stone-900 pb-2 mb-3">
           <div className="flex items-baseline justify-between gap-3">
             <div>
-              <div className="text-[9px] uppercase tracking-widest text-stone-500 font-bold">
+              {/* uppercase를 적용하면 「iM뱅크」가 「IM뱅크」로 출력돼 브랜드 표기가 틀어진다 */}
+              <div className="text-[9px] tracking-widest text-stone-500 font-bold">
                 {brandLabel}
               </div>
               <h1 className="text-base font-black text-stone-900 mt-0.5 leading-tight">
@@ -80,6 +81,9 @@ export const PrintReport = ({
             <div className="text-right text-[9px] text-stone-500 leading-snug flex-shrink-0">
               <div>인쇄일시: {printedAt}</div>
               {showId && <div>참조번호: {showId}</div>}
+              {/* 고객이 자료를 가지고 돌아간 뒤 어디로 문의할지 알 수 있도록 손으로 적는 칸 */}
+              <div className="mt-1.5">상담 점포 · 담당자</div>
+              <div className="ml-auto mt-0.5 h-3 w-28 border-b border-stone-400" />
             </div>
           </div>
         </div>
@@ -89,8 +93,8 @@ export const PrintReport = ({
           <div className="flex items-start gap-1.5">
             <span className="text-sm leading-none mt-0.5">⚠</span>
             <div className="flex-1">
-              <div className={`text-[10px] font-black ${ac.boxTitle} uppercase tracking-wider mb-0.5`}>
-                본 안내는 추정치입니다 — 반드시 확인해 주세요
+              <div className={`text-[10px] font-black ${ac.boxTitle} tracking-wider mb-0.5`}>
+                본 안내는 추정치입니다. 반드시 확인해 주세요.
               </div>
               <p className="text-[10.5px] text-stone-900 leading-snug whitespace-pre-line">
                 {disclaimer}

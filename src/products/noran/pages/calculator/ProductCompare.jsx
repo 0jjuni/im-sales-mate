@@ -687,7 +687,8 @@ const ProductComparePrint = ({
           <div className="border-b-2 border-stone-900 pb-2 mb-3">
             <div className="flex items-baseline justify-between gap-3">
               <div>
-                <div className="text-[9px] uppercase tracking-widest text-stone-500 font-bold">
+                {/* uppercase를 적용하면 「iM뱅크」가 「IM뱅크」로 출력된다 */}
+                <div className="text-[9px] tracking-widest text-stone-500 font-bold">
                   노란우산공제 상담 자료 · iM뱅크
                 </div>
                 <h1 className="text-base font-black text-stone-900 mt-0.5 leading-tight">
@@ -700,6 +701,8 @@ const ProductComparePrint = ({
               <div className="text-right text-[9px] text-stone-500 leading-snug flex-shrink-0">
                 <div>인쇄일시: {printedAt}</div>
                 <div>page 1 / 2</div>
+                <div className="mt-1.5">상담 점포 · 담당자</div>
+                <div className="ml-auto mt-0.5 h-3 w-28 border-b border-stone-400" />
               </div>
             </div>
           </div>
@@ -926,7 +929,7 @@ const ProductComparePrint = ({
           <div className="border-b-2 border-stone-900 pb-2 mb-3">
             <div className="flex items-baseline justify-between gap-3">
               <div>
-                <div className="text-[9px] uppercase tracking-widest text-stone-500 font-bold">
+                <div className="text-[9px] tracking-widest text-stone-500 font-bold">
                   노란우산공제 상담 자료 · iM뱅크
                 </div>
                 <h1 className="text-base font-black text-stone-900 mt-0.5 leading-tight">

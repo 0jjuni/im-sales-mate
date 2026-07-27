@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Wallet, Briefcase, TrendingUp, AlertTriangle, Sparkles } from "lucide-react";
+import { Briefcase, TrendingUp, AlertTriangle, Sparkles, Printer } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -296,6 +296,18 @@ export const TaxCreditCalculator = () => {
                   <> · 납입액 대비 실효 {(result.effectiveRate * 100).toFixed(1)}%</>
                 )}
               </div>
+
+              <button
+                onClick={() => window.print()}
+                className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-stone-900 hover:bg-stone-800 text-white rounded-md font-semibold transition-colors"
+                title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
+              >
+                <Printer className="w-4 h-4" />
+                <span>상담 자료 인쇄</span>
+                <span className="text-[11px] font-normal text-stone-300 hidden sm:inline">
+                  PDF 저장 가능 · 디스클레이머·입력 조건 포함
+                </span>
+              </button>
             </div>
 
             <div className="mt-3 grid grid-cols-2 gap-2 text-[12px]">
