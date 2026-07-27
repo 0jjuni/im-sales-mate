@@ -307,7 +307,7 @@ ${lines.join("\n")}
             title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
           >
             <Printer className="w-4 h-4" />
-            <span>고객 전달용 인쇄</span>
+            <span>상담 자료 인쇄</span>
             <span className="text-[11px] font-normal text-stone-300 hidden sm:inline">
               PDF 저장 가능 · 모든 사유 환급금 + 디스클레이머 포함
             </span>

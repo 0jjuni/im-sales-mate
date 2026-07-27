@@ -22,7 +22,7 @@ export const NORAN_TOOLS = [
   {
     id: "noran.calc.tax",
     name: "소득공제 절세효과 계산기",
-    desc: "월 부금액 기준 연간 추정 절세액 + 고객 전달용 출력",
+    desc: "월 부금액 기준 연간 추정 절세액 + 상담 자료 인쇄",
     to: "/noran/calculator/tax",
     icon: "Coins",
     group: "세일즈 계산기",

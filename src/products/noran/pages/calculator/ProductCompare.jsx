@@ -424,7 +424,7 @@ ${withIncentive ? `✓ 지자체 가입(희망)장려금 (월 ${formatKRW(incent
             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-stone-900 hover:bg-stone-800 text-white rounded-md font-semibold transition-colors"
           >
             <Printer className="w-4 h-4" />
-            <span>고객 전달용 인쇄</span>
+            <span>상담 자료 인쇄</span>
             <span className="text-[11px] font-normal text-stone-300 hidden sm:inline">
               PDF 저장 가능 · 비교표 + 디스클레이머 포함
             </span>

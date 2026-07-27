@@ -44,6 +44,11 @@ export const PrintReport = ({
   contactLine,
   footerNote = "본 자료는 iM뱅크 영업점 직원이 고객 상담 시 참고용으로 제공하는 추정 안내입니다. 실제 금액·세액·이율은 다른 소득·공제 항목, 시점, 세법 개정 등에 따라 달라질 수 있으니 정확한 내용은 관련 기관·시스템 조회 결과로 확인해 주시기 바랍니다.",
   accent = "amber",
+  /* 준법감시인 심의필 번호. 고객에게 교부하는 자료는 금융소비자보호법상 광고·안내자료
+     규제 대상이 될 수 있어 서식에 대한 준법감시인 사전심의가 필요하다.
+     심의를 받으면 「2025-025호」 같은 번호와 유효기간을 넘기고, 없으면 데모 표기가 나간다. */
+  complianceReviewNo,
+  complianceValidUntil,
 }) => {
   const ac = ACCENTS[accent] ?? ACCENTS.amber;
   const now = new Date();
@@ -203,6 +208,15 @@ export const PrintReport = ({
             </p>
           )}
           <p className="text-stone-500 mt-1">{footerNote}</p>
+
+          {/* 심의를 받은 서식에만 번호를 표기한다. 심의 전에는 아무것도 붙이지 않고,
+              대신 이 출력물을 「고객 교부용」이 아닌 상담용 자료로 다룬다. */}
+          {complianceReviewNo && (
+            <p className="mt-1 font-semibold text-stone-800">
+              준법감시인 심의필 제{complianceReviewNo}호
+              {complianceValidUntil && ` (유효기간 ~${complianceValidUntil})`}
+            </p>
+          )}
         </div>
       </div>
     </div>

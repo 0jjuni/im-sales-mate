@@ -10,7 +10,7 @@ export const ISA_TOOLS = [
   {
     id: "isa.calc.tax",
     name: "세제 절세 계산기",
-    desc: "ISA vs 일반계좌 세부담 비교 + 고객 전달용 출력",
+    desc: "ISA vs 일반계좌 세부담 비교 + 상담 자료 인쇄",
     to: "/isa/calculator",
     icon: "Percent",
     group: "세일즈 계산기",
