@@ -4,6 +4,7 @@ import { HubHome } from "@hub/HubHome";
 import NoranApp from "@noran/NoranApp";
 import IsaApp from "@isa/IsaApp";
 import PensionApp from "@pension/PensionApp";
+import UtilityApp from "@utility/UtilityApp";
 
 /* iM 세일즈메이트 루트 라우터.
    "/"        → 허브(대시보드)
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/noran/*" element={<NoranApp />} />
         <Route path="/isa/*" element={<IsaApp />} />
         <Route path="/pension/*" element={<PensionApp />} />
+        <Route path="/tools/*" element={<UtilityApp />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </PersonalizationProvider>

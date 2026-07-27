@@ -6,6 +6,8 @@ import {
   CheckSquare,
   HelpCircle,
   Percent,
+  UserRound,
+  MapPin,
   Wrench,
 } from "lucide-react";
 
@@ -19,6 +21,8 @@ const TOOL_ICONS = {
   CheckSquare,
   HelpCircle,
   Percent,
+  UserRound,
+  MapPin,
 };
 
 export const getToolIcon = (name) => TOOL_ICONS[name] ?? Wrench;
