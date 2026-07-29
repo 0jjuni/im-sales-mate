@@ -12,6 +12,7 @@ import { MorningNews } from "./components/MorningNews";
 import { MyTools } from "./components/MyTools";
 import { FollowupBoard } from "./components/FollowupBoard";
 import { ProductGrid } from "./components/ProductGrid";
+import { UtilityGrid } from "./components/UtilityGrid";
 import { KnowledgeLibrary } from "./components/KnowledgeLibrary";
 import { cn } from "@shared/lib/format";
 
@@ -123,6 +124,19 @@ export function HubHome() {
           <>
             <SectionHeader icon={meta.icon} title="상품 상담" sub="상담할 상품을 선택해 시작하세요" />
             <ProductGrid />
+          </>
+        );
+      }
+      case "utility": {
+        const meta = getSection("utility");
+        return (
+          <>
+            <SectionHeader
+              icon={meta.icon}
+              title="보조 도구"
+              sub="상품과 무관하게 창구에서 자주 쓰는 도구"
+            />
+            <UtilityGrid />
           </>
         );
       }
