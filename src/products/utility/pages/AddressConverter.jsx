@@ -44,7 +44,8 @@ const CopyRow = ({ value, label, emphasis }) => {
         <span
           className={cn(
             "block break-words text-stone-900",
-            emphasis ? "text-[15px] font-bold leading-relaxed" : "text-[13.5px]"
+            /* 서식에 옮겨 적는 용도라 강조 결과는 크게 */
+          emphasis ? "text-[17px] font-bold leading-relaxed tracking-wide" : "text-[13.5px]"
           )}
         >
           {value}
@@ -73,16 +74,17 @@ export const AddressConverter = () => {
           영문 주소 변환기
         </h1>
         <p className="text-sm text-stone-600 mt-1">
-          도로명주소를 해외송금·외화계좌 서식에 쓰는 영문 주소 형태로 바꿉니다.
+          카드 발급 신청서나 해외송금 서식에 적을 영문 주소를 만듭니다. 고객이 영문 주소를 모를 때
+          대신 적어 드리는 용도입니다.
         </p>
       </div>
 
       <div className="flex items-start gap-2 rounded-r-sm border-l-4 border-amber-500 bg-amber-50/60 px-4 py-2.5">
         <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
         <p className="text-xs leading-relaxed text-stone-800">
-          공식 영문주소는 <strong>도로명주소 안내시스템의 영문 검색 결과</strong>가 기준입니다. 이
-          도구는 형태를 빠르게 잡아 주는 보조 수단이므로, 정확한 표기가 필요한 서류는 아래 링크에서
-          조회한 결과를 사용하세요.
+          해외송금처럼 표기가 정확히 맞아야 하는 서류는{" "}
+          <strong>도로명주소 안내시스템의 영문 검색 결과</strong>를 쓰세요. 이 도구는 형태를 빠르게
+          잡아 주는 보조 수단입니다.
         </p>
       </div>
 

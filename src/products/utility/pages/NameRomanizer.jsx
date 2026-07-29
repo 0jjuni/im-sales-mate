@@ -120,17 +120,30 @@ export const NameRomanizer = () => {
           영문 이름 변환기
         </h1>
         <p className="text-sm text-stone-600 mt-1">
-          해외송금·외화계좌·영문증명서에 쓸 영문 이름 표기를 만듭니다.
+          카드 발급 신청서나 해외송금 서식에 적을 영문 이름을 만듭니다. 고객이 영문 표기를 모를 때
+          대신 적어 드리는 용도입니다.
         </p>
       </div>
 
-      <div className="flex items-start gap-2 rounded-r-sm border-l-4 border-amber-500 bg-amber-50/60 px-4 py-2.5">
-        <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
-        <p className="text-xs leading-relaxed text-stone-800">
-          <strong>여권에 적힌 표기가 기준입니다.</strong> 해외송금과 외화계좌는 영문명이 여권과
-          다르면 반송되거나 거래가 막힐 수 있습니다. 이 도구의 결과는 후보이므로, 고객이 여권을
-          가지고 있으면 반드시 여권 표기를 그대로 사용하세요.
-        </p>
+      <div className="rounded-md border border-stone-200 bg-white px-4 py-3">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-stone-500">
+          어느 표기를 쓸지
+        </div>
+        <div className="mt-1.5 grid gap-2 sm:grid-cols-2">
+          <div className="rounded-sm border-l-4 border-sky-400 bg-sky-50/50 px-3 py-2">
+            <div className="text-[12px] font-bold text-stone-900">여권이 있으면</div>
+            <p className="mt-0.5 text-[11.5px] leading-relaxed text-stone-600">
+              여권 표기를 그대로 쓰세요. 특히 해외에서 쓸 카드나 해외송금은 여권과 다르면 문제가
+              생길 수 있습니다.
+            </p>
+          </div>
+          <div className="rounded-sm border-l-4 border-emerald-400 bg-emerald-50/50 px-3 py-2">
+            <div className="text-[12px] font-bold text-stone-900">여권이 없거나 모르시면</div>
+            <p className="mt-0.5 text-[11.5px] leading-relaxed text-stone-600">
+              아래 표기를 사용하시면 됩니다. 국내 사용 카드는 여권과 맞출 필요가 없습니다.
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="rounded-md border border-stone-200 bg-white p-5">
@@ -153,15 +166,22 @@ export const NameRomanizer = () => {
         {result && !result.error && (
           <div className="mt-4 space-y-4">
             <div className="rounded-md border-2 border-sky-300 bg-gradient-to-br from-sky-50 to-white p-4">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-sky-700">
-                권장 표기
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700">
+                  권장 표기
+                </span>
+                {/* 카드 각인은 글자 수 제한이 있어 미리 보여 준다 */}
+                <span className="text-[11px] text-stone-500">
+                  공백 포함 {`${result.surnamePrimary} ${result.givenJoined}`.length}자
+                </span>
               </div>
-              <div className="mt-1 text-2xl font-black tracking-wide text-stone-900">
+              {/* 서식에 옮겨 적는 용도라 크게, 글자 간격을 넓혀 한 글자씩 구분되게 */}
+              <div className="mt-1.5 break-all text-3xl font-black leading-tight tracking-[0.12em] text-stone-900 sm:text-4xl">
                 {result.surnamePrimary} {result.givenJoined.toUpperCase()}
               </div>
-              <div className="mt-1 text-[12px] text-stone-600">
+              <div className="mt-2 text-[12px] text-stone-600">
                 성 {result.surname} → {result.surnamePrimary}
-                {result.surnameKnown ? " (여권 관용 표기)" : " (로마자 표기법 변환)"} · 이름{" "}
+                {result.surnameKnown ? " (여권에 많이 쓰는 표기)" : " (로마자 표기법 변환)"} · 이름{" "}
                 {result.given} → {result.givenJoined}
               </div>
             </div>
@@ -198,8 +218,8 @@ export const NameRomanizer = () => {
                   ))}
                 </div>
                 <p className="mt-1.5 text-[11px] leading-relaxed text-stone-500">
-                  같은 성이라도 여권마다 표기가 다릅니다. 위 표기 중 어느 것이든 여권에 있는 것이
-                  맞는 표기입니다.
+                  같은 성이라도 사람마다 쓰는 표기가 다릅니다. 고객이 이미 쓰던 표기가 있으면 그것을
+                  쓰시고, 여권이 있으면 여권 표기가 우선입니다.
                 </p>
               </div>
             )}
