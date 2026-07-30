@@ -119,8 +119,7 @@ export const NameRomanizer = () => {
           영문 이름 변환기
         </h1>
         <p className="text-sm text-stone-600 mt-1">
-          카드 발급 신청서, FATCA·CRS 본인확인서의 영문성명처럼 이름을 영문으로 적어야 하는 서식에
-          씁니다. 고객이 영문 표기를 모를 때 대신 적어 드리는 용도입니다.
+          한글 이름을 영문 표기로 바꿉니다.
         </p>
       </div>
 

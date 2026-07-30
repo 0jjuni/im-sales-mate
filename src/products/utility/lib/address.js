@@ -73,6 +73,27 @@ const withSuffix = (token, table) => {
   return null;
 };
 
+/* 숫자와 한글이 섞인 토큰 — romanizeWord는 순수 한글만 처리하고 나머지는 그대로
+   돌려주므로, 섞인 토큰을 그냥 넘기면 결과에 한글이 남는다. 한글 구간만 옮긴다. */
+const romanizeMixed = (token) =>
+  token.replace(/[가-힣]+/g, (run) => romanizeWord(run));
+
+/* 상세주소 — 층·호·동은 영문 주소 관례 표기를 쓴다 */
+const DETAIL_RULES = [
+  { re: /^지하\s*(\d+)\s*층$/, to: (m) => `B${m[1]}F` },
+  { re: /^(\d+)\s*층$/, to: (m) => `${m[1]}F` },
+  { re: /^(\d+(?:-\d+)?)\s*호$/, to: (m) => `${m[1]}-ho` },
+  { re: /^(\d+)\s*동$/, to: (m) => `${m[1]}-dong` },
+];
+
+const toDetail = (token) => {
+  for (const r of DETAIL_RULES) {
+    const m = token.match(r.re);
+    if (m) return r.to(m);
+  }
+  return romanizeMixed(token);
+};
+
 const findProvince = (token) =>
   PROVINCES.find((p) => p.ko === token) ||
   PROVINCES.find((p) => token === p.short) ||
@@ -95,7 +116,12 @@ export const convertAddress = (input) => {
     return " ";
   });
 
-  const tokens = text.split(/\s+/).filter(Boolean);
+  /* 「지하 2층」처럼 띄어 쓴 상세주소는 한 토큰으로 붙여야 규칙이 걸린다 */
+  text = text.replace(/지하\s*(\d+)\s*층/g, "지하$1층");
+
+  /* 쉼표도 구분자로 본다. 「테헤란로 152, 3층」처럼 쉼표를 붙여 쓰는 경우가 많은데
+     그대로 두면 건물번호가 「152,」가 되어 숫자로 인식되지 않는다 */
+  const tokens = text.split(/[\s,]+/).filter(Boolean);
   if (!tokens.length) return null;
 
   const parts = {
@@ -143,7 +169,7 @@ export const convertAddress = (input) => {
     }
 
     /* 그 외 — 도로명 이후면 상세주소, 이전이면 미매칭 */
-    if (parts.road) parts.detail.push(romanizeWord(t));
+    if (parts.road) parts.detail.push(toDetail(t));
     else parts.unmatched.push(t);
   }
 
