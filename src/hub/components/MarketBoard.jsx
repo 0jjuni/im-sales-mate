@@ -32,15 +32,25 @@ const SkeletonChip = () => (
   <div className="min-w-[7rem] flex-1 animate-pulse rounded-md bg-slate-100 py-5" />
 );
 
-export function MarketBoard({ markets, status }) {
+const fmtAsOf = (d) => {
+  if (!d) return null;
+  const dt = d instanceof Date ? d : new Date(d);
+  if (isNaN(dt)) return null;
+  return `${dt.getMonth() + 1}. ${dt.getDate()}`;
+};
+
+export function MarketBoard({ markets, status, live, asOf }) {
+  const asOfText = fmtAsOf(asOf);
   return (
     <section className="rounded-lg border border-slate-200 bg-white px-4 py-3">
       <div className="mb-2 flex items-baseline justify-between gap-2">
         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
           마켓 보드
         </span>
-        <span className="text-[10px] text-slate-400">
-          전일 종가 기준 · 더미 데이터 (구글시트 연동 예정)
+        <span className="text-[10px] text-slate-500">
+          {live
+            ? `${asOfText ? `${asOfText} ` : ""}종가 기준 · Yahoo Finance`
+            : "예시 데이터 (시세 조회 실패)"}
         </span>
       </div>
 

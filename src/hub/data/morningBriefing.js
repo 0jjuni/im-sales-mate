@@ -3,6 +3,8 @@
    함수 본문만 바꾸면 되도록 fetch 부분을 분리해 두었다.
    화면 컴포넌트(MarketBoard·MorningNews)는 이 함수의 반환 형태에만 의존한다. */
 
+import { fetchMarketQuotes } from "./marketQuotes";
+
 /* 구글시트 연동 시 사용할 엔드포인트 — 확정되면 여기만 설정.
    예: Apps Script 웹앱 URL 또는 Sheets API v4 values 엔드포인트 */
 export const BRIEFING_ENDPOINT = null;
@@ -99,7 +101,21 @@ const DUMMY_BRIEFING = {
    const rows = await res.json();
    return normalizeBriefing(rows);   // 시트 행 → BriefingShape 변환 함수 별도 작성 */
 export async function fetchMorningBriefing() {
-  // 네트워크 지연을 흉내내 로딩 UI가 실제로 보이도록 처리(연동 후 제거 가능).
-  await new Promise((resolve) => setTimeout(resolve, 450));
-  return DUMMY_BRIEFING;
+  /* 마켓 보드는 실제 시세를 조회하고, 뉴스는 아직 예시 데이터를 쓴다.
+     시세 조회가 실패하면 화면이 비지 않도록 예시 시세로 물러난다. */
+  const [quotes] = await Promise.all([
+    fetchMarketQuotes().catch(() => null),
+    new Promise((resolve) => setTimeout(resolve, 300)),
+  ]);
+
+  if (!quotes) {
+    return { ...DUMMY_BRIEFING, marketsLive: false };
+  }
+
+  return {
+    ...DUMMY_BRIEFING,
+    markets: quotes.markets,
+    marketsLive: true,
+    marketsAsOf: quotes.asOf,
+  };
 }

@@ -151,7 +151,14 @@ export function HubHome() {
   const renderSection = (id) => {
     switch (id) {
       case "market":
-        return <MarketBoard markets={data?.markets} status={status} />;
+        return (
+          <MarketBoard
+            markets={data?.markets}
+            status={status}
+            live={data?.marketsLive}
+            asOf={data?.marketsAsOf}
+          />
+        );
       case "news":
         return <MorningNews data={data} status={status} onReload={reload} />;
       case "mytools": {
