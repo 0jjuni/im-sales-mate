@@ -13,6 +13,7 @@ import {
 import { INCOME_BRACKETS } from "../../data/tax";
 import { SectionTitle } from "@shared/components/SectionTitle";
 import { PrintReport } from "@shared/components/PrintReport";
+import { SalesScript } from "@shared/components/SalesScript";
 import { NORAN_PRINT_META } from "../../printMeta";
 import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
 
@@ -62,29 +63,55 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
     };
   }, [businessType, bracketId, salaryOver80m, monthlyAmount, bracket]);
 
-  const generateScript = () => {
+  /* 고객에게 실제로 할 수 있는 말. 계산 결과 나열은 화면·인쇄물에 이미 있으므로
+     여기서는 체감되는 표현과 되묻는 질문 대응만 담는다. */
+  const script = useMemo(() => {
     if (result.isBlocked) {
-      return `안내 결과: ${result.blockedReason}\n\n다른 가입 지위(개인사업자 등)로 가입을 검토하시거나, 세무 전문가 상담을 권해 드립니다.\n\n— 약관 근거: 조세특례제한법 제86조의3 제1항`;
+      return {
+        opening: `${result.blockedReason} 이 지위로는 소득공제를 받으실 수 없습니다.`,
+        detail: [
+          "개인사업자 지위로 가입이 가능한지 함께 확인해 보시겠어요? 조건이 맞으면 그쪽으로 검토해 보실 수 있습니다.",
+        ],
+        objections: [
+          {
+            q: "그럼 가입 자체가 안 되나요?",
+            a: "가입은 가능하지만 소득공제 혜택이 적용되지 않습니다. 공제금 지급이나 압류 금지 같은 다른 혜택은 그대로 받으실 수 있어서, 목적에 따라 판단하시면 됩니다.",
+          },
+        ],
+      };
     }
-    return `${
-      businessType === "individual" ? "개인사업자" : "법인대표"
-    } 고객님께서 노란우산공제에 월 ${formatKRW(
-      monthlyAmount
-    )}씩 가입하시면,
-▸ 연 납입액: ${formatKRW(result.annualPayment)}
-▸ 적용 가능 소득공제 한도: ${formatKRW(result.deductionLimit)} (${
-      bracket.rangeText
-    })
-▸ 실제 소득공제액: ${formatKRW(result.actualDeduction)}
-▸ 추정 절세액: 약 ${formatKRW(result.taxSaving)}/년 (월 평균 약 ${formatKRW(
-      result.monthlyTaxSaving
-    )})
 
-※ 본 절세액은 추정치이며, 다른 소득공제 항목, 추가 소득, 종합소득세율 변경 등에 따라 실제 절세액은 달라질 수 있습니다.
-※ 정확한 절세효과는 세무 전문가 또는 국세청 상담을 권해 드립니다.
+    /* 실부담 = 월 납입액에서 월 환산 절세액을 뺀 금액 */
+    const netMonthly = monthlyAmount - result.monthlyTaxSaving;
 
-— 약관 근거: 조세특례제한법 제86조의3 (소기업·소상공인 공제부금에 대한 소득공제)`;
-  };
+    return {
+      opening: `월 ${formatKRW(monthlyAmount)}씩 넣으시면 연말정산 때 해마다 ${formatKRW(
+        result.taxSaving
+      )} 정도를 돌려받으십니다.`,
+      detail: [
+        `월로 나눠 보면 ${formatKRW(
+          result.monthlyTaxSaving
+        )}쯤 되니까, 실제 부담은 ${formatKRW(netMonthly)} 정도로 ${formatKRW(
+          monthlyAmount
+        )}을 저축하시는 셈입니다.`,
+        "다만 초기에 해약하시면 낸 돈보다 적게 나올 수 있습니다. 오래 유지하실 수 있는 금액으로 시작하시는 편이 좋습니다.",
+      ],
+      objections: [
+        {
+          q: "중간에 해약하면 어떻게 돼요?",
+          a: "가입 초기에는 낸 돈보다 적게 돌려받게 됩니다. 그리고 그동안 받으신 소득공제만큼 세금을 다시 내셔야 합니다. 그래서 여유 자금으로 시작하시는 걸 권합니다. 해약환급금 계산기에서 시점별로 얼마가 나오는지 바로 보여드릴 수 있습니다.",
+        },
+        {
+          q: "지금은 형편이 안 되는데 나중에 하면 안 돼요?",
+          a: "부금액은 나중에 올리실 수 있으니 낮은 금액으로 시작하셔도 됩니다. 소득공제는 그해 납입한 금액에만 적용되니, 시작이 늦어지면 그만큼 공제 기회가 지나갑니다.",
+        },
+        {
+          q: "적금이랑 뭐가 달라요?",
+          a: "적금은 이자에 세금을 떼지만, 노란우산은 넣는 단계에서 소득공제를 받습니다. 그리고 폐업이나 사망 같은 사유가 생겼을 때 공제금이 나오고, 법으로 압류가 금지돼 있어 사업이 어려워져도 보호됩니다. 상품 비교 계산기에서 금액으로 비교해 드릴 수 있습니다.",
+        },
+      ],
+    };
+  }, [result, monthlyAmount]);
 
   return (
     <div className="space-y-5">
@@ -322,17 +349,7 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
                 </ResponsiveContainer>
               </div>
 
-              <div className="bg-amber-50/40 border border-amber-200 rounded-md p-4">
-                <h4 className="text-sm font-bold text-stone-900 mb-2">
-                  고객 안내 멘트{" "}
-                  <span className="text-xs font-normal text-stone-500">
-                    (직원 참고용 — 인쇄 안 됨)
-                  </span>
-                </h4>
-                <pre className="text-[12px] leading-relaxed whitespace-pre-wrap font-sans bg-white/70 p-3 rounded-sm border border-amber-200/60 text-stone-800">
-                  {generateScript()}
-                </pre>
-              </div>
+              <SalesScript accent="amber" {...script} />
             </>
           )}
 

@@ -23,6 +23,7 @@ import {
 } from "recharts";
 import { INCOME_BRACKETS } from "../../data/tax";
 import { SectionTitle } from "@shared/components/SectionTitle";
+import { SalesScript } from "@shared/components/SalesScript";
 import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
 
 /* 공통 적립식 미래가치 — RefundSimulator와 같은 공식
@@ -212,36 +213,41 @@ export const ProductCompare = ({ onOpenArticle }) => {
     장려금: p.incentive,
   }));
 
-  const generateScript = () => {
-    const lines = result.products
-      .map(
-        (p) =>
-          `【${p.name}】 만기 ${formatKRW(p.fv)} + 누적 절세 ${formatKRW(p.taxSaving)}${p.incentive > 0 ? ` + 장려금 ${formatKRW(p.incentive)}` : ""} = 총 혜택 ${formatKRW(p.total)}`
-      )
-      .join("\n");
-    return `[가입 시 비교 안내 — 추정·세전 기준]
-월 ${formatKRW(monthlyAmount)} × ${years}년 납입 시 (총 ${formatKRW(result.totalPrincipal)})
+  /* 고객에게 실제로 할 수 있는 말. 이 계산기는 「적금이랑 뭐가 다르냐」에 답하는 자리.
+     금액 차이만 말하면 이율 가정 싸움이 되므로, 노란우산만 가진 혜택으로 넘어가야 한다. */
+  const script = useMemo(() => {
+    const savings = result.products.find((p) => p.key === "savings");
+    const gap = savings ? result.best.total - savings.total : 0;
 
-${lines}
-
-💡 가장 유리한 상품은 「${result.best.name}」 — 총 혜택 약 ${formatKRW(result.best.total)} (납부원금 대비 +${(((result.best.total - result.totalPrincipal) / result.totalPrincipal) * 100).toFixed(1)}%, 세전)
-
-[차별점 — 노란우산만의 혜택]
-✓ 공제금 수급권 양도·압류·담보 금지 (중협법 §119)
-✓ 무담보 공제계약 대출 (해약환급금 범위)
-✓ 무료 단체상해보험 자동 가입 (월부금 150배, 최대 1.5억)
-✓ 복지플러스 (건강검진 20~50% 할인, 여행 50~70% 할인, 무료 경영교육·세무 자문)
-${withIncentive ? `✓ 지자체 가입(희망)장려금 (월 ${formatKRW(incentiveMonthly)} × 12회 + 연복리 이자)` : ""}
-
-※ 본 비교는 모두 세전 기준입니다. 수령 시 과세(상품별로 퇴직소득세 / 이자소득세 / 연금소득세)는 가입자 다른 소득·근속·소득공제 등에 따라 변수가 많아 본 시뮬에서는 별도 차감하지 않습니다. 정확한 실수령액은 세무 전문가 상담을 권해 드립니다.
-
-[수령 단계 차이]
-· 노란우산 = 사유 발생 시 일시금/분할 (퇴직소득세 별도)
-· 적금 = 만기 일시금 (이자소득세 15.4% 원천징수)
-· 연금저축 = 만 55세+ 연금 수령 (연금소득세). 중도해지 시 기타소득세 16.5%
-
-— 정확한 의사결정은 세무 전문가 상담 권유`;
-  };
+    return {
+      opening: `월 ${formatKRW(monthlyAmount)}씩 ${years}년을 넣으시면, 적금보다 ${formatKRW(
+        gap
+      )} 정도 더 받으시는 것으로 나옵니다.`,
+      detail: [
+        `총 ${formatKRW(
+          result.totalPrincipal
+        )}을 넣으시는 건 같은데, 노란우산은 넣는 동안 소득공제로 ${formatKRW(
+          result.best.taxSaving
+        )}을 돌려받으시기 때문입니다. 적금은 이자에서 세금을 떼고 끝입니다.`,
+        "그런데 금액보다 중요한 차이가 있습니다. 노란우산은 법으로 압류가 금지돼 있어서, 사업이 어려워져도 이 돈은 지킬 수 있습니다. 적금은 그렇지 않습니다.",
+        "그리고 가입만 하시면 상해보험이 자동으로 따라붙고, 급할 때는 해약하지 않고 대출로 쓰실 수 있습니다.",
+      ],
+      objections: [
+        {
+          q: "적금 금리가 더 높은데요?",
+          a: "이자만 보면 그럴 수 있습니다. 다만 노란우산은 이자 외에 넣는 단계에서 소득공제를 받으시는 구조라, 둘을 합쳐서 봐야 비교가 됩니다. 지금 화면이 그 합계를 비교한 것입니다.",
+        },
+        {
+          q: "연금저축과는 뭐가 달라요?",
+          a: "연금저축은 만 55세 이후에 연금으로 받는 상품이고, 노란우산은 폐업이나 사망 같은 사유가 생겼을 때 받는 상품입니다. 목적이 다릅니다. 둘은 한도가 따로라 같이 하셔도 각각 공제를 받으실 수 있습니다.",
+        },
+        {
+          q: "중간에 깨면 손해라던데요?",
+          a: "초기에 해약하시면 낸 돈보다 적게 나오는 건 맞습니다. 그래서 급할 때는 해약 대신 공제계약대출을 쓰시면 됩니다. 계약을 유지한 채로 자금을 쓰실 수 있어서 그동안 받은 공제를 토해내지 않습니다.",
+        },
+      ],
+    };
+  }, [result, monthlyAmount, years]);
 
   return (
     <div className="space-y-5">
@@ -525,18 +531,7 @@ ${withIncentive ? `✓ 지자체 가입(희망)장려금 (월 ${formatKRW(incent
             </div>
           </div>
 
-          {/* 고객 안내 멘트 */}
-          <div className="bg-amber-50/40 border border-amber-200 rounded-md p-4">
-            <h4 className="text-sm font-bold text-stone-900 mb-2">
-              고객 안내 멘트{" "}
-              <span className="text-xs font-normal text-stone-500">
-                (직원 참고용 — 인쇄 안 됨)
-              </span>
-            </h4>
-            <pre className="text-[12px] leading-relaxed whitespace-pre-wrap font-sans bg-white/70 p-3 rounded-sm border border-amber-200/60 text-stone-800 max-h-80 overflow-y-auto">
-              {generateScript()}
-            </pre>
-          </div>
+          <SalesScript accent="amber" {...script} />
 
           <div className="bg-stone-50 border border-stone-200 rounded-md p-3 text-xs text-stone-600 leading-relaxed">
             <strong className="text-stone-800">계산 가정:</strong> 노란우산 만기 = 노령급부 도달(만 60세+120개월)·별표1 기준이율 부리적립. 퇴직소득세 8.8% 추정(실제 5~15%). 연금저축 = 적립식 미래가치, 세액공제율은 소득구간 분기, 연금소득세 5.5% 추정. 적금 = 매월 단리, 이자소득세 15.4%. 가입(희망)장려금은 첫 1년 적립 후 가정이율 복리. 모두 추정치이며 실제 상품의 약관·이율·수령 단계 과세는 직접 확인 필요.

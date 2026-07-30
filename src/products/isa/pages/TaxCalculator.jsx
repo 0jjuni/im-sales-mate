@@ -13,6 +13,7 @@ import {
 import { ISA_TYPES, ISA_RULES, ISA_DEPOSIT_DEFAULTS } from "../data/isa";
 import { SectionTitle } from "@shared/components/SectionTitle";
 import { PrintReport } from "@shared/components/PrintReport";
+import { SalesScript } from "@shared/components/SalesScript";
 import { ISA_PRINT_META } from "../printMeta";
 import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
 
@@ -82,41 +83,66 @@ export const TaxCalculator = () => {
     };
   }, [isDeposit, type, principal, rate, years, directProfit]);
 
-  const generateScript = () => {
+  /* 고객에게 실제로 할 수 있는 말. 예금 모드는 「같은 예금인데 세금이 다르다」가 핵심. */
+  const script = useMemo(() => {
+    const common = [
+      {
+        q: "3년 안에 깨면 어떻게 돼요?",
+        a: "그때까지 감면받은 세금을 다시 내셔야 합니다. 다만 그동안 넣으신 원금 범위 안에서 빼시는 건 해지로 보지 않으니, 돈이 필요해지시면 해지 대신 인출을 먼저 검토하시면 됩니다.",
+      },
+      {
+        q: "만기 되면 어떻게 되나요?",
+        a: "만기 3개월 전부터 연장하실 수 있고, 연장하지 않으시면 현금으로 지급됩니다. 연금계좌로 옮기시면 옮긴 금액의 10%를 최대 300만원까지 추가로 세액공제받으실 수 있습니다.",
+      },
+      {
+        q: "누구나 가입할 수 있어요?",
+        a: "만 19세 이상이면 되고, 근로소득이 있으면 15세부터도 됩니다. 다만 최근 3년 안에 금융소득종합과세 대상이 되신 적이 있으면 가입이 안 됩니다. 전 금융회사 통틀어 한 사람이 하나만 만들 수 있습니다.",
+      },
+    ];
+
     if (isDeposit) {
-      return `${type.label} ISA에서 ${formatKRW(principal)}을 연 ${rate.toFixed(
-        1
-      )}% 예금으로 ${years}년 예치한다고 가정하면(월복리·만기일시지급),
-▸ 예상 이자: 약 ${formatKRW(result.interest)}
-▸ ISA 예금 세금: 약 ${formatKRW(result.isaTax)} (비과세 한도 ${formatKRW(
-        result.taxFreeLimit
-      )} 적용, 초과분 9.9%)
-▸ 일반 예금이었다면: 약 ${formatKRW(result.normalTax)} (이자소득세 15.4%)
-▸ 추정 절세액: 약 ${formatKRW(result.saving)}
-▸ 세후 실효금리: ISA 약 ${result.isaEffRate.toFixed(2)}% vs 일반 약 ${result.normalEffRate.toFixed(
-        2
-      )}%
-
-※ 월복리·가정 금리 기준 추정치이며, 신탁보수 차감 전입니다. 최신 고시금리·요율은 상품설명서로 확인해 주세요.
-※ 비과세·분리과세 혜택은 의무가입기간 3년 충족 전제이며, 현행 조특법과 자사 ISA 상품설명서로 확인해 주세요.
-
-— 근거: 조세특례제한법 제91조의18 (개인종합자산관리계좌에 대한 과세특례)`;
+      return {
+        opening: `같은 ${formatKRW(principal)}을 같은 금리로 예치하셔도, ISA로 하시면 세금 ${formatKRW(
+          result.saving
+        )}을 안 내십니다.`,
+        detail: [
+          `일반 예금은 이자에서 15.4%를 떼지만 ISA는 ${formatKRW(
+            result.taxFreeLimit
+          )}까지 세금이 없습니다. 그래서 손에 들어오는 이자가 ${formatKRW(
+            result.normalNet
+          )}에서 ${formatKRW(result.isaNet)}으로 늘어납니다.`,
+          `금리로 바꿔 말씀드리면, 표면금리는 같은 ${rate.toFixed(
+            1
+          )}%인데 세금을 떼고 나면 실제로는 ${result.isaEffRate.toFixed(
+            2
+          )}%를 받으시는 셈입니다. 일반 예금은 ${result.normalEffRate.toFixed(2)}%입니다.`,
+          "대신 3년은 유지하셔야 이 혜택이 유지됩니다. 그 안에 해지하시면 감면받은 세금을 다시 내셔야 합니다.",
+        ],
+        objections: [
+          {
+            q: "예금 금리는 일반 예금과 같아요?",
+            a: "상품마다 다릅니다. ISA 안에 넣는 예금은 별도로 고시된 금리를 적용하고, 신탁형은 신탁보수가 따로 있습니다. 그래서 금리와 보수를 함께 보고 비교하셔야 정확합니다.",
+          },
+          ...common,
+        ],
+      };
     }
-    return `${type.label} ISA로 만기까지 계좌 내 순이익(손익통산 후)이 약 ${formatKRW(
-      result.netProfit
-    )} 발생한다고 가정하면,
-▸ 비과세 한도: ${formatKRW(result.taxFreeLimit)} (${type.label})
-▸ ISA 예상 세금: 약 ${formatKRW(result.isaTax)} (한도 초과분 ${formatKRW(
-      result.taxableInIsa
-    )} × 9.9% 분리과세)
-▸ 일반계좌였다면: 약 ${formatKRW(result.normalTax)} (이자·배당 15.4% 원천징수)
-▸ 추정 절세액: 약 ${formatKRW(result.saving)}
 
-※ 계좌 내 손익통산·비과세·분리과세 혜택은 의무가입기간 3년 충족을 전제로 합니다.
-※ 정확한 내용은 현행 조세특례제한법과 자사 ISA 상품설명서로 확인해 주세요.
-
-— 근거: 조세특례제한법 제91조의18 (개인종합자산관리계좌에 대한 과세특례)`;
-  };
+    return {
+      opening: `이익이 ${formatKRW(
+        result.netProfit
+      )} 나셨다고 보면, 일반계좌에서는 세금이 ${formatKRW(
+        result.normalTax
+      )}인데 ISA에서는 ${formatKRW(result.isaTax)}입니다.`,
+      detail: [
+        `${formatKRW(
+          result.taxFreeLimit
+        )}까지는 세금이 없고 넘는 부분만 9.9%로 끝납니다. 일반계좌처럼 다른 소득과 합쳐서 세금을 매기지 않습니다.`,
+        "그리고 ISA는 계좌 안에서 손해 본 상품과 이익 본 상품을 합쳐서 계산합니다. 일반계좌는 손해를 인정해 주지 않고 이익에만 세금을 매기니, 여러 상품을 함께 운용하실 때 차이가 더 커집니다.",
+      ],
+      objections: common,
+    };
+  }, [isDeposit, result, principal, rate, type]);
 
   return (
     <div className="space-y-5">
@@ -419,15 +445,7 @@ export const TaxCalculator = () => {
             </ResponsiveContainer>
           </div>
 
-          <div className="bg-emerald-50/40 border border-emerald-200 rounded-md p-4">
-            <h4 className="text-sm font-bold text-stone-900 mb-2">
-              고객 안내 멘트{" "}
-              <span className="text-xs font-normal text-stone-500">(직원 참고용 — 인쇄 안 됨)</span>
-            </h4>
-            <pre className="text-[12px] leading-relaxed whitespace-pre-wrap font-sans bg-white/70 p-3 rounded-sm border border-emerald-200/60 text-stone-800">
-              {generateScript()}
-            </pre>
-          </div>
+          <SalesScript accent="emerald" {...script} />
 
           <div className="bg-stone-50 border border-stone-200 rounded-md p-3 text-xs text-stone-600 leading-relaxed">
             <strong className="text-stone-800">계산 근거:</strong> 조세특례제한법 제91조의18(개인종합자산관리계좌 과세특례) — 비과세 한도(일반형 200만원/서민·농어민형 400만원) + 초과분 9.9% 분리과세, 일반 이자소득 15.4% 원천징수 가정.{" "}

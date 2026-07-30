@@ -13,6 +13,7 @@ import {
 import { REFUND_TABLE_GENERAL, REFUND_TABLE_DEEMED } from "../../data/tax";
 import { SectionTitle } from "@shared/components/SectionTitle";
 import { PrintReport } from "@shared/components/PrintReport";
+import { SalesScript } from "@shared/components/SalesScript";
 import { NORAN_PRINT_META } from "../../printMeta";
 import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
 
@@ -165,23 +166,46 @@ export const RefundSimulator = ({ onOpenArticle }) => {
     isBest: c.key === result.best.key,
   }));
 
-  const generateScript = () => {
-    const lines = result.cases.map((c) =>
-      `▸ ${c.title}: ${formatKRW(c.refund)} (${c.taxNote})`
-    );
-    return `[가입 시 안내 — 추정·세전 기준] 월 ${formatKRW(monthlyAmount)} × ${paidMonths}회(${(paidMonths / 12).toFixed(1)}년) 납입 시 사유별 환급금:
+  /* 고객에게 실제로 할 수 있는 말. 이 계산기는 「사유에 따라 받는 돈이 다르다」가 핵심.
+     임의해약이 가장 불리하다는 점을 먼저 짚어야 성급한 해약을 막을 수 있다. */
+  const script = useMemo(() => {
+    /* 「중도에 임의로 해약 시」 — 가장 불리한 경우. 성급한 해약을 막는 근거가 된다 */
+    const voluntary = result.cases.find((c) => /임의/.test(c.title));
+    const years = (paidMonths / 12).toFixed(1);
 
-납부원금: ${formatKRW(result.principal)}
-
-${lines.join("\n")}
-
-💡 가장 유리한 시나리오는 「${result.best.title}」 — 약 ${formatKRW(result.best.refund)} (납부원금 대비 ${result.best.pctGross >= 0 ? "+" : ""}${result.best.pctGross.toFixed(1)}%, 세전)
-
-※ 모든 금액은 세전 기준입니다. 수령 시 과세(퇴직소득세·기타소득세 등)는 가입기간·다른 소득·소득공제 받은 정도 등에 따라 달라지므로 영업점에서 단정 안내하지 않습니다. 정확한 실수령액은 중앙회 시스템(1666-9988) 조회 + 세무 전문가 상담 권장.
-※ 본 추정은 가정 기준이율 ${assumedRate}% 연단위 복리 적립식 기준입니다. 부가지급률·매 분기 변동 기준이율 미반영.
-
-— 약관 근거: 약관 제17조·제18조(공제금), 제24조(해약환급금), 별표1·2·3`;
-  };
+    return {
+      opening: `같은 ${formatKRW(
+        result.principal
+      )}을 넣으셨어도 어떤 사유로 받으시는지에 따라 금액이 달라집니다. 가장 많이 나오는 경우가 ${formatKRW(
+        result.best.refund
+      )}${voluntary ? `, 그냥 해약하시는 경우가 ${formatKRW(voluntary.refund)}입니다` : "입니다"}.`,
+      detail: [
+        `${years}년, ${paidMonths}회 납입을 기준으로 본 추정입니다. 폐업이나 사망처럼 공제 사유가 생겼을 때가 가장 많이 나오고, 사정이 생겨 그냥 해약하시는 경우가 가장 적게 나옵니다.`,
+        voluntary
+          ? `그냥 해약하시는 경우는 납부원금 대비 ${
+              voluntary.pctGross >= 0 ? "+" : ""
+            }${voluntary.pctGross.toFixed(
+              1
+            )}%인데, 여기에 그동안 소득공제 받으신 만큼 세금도 다시 내셔야 합니다.`
+          : "그냥 해약하시는 경우가 가장 불리하니, 사유를 먼저 확인해 보시는 게 좋습니다.",
+        "실제 금액은 중앙회 시스템에서 조회한 결과로 안내드려야 합니다. 이 화면은 대략의 차이를 보시는 용도입니다.",
+      ],
+      objections: [
+        {
+          q: "왜 낸 돈보다 적게 나와요?",
+          a: "가입 초기에는 그렇습니다. 납입 초기 회차는 이자가 붙지 않고, 해약 시점에 따라 지급 기준이 달라집니다. 그래서 오래 유지하실수록 유리해집니다.",
+        },
+        {
+          q: "특별해지 사유가 뭐예요?",
+          a: "폐업이나 사망, 천재지변, 해외이주, 3개월 이상 입원·요양, 그리고 120개월 이상 납입하고 경영이 어려워진 경우 등입니다. 이 사유에 해당하면 세금이 훨씬 낮게 적용됩니다. 다만 사유가 생긴 날부터 6개월 안에 신청하셔야 합니다.",
+        },
+        {
+          q: "지금 당장 돈이 필요한데요?",
+          a: "해약하기 전에 공제계약대출을 먼저 검토해 보시는 게 좋습니다. 계약을 유지한 채로 자금을 쓰실 수 있어서, 그동안 받으신 소득공제를 토해내지 않아도 됩니다.",
+        },
+      ],
+    };
+  }, [result, paidMonths]);
 
   const years = (paidMonths / 12).toFixed(1);
 
@@ -334,18 +358,7 @@ ${lines.join("\n")}
             </p>
           </div>
 
-          {/* 고객 안내 멘트 */}
-          <div className="bg-amber-50/40 border border-amber-200 rounded-md p-4">
-            <h4 className="text-sm font-bold text-stone-900 mb-2">
-              고객 안내 멘트{" "}
-              <span className="text-xs font-normal text-stone-500">
-                (직원 참고용 — 인쇄 안 됨)
-              </span>
-            </h4>
-            <pre className="text-[12px] leading-relaxed whitespace-pre-wrap font-sans bg-white/70 p-3 rounded-sm border border-amber-200/60 text-stone-800 max-h-80 overflow-y-auto">
-              {generateScript()}
-            </pre>
-          </div>
+          <SalesScript accent="amber" {...script} />
 
           <div className="bg-stone-50 border border-stone-200 rounded-md p-3 text-xs text-stone-600 leading-relaxed">
             <strong className="text-stone-800">계산 근거:</strong>{" "}

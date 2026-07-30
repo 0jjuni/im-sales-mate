@@ -13,6 +13,7 @@ import {
 import { CREDIT_RULES } from "../data/pension";
 import { SectionTitle } from "@shared/components/SectionTitle";
 import { PrintReport } from "@shared/components/PrintReport";
+import { SalesScript } from "@shared/components/SalesScript";
 import { PENSION_PRINT_META } from "../printMeta";
 import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
 
@@ -100,44 +101,81 @@ export const TaxCreditCalculator = () => {
     };
   }, [income, threshold, pensionSaving, irp]);
 
-  const generateScript = () =>
-    `${isSalary ? "총급여" : "종합소득금액"} ${formatKRW(income)} 기준으로, 현재 연금저축 ${formatKRW(
-      pensionSaving
-    )} + IRP ${formatKRW(irp)}를 납입하고 계신 경우
-▸ 세액공제 대상액: ${formatKRW(result.eligible)} (연금저축 ${formatKRW(
-      result.savingEligible
-    )} + IRP ${formatKRW(result.irpEligible)})
-▸ 적용 공제율: ${(result.rate * 100).toFixed(1)}%
-▸ 예상 환급액: 약 ${formatKRW(result.credit)}${
-      result.reallocGain > 0
-        ? `
+  /* 고객에게 실제로 할 수 있는 말. 상황에 따라 첫 마디가 달라진다.
+     ① 한도 초과분이 있으면 그 손해부터 짚는다(IRP 유치 기회)
+     ② 여유가 있으면 얼마 더 넣으면 얼마 받는지
+     ③ 이미 최적이면 확인해 드린다 */
+  const script = useMemo(() => {
+    const common = [
+      {
+        q: "중간에 해지하면 어떻게 돼요?",
+        a: "그동안 공제받으신 금액과 운용수익에 16.5%가 부과됩니다. 공제받을 때 13.2%를 적용받으셨다면 돌려받은 것보다 더 내실 수도 있습니다. 그래서 연금으로 쓸 자금만 넣으시는 게 좋습니다.",
+      },
+      {
+        q: "돈이 급하게 필요해지면요?",
+        a: "연금저축은 계좌를 유지한 채로 필요한 금액만 빼실 수 있고 담보대출도 가능합니다. IRP는 법에서 정한 사유가 아니면 전액 해지해야 하니, 유동성이 걱정되시면 연금저축 쪽 비중을 두시는 게 낫습니다.",
+      },
+      {
+        q: "연금 받을 때 세금은 얼마예요?",
+        a: "만 55세 이후에 연금으로 받으시면 3.3%에서 5.5% 사이입니다. 늦게 받으실수록 세율이 낮아지고, 한 해에 1,500만원을 넘기지 않게 나눠 받으시면 그 낮은 세율로 끝납니다.",
+      },
+    ];
 
-⚠ 연금저축은 단독으로 600만원까지만 공제됩니다. 지금 넣고 계신 ${formatKRW(
-            pensionSaving
-          )} 중 ${formatKRW(result.savingExcess)}은 공제를 받지 못하고 있습니다.
-▸ 그 ${formatKRW(
-            result.moveToIrp
-          )}을 IRP로 옮기시면 환급액이 약 ${formatKRW(
-            result.optCredit
-          )}으로 늘어납니다 (약 ${formatKRW(result.reallocGain)} 추가).`
-        : ""
-    }${
-      result.roomToLimit > 0
-        ? `
-
-▸ IRP에 ${formatKRW(
-            result.roomToLimit
-          )} (월 ${formatKRWShort(
-            result.roomToLimit / 12
-          )})을 더 납입하시면 약 ${formatKRW(result.roomGain)}을 추가로 환급받으실 수 있습니다.`
-        : ""
+    if (result.reallocGain > 0) {
+      return {
+        opening: `지금 연금저축에 ${formatKRW(
+          pensionSaving
+        )}을 넣고 계신데, 그중 ${formatKRW(result.savingExcess)}은 공제를 못 받고 계십니다.`,
+        detail: [
+          "연금저축은 단독으로 600만원까지만 인정되고, IRP를 합쳐야 900만원까지 됩니다. 같은 금액인데 나눠 넣지 않아서 공제가 빠지고 있는 겁니다.",
+          `그 ${formatKRW(result.moveToIrp)}을 IRP로 옮기시면 환급액이 ${formatKRW(
+            result.credit
+          )}에서 ${formatKRW(result.optCredit)}으로, ${formatKRW(
+            result.reallocGain
+          )} 늘어납니다.`,
+          "저희 IRP는 비대면으로 여시면 수수료가 없습니다. 오늘 계좌만 만들어 두시고 다음 납입부터 나눠 넣으셔도 됩니다.",
+        ],
+        objections: [
+          {
+            q: "이미 넣은 건 어떻게 되나요?",
+            a: "올해 이미 연금저축에 넣으신 금액은 그대로입니다. 한도를 넘은 부분은 나중에 인출할 때 세금이 붙지 않으니 손해는 아니지만, 공제는 못 받습니다. 남은 기간 납입분을 IRP로 돌리시면 그만큼 공제를 챙기실 수 있습니다.",
+          },
+          ...common,
+        ],
+      };
     }
 
-※ 연금저축은 단독 600만원, 연금저축+IRP 합산 900만원까지 세액공제됩니다.
-※ 중도해지 시 세액공제 받은 금액과 운용수익에 기타소득세 16.5%가 부과되어, 환급받은 금액보다 더 납부하게 될 수 있습니다.
-※ 실제 공제액은 산출세액 범위 내에서 적용되며, 다른 공제 항목·세법 개정에 따라 달라집니다.
+    if (result.roomToLimit > 0) {
+      return {
+        opening: `지금 납입액으로 연말정산 때 ${formatKRW(
+          result.credit
+        )} 정도 돌려받으시는데, 한도까지 여유가 ${formatKRW(result.roomToLimit)} 남았습니다.`,
+        detail: [
+          `그 금액을 IRP에 더 넣으시면 ${formatKRW(
+            result.roomGain
+          )}을 추가로 돌려받으십니다. 월로 나누면 ${formatKRWShort(
+            result.roomToLimit / 12
+          )}쯤 됩니다.`,
+          `넣으신 금액의 ${(result.rate * 100).toFixed(
+            1
+          )}%가 세금으로 돌아오는 구조라, 연말정산에서 확정된 금액으로 받으시는 셈입니다.`,
+          "저희 IRP는 비대면으로 여시면 수수료가 없습니다.",
+        ],
+        objections: common,
+      };
+    }
 
-— 근거: 소득세법 제59조의3 (연금계좌세액공제)`;
+    return {
+      opening: `지금 납입액이면 연말정산 때 ${formatKRW(
+        result.credit
+      )}을 돌려받으십니다. 세액공제 한도를 다 채우고 계십니다.`,
+      detail: [
+        `연금저축 600만원과 IRP를 합쳐 900만원이 한도인데, 지금 그 한도만큼 공제를 받고 계십니다. 더 넣으셔도 공제는 늘지 않습니다.`,
+        "다만 한도를 넘겨 넣으신 금액은 나중에 연금으로 받으실 때 세금이 붙지 않습니다. 노후 자금을 더 쌓을 목적이라면 추가 납입도 손해는 아닙니다.",
+      ],
+      objections: common,
+    };
+  }, [result, pensionSaving]);
 
   return (
     <div className="space-y-5">
@@ -439,15 +477,7 @@ export const TaxCreditCalculator = () => {
             </div>
           )}
 
-          <div className="bg-violet-50/40 border border-violet-200 rounded-md p-4">
-            <h4 className="text-sm font-bold text-stone-900 mb-2">
-              고객 안내 멘트{" "}
-              <span className="text-xs font-normal text-stone-500">(직원 참고용 — 인쇄 안 됨)</span>
-            </h4>
-            <pre className="text-[12px] leading-relaxed whitespace-pre-wrap font-sans bg-white/70 p-3 rounded-sm border border-violet-200/60 text-stone-800">
-              {generateScript()}
-            </pre>
-          </div>
+          <SalesScript accent="violet" {...script} />
 
           <div className="bg-stone-50 border border-stone-200 rounded-md p-3 text-xs text-stone-600 leading-relaxed">
             <strong className="text-stone-800">계산 근거:</strong> 소득세법 제59조의3(연금계좌세액공제)
