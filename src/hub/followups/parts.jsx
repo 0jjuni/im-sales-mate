@@ -185,11 +185,26 @@ export const DateControl = ({ item, onUpdate }) => {
   );
 };
 
-export const FollowupRow = ({ item, onToggle, onUpdate, onRemove, onSearch, compact }) => {
+export const FollowupRow = ({
+  item,
+  onToggle,
+  onUpdate,
+  onRemove,
+  onSearch,
+  compact,
+  highlight,
+}) => {
   const isNote = item.type === "note";
   const done = !isNote && item.status === "done";
   return (
-    <li className={cn("flex gap-3 px-3 py-2.5", done && "opacity-55")}>
+    <li
+      className={cn(
+        "flex gap-3 px-3 py-2.5",
+        done && "opacity-55",
+        /* 달력에서 고른 날짜의 건을 목록에서 찾기 쉽게 */
+        highlight && "bg-im-50/70"
+      )}
+    >
       {isNote ? (
         <span
           title="고객 메모"

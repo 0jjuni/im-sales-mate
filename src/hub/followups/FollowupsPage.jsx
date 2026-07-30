@@ -43,18 +43,12 @@ export default function FollowupsPage() {
     return matched.sort((a, b) => rank(a) - rank(b) || (b.createdAt ?? 0) - (a.createdAt ?? 0));
   }, [items, q]);
 
-  /* 선택한 날짜의 건 — 완료 포함 여부는 토글 */
-  const dayItems = useMemo(() => {
-    const list = items.filter(
-      (i) => i.type !== "note" && i.followUpDate === selectedDate && (showDone || i.status === "open")
-    );
-    return list.sort((a, b) => (a.status === b.status ? 0 : a.status === "done" ? 1 : -1));
-  }, [items, selectedDate, showDone]);
-
-  /* 기한 없는 예정 — 달력에 자리가 없으니 따로 모아 준다 */
-  const undated = useMemo(
-    () => openItems.filter((i) => !i.followUpDate),
-    [openItems]
+  /* 옆 목록은 선택한 날짜만이 아니라 예정 전체를 보여 준다.
+     날짜를 옮겨 다니지 않아도 할 일이 한눈에 들어와야 한다.
+     openItems는 이미 가까운 날짜 → 기한 없음 순으로 정렬돼 온다. */
+  const listItems = useMemo(
+    () => (showDone ? [...openItems, ...doneItems] : openItems),
+    [openItems, doneItems, showDone]
   );
 
   const rowProps = {
@@ -174,28 +168,18 @@ export default function FollowupsPage() {
                   items={items}
                   selectedDate={selectedDate}
                   onSelectDate={setSelectedDate}
+                  onMoveItem={(id, followUpDate) => update(id, { followUpDate })}
                 />
-                {undated.length > 0 && (
-                  <div className="mt-3 rounded-lg border border-slate-200 bg-white">
-                    <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
-                      <span className="text-[12px] font-bold text-slate-700">기한 없는 예정</span>
-                      <span className="text-[11px] text-slate-400">{undated.length}건</span>
-                    </div>
-                    <ul className="divide-y divide-slate-100 py-1">
-                      {undated.map((item) => (
-                        <FollowupRow key={item.id} item={item} {...rowProps} />
-                      ))}
-                    </ul>
-                  </div>
-                )}
               </div>
 
-              {/* 선택한 날짜 */}
               <div className="space-y-3 lg:col-span-2">
                 <div className="rounded-lg border border-slate-200 bg-white">
                   <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-3 py-2.5">
                     <span className="text-[13px] font-bold text-slate-900">
-                      {fmtDate(selectedDate)}
+                      전체 목록
+                      <span className="ml-1.5 text-[11px] font-medium text-slate-400">
+                        가까운 순
+                      </span>
                     </span>
                     <label className="inline-flex cursor-pointer items-center gap-1.5 text-[11px] text-slate-500">
                       <input
@@ -207,14 +191,19 @@ export default function FollowupsPage() {
                       완료 포함
                     </label>
                   </div>
-                  {dayItems.length === 0 ? (
+                  {listItems.length === 0 ? (
                     <p className="px-3 py-6 text-center text-[12px] text-slate-400">
-                      이 날짜에 잡힌 후속 연락이 없습니다.
+                      예정된 후속 연락이 없습니다.
                     </p>
                   ) : (
-                    <ul className="divide-y divide-slate-100 py-1">
-                      {dayItems.map((item) => (
-                        <FollowupRow key={item.id} item={item} {...rowProps} />
+                    <ul className="max-h-[32rem] divide-y divide-slate-100 overflow-y-auto py-1">
+                      {listItems.map((item) => (
+                        <FollowupRow
+                          key={item.id}
+                          item={item}
+                          highlight={item.followUpDate === selectedDate}
+                          {...rowProps}
+                        />
                       ))}
                     </ul>
                   )}
