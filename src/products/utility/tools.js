@@ -10,7 +10,7 @@ export const UTILITY_TOOLS = [
   {
     id: "utility.name",
     name: "영문 이름 변환기",
-    desc: "한글 이름을 여권 표기 형식의 영문명으로 변환",
+    desc: "한글 이름을 카드 발급 서식용 영문명으로 변환",
     to: "/tools/name",
     icon: "UserRound",
     group: "창구 업무",
@@ -18,7 +18,7 @@ export const UTILITY_TOOLS = [
   {
     id: "utility.address",
     name: "영문 주소 변환기",
-    desc: "도로명주소를 해외송금 서식용 영문 주소로 변환",
+    desc: "도로명주소를 영문 주소 표기로 변환",
     to: "/tools/address",
     icon: "MapPin",
     group: "창구 업무",

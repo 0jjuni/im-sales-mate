@@ -122,30 +122,9 @@ export const NameRomanizer = () => {
           영문 이름 변환기
         </h1>
         <p className="text-sm text-stone-600 mt-1">
-          카드 발급 신청서나 해외송금 서식에 적을 영문 이름을 만듭니다. 고객이 영문 표기를 모를 때
-          대신 적어 드리는 용도입니다.
+          카드 발급 신청서에 적을 영문 이름을 만듭니다. 고객이 영문 표기를 모를 때 대신 적어 드리는
+          용도입니다.
         </p>
-      </div>
-
-      <div className="rounded-md border border-stone-200 bg-white px-4 py-3">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-stone-500">
-          어느 표기를 쓸지
-        </div>
-        <div className="mt-1.5 grid gap-2 sm:grid-cols-2">
-          <div className="rounded-sm border-l-4 border-sky-400 bg-sky-50/50 px-3 py-2">
-            <div className="text-[12px] font-bold text-stone-900">여권이 있으면</div>
-            <p className="mt-0.5 text-[11.5px] leading-relaxed text-stone-600">
-              여권 표기를 그대로 쓰세요. 특히 해외에서 쓸 카드나 해외송금은 여권과 다르면 문제가
-              생길 수 있습니다.
-            </p>
-          </div>
-          <div className="rounded-sm border-l-4 border-emerald-400 bg-emerald-50/50 px-3 py-2">
-            <div className="text-[12px] font-bold text-stone-900">여권이 없거나 모르시면</div>
-            <p className="mt-0.5 text-[11.5px] leading-relaxed text-stone-600">
-              아래 표기를 사용하시면 됩니다. 국내 사용 카드는 여권과 맞출 필요가 없습니다.
-            </p>
-          </div>
-        </div>
       </div>
 
       <div className="rounded-md border border-stone-200 bg-white p-5">
@@ -274,7 +253,7 @@ export const NameRomanizer = () => {
                 : undefined,
           },
         ]}
-        note="국어의 로마자 표기법에 따른 표기입니다. 여권을 소지한 고객은 여권 표기를 우선하며, 이미 사용 중인 영문 표기가 있으면 그 표기를 따릅니다."
+        note="국어의 로마자 표기법에 따른 표기입니다. 고객이 이미 사용 중인 영문 표기나 여권 표기가 있으면 그 표기를 따릅니다."
       />
     )}
     </>

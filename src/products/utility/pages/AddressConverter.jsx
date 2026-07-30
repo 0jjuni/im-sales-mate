@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { MapPin, AlertTriangle, Check, Copy, ExternalLink, Printer } from "lucide-react";
+import { MapPin, AlertTriangle, Check, Copy, Printer } from "lucide-react";
 import { convertAddress } from "../lib/address";
 import { UtilitySlip } from "../components/UtilitySlip";
 import { cn } from "@shared/lib/format";
@@ -7,9 +7,9 @@ import { cn } from "@shared/lib/format";
 /* 영문 주소 변환기.
    근거: 도로명주소법 시행규칙 로마자 표기 방법 + 국어의 로마자 표기법
 
-   공식 영문주소는 도로명주소 안내시스템(juso.go.kr) 영문 검색 결과가 기준이다.
-   이 도구는 그 조회 전에 형태를 빠르게 잡아 주고, 조회가 어려운 상황에서
-   대략의 표기를 확인하는 보조 수단이다. */
+   규칙 기반 변환이라 외래어가 들어간 도로명(예: 센텀중앙로)은 소리대로 옮겨져
+   공식 표기와 다를 수 있다. 표기가 정확히 맞아야 하는 서식은 공식 영문주소로
+   확인해야 한다. */
 
 const EXAMPLES = [
   "서울특별시 강남구 테헤란로 152",
@@ -76,17 +76,17 @@ export const AddressConverter = () => {
           영문 주소 변환기
         </h1>
         <p className="text-sm text-stone-600 mt-1">
-          카드 발급 신청서나 해외송금 서식에 적을 영문 주소를 만듭니다. 고객이 영문 주소를 모를 때
-          대신 적어 드리는 용도입니다.
+          영문 주소가 필요한 서식에 적을 주소를 만듭니다. 고객이 영문 주소를 모를 때 대신 적어 드리는
+          용도입니다.
         </p>
       </div>
 
       <div className="flex items-start gap-2 rounded-r-sm border-l-4 border-amber-500 bg-amber-50/60 px-4 py-2.5">
         <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
         <p className="text-xs leading-relaxed text-stone-800">
-          해외송금처럼 표기가 정확히 맞아야 하는 서류는{" "}
-          <strong>도로명주소 안내시스템의 영문 검색 결과</strong>를 쓰세요. 이 도구는 형태를 빠르게
-          잡아 주는 보조 수단입니다.
+          도로명주소 로마자 표기 규칙에 따라 변환합니다. 외래어가 들어간 도로명은 소리대로 옮겨져
+          공식 표기와 다를 수 있으니, 표기가 정확히 맞아야 하는 서식은 공식 영문주소를 확인해
+          주세요.
         </p>
       </div>
 
@@ -130,7 +130,7 @@ export const AddressConverter = () => {
                 <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-amber-600" />
                 <p className="text-[11.5px] leading-relaxed text-stone-700">
                   {!result.parts.road
-                    ? "도로명과 건물번호를 찾지 못했습니다. 지번주소이거나 형식이 다를 수 있으니 도로명주소로 다시 입력하거나 아래에서 조회해 주세요."
+                    ? "도로명과 건물번호를 찾지 못했습니다. 지번주소이거나 형식이 달라 보이니 도로명주소로 다시 입력해 주세요."
                     : "시/도를 찾지 못했습니다. 「서울특별시」처럼 앞에 시·도를 포함해 입력해 주세요."}
                 </p>
               </div>
@@ -155,23 +155,6 @@ export const AddressConverter = () => {
         )}
       </div>
 
-      <a
-        href="https://www.juso.go.kr/openEngPage.do"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center justify-between gap-3 rounded-md border-2 border-sky-200 bg-sky-50/40 px-4 py-3 transition-colors hover:border-sky-400"
-      >
-        <span>
-          <span className="block text-[13px] font-bold text-stone-900">
-            도로명주소 영문 검색 (juso.go.kr)
-          </span>
-          <span className="block text-[11.5px] text-stone-600">
-            공식 영문주소를 조회합니다. 서류에 쓸 최종 주소는 여기서 확인하세요.
-          </span>
-        </span>
-        <ExternalLink className="h-4 w-4 flex-shrink-0 text-sky-600" />
-      </a>
-
       <div className="rounded-md border border-stone-200 bg-stone-50 p-3 text-[11.5px] leading-relaxed text-stone-600">
         <strong className="text-stone-800">변환 규칙:</strong> 한국 주소는 큰 단위부터 적지만 영문
         주소는 작은 단위부터 적으므로 순서를 뒤집습니다. 도로 유형은 대로 daero, 로 ro, 길 gil로
@@ -188,7 +171,7 @@ export const AddressConverter = () => {
           { label: "영문 주소", value: result.full, emphasis: true },
           ...(result.zip ? [{ label: "우편번호", value: result.zip }] : []),
         ]}
-        note="도로명주소 로마자 표기 규칙에 따른 표기입니다. 해외송금 등 표기가 정확히 일치해야 하는 서류는 도로명주소 안내시스템(juso.go.kr)의 영문 검색 결과로 확인하시기 바랍니다."
+        note="도로명주소 로마자 표기 규칙에 따른 표기입니다. 표기가 정확히 일치해야 하는 서식은 공식 영문주소로 확인하시기 바랍니다."
       />
     )}
     </>
