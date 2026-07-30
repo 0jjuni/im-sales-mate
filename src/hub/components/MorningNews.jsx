@@ -136,8 +136,8 @@ export function MorningNews({ data, status, onReload }) {
       )}
 
       <div className="border-t border-slate-100 bg-slate-50/60 px-5 py-2.5 text-[10px] text-slate-500">
-        뉴스는 예시 데이터입니다 (자동 생성 연동 예정) · 내부 참고용이며 특정 종목·상품의 투자권유가
-        아닙니다.
+        공개된 발표·보도를 요약한 내부 참고 자료입니다. 상담 전 원문과 최신 시행 사항을 확인하세요.
+        특정 종목·상품의 투자권유가 아닙니다.
       </div>
     </section>
   );
