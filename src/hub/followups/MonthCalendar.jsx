@@ -9,9 +9,9 @@ import {
   useDroppable,
   pointerWithin,
 } from "@dnd-kit/core";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { ddayOf } from "./useFollowups";
-import { toISO, fmtDate } from "./parts";
+import { toISO, isShared } from "./parts";
 import { cn } from "@shared/lib/format";
 
 /* 월 달력 — 날짜 칸 안에 예정 건을 직접 보여 주고, 끌어서 다른 날짜로 옮길 수 있다.
@@ -19,7 +19,9 @@ import { cn } from "@shared/lib/format";
    키보드·터치 환경을 위해 목록의 연락일 버튼(미루기 패널)도 그대로 둔다. */
 
 const DOW = ["일", "월", "화", "수", "목", "금", "토"];
-const MAX_VISIBLE = 3; // 칸 안에 직접 보여 줄 건수. 넘으면 「+n건」
+const MAX_VISIBLE = 4; // 칸 안에 직접 보여 줄 건수. 넘으면 「+n건」
+/* 칸 높이 — 창구에서 한 화면에 한 달치를 읽어야 하므로 넉넉하게 잡는다 */
+const CELL_H = "min-h-[118px] md:min-h-[136px]";
 
 /* 예정 건의 상태별 색 — 목록의 D-day 배지와 같은 규칙 */
 const itemTone = (item) => {
@@ -33,21 +35,27 @@ const itemTone = (item) => {
 
 const itemLabel = (it) => it.memo || it.customerNo || "내용 없음";
 
-/* 칸 안의 띠 하나 — 끌어서 다른 날짜로 옮긴다 */
+/* 칸 안의 띠 하나 — 끌어서 다른 날짜로 옮긴다.
+   지점 공유 건은 앞에 사람 아이콘을 붙여 내 기록과 구분한다 */
 const ItemBar = ({ item }) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: item.id });
+  const shared = isShared(item);
   return (
     <span
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      title={`${item.customerNo || "(번호 미기재)"} · ${item.memo}\n끌어서 날짜 변경`}
+      title={`${shared ? "[지점 공유] " : ""}${item.customerNo || "(번호 미기재)"} · ${
+        item.memo
+      }\n끌어서 날짜 변경`}
       className={cn(
-        "block cursor-grab truncate rounded-sm px-1 py-0.5 text-[10px] font-medium leading-tight active:cursor-grabbing",
+        "block cursor-grab truncate rounded-sm px-1.5 py-1 text-[11px] font-medium leading-tight active:cursor-grabbing",
         itemTone(item),
+        shared && "border-l-2 border-teal-500",
         isDragging && "opacity-30"
       )}
     >
+      {shared && <Users className="mr-0.5 inline h-2.5 w-2.5 align-[-1px]" />}
       {itemLabel(item)}
     </span>
   );
@@ -62,7 +70,8 @@ const DayCell = ({ iso, day, dow, list, isToday, isSelected, onSelect }) => {
       ref={setNodeRef}
       onClick={() => onSelect(iso)}
       className={cn(
-        "min-h-[92px] cursor-pointer border-b border-r border-slate-100 p-1.5 transition-colors",
+        CELL_H,
+        "cursor-pointer border-b border-r border-slate-100 p-2 transition-colors",
         isOver
           ? "bg-im-100/80 ring-1 ring-inset ring-im-500"
           : isSelected
@@ -72,7 +81,7 @@ const DayCell = ({ iso, day, dow, list, isToday, isSelected, onSelect }) => {
     >
       <span
         className={cn(
-          "inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full px-1 text-[11px] tabular-nums",
+          "inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full px-1 text-[12.5px] tabular-nums",
           isToday
             ? "bg-im-600 font-bold text-white"
             : dow === 0
@@ -85,13 +94,13 @@ const DayCell = ({ iso, day, dow, list, isToday, isSelected, onSelect }) => {
         {day}
       </span>
 
-      <span className="mt-1 block space-y-0.5">
-        {/* 칸이 좁아 메모만 보여 준다. 고객번호는 옆 목록에서 확인·복사한다 */}
+      <span className="mt-1 block space-y-1">
+        {/* 칸에는 메모만 보여 준다. 고객번호는 옆 목록에서 확인·복사한다 */}
         {list.slice(0, MAX_VISIBLE).map((it) => (
           <ItemBar key={it.id} item={it} />
         ))}
         {list.length > MAX_VISIBLE && (
-          <span className="block px-1 text-[10px] font-semibold text-slate-500">
+          <span className="block px-1 text-[10.5px] font-semibold text-slate-500">
             +{list.length - MAX_VISIBLE}건
           </span>
         )}
@@ -171,7 +180,7 @@ export function MonthCalendar({ items, selectedDate, onSelectDate, onMoveItem })
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <span className="min-w-[7rem] text-center text-[15px] font-bold tabular-nums text-slate-900">
+            <span className="min-w-[7.5rem] text-center text-[16.5px] font-bold tabular-nums text-slate-900">
               {view.y}년 {view.m + 1}월
             </span>
             <button
@@ -201,7 +210,7 @@ export function MonthCalendar({ items, selectedDate, onSelectDate, onMoveItem })
             <div
               key={d}
               className={cn(
-                "py-1.5 text-center text-[11px] font-bold",
+                "py-2 text-center text-[12px] font-bold",
                 i === 0 ? "text-rose-500" : i === 6 ? "text-blue-500" : "text-slate-500"
               )}
             >
@@ -214,7 +223,7 @@ export function MonthCalendar({ items, selectedDate, onSelectDate, onMoveItem })
         <div className="grid grid-cols-7">
           {cells.map((day, idx) => {
             if (day === null)
-              return <div key={`e${idx}`} className="min-h-[92px] bg-slate-50/40" />;
+              return <div key={`e${idx}`} className={cn(CELL_H, "bg-slate-50/40")} />;
             const cellDate = new Date(view.y, view.m, day);
             const iso = toISO(cellDate);
             return (
@@ -238,7 +247,7 @@ export function MonthCalendar({ items, selectedDate, onSelectDate, onMoveItem })
         {dragging && (
           <span
             className={cn(
-              "block max-w-[12rem] truncate rounded-sm px-1.5 py-1 text-[10px] font-medium leading-tight shadow-lg",
+              "block max-w-[14rem] truncate rounded-sm px-2 py-1 text-[11px] font-medium leading-tight shadow-lg",
               itemTone(dragging)
             )}
           >

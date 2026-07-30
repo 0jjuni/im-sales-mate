@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, StickyNote, Search, X, ShieldAlert } from "lucide-react";
+import { CalendarDays, StickyNote, Search, X, ShieldAlert, Lock, Users } from "lucide-react";
 import { HubShell } from "../HubShell";
 import { HubLink } from "@shared/components/HubLink";
 import { useFollowups } from "./useFollowups";
 import { MonthCalendar } from "./MonthCalendar";
-import { FollowupRow, FollowupForm, PrivacyNotice, fmtDate, toISO } from "./parts";
+import { FollowupRow, FollowupForm, PrivacyNotice, fmtDate, toISO, isShared } from "./parts";
 import { cn } from "@shared/lib/format";
 
 /* 고객 후속 관리 전체 화면.
@@ -19,6 +19,13 @@ const VIEWS = [
   { id: "notes", label: "고객 메모", icon: StickyNote },
 ];
 
+/* 공유 범위 필터 — 지점 공유가 쌓이면 내 것만 보고 싶은 순간이 온다 */
+const SCOPE_FILTERS = [
+  { id: "all", label: "전체", icon: null },
+  { id: "mine", label: "내 기록", icon: Lock },
+  { id: "branch", label: "지점 공유", icon: Users },
+];
+
 export default function FollowupsPage() {
   const { items, openItems, doneItems, noteItems, summary, add, update, remove, toggleDone } =
     useFollowups();
@@ -26,6 +33,14 @@ export default function FollowupsPage() {
   const [selectedDate, setSelectedDate] = useState(() => toISO(new Date()));
   const [showDone, setShowDone] = useState(false);
   const [query, setQuery] = useState("");
+  const [scopeFilter, setScopeFilter] = useState("all");
+
+  /* 공유 범위 필터를 어느 목록에나 같은 규칙으로 적용한다 */
+  const byScope = useMemo(() => {
+    if (scopeFilter === "all") return (list) => list;
+    const want = scopeFilter === "branch";
+    return (list) => list.filter((i) => isShared(i) === want);
+  }, [scopeFilter]);
 
   useEffect(() => {
     const prev = document.title;
@@ -47,9 +62,12 @@ export default function FollowupsPage() {
      날짜를 옮겨 다니지 않아도 할 일이 한눈에 들어와야 한다.
      openItems는 이미 가까운 날짜 → 기한 없음 순으로 정렬돼 온다. */
   const listItems = useMemo(
-    () => (showDone ? [...openItems, ...doneItems] : openItems),
-    [openItems, doneItems, showDone]
+    () => byScope(showDone ? [...openItems, ...doneItems] : openItems),
+    [openItems, doneItems, showDone, byScope]
   );
+  const calendarItems = useMemo(() => byScope(items), [items, byScope]);
+  const visibleNotes = useMemo(() => byScope(noteItems), [noteItems, byScope]);
+  const visibleDone = useMemo(() => byScope(doneItems), [doneItems, byScope]);
 
   const rowProps = {
     onToggle: toggleDone,
@@ -59,7 +77,7 @@ export default function FollowupsPage() {
   };
 
   return (
-    <HubShell>
+    <HubShell wide>
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <HubLink compact className="mb-2" />
@@ -67,7 +85,8 @@ export default function FollowupsPage() {
             고객 후속 관리
           </h1>
           <p className="mt-0.5 text-[12px] text-slate-500">
-            상담 중 나온 약속과 고객 메모를 고객번호로 기록하고 다시 찾습니다.
+            상담 중 나온 약속과 고객 메모를 고객번호로 기록하고 다시 찾습니다. 지점이 함께 챙길 건은
+            공유로 올립니다.
           </p>
         </div>
 
@@ -130,7 +149,7 @@ export default function FollowupsPage() {
       ) : (
         <>
           {/* 뷰 전환 — 후속 연락(날짜 있음) / 고객 메모(날짜 없음) */}
-          <div className="mb-3 flex items-center gap-1">
+          <div className="mb-3 flex flex-wrap items-center gap-1">
             {VIEWS.map((v) => {
               const Icon = v.icon;
               const on = view === v.id;
@@ -154,13 +173,38 @@ export default function FollowupsPage() {
                 </button>
               );
             })}
+
+            {/* 공유 범위 필터 */}
+            <div className="ml-auto inline-flex overflow-hidden rounded-md ring-1 ring-inset ring-slate-200">
+              {SCOPE_FILTERS.map((s) => {
+                const Icon = s.icon;
+                const on = scopeFilter === s.id;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => setScopeFilter(s.id)}
+                    className={cn(
+                      "inline-flex items-center gap-1 px-2.5 py-1.5 text-[12px] font-semibold transition-colors",
+                      on
+                        ? s.id === "branch"
+                          ? "bg-teal-600 text-white"
+                          : "bg-slate-700 text-white"
+                        : "bg-white text-slate-500 hover:text-slate-800"
+                    )}
+                  >
+                    {Icon && <Icon className="h-3 w-3" />}
+                    {s.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {view === "calendar" ? (
             <div className="grid gap-3 lg:grid-cols-5">
               <div className="lg:col-span-3">
                 <MonthCalendar
-                  items={items}
+                  items={calendarItems}
                   selectedDate={selectedDate}
                   onSelectDate={setSelectedDate}
                   onMoveItem={(id, followUpDate) => update(id, { followUpDate })}
@@ -218,9 +262,9 @@ export default function FollowupsPage() {
                 <div className="rounded-lg border border-slate-200 bg-white">
                   <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2.5">
                     <span className="text-[13px] font-bold text-slate-900">고객 메모</span>
-                    <span className="text-[11px] text-slate-400">{noteItems.length}건</span>
+                    <span className="text-[11px] text-slate-400">{visibleNotes.length}건</span>
                   </div>
-                  {noteItems.length === 0 ? (
+                  {visibleNotes.length === 0 ? (
                     <p className="px-3 py-8 text-center text-[12.5px] leading-relaxed text-slate-400">
                       기록해 둔 고객 메모가 없습니다.
                       <br />
@@ -228,7 +272,7 @@ export default function FollowupsPage() {
                     </p>
                   ) : (
                     <ul className="divide-y divide-slate-100 py-1">
-                      {noteItems.map((item) => (
+                      {visibleNotes.map((item) => (
                         <FollowupRow key={item.id} item={item} {...rowProps} />
                       ))}
                     </ul>
@@ -245,13 +289,13 @@ export default function FollowupsPage() {
           )}
 
           {/* 완료된 건 */}
-          {view === "calendar" && doneItems.length > 0 && (
+          {view === "calendar" && visibleDone.length > 0 && (
             <details className="mt-3 rounded-lg border border-slate-200 bg-white">
               <summary className="cursor-pointer px-3 py-2.5 text-[12px] font-bold text-slate-700">
-                완료 {doneItems.length}건
+                완료 {visibleDone.length}건
               </summary>
               <ul className="divide-y divide-slate-100 border-t border-slate-100 py-1">
-                {doneItems.map((item) => (
+                {visibleDone.map((item) => (
                   <FollowupRow key={item.id} item={item} {...rowProps} />
                 ))}
               </ul>

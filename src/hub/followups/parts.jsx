@@ -8,6 +8,8 @@ import {
   RotateCcw,
   Trash2,
   StickyNote,
+  Lock,
+  Users,
 } from "lucide-react";
 import { ddayOf } from "./useFollowups";
 import { cn } from "@shared/lib/format";
@@ -26,6 +28,27 @@ export const PRODUCT_TAGS = [
   { id: "fund", label: "펀드", on: "bg-indigo-600 text-white border-indigo-600", chip: "bg-indigo-100 text-indigo-800" },
 ];
 const PRODUCT_BY_ID = Object.fromEntries(PRODUCT_TAGS.map((p) => [p.id, p]));
+
+/* 공유 범위 — 나만 보는 기록과 지점이 함께 보는 기록을 나눈다.
+   창구를 비운 사이 다른 직원이 그 고객을 응대하는 일이 잦아, 「이 건은 누가 받아도
+   같은 안내가 나가야 하는 건」을 지점 공유로 올린다. */
+export const SCOPES = [
+  { id: "mine", label: "나만 보기", icon: Lock, on: "bg-slate-700 text-white" },
+  { id: "branch", label: "지점 공유", icon: Users, on: "bg-teal-600 text-white" },
+];
+
+export const isShared = (item) => item?.scope === "branch";
+
+export const ScopeBadge = ({ item }) =>
+  !isShared(item) ? null : (
+    <span
+      title="지점 공유 — 같은 지점 직원이 함께 봅니다"
+      className="inline-flex items-center gap-0.5 rounded-sm bg-teal-100 px-1.5 py-0.5 text-[10px] font-bold text-teal-700"
+    >
+      <Users className="h-2.5 w-2.5" />
+      지점 공유
+    </span>
+  );
 
 export const toISO = (d) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -240,6 +263,7 @@ export const FollowupRow = ({
               완료
             </span>
           )}
+          <ScopeBadge item={item} />
           <CustomerNo no={item.customerNo} onSearch={onSearch} />
           {!isNote && onUpdate && <DateControl item={item} onUpdate={onUpdate} />}
           <ProductChips ids={item.products} />
@@ -288,6 +312,7 @@ export const FollowupForm = ({ onAdd, defaultDate = "", fixedType }) => {
   const [date, setDate] = useState(defaultDate);
   const [noDeadline, setNoDeadline] = useState(false);
   const [products, setProducts] = useState([]);
+  const [scope, setScope] = useState("mine");
 
   /* 캘린더에서 날짜를 바꾸면 폼에도 반영 */
   const [lastDefault, setLastDefault] = useState(defaultDate);
@@ -314,19 +339,21 @@ export const FollowupForm = ({ onAdd, defaultDate = "", fixedType }) => {
       followUpDate: noDeadline ? null : date,
       products,
       type: entryType,
+      scope,
     });
     setCustomerNo("");
     setMemo("");
     setDate(defaultDate);
     setNoDeadline(false);
     setProducts([]);
+    /* 공유 범위는 유지 — 지점 공유로 여러 건을 연달아 올리는 경우가 많다 */
   };
 
   return (
     <div className="space-y-2">
-      {!fixedType && (
-        <div className="flex flex-wrap items-center gap-1">
-          {[
+      <div className="flex flex-wrap items-center gap-1">
+        {!fixedType &&
+          [
             { id: "followup", label: "후속 연락", icon: CalendarClock },
             { id: "note", label: "고객 메모", icon: StickyNote },
           ].map((t) => {
@@ -350,8 +377,33 @@ export const FollowupForm = ({ onAdd, defaultDate = "", fixedType }) => {
               </button>
             );
           })}
+
+        {/* 공유 범위 — 나만 볼 기록인지, 지점이 함께 볼 기록인지 */}
+        <div className="ml-auto inline-flex overflow-hidden rounded-md ring-1 ring-inset ring-slate-200">
+          {SCOPES.map((s) => {
+            const Icon = s.icon;
+            const on = scope === s.id;
+            return (
+              <button
+                key={s.id}
+                onClick={() => setScope(s.id)}
+                title={
+                  s.id === "branch"
+                    ? "같은 지점 직원이 함께 보는 기록으로 올립니다"
+                    : "나만 보는 기록입니다"
+                }
+                className={cn(
+                  "inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold transition-colors",
+                  on ? s.on : "bg-white text-slate-500 hover:text-slate-700"
+                )}
+              >
+                <Icon className="h-3 w-3" />
+                {s.label}
+              </button>
+            );
+          })}
         </div>
-      )}
+      </div>
 
       <div className="flex flex-col gap-2 sm:flex-row">
         <input
@@ -444,7 +496,7 @@ export const FollowupForm = ({ onAdd, defaultDate = "", fixedType }) => {
 export const PrivacyNotice = () => (
   <p className="text-[10.5px] leading-relaxed text-slate-600">
     고객번호와 메모만 기록하세요. <strong>이름·주민번호·연락처 등 개인정보 입력 금지.</strong>{" "}
-    현재는 이 브라우저에만 저장되는 데모 기능으로, 실서비스에서는 직원 계정 인증·서버 저장·접근통제가
-    적용됩니다.
+    현재는 이 브라우저에만 저장되는 데모 기능으로, 지점 공유도 표시만 됩니다. 실서비스에서는 직원
+    계정 인증·서버 저장·지점 단위 접근통제가 적용됩니다.
   </p>
 );

@@ -10,8 +10,12 @@ const SCHEMA_VERSION = 1;
 
 /* FollowupItem:
    { id, type: "followup"|"note"(고객 메모 — 없으면 followup으로 간주),
+     scope: "mine"|"branch"(지점 공유 — 없으면 mine으로 간주),
      customerNo, memo, followUpDate(YYYY-MM-DD|null), products(string[]),
-     status: "open"|"done", createdAt(epoch ms) } */
+     status: "open"|"done", createdAt(epoch ms) }
+
+   지점 공유(scope: "branch")는 데모에서 표시만 되고 실제로 공유되지 않는다.
+   서버 저장으로 옮길 때 지점 코드 기준 조회·권한 분리를 여기에 붙인다. */
 const DEFAULT_STATE = {
   version: SCHEMA_VERSION,
   items: [],

@@ -41,7 +41,9 @@ const TodayBadge = () => {
 /* 허브 상단바 — 단일 스크롤 대시보드라 네비게이션 탭 없이
    브랜드 + 오늘 날짜 + 대시보드 편집만 남긴 미니멀 헤더.
    (섹션이 별도 라우트로 분리되면 그때 탭/메뉴를 다시 검토) */
-export function HubShell({ children, editMode = false, onToggleEdit }) {
+/* wide — 달력처럼 가로가 넓어야 읽히는 화면에서 본문 폭을 넓힌다 */
+export function HubShell({ children, editMode = false, onToggleEdit, wide = false }) {
+  const container = wide ? "max-w-7xl" : "max-w-6xl";
   return (
     <div
       className="min-h-screen bg-slate-50 text-slate-900"
@@ -49,7 +51,12 @@ export function HubShell({ children, editMode = false, onToggleEdit }) {
     >
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="h-1 bg-gradient-to-r from-im-500 via-im-400 to-im-lime" />
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 md:px-8">
+        <div
+          className={cn(
+            "mx-auto flex h-14 items-center justify-between gap-4 px-4 md:px-8",
+            container
+          )}
+        >
           <Brand />
           <div className="flex items-center gap-2">
             <TodayBadge />
@@ -71,7 +78,7 @@ export function HubShell({ children, editMode = false, onToggleEdit }) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-8">{children}</main>
+      <main className={cn("mx-auto px-4 py-6 md:px-8 md:py-8", container)}>{children}</main>
     </div>
   );
 }
