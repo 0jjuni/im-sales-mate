@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, ShieldAlert } from "lucide-react";
+import { ArrowRight, ShieldAlert, CalendarDays } from "lucide-react";
 import { useFollowups } from "../followups/useFollowups";
 import { FollowupRow, FollowupForm, PrivacyNotice } from "../followups/parts";
 import { cn } from "@shared/lib/format";
@@ -39,11 +39,13 @@ export function FollowupBoard() {
         {summary.overdue === 0 && summary.today === 0 && summary.soon === 0 && (
           <span className="text-[12px] text-slate-500">가까운 후속 연락이 없습니다</span>
         )}
+        {/* 달력·검색이 여기 없으므로 전체 화면으로 가는 길이 분명해야 한다 */}
         <Link
           to="/followups"
-          className="ml-auto inline-flex items-center gap-1 text-[12px] font-semibold text-im-700 transition-colors hover:text-im-800"
+          className="ml-auto inline-flex items-center gap-1.5 rounded-md bg-im-600 px-3 py-1.5 text-[12px] font-bold text-white transition-colors hover:bg-im-700"
         >
-          전체 관리
+          <CalendarDays className="h-3.5 w-3.5" />
+          달력으로 전체 관리
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>

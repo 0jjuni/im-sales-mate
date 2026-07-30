@@ -4,6 +4,7 @@ import { Home, Coins, HelpCircle, Menu, X, Landmark } from "lucide-react";
 import { usePersonalization } from "@hub/personalization/PersonalizationContext";
 import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
+import { HubLink } from "@shared/components/HubLink";
 import { cn } from "@shared/lib/format";
 import { Overview } from "./pages/Overview";
 import { CalculatorPage } from "./pages/CalculatorPage";
@@ -100,12 +101,7 @@ export default function PensionApp() {
   const sidebarContent = (
     <>
       <div className="p-4 border-b border-stone-200 space-y-3">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-1 text-[10px] font-semibold text-stone-400 hover:text-stone-700 transition-colors"
-        >
-          ← 허브 대시보드
-        </Link>
+        <HubLink />
         <div className="flex items-center justify-between gap-2">
           <Brand />
           <button
@@ -179,6 +175,7 @@ export default function PensionApp() {
         <div className="flex-1 min-w-0">
           <Brand />
         </div>
+        <HubLink compact />
       </header>
 
       <div className="md:flex">

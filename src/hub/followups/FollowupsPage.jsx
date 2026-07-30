@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { CalendarDays, StickyNote, Search, X, ShieldAlert } from "lucide-react";
 import { HubShell } from "../HubShell";
+import { HubLink } from "@shared/components/HubLink";
 import { useFollowups } from "./useFollowups";
 import { MonthCalendar } from "./MonthCalendar";
 import { FollowupRow, FollowupForm, PrivacyNotice, fmtDate, toISO } from "./parts";
@@ -62,13 +62,8 @@ export default function FollowupsPage() {
     <HubShell>
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <Link
-            to="/"
-            className="text-[11px] font-semibold text-slate-400 transition-colors hover:text-slate-700"
-          >
-            ← 허브 대시보드
-          </Link>
-          <h1 className="mt-1 text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
+          <HubLink compact className="mb-2" />
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
             고객 후속 관리
           </h1>
           <p className="mt-0.5 text-[12px] text-slate-500">

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Settings2, Check, CalendarDays } from "lucide-react";
 import { IMSymbol } from "./components/IMSymbol";
 import { cn } from "@shared/lib/format";
@@ -5,9 +6,14 @@ import { cn } from "@shared/lib/format";
 export const HUB_NAME = "iM 세일즈메이트";
 export const HUB_SUBTITLE = "상담 옆자리를 지키는 AI 세일즈 파트너";
 
-/* 브랜드 락업 — iM CI 심볼 + 서비스명 (시그니처 좌우조합 방식) */
+/* 브랜드 락업 — iM CI 심볼 + 서비스명 (시그니처 좌우조합 방식).
+   눌러서 허브로 돌아가는 통로이기도 하다(웹의 보편 규칙). */
 const Brand = () => (
-  <div className="flex items-center gap-2.5">
+  <Link
+    to="/"
+    title="허브 대시보드로"
+    className="flex items-center gap-2.5 rounded-md transition-opacity hover:opacity-80"
+  >
     <IMSymbol className="h-7 w-11 flex-shrink-0" />
     <div className="min-w-0 leading-tight">
       <div className="flex items-baseline gap-1 text-[14px] font-black text-slate-900">
@@ -18,7 +24,7 @@ const Brand = () => (
       </div>
       <div className="text-[10px] text-slate-500">{HUB_SUBTITLE}</div>
     </div>
-  </div>
+  </Link>
 );
 
 const TodayBadge = () => {
