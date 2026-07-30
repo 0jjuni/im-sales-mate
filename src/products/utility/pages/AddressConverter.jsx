@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { MapPin, AlertTriangle, Check, Copy, ExternalLink } from "lucide-react";
+import { MapPin, AlertTriangle, Check, Copy, ExternalLink, Printer } from "lucide-react";
 import { convertAddress } from "../lib/address";
+import { UtilitySlip } from "../components/UtilitySlip";
 import { cn } from "@shared/lib/format";
 
 /* 영문 주소 변환기.
@@ -65,7 +66,8 @@ export const AddressConverter = () => {
   const result = useMemo(() => convertAddress(input), [input]);
 
   return (
-    <div className="space-y-5">
+    <>
+    <div className="space-y-5 print:hidden">
       <div>
         <span className="text-xs uppercase tracking-widest text-sky-700 font-semibold">
           Address Romanization
@@ -140,6 +142,15 @@ export const AddressConverter = () => {
                 일반적이라 제외했습니다.
               </p>
             )}
+
+            <button
+              onClick={() => window.print()}
+              title="전표 형태로 인쇄합니다"
+              className="flex w-full items-center justify-center gap-2 rounded-md bg-stone-900 px-4 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800"
+            >
+              <Printer className="h-4 w-4" />
+              전표 인쇄
+            </button>
           </div>
         )}
       </div>
@@ -168,5 +179,18 @@ export const AddressConverter = () => {
         ri로 붙입니다. 붙임표 앞뒤에서는 음운 변화를 표기에 반영하지 않습니다.
       </div>
     </div>
+
+    {result && (
+      <UtilitySlip
+        title="영문 주소 표기"
+        rows={[
+          { label: "한글 주소", value: input.trim() },
+          { label: "영문 주소", value: result.full, emphasis: true },
+          ...(result.zip ? [{ label: "우편번호", value: result.zip }] : []),
+        ]}
+        note="도로명주소 로마자 표기 규칙에 따른 표기입니다. 해외송금 등 표기가 정확히 일치해야 하는 서류는 도로명주소 안내시스템(juso.go.kr)의 영문 검색 결과로 확인하시기 바랍니다."
+      />
+    )}
+    </>
   );
 };

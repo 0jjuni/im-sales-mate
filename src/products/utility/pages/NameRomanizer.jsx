@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { UserRound, AlertTriangle, Check, Copy } from "lucide-react";
+import { UserRound, Check, Copy, Printer } from "lucide-react";
 import { romanizeWord, romanizeEachSyllable, isAllHangul } from "../lib/hangul";
 import { SURNAMES, COMPOUND_SURNAMES } from "../data/surnames";
+import { UtilitySlip } from "../components/UtilitySlip";
 import { cn } from "@shared/lib/format";
 
 /* 영문 이름 변환기.
@@ -111,7 +112,8 @@ export const NameRomanizer = () => {
   }, [input]);
 
   return (
-    <div className="space-y-5">
+    <>
+    <div className="space-y-5 print:hidden">
       <div>
         <span className="text-xs uppercase tracking-widest text-sky-700 font-semibold">
           Name Romanization
@@ -184,6 +186,15 @@ export const NameRomanizer = () => {
                 {result.surnameKnown ? " (여권에 많이 쓰는 표기)" : " (로마자 표기법 변환)"} · 이름{" "}
                 {result.given} → {result.givenJoined}
               </div>
+
+              <button
+                onClick={() => window.print()}
+                title="전표 형태로 인쇄합니다"
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-stone-900 px-4 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800"
+              >
+                <Printer className="h-4 w-4" />
+                전표 인쇄
+              </button>
             </div>
 
             <div>
@@ -242,5 +253,30 @@ export const NameRomanizer = () => {
         표기를 먼저 제시합니다.
       </div>
     </div>
+
+    {result && !result.error && (
+      <UtilitySlip
+        title="영문 성명 표기"
+        rows={[
+          { label: "한글 성명", value: result.surname + result.given },
+          {
+            label: "영문 성명",
+            value: `${result.surnamePrimary} ${result.givenJoined.toUpperCase()}`,
+            sub: `공백 포함 ${`${result.surnamePrimary} ${result.givenJoined}`.length}자`,
+            emphasis: true,
+          },
+          {
+            label: "성 · 이름",
+            value: `${result.surname} → ${result.surnamePrimary} / ${result.given} → ${result.givenJoined.toUpperCase()}`,
+            sub:
+              result.surnameAlts.length > 0
+                ? `성 다른 표기: ${result.surnameAlts.join(", ")}`
+                : undefined,
+          },
+        ]}
+        note="국어의 로마자 표기법에 따른 표기입니다. 여권을 소지한 고객은 여권 표기를 우선하며, 이미 사용 중인 영문 표기가 있으면 그 표기를 따릅니다."
+      />
+    )}
+    </>
   );
 };
