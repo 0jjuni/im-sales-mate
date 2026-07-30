@@ -73,8 +73,12 @@ export const AddressConverter = () => {
           영문 주소 변환기
         </h1>
         <p className="text-sm text-stone-600 mt-1">
-          영문 주소가 필요한 서식에 적을 주소를 만듭니다. 고객이 영문 주소를 모를 때 대신 적어 드리는
-          용도입니다.
+          FATCA·CRS 본인확인서의 해외영문주소처럼 주소를 영문으로 적어야 하는 서식에 씁니다. 고객이
+          영문 표기를 모를 때 대신 적어 드리는 용도입니다.
+        </p>
+        <p className="mt-1.5 text-[12px] leading-relaxed text-stone-500">
+          거주관할권이 미국이지만 한국 주소만 있는 고객은 국내 주소를 영문으로 적습니다. 한글
+          도로명주소를 그대로 넣으면 됩니다.
         </p>
       </div>
 
