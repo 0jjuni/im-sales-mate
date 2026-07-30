@@ -25,7 +25,7 @@ export function useFollowups() {
     const isNote = type === "note";
     const item = {
       id: uid(),
-      /* type: "followup"(후속 연락) | "note"(고객 기억 메모 — 날짜·완료 개념 없음) */
+      /* type: "followup"(후속 연락) | "note"(고객 메모 — 날짜·완료 개념 없음) */
       type: isNote ? "note" : "followup",
       customerNo: (customerNo || "").trim(),
       memo: (memo || "").trim(),
@@ -53,7 +53,7 @@ export function useFollowups() {
   }, []);
 
   /* 예정(open) — 날짜 있는 항목은 가까운 순, 날짜 없는 항목은 뒤로(최근 등록순).
-     기억 메모(note)는 별도 목록으로 분리 */
+     고객 메모(note)는 별도 목록으로 분리 */
   const openItems = useMemo(() => {
     const open = items.filter((i) => i.type !== "note" && i.status === "open");
     const dated = open
@@ -71,7 +71,7 @@ export function useFollowups() {
     [items]
   );
 
-  /* 고객 기억 메모 — 최근 등록순 */
+  /* 고객 메모 — 최근 등록순 */
   const noteItems = useMemo(
     () => items.filter((i) => i.type === "note").sort((a, b) => b.createdAt - a.createdAt),
     [items]

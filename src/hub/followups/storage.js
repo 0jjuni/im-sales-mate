@@ -2,14 +2,14 @@
    대시보드 개인화와 별도 키로 분리 — 고객 관련 데이터라 이후 서버 저장·암호화·접근통제를
    붙일 때 이 파일만 교체하면 되도록 격리한다. (데모는 localStorage)
 
-   ⚠ 개인정보 최소화 원칙: 고객번호(관리번호)와 메모만 저장하며,
+   ⚠ 개인정보 최소화 원칙: 고객번호와 메모만 저장하며,
    이름·주민번호·연락처 등 민감 개인정보는 입력받지 않는다(UI에서 안내·차단). */
 
 const STORAGE_KEY = "salesbridge.followups";
 const SCHEMA_VERSION = 1;
 
 /* FollowupItem:
-   { id, type: "followup"|"note"(기억 메모 — 없으면 followup으로 간주),
+   { id, type: "followup"|"note"(고객 메모 — 없으면 followup으로 간주),
      customerNo, memo, followUpDate(YYYY-MM-DD|null), products(string[]),
      status: "open"|"done", createdAt(epoch ms) } */
 const DEFAULT_STATE = {
