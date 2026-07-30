@@ -174,7 +174,11 @@ export function HubHome() {
         const meta = getSection("followups");
         return (
           <>
-            <SectionHeader icon={meta.icon} title="고객 후속 관리" sub="후속 연락 약속과 나만의 고객 메모를 고객번호로 기록·검색하세요" />
+            <SectionHeader
+              icon={meta.icon}
+              title="고객 후속 관리"
+              sub="가까운 후속 연락과 빠른 기록 · 달력과 검색은 전체 관리에서"
+            />
             <FollowupBoard />
           </>
         );
