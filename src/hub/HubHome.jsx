@@ -2,7 +2,16 @@ import { useState } from "react";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Eye, EyeOff, RotateCcw, Check } from "lucide-react";
+import {
+  GripVertical,
+  Eye,
+  EyeOff,
+  RotateCcw,
+  Check,
+  ArrowUp,
+  ArrowDown,
+  HelpCircle,
+} from "lucide-react";
 import { HubShell } from "./HubShell";
 import { getSection } from "./sections";
 import { usePersonalization } from "./personalization/PersonalizationContext";
@@ -14,6 +23,7 @@ import { FollowupBoard } from "./components/FollowupBoard";
 import { ProductGrid } from "./components/ProductGrid";
 import { UtilityGrid } from "./components/UtilityGrid";
 import { KnowledgeLibrary } from "./components/KnowledgeLibrary";
+import { EditGuide, hasSeenEditGuide, markEditGuideSeen } from "./components/EditGuide";
 import { cn } from "@shared/lib/format";
 
 const SectionHeader = ({ icon: Icon, title, sub }) => (
@@ -28,54 +38,97 @@ const SectionHeader = ({ icon: Icon, title, sub }) => (
   </div>
 );
 
-/* 편집 모드에서 각 섹션을 감싸는 셸 — 드래그 손잡이 + 표시/숨김 토글 */
-const SortableSectionShell = ({ id, hidden, onToggleHidden, children }) => {
+/* 편집 모드의 섹션 한 줄.
+   섹션 내용을 미리보기로 펼치면 7개를 옮기는 데 화면을 한참 스크롤해야 해서,
+   편집 중에는 제목·설명만 있는 목록으로 접는다.
+   드래그가 서툰 환경을 위해 위·아래 버튼도 함께 둔다. */
+const SortableSectionRow = ({ id, hidden, index, total, onToggleHidden, onMove }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id });
   const meta = getSection(id);
+  const Icon = meta?.icon;
 
   return (
-    <div
+    <li
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform), transition }}
       className={cn(
-        "rounded-xl border-2 bg-white/70 transition-shadow",
-        isDragging ? "z-10 border-im-400 shadow-lg" : "border-dashed border-slate-300"
+        "flex items-center gap-2 border-b border-slate-100 bg-white px-2.5 py-2.5 last:border-b-0",
+        isDragging && "relative z-10 rounded-md border-b-0 shadow-lg ring-1 ring-im-400",
+        hidden && "bg-slate-50"
       )}
     >
-      <div className="flex items-center gap-2 border-b border-dashed border-slate-200 px-3 py-2">
-        <button
-          {...attributes}
-          {...listeners}
-          title="끌어서 순서 변경"
-          className="cursor-grab rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 active:cursor-grabbing"
-        >
-          <GripVertical className="h-4 w-4" />
-        </button>
-        <span className="flex-1 text-[13px] font-bold text-slate-700">{meta?.label ?? id}</span>
-        <button
-          onClick={() => onToggleHidden(id)}
-          title={hidden ? "섹션 표시" : "섹션 숨김"}
+      <button
+        {...attributes}
+        {...listeners}
+        title="끌어서 순서 변경"
+        aria-label={`${meta?.label ?? id} 끌어서 순서 변경`}
+        className="flex-shrink-0 cursor-grab rounded p-1.5 text-slate-300 hover:bg-slate-100 hover:text-slate-500 active:cursor-grabbing"
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+
+      {Icon && (
+        <div
           className={cn(
-            "inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold transition-colors",
-            hidden
-              ? "bg-slate-100 text-slate-400 hover:text-slate-600"
-              : "bg-im-50 text-im-700 hover:bg-im-100"
+            "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md",
+            hidden ? "bg-slate-200 text-slate-400" : "bg-slate-900 text-white"
           )}
         >
-          {hidden ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-          {hidden ? "숨김" : "표시"}
+          <Icon className="h-3.5 w-3.5" />
+        </div>
+      )}
+
+      <div className="min-w-0 flex-1">
+        <div
+          className={cn(
+            "truncate text-[13px] font-bold",
+            hidden ? "text-slate-400" : "text-slate-900"
+          )}
+        >
+          {meta?.label ?? id}
+        </div>
+        {meta?.desc && (
+          <div className="truncate text-[11px] text-slate-500">{meta.desc}</div>
+        )}
+      </div>
+
+      {/* 순서 이동 — 드래그 대신 눌러서도 옮길 수 있게 */}
+      <div className="flex flex-shrink-0 items-center">
+        <button
+          onClick={() => onMove(index, -1)}
+          disabled={index === 0}
+          title="위로"
+          aria-label={`${meta?.label ?? id} 위로`}
+          className="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-25 disabled:hover:bg-transparent"
+        >
+          <ArrowUp className="h-4 w-4" />
+        </button>
+        <button
+          onClick={() => onMove(index, 1)}
+          disabled={index === total - 1}
+          title="아래로"
+          aria-label={`${meta?.label ?? id} 아래로`}
+          className="rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-25 disabled:hover:bg-transparent"
+        >
+          <ArrowDown className="h-4 w-4" />
         </button>
       </div>
 
-      {hidden ? (
-        <div className="px-4 py-3 text-[12px] text-slate-400">
-          숨겨진 섹션입니다 — 「숨김」을 눌러 다시 표시할 수 있습니다.
-        </div>
-      ) : (
-        <div className="pointer-events-none select-none p-3 opacity-60">{children}</div>
-      )}
-    </div>
+      <button
+        onClick={() => onToggleHidden(id)}
+        title={hidden ? "이 섹션 다시 보기" : "이 섹션 숨기기"}
+        className={cn(
+          "ml-1 inline-flex w-[4.5rem] flex-shrink-0 items-center justify-center gap-1 rounded-md border px-2 py-1.5 text-[11px] font-semibold transition-colors",
+          hidden
+            ? "border-slate-300 bg-white text-slate-500 hover:border-slate-400"
+            : "border-im-500 bg-im-500 text-white hover:bg-im-600"
+        )}
+      >
+        {hidden ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+        {hidden ? "숨김" : "표시"}
+      </button>
+    </li>
   );
 };
 
@@ -90,6 +143,7 @@ export function HubHome() {
     resetDashboard,
   } = usePersonalization();
   const [editMode, setEditMode] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
@@ -161,15 +215,49 @@ export function HubHome() {
     );
   };
 
+  /* 버튼으로 한 칸 이동 */
+  const moveSection = (index, delta) => {
+    const next = index + delta;
+    if (next < 0 || next >= sectionOrder.length) return;
+    reorderSections(arrayMove(sectionOrder, index, next));
+  };
+
+  const openEdit = () => {
+    setEditMode(true);
+    if (!hasSeenEditGuide()) setShowGuide(true);
+  };
+
+  const closeGuide = () => {
+    markEditGuideSeen();
+    setShowGuide(false);
+  };
+
+  const visibleCount = sectionOrder.filter((id) => !isSectionHidden(id)).length;
+
   return (
-    <HubShell editMode={editMode} onToggleEdit={() => setEditMode((v) => !v)}>
+    <HubShell
+      editMode={editMode}
+      onToggleEdit={() => (editMode ? setEditMode(false) : openEdit())}
+    >
       {editMode ? (
         <>
-          <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-im-200 bg-im-50/60 px-4 py-2.5">
-            <p className="text-[12px] text-im-800">
-              <span className="font-bold">대시보드 편집 중</span> — 손잡이를 끌어 순서를 바꾸고, 눈 아이콘으로 섹션을 숨기거나 표시하세요.
-            </p>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-im-200 bg-im-50/60 px-4 py-2.5">
+            <div className="min-w-0">
+              <p className="text-[13px] font-bold text-im-900">대시보드 편집 중</p>
+              <p className="text-[11.5px] text-im-800">
+                화면에 표시할 섹션과 순서를 정하세요. 전체 {sectionOrder.length}개 중{" "}
+                {visibleCount}개 표시 중입니다.
+              </p>
+            </div>
             <div className="flex flex-shrink-0 items-center gap-2">
+              <button
+                onClick={() => setShowGuide(true)}
+                title="편집 안내 다시 보기"
+                aria-label="편집 안내 다시 보기"
+                className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-500 hover:border-slate-400 hover:text-slate-700"
+              >
+                <HelpCircle className="h-3.5 w-3.5" />
+              </button>
               <button
                 onClick={resetDashboard}
                 className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:border-slate-400"
@@ -189,20 +277,27 @@ export function HubHome() {
 
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
-              <div className="space-y-4">
-                {sectionOrder.map((id) => (
-                  <SortableSectionShell
+              <ul className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+                {sectionOrder.map((id, i) => (
+                  <SortableSectionRow
                     key={id}
                     id={id}
+                    index={i}
+                    total={sectionOrder.length}
                     hidden={isSectionHidden(id)}
                     onToggleHidden={toggleSectionHidden}
-                  >
-                    {renderSection(id)}
-                  </SortableSectionShell>
+                    onMove={moveSection}
+                  />
                 ))}
-              </div>
+              </ul>
             </SortableContext>
           </DndContext>
+
+          <p className="mt-2 text-[11.5px] text-slate-500">
+            변경 사항은 바로 저장됩니다. 완료를 누르면 편집이 끝납니다.
+          </p>
+
+          {showGuide && <EditGuide onClose={closeGuide} />}
         </>
       ) : (
         <div className="space-y-8">
