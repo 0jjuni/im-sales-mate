@@ -23,8 +23,7 @@ export const ChecklistPage = ({ onOpenArticle, initialReason }) => {
   return (
     <div className="space-y-6">
       <div>
-        <span className="text-xs uppercase tracking-widest text-amber-700 font-semibold">Document Checklist</span>
-        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">구비서류 체크리스트</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">구비서류 체크리스트</h1>
         <p className="text-sm text-stone-600 mt-1">사유별 필요 서류를 확인하고 상담 중 체크하세요.</p>
       </div>
 

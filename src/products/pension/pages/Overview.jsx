@@ -26,10 +26,7 @@ const StatCard = ({ icon: Icon, label, value, sub }) => (
 export const Overview = ({ onNavigate }) => (
   <div className="space-y-6">
     <div>
-      <span className="text-xs uppercase tracking-widest text-violet-700 font-semibold">
-        연금계좌 · 연금저축 + IRP
-      </span>
-      <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">
+      <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">
         세제 한눈에
       </h1>
       <p className="text-sm text-stone-600 mt-1">
@@ -112,7 +109,7 @@ export const Overview = ({ onNavigate }) => (
     {/* 계산기 유도 */}
     <button
       onClick={() => onNavigate("calculator")}
-      className="w-full text-left bg-gradient-to-br from-violet-50 via-white to-violet-50 border-2 border-violet-300 rounded-md p-5 hover:border-violet-400 transition-colors group"
+      className="w-full text-left bg-violet-50/50 border-2 border-violet-300 rounded-md p-5 hover:border-violet-400 transition-colors group"
     >
       <div className="flex items-center justify-between">
         <div>

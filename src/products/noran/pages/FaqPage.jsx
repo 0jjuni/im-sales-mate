@@ -24,8 +24,7 @@ export const FaqPage = ({ onOpenArticle }) => {
   return (
     <div className="space-y-6">
       <div>
-        <span className="text-xs uppercase tracking-widest text-amber-700 font-semibold">FAQ Search</span>
-        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">자주 묻는 질문</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">자주 묻는 질문</h1>
         <p className="text-sm text-stone-600 mt-1">키워드로 약관 기반 답변과 근거 조항을 즉시 확인하세요.</p>
       </div>
 

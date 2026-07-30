@@ -59,10 +59,7 @@ export const SimulatorPage = ({ onOpenArticle, onGoToChecklist, initialNode }) =
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
         <div>
-          <span className="text-xs uppercase tracking-widest text-amber-700 font-semibold">
-            Consultation Simulator
-          </span>
-          <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">
             상담 시뮬레이터
           </h1>
           <p className="text-sm text-stone-600 mt-1">

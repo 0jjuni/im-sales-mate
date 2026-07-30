@@ -115,10 +115,7 @@ export const NameRomanizer = () => {
     <>
     <div className="space-y-5 print:hidden">
       <div>
-        <span className="text-xs uppercase tracking-widest text-sky-700 font-semibold">
-          Name Romanization
-        </span>
-        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">
+        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">
           영문 이름 변환기
         </h1>
         <p className="text-sm text-stone-600 mt-1">
@@ -146,7 +143,7 @@ export const NameRomanizer = () => {
 
         {result && !result.error && (
           <div className="mt-4 space-y-4">
-            <div className="rounded-md border-2 border-sky-300 bg-gradient-to-br from-sky-50 to-white p-4">
+            <div className="rounded-md border-2 border-sky-300 bg-sky-50/50 p-4">
               <div className="flex items-baseline justify-between gap-2">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700">
                   권장 표기
@@ -225,11 +222,8 @@ export const NameRomanizer = () => {
       </div>
 
       <div className="rounded-md border border-stone-200 bg-stone-50 p-3 text-[11.5px] leading-relaxed text-stone-600">
-        <strong className="text-stone-800">표기 원칙:</strong> 국어의 로마자 표기법에 따라 성과
-        이름을 띄어 쓰고 이름은 붙여 씁니다. 이름에서 일어나는 음운 변화는 표기에 반영하지
-        않습니다. 예를 들어 한복남은 Han Bongnam이 아니라 Han Boknam입니다. 성씨는 표기법상
-        Gim, I, Bak이지만 여권에는 KIM, LEE, PARK 같은 관용 표기를 쓰는 경우가 대부분이라 관용
-        표기를 먼저 제시합니다.
+        <strong className="text-stone-800">근거</strong> 국어의 로마자 표기법. 이름의 음운 변화는
+        반영하지 않으며(한복남 → Han Boknam), 성씨는 여권 관용 표기를 우선합니다.
       </div>
     </div>
 

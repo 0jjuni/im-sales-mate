@@ -70,10 +70,7 @@ export const CalculatorPage = () => {
     <div className="space-y-6">
       <div className="flex items-start justify-between print:hidden">
         <div>
-          <span className="text-xs uppercase tracking-widest text-emerald-700 font-semibold">
-            Calculator
-          </span>
-          <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">
             ISA 세제 절세 계산기
           </h1>
           <p className="text-sm text-stone-600 mt-1">

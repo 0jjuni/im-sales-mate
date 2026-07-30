@@ -15,10 +15,7 @@ export const FaqPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <span className="text-xs uppercase tracking-widest text-emerald-700 font-semibold">
-          FAQ
-        </span>
-        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">
+        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">
           자주 묻는 질문
         </h1>
         <p className="text-sm text-stone-600 mt-1">

@@ -361,10 +361,10 @@ export const RefundSimulator = ({ onOpenArticle }) => {
           <SalesScript accent="amber" {...script} />
 
           <div className="bg-stone-50 border border-stone-200 rounded-md p-3 text-xs text-stone-600 leading-relaxed">
-            <strong className="text-stone-800">계산 근거:</strong>{" "}
+            <strong className="text-stone-800">근거</strong>{" "}
             <button onClick={() => onOpenArticle("제17조")} className="text-amber-700 hover:text-amber-800 underline">약관 제17조</button>(공제사유),{" "}
             <button onClick={() => onOpenArticle("제18조")} className="text-amber-700 hover:text-amber-800 underline">제18조</button>(공제금),{" "}
-            <button onClick={() => onOpenArticle("제24조")} className="text-amber-700 hover:text-amber-800 underline">제24조</button>(해약환급금) + 별표1(차등지급이율)·별표2(간주해약)·별표3(임의해약). 본 시뮬레이션은 연단위 복리 적립식 추정치이며, 실제 환급금은 매 분기 변동되는 기준이율·부가지급률·차등지급이율표 단계적 인하에 따라 산정됩니다.
+            <button onClick={() => onOpenArticle("제24조")} className="text-amber-700 hover:text-amber-800 underline">제24조</button>(해약환급금) + 별표1·2·3. 연단위 복리 적립식 추정치이며, 실제 환급금은 분기별 기준이율·부가지급률에 따라 달라집니다.
           </div>
         </div>
       </div>

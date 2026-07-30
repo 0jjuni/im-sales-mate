@@ -138,7 +138,7 @@ export const TaxCalculator = () => {
         `${formatKRW(
           result.taxFreeLimit
         )}까지는 세금이 없고 넘는 부분만 9.9%로 끝납니다. 일반계좌처럼 다른 소득과 합쳐서 세금을 매기지 않습니다.`,
-        "그리고 ISA는 계좌 안에서 손해 본 상품과 이익 본 상품을 합쳐서 계산합니다. 일반계좌는 손해를 인정해 주지 않고 이익에만 세금을 매기니, 여러 상품을 함께 운용하실 때 차이가 더 커집니다.",
+        "ISA는 계좌 안의 손실과 이익을 합쳐 계산합니다. 일반계좌는 손실을 인정하지 않아서, 여러 상품을 함께 운용하실수록 차이가 커집니다.",
       ],
       objections: common,
     };
@@ -314,7 +314,7 @@ export const TaxCalculator = () => {
 
         {/* 결과부 */}
         <div className="lg:col-span-3 space-y-4">
-          <div className="bg-gradient-to-br from-emerald-50 via-white to-emerald-50 border-2 border-emerald-400 rounded-md p-6">
+          <div className="bg-emerald-50/50 border-2 border-emerald-400 rounded-md p-6">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <div className="text-xs uppercase tracking-wider text-emerald-700 font-bold mb-1">
@@ -448,7 +448,7 @@ export const TaxCalculator = () => {
           <SalesScript accent="emerald" {...script} />
 
           <div className="bg-stone-50 border border-stone-200 rounded-md p-3 text-xs text-stone-600 leading-relaxed">
-            <strong className="text-stone-800">계산 근거:</strong> 조세특례제한법 제91조의18(개인종합자산관리계좌 과세특례) — 비과세 한도(일반형 200만원/서민·농어민형 400만원) + 초과분 9.9% 분리과세, 일반 이자소득 15.4% 원천징수 가정.{" "}
+            <strong className="text-stone-800">근거</strong> 조세특례제한법 제91조의18. 비과세 한도(일반형 200만원 / 서민·농어민형 400만원) 초과분 9.9% 분리과세, 일반 이자소득 15.4% 가정.{" "}
             {isDeposit
               ? "예금 이자는 월복리·만기일시지급(iM뱅크 판매 ISA 정기예금 기준) 가정이며 신탁보수 차감 전입니다. 실제 금리·요율·세법 개정에 따라 달라집니다."
               : "순이익은 손익통산 후 기준이며 실제 세액은 상품 구성·세법 개정에 따라 달라집니다."}

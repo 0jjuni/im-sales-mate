@@ -243,7 +243,7 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
             </div>
           ) : (
             <>
-              <div className="bg-gradient-to-br from-amber-50 via-white to-amber-50 border-2 border-amber-400 rounded-md p-6">
+              <div className="bg-amber-50/50 border-2 border-amber-400 rounded-md p-6">
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <div className="text-xs uppercase tracking-wider text-amber-700 font-bold mb-1">
@@ -354,7 +354,7 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
           )}
 
           <div className="bg-stone-50 border border-stone-200 rounded-md p-3 text-xs text-stone-600 leading-relaxed">
-            <strong className="text-stone-800">계산 근거:</strong>{" "}
+            <strong className="text-stone-800">근거</strong>{" "}
             <button
               onClick={() => onOpenArticle("조특법 제86조의3")}
               className="text-amber-700 hover:text-amber-800 underline"

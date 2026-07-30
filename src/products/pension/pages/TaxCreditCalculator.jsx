@@ -156,9 +156,6 @@ export const TaxCreditCalculator = () => {
           )}을 추가로 돌려받으십니다. 월로 나누면 ${formatKRWShort(
             result.roomToLimit / 12
           )}쯤 됩니다.`,
-          `넣으신 금액의 ${(result.rate * 100).toFixed(
-            1
-          )}%가 세금으로 돌아오는 구조라, 연말정산에서 확정된 금액으로 받으시는 셈입니다.`,
           "저희 IRP는 비대면으로 여시면 수수료가 없습니다.",
         ],
         objections: common,
@@ -170,8 +167,7 @@ export const TaxCreditCalculator = () => {
         result.credit
       )}을 돌려받으십니다. 세액공제 한도를 다 채우고 계십니다.`,
       detail: [
-        `연금저축 600만원과 IRP를 합쳐 900만원이 한도인데, 지금 그 한도만큼 공제를 받고 계십니다. 더 넣으셔도 공제는 늘지 않습니다.`,
-        "다만 한도를 넘겨 넣으신 금액은 나중에 연금으로 받으실 때 세금이 붙지 않습니다. 노후 자금을 더 쌓을 목적이라면 추가 납입도 손해는 아닙니다.",
+        "더 넣으셔도 공제는 늘지 않습니다. 다만 한도를 넘긴 금액은 나중에 연금으로 받으실 때 세금이 붙지 않으니, 노후 자금을 더 쌓을 목적이면 추가 납입도 손해는 아닙니다.",
       ],
       objections: common,
     };
@@ -321,7 +317,7 @@ export const TaxCreditCalculator = () => {
           <div className="bg-white border border-stone-200 rounded-md p-5">
             <SectionTitle sub="연말정산 시 환급 예상액">추정 결과</SectionTitle>
 
-            <div className="mt-3 rounded-md bg-gradient-to-br from-violet-50 to-white border-2 border-violet-300 p-4">
+            <div className="mt-3 rounded-md bg-violet-50/50 border-2 border-violet-300 p-4">
               <div className="text-[11px] font-bold uppercase tracking-wider text-violet-700 mb-1">
                 예상 환급액
               </div>
@@ -480,10 +476,8 @@ export const TaxCreditCalculator = () => {
           <SalesScript accent="violet" {...script} />
 
           <div className="bg-stone-50 border border-stone-200 rounded-md p-3 text-xs text-stone-600 leading-relaxed">
-            <strong className="text-stone-800">계산 근거:</strong> 소득세법 제59조의3(연금계좌세액공제)
-            — 연금저축 단독 600만원, 연금저축+IRP 합산 900만원 한도. 공제율은 총급여 5,500만원(종합소득금액
-            4,500만원) 이하 16.5%, 초과 13.2%(지방소득세 포함). 실제 공제액은 산출세액 범위 내에서
-            적용되며, 다른 공제 항목·세법 개정에 따라 달라집니다.
+            <strong className="text-stone-800">근거</strong> 소득세법 제59조의3. 연금저축 600만원, 합산 900만원 한도.
+            공제율 16.5%(총급여 5,500만원 이하) / 13.2%. 실제 공제액은 산출세액 범위 내에서 적용됩니다.
           </div>
         </div>
       </div>

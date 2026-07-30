@@ -31,7 +31,7 @@ const CopyRow = ({ value, label, emphasis }) => {
       className={cn(
         "group flex w-full items-start gap-3 rounded-md border px-3.5 py-3 text-left transition-colors",
         emphasis
-          ? "border-2 border-sky-300 bg-gradient-to-br from-sky-50 to-white"
+          ? "border-2 border-sky-300 bg-sky-50/50"
           : "border-stone-200 bg-white hover:border-sky-400",
         copied && "border-sky-500"
       )}
@@ -69,10 +69,7 @@ export const AddressConverter = () => {
     <>
     <div className="space-y-5 print:hidden">
       <div>
-        <span className="text-xs uppercase tracking-widest text-sky-700 font-semibold">
-          Address Romanization
-        </span>
-        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight mt-1">
+        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">
           영문 주소 변환기
         </h1>
         <p className="text-sm text-stone-600 mt-1">
@@ -84,9 +81,8 @@ export const AddressConverter = () => {
       <div className="flex items-start gap-2 rounded-r-sm border-l-4 border-amber-500 bg-amber-50/60 px-4 py-2.5">
         <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
         <p className="text-xs leading-relaxed text-stone-800">
-          도로명주소 로마자 표기 규칙에 따라 변환합니다. 외래어가 들어간 도로명은 소리대로 옮겨져
-          공식 표기와 다를 수 있으니, 표기가 정확히 맞아야 하는 서식은 공식 영문주소를 확인해
-          주세요.
+          외래어가 섞인 도로명은 소리대로 옮겨져 공식 표기와 다를 수 있습니다. 정확히 맞아야 하는
+          서식은 공식 영문주소로 확인해 주세요.
         </p>
       </div>
 
@@ -156,10 +152,9 @@ export const AddressConverter = () => {
       </div>
 
       <div className="rounded-md border border-stone-200 bg-stone-50 p-3 text-[11.5px] leading-relaxed text-stone-600">
-        <strong className="text-stone-800">변환 규칙:</strong> 한국 주소는 큰 단위부터 적지만 영문
-        주소는 작은 단위부터 적으므로 순서를 뒤집습니다. 도로 유형은 대로 daero, 로 ro, 길 gil로
-        붙임표를 붙여 표기하고, 행정구역도 시 si, 군 gun, 구 gu, 읍 eup, 면 myeon, 동 dong, 리
-        ri로 붙입니다. 붙임표 앞뒤에서는 음운 변화를 표기에 반영하지 않습니다.
+        <strong className="text-stone-800">근거</strong> 도로명주소 로마자 표기 규칙. 작은 단위부터
+        역순으로 적고, 도로 유형(daero·ro·gil)과 행정구역(si·gun·gu·eup·myeon·dong·ri)은 붙임표로
+        잇습니다.
       </div>
     </div>
 

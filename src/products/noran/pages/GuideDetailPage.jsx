@@ -91,7 +91,7 @@ export const GuideDetailPage = ({ guide, onBack, onOpenArticle }) => {
           </Section>
 
           {/* 고객 안내 문구 — 영업 핵심 강조 */}
-          <div className="bg-gradient-to-br from-amber-50 to-amber-50/30 border-2 border-amber-400 rounded-md p-6">
+          <div className="bg-amber-50/50 border-2 border-amber-400 rounded-md p-6">
             <div className="flex items-start justify-between gap-3 mb-3">
               <div className="flex items-start gap-2.5">
                 <FileText className="w-5 h-5 text-amber-700 flex-shrink-0 mt-1" />

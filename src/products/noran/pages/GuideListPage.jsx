@@ -11,7 +11,6 @@ export const GuideListPage = ({ onSelectGuide }) => {
   return (
     <div className="space-y-8 max-w-5xl">
       <div>
-        <span className="text-[13px] uppercase tracking-widest text-amber-700 font-bold">Topic Guide</span>
         <h1 className="text-3xl md:text-4xl font-black text-stone-900 tracking-tight mt-2 leading-tight">업무별 가이드</h1>
         <p className="text-base text-stone-600 mt-3 leading-loose">
           약관·법령 근거가 명시된 상담 가이드를 영역별로 확인하세요. 총 {GUIDES.length}개 가이드.

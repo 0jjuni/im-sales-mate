@@ -29,48 +29,36 @@ export const Dashboard = ({ onNavigate, onOpenArticle }) => {
     <div className="space-y-8">
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-xs uppercase tracking-widest text-amber-700 font-semibold">Dashboard</span>
           <span className="text-xs text-stone-500">약관 2026.7.1 + 조특법 법률 2025.7.1 / 시행령 2026.2.27 + 중협법 2026.6.3 시행</span>
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">상담을 시작합니다</h1>
         <p className="text-sm text-stone-600 mt-1">고객 상황을 빠르게 분류하고 약관·법령 근거가 명확한 안내를 진행하세요.</p>
       </div>
 
-      {/* 세일즈 핵심 — 계산기 강조 카드 */}
+      {/* 계산기 바로가기 */}
       <button
         onClick={() => onNavigate("calculator")}
-        className="w-full text-left bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900 hover:from-stone-800 hover:to-amber-800 transition-colors rounded-md p-6 group relative overflow-hidden"
+        className="w-full text-left bg-stone-900 hover:bg-stone-800 transition-colors rounded-md p-5 group"
       >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-400/10 rounded-full -mr-32 -mt-32 blur-3xl" />
-        <div className="relative flex items-center justify-between gap-6">
+        <div className="flex items-center justify-between gap-6">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <Calculator className="w-5 h-5 text-amber-300" />
-              <span className="text-[10px] uppercase tracking-widest text-amber-300 font-bold">
-                Sales Tool · NEW
-              </span>
+            <div className="flex items-center gap-2">
+              <Calculator className="w-4 h-4 text-amber-400" />
+              <h2 className="text-base font-bold text-white">세일즈 보조 계산기</h2>
             </div>
-            <h2 className="text-lg md:text-2xl font-black text-white mb-1">
-              세일즈 계산기로 즉시 절세효과 안내
-            </h2>
-            <p className="text-sm text-stone-300 leading-relaxed">
-              소득공제 절세액 · 해약환급금 시나리오 · 적금/연금저축 비교를 변수만 입력하면 즉시 추정해 드립니다. 고객 안내 스크립트도 자동 생성.
-            </p>
-            <div className="mt-3 flex items-center gap-4 text-xs text-stone-400">
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-400">
               <span className="flex items-center gap-1">
-                <Coins className="w-3 h-3" /> 절세효과
+                <Coins className="w-3 h-3" /> 소득공제 절세효과
               </span>
               <span className="flex items-center gap-1">
-                <TrendingDown className="w-3 h-3" /> 환급금 시뮬
+                <TrendingDown className="w-3 h-3" /> 해약환급금 시나리오
               </span>
               <span className="flex items-center gap-1">
                 <Scale className="w-3 h-3" /> 상품 비교
               </span>
             </div>
           </div>
-          <div className="flex-shrink-0">
-            <ChevronRight className="w-8 h-8 text-amber-300 group-hover:translate-x-1 transition-transform" />
-          </div>
+          <ChevronRight className="w-5 h-5 flex-shrink-0 text-stone-500 group-hover:text-amber-400 transition-colors" />
         </div>
       </button>
 
