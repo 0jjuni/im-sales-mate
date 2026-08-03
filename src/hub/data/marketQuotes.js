@@ -1,20 +1,26 @@
 /* 마켓 보드 시세 조회.
 
-   데모는 Vercel 정적 배포라 서버가 없어 브라우저에서 직접 조회한다.
-   Yahoo Finance 차트 API는 브라우저에서 직접 호출하면 CORS로 막히므로
-   공개 CORS 프록시를 경유한다.
+   Yahoo Finance 차트 API는 브라우저 직접 호출이 CORS로 막히므로 같은 배포의
+   서버리스 함수(api/quote.js)를 경유한다. 개발 서버(vite)에는 그 함수가 없어
+   공개 프록시(corsproxy.io)로 우회한다 — 이 프록시는 무료 플랜이 localhost에서만
+   동작하므로 개발 전용이다. 배포에서 쓰면 403이 난다.
 
-   ⚠ 한계 — 무료 서드파티 프록시와 비공식 API에 의존하므로 언제든 끊길 수 있다.
-     실서비스에서는 제안서에 적은 대로 Apps Script가 매일 아침 시세를 구글시트에
-     적재하고 사이트가 그 시트를 읽는 방식으로 바꾼다. 조회에 실패하면 화면이
-     비지 않도록 예시 데이터로 물러난다(fetchMarketQuotes 호출부에서 처리).
+   ⚠ 비공식 API라 언제든 끊길 수 있다. 실서비스에서는 제안서에 적은 대로
+     Apps Script가 매일 아침 시세를 구글시트에 적재하고 사이트가 그 시트를 읽는다.
+     조회 실패 시 화면이 비지 않도록 대체 데이터로 물러난다(호출부에서 처리).
 
    ⚠ 국고채 3년 금리는 브라우저에서 받을 수 있는 무료 소스가 없어 제외하고,
      금리 방향 지표로 미국 10년물을 넣었다. */
 
-const PROXY = "https://corsproxy.io/?url=";
+const DEV_PROXY = "https://corsproxy.io/?url=";
 const CHART = (symbol) =>
   `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=10d`;
+
+/* 심볼을 바꾸면 api/quote.js의 허용 목록도 함께 고칠 것 */
+const quoteUrl = (symbol) =>
+  import.meta.env.DEV
+    ? DEV_PROXY + encodeURIComponent(CHART(symbol))
+    : `/api/quote?symbol=${encodeURIComponent(symbol)}`;
 
 /* 표시 순서대로. format은 값 표기 방식 */
 const SYMBOLS = [
@@ -60,7 +66,7 @@ const fetchOne = async ({ label, symbol, format }) => {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
   try {
-    const res = await fetch(PROXY + encodeURIComponent(CHART(symbol)), { signal: ctrl.signal });
+    const res = await fetch(quoteUrl(symbol), { signal: ctrl.signal });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const parsed = parseChart(await res.json());
     if (!parsed) throw new Error("파싱 실패");
