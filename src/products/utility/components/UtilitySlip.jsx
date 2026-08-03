@@ -5,7 +5,8 @@
    잘라 쓰도록 점선 테두리를 넣었다.
 
    화면에서는 숨기고 window.print() 시에만 나타난다. */
-export const UtilitySlip = ({ title, rows = [], note }) => {
+/* figure — 항목 왼쪽에 붙는 그림(QR 등). 없으면 항목만 전체 폭으로 찍힌다 */
+export const UtilitySlip = ({ title, rows = [], note, figure }) => {
   const now = new Date();
   const printedAt = `${now.getFullYear()}. ${String(now.getMonth() + 1).padStart(2, "0")}. ${String(
     now.getDate()
@@ -27,8 +28,10 @@ export const UtilitySlip = ({ title, rows = [], note }) => {
           <div className="text-[8px] tracking-widest text-stone-500">iM뱅크</div>
         </div>
 
-        {/* 항목 */}
-        <table className="mt-1.5 w-full text-[10px]">
+        {/* 항목 — figure가 있으면 왼쪽에 그림, 오른쪽에 항목 */}
+        <div className="mt-1.5 flex items-start gap-3">
+          {figure && <div className="flex-shrink-0">{figure}</div>}
+          <table className="w-full text-[10px]">
           <tbody>
             {rows.map(({ label, value, sub, emphasis }, i) => (
               <tr key={i} className="align-top">
@@ -52,7 +55,8 @@ export const UtilitySlip = ({ title, rows = [], note }) => {
               </tr>
             ))}
           </tbody>
-        </table>
+          </table>
+        </div>
 
         {/* 꼬리 — 작성일과 담당자 기재란 */}
         <div className="mt-2 flex items-end justify-between gap-3 text-[8.5px] text-stone-600">

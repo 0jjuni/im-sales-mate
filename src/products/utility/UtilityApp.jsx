@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { UserRound, MapPin, Menu, X, Wrench } from "lucide-react";
+import { UserRound, MapPin, QrCode, Menu, X, Wrench } from "lucide-react";
 import { usePersonalization } from "@hub/personalization/PersonalizationContext";
 import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
@@ -8,6 +8,7 @@ import { HubLink } from "@shared/components/HubLink";
 import { cn } from "@shared/lib/format";
 import { NameRomanizer } from "./pages/NameRomanizer";
 import { AddressConverter } from "./pages/AddressConverter";
+import { QrConverter } from "./pages/QrConverter";
 
 /* 보조 도구 셸 — 상품 모듈과 같은 셸 패턴에 sky 아이덴티티.
    특정 상품에 속하지 않고 창구 업무 전반에서 쓰는 도구를 모은다.
@@ -16,6 +17,7 @@ import { AddressConverter } from "./pages/AddressConverter";
 const NAV_ITEMS = [
   { id: "name", label: "영문 이름 변환기", icon: UserRound },
   { id: "address", label: "영문 주소 변환기", icon: MapPin },
+  { id: "qr", label: "링크 QR 변환기", icon: QrCode },
 ];
 
 const VALID_PAGES = NAV_ITEMS.map((i) => i.id);
@@ -134,10 +136,10 @@ export default function UtilityApp() {
 
   return (
     <div
-      className="min-h-screen bg-stone-50 text-stone-900"
+      className="min-h-screen bg-stone-50 text-stone-900 print:min-h-0 print:bg-white"
       style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
     >
-      <header className="md:hidden sticky top-0 z-30 bg-white border-b border-stone-200 flex items-center gap-3 px-3 py-2">
+      <header className="md:hidden sticky top-0 z-30 bg-white border-b border-stone-200 flex items-center gap-3 px-3 py-2 print:hidden">
         <button
           onClick={() => setDrawerOpen(true)}
           className="p-1.5 hover:bg-stone-100 rounded-sm"
@@ -162,7 +164,7 @@ export default function UtilityApp() {
 
         <aside
           className={cn(
-            "bg-white border-r border-stone-200 flex flex-col",
+            "bg-white border-r border-stone-200 flex flex-col print:hidden",
             "md:w-60 md:min-h-screen md:static md:translate-x-0",
             "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] transform transition-transform duration-200 ease-out",
             drawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
@@ -171,14 +173,20 @@ export default function UtilityApp() {
           {sidebarContent}
         </aside>
 
-        <main className="flex-1 min-h-screen min-w-0">
-          <div className="p-4 md:p-8 max-w-4xl">
+        <main className="flex-1 min-h-screen min-w-0 print:min-h-0">
+          <div className="p-4 md:p-8 max-w-4xl print:p-0 print:max-w-none">
             {currentTool && (
-              <div className="flex justify-end mb-3">
+              <div className="flex justify-end mb-3 print:hidden">
                 <PinToolButton toolId={currentTool.id} />
               </div>
             )}
-            {page === "name" ? <NameRomanizer /> : <AddressConverter />}
+            {page === "qr" ? (
+              <QrConverter />
+            ) : page === "address" ? (
+              <AddressConverter />
+            ) : (
+              <NameRomanizer />
+            )}
           </div>
         </main>
       </div>

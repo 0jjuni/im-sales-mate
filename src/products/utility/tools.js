@@ -23,4 +23,12 @@ export const UTILITY_TOOLS = [
     icon: "MapPin",
     group: "창구 업무",
   },
+  {
+    id: "utility.qr",
+    name: "링크 QR 변환기",
+    desc: "신청 링크를 QR로 만들어 전표 인쇄",
+    to: "/tools/qr",
+    icon: "QrCode",
+    group: "창구 업무",
+  },
 ];

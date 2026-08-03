@@ -8,6 +8,7 @@ import {
   Percent,
   UserRound,
   MapPin,
+  QrCode,
   Wrench,
 } from "lucide-react";
 
@@ -23,6 +24,7 @@ const TOOL_ICONS = {
   Percent,
   UserRound,
   MapPin,
+  QrCode,
 };
 
 export const getToolIcon = (name) => TOOL_ICONS[name] ?? Wrench;
