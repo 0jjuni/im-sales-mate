@@ -57,11 +57,11 @@ export const TaxCalculator = () => {
 
     const chartData = isDeposit
       ? [
-          { name: "일반예금 세후이자", value: normalNet, fill: "#a8a29e" },
+          { name: "일반예금 세후이자", value: normalNet, fill: "#94a3b8" },
           { name: "ISA예금 세후이자", value: isaNet, fill: "#059669" },
         ]
       : [
-          { name: "일반계좌 세금", value: normalTax, fill: "#a8a29e" },
+          { name: "일반계좌 세금", value: normalTax, fill: "#94a3b8" },
           { name: "ISA 세금", value: isaTax, fill: "#059669" },
           { name: "추정 절세액", value: saving, fill: "#10b981" },
         ];
@@ -314,101 +314,132 @@ export const TaxCalculator = () => {
 
         {/* 결과부 */}
         <div className="lg:col-span-3 space-y-4">
-          <div className="bg-emerald-50/50 border-2 border-emerald-400 rounded-xl p-6">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <div className="text-xs uppercase tracking-wider text-emerald-700 font-bold mb-1">
-                  추정 절세액
+          {/* 핵심 결과 — 추정 절세액 */}
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-5 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
+                  추정 절세액 · {isDeposit ? "일반 예금 대비" : "일반계좌 대비"}
                 </div>
-                <div className="text-4xl font-black text-slate-900 tracking-tight">
+                <div className="mt-1 text-[38px] font-black leading-none tracking-tight text-emerald-700">
                   {formatKRW(result.saving)}
                 </div>
-                <div className="text-sm text-slate-600 mt-1">
-                  {isDeposit ? "일반 예금 대비 세금 절감" : "일반계좌 대비 세부담 절감"}
-                </div>
+                <p className="mt-2 text-[13px] leading-relaxed text-slate-600">
+                  {isDeposit
+                    ? "같은 예금인데, ISA로 넣으면 세금을 이만큼 아낍니다."
+                    : "같은 이익인데, ISA에서는 세부담이 이만큼 줄어듭니다."}
+                </p>
               </div>
-              <Percent className="w-10 h-10 text-emerald-500" />
-            </div>
-
-            <button
-              onClick={() => window.print()}
-              className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold transition-colors"
-              title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
-            >
-              <Printer className="w-4 h-4" />
-              <span>상담 자료 인쇄</span>
-              <span className="text-[11px] font-normal text-slate-300 hidden sm:inline">
-                PDF 저장 가능 · 디스클레이머·입력 조건 포함
-              </span>
-            </button>
-
-            <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-emerald-200">
-              {isDeposit && (
-                <div className="col-span-2">
-                  <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
-                    예상 이자 (월복리)
-                  </div>
-                  <div className="text-base font-bold text-slate-900">
-                    {formatKRW(result.interest)}
-                    <span className="text-[11px] font-normal text-slate-500 ml-1">
-                      {formatKRWShort(principal)} · 연 {rate.toFixed(1)}% · {years}년 · 만기일시지급
-                    </span>
-                  </div>
-                </div>
-              )}
-              <div>
-                <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
-                  ISA 예상 세금
-                </div>
-                <div className="text-base font-bold text-emerald-700">
-                  {formatKRW(result.isaTax)}
-                </div>
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
+                <Percent className="h-5 w-5" />
               </div>
-              <div>
-                <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
-                  {isDeposit ? "일반예금 세금" : "일반계좌 세금"}
-                </div>
-                <div className="text-base font-bold text-slate-900">
-                  {formatKRW(result.normalTax)}
-                </div>
-              </div>
-              {isDeposit ? (
-                <div className="col-span-2 bg-emerald-50/70 -mx-2 px-2 py-2 rounded-sm">
-                  <div className="text-[11px] uppercase tracking-wider text-emerald-700 font-semibold mb-0.5">
-                    세후 실효금리 (연)
-                  </div>
-                  <div className="text-base font-bold text-slate-900">
-                    ISA 약 {result.isaEffRate.toFixed(2)}%
-                    <span className="text-slate-500 mx-1.5">vs</span>
-                    <span className="text-slate-500">일반 약 {result.normalEffRate.toFixed(2)}%</span>
-                    <span className="ml-2 text-[12px] font-bold text-emerald-700">
-                      +{(result.isaEffRate - result.normalEffRate).toFixed(2)}%p
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div>
-                    <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
-                      비과세 한도
-                    </div>
-                    <div className="text-base font-bold text-slate-900">
-                      {formatKRW(result.taxFreeLimit)}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
-                      ISA 실효세율
-                    </div>
-                    <div className="text-base font-bold text-slate-900">
-                      {(result.isaEffective * 100).toFixed(1)}%
-                      <span className="text-[11px] font-normal text-slate-500 ml-1">vs 일반 15.4%</span>
-                    </div>
-                  </div>
-                </>
-              )}
             </div>
           </div>
+
+          {/* 일반 vs ISA — 나란히 비교 */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="text-[12px] font-bold text-slate-500">
+                {isDeposit ? "일반 예금" : "일반계좌"}
+              </div>
+              <div className="mt-3 space-y-2.5">
+                <div>
+                  <div className="text-[11px] text-slate-400">세금</div>
+                  <div className="text-[19px] font-bold tabular-nums text-slate-900">
+                    {formatKRW(result.normalTax)}
+                  </div>
+                </div>
+                <div className="border-t border-slate-100 pt-2.5">
+                  <div className="text-[11px] text-slate-400">세후 실수령</div>
+                  <div className="text-[14px] font-semibold tabular-nums text-slate-600">
+                    {formatKRW(result.normalNet)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative rounded-xl border-2 border-emerald-400 bg-white p-4 shadow-sm">
+              <span className="absolute -top-2 left-4 rounded-full bg-emerald-600 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-sm">
+                유리
+              </span>
+              <div className="text-[12px] font-bold text-emerald-700">
+                ISA {isDeposit ? "예금" : "계좌"}
+              </div>
+              <div className="mt-3 space-y-2.5">
+                <div>
+                  <div className="text-[11px] text-slate-400">세금</div>
+                  <div className="text-[19px] font-bold tabular-nums text-emerald-700">
+                    {formatKRW(result.isaTax)}
+                  </div>
+                </div>
+                <div className="border-t border-emerald-100 pt-2.5">
+                  <div className="text-[11px] text-slate-400">세후 실수령</div>
+                  <div className="text-[14px] font-semibold tabular-nums text-slate-900">
+                    {formatKRW(result.isaNet)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 부가 지표 */}
+          <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            {isDeposit ? (
+              <>
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-[12px] text-slate-500">
+                    예상 이자
+                    <span className="ml-1 text-[11px] text-slate-400">
+                      {formatKRWShort(principal)} · 연 {rate.toFixed(1)}% · {years}년 · 월복리
+                    </span>
+                  </span>
+                  <span className="flex-shrink-0 text-[15px] font-bold tabular-nums text-slate-900">
+                    {formatKRW(result.interest)}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1 border-t border-slate-100 pt-3">
+                  <span className="text-[12px] text-slate-500">세후 실효금리 (연)</span>
+                  <span className="text-[13.5px] font-bold tabular-nums">
+                    <span className="text-emerald-700">ISA {result.isaEffRate.toFixed(2)}%</span>
+                    <span className="mx-1 text-slate-400">vs</span>
+                    <span className="text-slate-500">일반 {result.normalEffRate.toFixed(2)}%</span>
+                    <span className="ml-1.5 rounded bg-emerald-100 px-1.5 py-0.5 text-[12px] text-emerald-700">
+                      +{(result.isaEffRate - result.normalEffRate).toFixed(2)}%p
+                    </span>
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-[12px] text-slate-500">비과세 한도</span>
+                  <span className="text-[15px] font-bold tabular-nums text-slate-900">
+                    {formatKRW(result.taxFreeLimit)}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between gap-2 border-t border-slate-100 pt-3">
+                  <span className="text-[12px] text-slate-500">ISA 실효세율</span>
+                  <span className="text-[13.5px] font-bold tabular-nums text-slate-900">
+                    {(result.isaEffective * 100).toFixed(1)}%
+                    <span className="ml-1.5 text-[12px] font-normal text-slate-500">vs 일반 15.4%</span>
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* 인쇄 */}
+          <button
+            onClick={() => window.print()}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold shadow-sm transition-all hover:shadow-md"
+            title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
+          >
+            <Printer className="w-4 h-4" />
+            <span>상담 자료 인쇄</span>
+            <span className="text-[11px] font-normal text-slate-300 hidden sm:inline">
+              PDF 저장 가능 · 디스클레이머·입력 조건 포함
+            </span>
+          </button>
 
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
             <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
@@ -420,21 +451,21 @@ export const TaxCalculator = () => {
                 layout="vertical"
                 margin={{ left: 0, right: 40, top: 5, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis
                   type="number"
                   tickFormatter={(v) => formatKRWShort(v)}
-                  tick={{ fontSize: 10, fill: "#78716c" }}
+                  tick={{ fontSize: 10, fill: "#64748b" }}
                 />
                 <YAxis
                   type="category"
                   dataKey="name"
-                  tick={{ fontSize: 11, fill: "#44403c" }}
+                  tick={{ fontSize: 11, fill: "#334155" }}
                   width={110}
                 />
                 <Tooltip
                   formatter={(v) => formatKRW(v)}
-                  contentStyle={{ fontSize: 12, borderRadius: 4, border: "1px solid #e7e5e4" }}
+                  contentStyle={{ fontSize: 12, borderRadius: 4, border: "1px solid #e2e8f0" }}
                 />
                 <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                   {result.chartData.map((entry, i) => (
