@@ -16,6 +16,8 @@
 const SHEET_NAME = 'briefing';
 const GEMINI_MODEL = 'gemini-3.6-flash';   // 모델은 단종될 수 있음. 404 뜨면 에러 메시지가 알려주는 최신명으로 교체
 const MAX_ITEMS_PER_RUN = 8;               // 한 번에 요약할 최대 뉴스 수(무료 쿼터 보호)
+const MAX_PER_FEED = 2;                     // 피드(주제)별 최대 — 한 주제가 브리핑을 독점하지 않게
+const CUTOFF_DAYS = 5;                      // 최근 며칠 내 기사만 (오래된 뉴스 배제)
 const TZ = 'Asia/Seoul';
 
 /* 뉴스 소스 — 기본은 Google News RSS(키워드 검색, 무료·안정적).
@@ -82,17 +84,21 @@ function collectAndDraft() {
     lastRow > 1 ? sh.getRange(2, 10, lastRow - 1, 1).getValues().flat().filter(String) : []
   );
 
+  const cutoff = Date.now() - CUTOFF_DAYS * 86400000;
   let items = [];
   for (const feed of RSS_FEEDS) {
     try {
-      items = items.concat(parseRss_(feed));
+      const fresh = parseRss_(feed)
+        .filter((it) => it.link && !seen.has(it.link) && (it.pubDate === 0 || it.pubDate >= cutoff))
+        .sort((a, b) => (b.pubDate || 0) - (a.pubDate || 0))
+        .slice(0, MAX_PER_FEED); // 주제별 상한 — 한 주제 독점 방지
+      items = items.concat(fresh);
     } catch (e) {
       Logger.log('RSS 실패 [' + feed.name + '] ' + e);
     }
   }
 
   items = items
-    .filter((it) => it.link && !seen.has(it.link))
     .sort((a, b) => (b.pubDate || 0) - (a.pubDate || 0))
     .slice(0, MAX_ITEMS_PER_RUN);
 
@@ -102,7 +108,7 @@ function collectAndDraft() {
   for (const it of items) {
     try {
       const ai = summarizeWithGemini_(it);
-      if (!ai || !ai.summary) continue;
+      if (!ai || ai.importance === 'skip' || !ai.summary) continue; // 막연·부적합은 건너뜀
       sh.appendRow([
         'auto_' + Utilities.getUuid().slice(0, 8),
         today,
@@ -158,9 +164,11 @@ function summarizeWithGemini_(item) {
     '- importance: 창구에서 오늘 반드시 인지해야 하면 "high", 아니면 "normal".',
     '- headline: 25자 내외 한 줄. 원문 제목을 그대로 복사하지 말고 다듬어라.',
     '- 원문 문장을 그대로 옮기지 말고 재작성하라(저작권).',
-    '- 광고·홍보성·개별 종목 추천 뉴스이면 importance는 "normal"보다 낮게 두지 말고, 대신 summary에 "참고" 톤으로.',
+    '- 구체적 사실(수치·주체·시점·시행일)이 없이 "관심이 쏠린다 / 전망이 갈린다" 수준으로 막연하면, importance를 "skip"으로 하고 나머지 필드는 비워라. 억지로 요약을 지어내지 마라.',
+    '- 확정된 정책·수치·시행일이 담긴 뉴스만 "high". 단순 관측·전망·기대·개별 기관(증권사·IB) 예측은 "normal".',
+    '- 광고·홍보·개별 종목 추천이면 "skip".',
     '',
-    '출력: {"importance":"high|normal","category":"","headline":"","summary":"","pbNote":""}',
+    '출력: {"importance":"high|normal|skip","category":"","headline":"","summary":"","pbNote":""}',
     '',
     '제목: ' + item.title,
     '내용: ' + stripTags_(item.description).slice(0, 1500),
