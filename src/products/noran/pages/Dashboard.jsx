@@ -29,16 +29,16 @@ export const Dashboard = ({ onNavigate, onOpenArticle }) => {
     <div className="space-y-8">
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-xs text-stone-500">약관 2026.7.1 + 조특법 법률 2025.7.1 / 시행령 2026.2.27 + 중협법 2026.6.3 시행</span>
+          <span className="text-xs text-slate-500">약관 2026.7.1 + 조특법 법률 2025.7.1 / 시행령 2026.2.27 + 중협법 2026.6.3 시행</span>
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">상담을 시작합니다</h1>
-        <p className="text-sm text-stone-600 mt-1">고객 상황을 빠르게 분류하고 약관·법령 근거가 명확한 안내를 진행하세요.</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">상담을 시작합니다</h1>
+        <p className="text-sm text-slate-600 mt-1">고객 상황을 빠르게 분류하고 약관·법령 근거가 명확한 안내를 진행하세요.</p>
       </div>
 
       {/* 계산기 바로가기 */}
       <button
         onClick={() => onNavigate("calculator")}
-        className="w-full text-left bg-stone-900 hover:bg-stone-800 transition-colors rounded-md p-5 group"
+        className="w-full text-left bg-slate-900 hover:bg-slate-800 transition-all rounded-xl p-5 shadow-sm hover:shadow-md group"
       >
         <div className="flex items-center justify-between gap-6">
           <div className="flex-1">
@@ -46,7 +46,7 @@ export const Dashboard = ({ onNavigate, onOpenArticle }) => {
               <Calculator className="w-4 h-4 text-amber-400" />
               <h2 className="text-base font-bold text-white">세일즈 보조 계산기</h2>
             </div>
-            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-400">
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
               <span className="flex items-center gap-1">
                 <Coins className="w-3 h-3" /> 소득공제 절세효과
               </span>
@@ -58,7 +58,7 @@ export const Dashboard = ({ onNavigate, onOpenArticle }) => {
               </span>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 flex-shrink-0 text-stone-500 group-hover:text-amber-400 transition-colors" />
+          <ChevronRight className="w-5 h-5 flex-shrink-0 text-slate-500 group-hover:text-amber-400 transition-colors" />
         </div>
       </button>
 
@@ -71,12 +71,12 @@ export const Dashboard = ({ onNavigate, onOpenArticle }) => {
               <button
                 key={qa.id}
                 onClick={() => onNavigate("simulator", `${qa.id}-1`)}
-                className="group text-left p-5 bg-white border border-stone-200 hover:border-amber-400 hover:shadow-sm transition-all rounded-md relative overflow-hidden"
+                className="group text-left p-5 bg-white border border-slate-200 shadow-sm hover:border-amber-400 hover:shadow-md transition-all rounded-xl relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-1 h-full bg-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <Icon className="w-5 h-5 text-stone-600 group-hover:text-amber-600 transition-colors mb-3" />
-                <div className="font-bold text-stone-900 text-base mb-1">{qa.label}</div>
-                <div className="text-xs text-stone-500 leading-relaxed">{qa.desc}</div>
+                <Icon className="w-5 h-5 text-slate-600 group-hover:text-amber-600 transition-colors mb-3" />
+                <div className="font-bold text-slate-900 text-base mb-1">{qa.label}</div>
+                <div className="text-xs text-slate-500 leading-relaxed">{qa.desc}</div>
                 <div className="mt-3 flex items-center text-xs text-amber-700 font-medium">
                   상담 시뮬레이터로 이동
                   <ChevronRight className="w-3.5 h-3.5 ml-0.5 group-hover:translate-x-0.5 transition-transform" />
@@ -97,13 +97,13 @@ export const Dashboard = ({ onNavigate, onOpenArticle }) => {
             전체 FAQ <ChevronRight className="w-3 h-3" />
           </button>
         </div>
-        <div className="bg-white border border-stone-200 rounded-md divide-y divide-stone-100">
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm divide-y divide-slate-100">
           {topFaqs.map((faq) => (
-            <div key={faq.id} className="p-4 hover:bg-stone-50/50 transition-colors">
+            <div key={faq.id} className="p-4 hover:bg-slate-50/50 transition-colors">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-stone-900 mb-1">{faq.question}</div>
-                  <div className="text-sm text-stone-600 leading-relaxed">{faq.shortAnswer}</div>
+                  <div className="text-sm font-semibold text-slate-900 mb-1">{faq.question}</div>
+                  <div className="text-sm text-slate-600 leading-relaxed">{faq.shortAnswer}</div>
                 </div>
                 <SourceBadge articles={faq.sourceReference.articles} onClick={onOpenArticle} />
               </div>
@@ -123,10 +123,10 @@ export const Dashboard = ({ onNavigate, onOpenArticle }) => {
                 onClick={() => {
                   onNavigate("guide");
                 }}
-                className="p-3 bg-white border border-stone-200 hover:border-amber-400 transition-colors rounded-md text-left"
+                className="p-3 bg-white border border-slate-200 shadow-sm hover:border-amber-400 hover:shadow-md transition-all rounded-xl text-left"
               >
-                <div className="text-sm font-bold text-stone-900">{cat.name}</div>
-                <div className="text-xs text-stone-500 mt-0.5">{count}개 가이드</div>
+                <div className="text-sm font-bold text-slate-900">{cat.name}</div>
+                <div className="text-xs text-slate-500 mt-0.5">{count}개 가이드</div>
               </button>
             );
           })}
