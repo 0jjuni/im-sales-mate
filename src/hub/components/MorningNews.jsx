@@ -4,11 +4,14 @@ import {
   AlertCircle,
   MessageSquareText,
 } from "lucide-react";
+import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 
 /* 오늘 아침 꼭 알아야 할 뉴스 — PB/VM 출근 브리핑.
+   금융 리서치 노트 톤: 채도 높은 배너 대신 흰 마스트헤드 + 타이포 위계.
    각 항목은 사실 요약(summary)과 「상담 포인트」(pbNote)를 분리해서
-   "무슨 일이 있었나"와 "오늘 창구에서 어떤 의미인가"를 한눈에 잇는다. */
+   "무슨 일이 있었나"와 "오늘 창구에서 어떤 의미인가"를 한눈에 잇는다.
+   필수(importance:high) 항목만 민트 좌측 강조로 시선을 먼저 붙든다. */
 
 const fmtDate = (iso) => {
   const d = new Date(iso + "T00:00:00");
@@ -17,66 +20,54 @@ const fmtDate = (iso) => {
   return `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()} (${day})`;
 };
 
-const NewsItem = ({ item, index }) => {
+const NewsItem = ({ item }) => {
   const must = item.importance === "high";
   return (
-    <li className="group relative flex gap-3.5 px-4 py-4 md:px-5">
-      {/* 순번 — 필수는 민트 채움, 나머지는 아웃라인 */}
-      <div
-        className={cn(
-          "mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-[12px] font-bold tabular-nums",
-          must
-            ? "bg-im-500 text-white shadow-sm"
-            : "border border-slate-300 bg-white text-slate-500"
+    <li
+      className={cn(
+        "border-l-[3px] px-5 py-4",
+        must ? "border-im-500 bg-im-50/25" : "border-transparent"
+      )}
+    >
+      {/* 메타 라인 — 카테고리 주도, 필수는 우선 배지 */}
+      <div className="flex flex-wrap items-center gap-2">
+        {must && (
+          <span className="rounded-sm bg-im-500 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
+            필수
+          </span>
         )}
-      >
-        {index + 1}
+        <span className="rounded-sm border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">
+          {item.category}
+        </span>
+        <span className="text-[10px] text-slate-400">{item.source}</span>
       </div>
 
-      <div className="min-w-0 flex-1">
-        {/* 메타 라인 */}
-        <div className="flex flex-wrap items-center gap-1.5">
-          {must && (
-            <span className="rounded-sm bg-im-500 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
-              필수
-            </span>
-          )}
-          <span className="rounded-sm border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">
-            {item.category}
-          </span>
-          <span className="text-[10px] text-slate-500">{item.source}</span>
-        </div>
+      {/* 헤드라인 + 요약 */}
+      <h3 className="mt-2 text-[15px] font-bold leading-snug tracking-tight text-slate-900">
+        {item.headline}
+      </h3>
+      <p className="mt-1.5 text-[13px] leading-relaxed text-slate-600">
+        {item.summary}
+      </p>
 
-        {/* 헤드라인 + 요약 */}
-        <h3 className="mt-1.5 text-[14px] font-bold leading-snug text-slate-900">
-          {item.headline}
-        </h3>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-slate-600">
-          {item.summary}
+      {/* 상담 포인트 — 이 뉴스가 오늘 창구에서 갖는 의미 */}
+      <div className="mt-3 flex gap-2.5 rounded-lg bg-im-50/60 px-3.5 py-2.5 ring-1 ring-inset ring-im-100/70">
+        <MessageSquareText className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-im-600" />
+        <p className="text-[12.5px] leading-relaxed text-slate-700">
+          <span className="mr-1.5 font-bold text-im-700">상담 포인트</span>
+          {item.pbNote}
         </p>
-
-        {/* 상담 포인트 — 이 뉴스가 오늘 창구에서 갖는 의미 */}
-        <div className="mt-2.5 flex gap-2 rounded-md border-l-2 border-im-400 bg-im-50/70 px-3 py-2">
-          <MessageSquareText className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-im-600" />
-          <p className="text-[12px] leading-relaxed text-im-800">
-            <span className="mr-1 font-bold text-im-700">상담 포인트</span>
-            {item.pbNote}
-          </p>
-        </div>
       </div>
     </li>
   );
 };
 
 const SkeletonItem = () => (
-  <li className="flex gap-3.5 px-4 py-4 md:px-5">
-    <div className="h-6 w-6 flex-shrink-0 animate-pulse rounded-full bg-slate-100" />
-    <div className="flex-1 space-y-2">
-      <div className="h-3 w-24 animate-pulse rounded bg-slate-100" />
-      <div className="h-4 w-3/4 animate-pulse rounded bg-slate-100" />
-      <div className="h-3 w-full animate-pulse rounded bg-slate-100" />
-      <div className="h-8 w-full animate-pulse rounded bg-im-50" />
-    </div>
+  <li className="border-l-[3px] border-transparent px-5 py-4">
+    <div className="h-3 w-28 animate-pulse rounded bg-slate-100" />
+    <div className="mt-2.5 h-4 w-3/4 animate-pulse rounded bg-slate-100" />
+    <div className="mt-2 h-3 w-full animate-pulse rounded bg-slate-100" />
+    <div className="mt-3 h-10 w-full animate-pulse rounded-lg bg-im-50" />
   </li>
 );
 
@@ -84,39 +75,37 @@ export function MorningNews({ data, status, onReload }) {
   const mustCount = data?.news?.filter((n) => n.importance === "high").length ?? 0;
 
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      {/* 헤더 밴드 — 민트 아이덴티티 */}
-      <div className="bg-gradient-to-r from-im-700 to-im-500 px-4 py-3.5 md:px-5">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-white/15">
-              <Sparkles className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-[14px] font-bold tracking-tight text-white">
-                  오늘 아침 꼭 알아야 할 뉴스
-                </h2>
-                <span className="rounded-sm bg-white/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-im-50">
-                  AI Briefing
-                </span>
-              </div>
-              <p className="mt-0.5 text-[11px] text-im-100">
-                {status === "ready" && data
-                  ? `${fmtDate(data.date)} · ${data.session} · 필수 ${mustCount}건`
-                  : "불러오는 중…"}
-              </p>
-            </div>
+    <section className={cn(CARD, "overflow-hidden")}>
+      {/* 마스트헤드 — 흰 표면 + 민트 칩(다른 섹션과 같은 언어), 채도 배너 걷어냄 */}
+      <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-im-500 to-im-600 text-white shadow-sm shadow-im-600/25 ring-1 ring-inset ring-white/20">
+            <Sparkles className="h-[18px] w-[18px]" />
           </div>
-          <button
-            onClick={onReload}
-            disabled={status === "loading"}
-            className="flex items-center gap-1 rounded-md border border-white/20 bg-white/10 px-2 py-1 text-[11px] font-medium text-white transition-colors hover:bg-white/20 disabled:opacity-50"
-          >
-            <RefreshCw className={cn("h-3 w-3", status === "loading" && "animate-spin")} />
-            새로고침
-          </button>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h2 className="text-[17px] font-bold tracking-tight text-slate-900">
+                오늘 아침 꼭 알아야 할 뉴스
+              </h2>
+              <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
+                AI
+              </span>
+            </div>
+            <p className="mt-0.5 text-[12px] text-slate-500">
+              {status === "ready" && data
+                ? `${fmtDate(data.date)} · ${data.session} · 필수 ${mustCount}건`
+                : "불러오는 중…"}
+            </p>
+          </div>
         </div>
+        <button
+          onClick={onReload}
+          disabled={status === "loading"}
+          className="flex flex-shrink-0 items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-medium text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-800 disabled:opacity-50"
+        >
+          <RefreshCw className={cn("h-3 w-3", status === "loading" && "animate-spin")} />
+          새로고침
+        </button>
       </div>
 
       {/* 본문 */}
@@ -129,9 +118,7 @@ export function MorningNews({ data, status, onReload }) {
         <ul className="divide-y divide-slate-100">
           {status === "loading"
             ? Array.from({ length: 3 }).map((_, i) => <SkeletonItem key={i} />)
-            : data.news.map((item, i) => (
-                <NewsItem key={item.id} item={item} index={i} />
-              ))}
+            : data.news.map((item) => <NewsItem key={item.id} item={item} />)}
         </ul>
       )}
 

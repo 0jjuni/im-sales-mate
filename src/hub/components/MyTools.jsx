@@ -8,6 +8,7 @@ import { usePersonalization } from "../personalization/PersonalizationContext";
 import { getToolById } from "../registry/toolRegistry";
 import { getToolIcon, getToolAccent } from "../registry/toolPresentation";
 import { ToolLibrary } from "./ToolLibrary";
+import { CARD_INTERACTIVE } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 
 /* 내 도구 — 자주 쓰는 도구를 바로 여는 런처.
@@ -25,10 +26,10 @@ const SortableToolTile = ({ tool, onUnpin }) => {
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform), transition }}
       className={cn(
-        "group relative rounded-xl border bg-white transition-all",
+        "relative",
         isDragging
-          ? "z-10 border-im-400 shadow-lg"
-          : "border-slate-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+          ? "z-10 rounded-xl border border-im-400 bg-white shadow-lg transition-all"
+          : cn(CARD_INTERACTIVE, "hover:border-im-200")
       )}
     >
       <Link

@@ -27,13 +27,13 @@ import { EditGuide, hasSeenEditGuide, markEditGuideSeen } from "./components/Edi
 import { cn } from "@shared/lib/format";
 
 const SectionHeader = ({ icon: Icon, title, sub }) => (
-  <div className="mb-3 flex items-center gap-2.5">
-    <div className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900 text-white">
-      <Icon className="h-4 w-4" />
+  <div className="mb-4 flex items-center gap-2.5">
+    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-im-500 to-im-600 text-white shadow-sm shadow-im-600/25 ring-1 ring-inset ring-white/20">
+      <Icon className="h-[18px] w-[18px]" />
     </div>
-    <div>
-      <h2 className="text-[15px] font-bold tracking-tight text-slate-900">{title}</h2>
-      {sub && <p className="text-[11px] text-slate-500">{sub}</p>}
+    <div className="min-w-0">
+      <h2 className="text-[17px] font-bold leading-tight tracking-tight text-slate-900">{title}</h2>
+      {sub && <p className="mt-0.5 text-[12px] text-slate-500">{sub}</p>}
     </div>
   </div>
 );
@@ -311,7 +311,7 @@ export function HubHome() {
           {showGuide && <EditGuide onClose={closeGuide} />}
         </>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-10">
           {sectionOrder
             .filter((id) => !isSectionHidden(id))
             .map((id) => (

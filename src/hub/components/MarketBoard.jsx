@@ -1,4 +1,5 @@
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 
 /* 마켓 보드 — 주요 지표를 한 줄로 훑는 얇은 대시보드 스트립.
@@ -42,7 +43,7 @@ const fmtAsOf = (d) => {
 export function MarketBoard({ markets, status, live, asOf }) {
   const asOfText = fmtAsOf(asOf);
   return (
-    <section className="rounded-lg border border-slate-200 bg-white px-4 py-3">
+    <section className={cn(CARD, "px-4 py-3")}>
       <div className="mb-2 flex items-baseline justify-between gap-2">
         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
           마켓 보드

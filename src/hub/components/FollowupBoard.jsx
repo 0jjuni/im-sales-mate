@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, ShieldAlert, CalendarDays } from "lucide-react";
 import { useFollowups } from "../followups/useFollowups";
 import { FollowupRow, FollowupForm, PrivacyNotice } from "../followups/parts";
+import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 
 /* 허브의 고객 후속 관리 위젯 — 요약만 보여 준다.
@@ -18,7 +19,7 @@ export function FollowupBoard() {
   const rest = openItems.length - preview.length;
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white">
+    <div className={cn(CARD, "overflow-hidden")}>
       {/* 요약 */}
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 px-3 py-2.5">
         {summary.overdue > 0 && (

@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { ALL_TOOLS } from "../registry/toolRegistry";
 import { getToolIcon, getToolAccent } from "../registry/toolPresentation";
+import { CARD_INTERACTIVE } from "@shared/lib/surface";
+import { cn } from "@shared/lib/format";
 
 /* 보조 도구 섹션 — 특정 상품에 매이지 않고 창구 업무 전반에서 쓰는 도구.
    목록은 도구 레지스트리에서 가져오므로 보조 도구 매니페스트에 항목을 추가하면
@@ -19,7 +21,7 @@ export function UtilityGrid() {
           <Link
             key={tool.id}
             to={tool.to}
-            className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-md"
+            className={cn(CARD_INTERACTIVE, "flex items-start gap-3 p-4 hover:border-sky-300")}
           >
             <div
               className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg shadow-sm transition-transform group-hover:scale-105 ${accent.icon}`}

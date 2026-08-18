@@ -1,12 +1,14 @@
 import { Receipt, Scale, BookMarked, ChevronRight, FileText } from "lucide-react";
 import { KNOWLEDGE } from "../data/knowledge";
+import { CARD } from "@shared/lib/surface";
+import { cn } from "@shared/lib/format";
 
 const ICONS = { Receipt, Scale, BookMarked };
 
 const KnowledgeCard = ({ category }) => {
   const Icon = ICONS[category.icon] ?? FileText;
   return (
-    <div className="flex flex-col rounded-lg border border-slate-200 bg-white p-4">
+    <div className={cn(CARD, "flex flex-col p-4")}>
       <div className="flex items-center gap-2.5">
         <div className="flex h-9 w-9 items-center justify-center rounded-md bg-im-50 text-im-700">
           <Icon className="h-4 w-4" />
