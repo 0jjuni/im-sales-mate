@@ -14,18 +14,18 @@ export const UtilitySlip = ({ title, rows = [], note, figure }) => {
 
   return (
     <div
-      className="hidden print:block print-slip bg-white text-stone-900"
+      className="hidden print:block print-slip bg-white text-slate-900"
       style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
       aria-hidden="true"
     >
       <div
-        className="border border-dashed border-stone-500 p-3"
+        className="border border-dashed border-slate-500 p-3"
         style={{ width: "148mm" }}
       >
         {/* 머리 */}
-        <div className="flex items-baseline justify-between border-b border-stone-900 pb-1">
+        <div className="flex items-baseline justify-between border-b border-slate-900 pb-1">
           <div className="text-[12px] font-black tracking-tight">{title}</div>
-          <div className="text-[8px] tracking-widest text-stone-500">iM뱅크</div>
+          <div className="text-[8px] tracking-widest text-slate-500">iM뱅크</div>
         </div>
 
         {/* 항목 — figure가 있으면 왼쪽에 그림, 오른쪽에 항목 */}
@@ -35,10 +35,10 @@ export const UtilitySlip = ({ title, rows = [], note, figure }) => {
           <tbody>
             {rows.map(({ label, value, sub, emphasis }, i) => (
               <tr key={i} className="align-top">
-                <td className="w-20 border-b border-stone-200 py-1 pr-2 text-stone-600">
+                <td className="w-20 border-b border-slate-200 py-1 pr-2 text-slate-600">
                   {label}
                 </td>
-                <td className="border-b border-stone-200 py-1">
+                <td className="border-b border-slate-200 py-1">
                   <span
                     className={
                       emphasis
@@ -49,7 +49,7 @@ export const UtilitySlip = ({ title, rows = [], note, figure }) => {
                     {value}
                   </span>
                   {sub && (
-                    <span className="mt-0.5 block text-[8.5px] text-stone-500">{sub}</span>
+                    <span className="mt-0.5 block text-[8.5px] text-slate-500">{sub}</span>
                   )}
                 </td>
               </tr>
@@ -59,16 +59,16 @@ export const UtilitySlip = ({ title, rows = [], note, figure }) => {
         </div>
 
         {/* 꼬리 — 작성일과 담당자 기재란 */}
-        <div className="mt-2 flex items-end justify-between gap-3 text-[8.5px] text-stone-600">
+        <div className="mt-2 flex items-end justify-between gap-3 text-[8.5px] text-slate-600">
           <span>작성일 {printedAt}</span>
           <span className="flex items-end gap-1">
             담당
-            <span className="inline-block h-3 w-20 border-b border-stone-400" />
+            <span className="inline-block h-3 w-20 border-b border-slate-400" />
           </span>
         </div>
 
         {note && (
-          <p className="mt-1 border-t border-stone-200 pt-1 text-[8.5px] leading-snug text-stone-600">
+          <p className="mt-1 border-t border-slate-200 pt-1 text-[8.5px] leading-snug text-slate-600">
             {note}
           </p>
         )}

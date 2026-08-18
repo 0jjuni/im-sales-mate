@@ -41,17 +41,17 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
     <div className="space-y-6">
       <div className="flex items-start justify-between print:hidden">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
             세일즈 보조 계산기
           </h1>
-          <p className="text-sm text-stone-600 mt-1">
+          <p className="text-sm text-slate-600 mt-1">
             소득공제 절세효과·해약환급금·상품 비교 추정치를 즉시 계산합니다.
           </p>
         </div>
         {!accepted && (
           <button
             onClick={() => setShowDisclaimer(true)}
-            className="text-xs text-stone-600 hover:text-stone-900 underline"
+            className="text-xs text-slate-600 hover:text-slate-900 underline"
           >
             사용 안내 다시 보기
           </button>
@@ -60,7 +60,7 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
 
       <div className="bg-amber-50/60 border-l-4 border-amber-500 px-4 py-2.5 rounded-r-sm flex items-start gap-2 print:hidden">
         <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-        <p className="text-xs text-stone-800 leading-relaxed">
+        <p className="text-xs text-slate-800 leading-relaxed">
           본 계산기 결과는 모두 <strong>추정치</strong>입니다. 실제 절세액·환급금·이율은 다른 공제 항목, 시점, 세법 개정에 따라 달라집니다. 정확한 금액은 중앙회 시스템 조회 + 세무 전문가 상담을 권해 주세요.
         </p>
       </div>
@@ -75,10 +75,10 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
               key={tab.id}
               onClick={() => onTabChange?.(tab.id)}
               className={cn(
-                "text-left p-4 border rounded-md transition-all",
+                "text-left p-4 border rounded-xl transition-all",
                 isActive
-                  ? "bg-stone-900 text-white border-stone-900 shadow-md"
-                  : "bg-white border-stone-200 text-stone-700 hover:border-stone-400"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-md"
+                  : "bg-white border-slate-200 text-slate-700 hover:border-slate-400"
               )}
             >
               <div className="flex items-center justify-between mb-2">
@@ -95,7 +95,7 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
               <div
                 className={cn(
                   "text-sm font-bold",
-                  isActive ? "text-white" : "text-stone-900"
+                  isActive ? "text-white" : "text-slate-900"
                 )}
               >
                 {tab.label}
@@ -103,7 +103,7 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
               <div
                 className={cn(
                   "text-xs mt-1 leading-relaxed",
-                  isActive ? "text-stone-300" : "text-stone-500"
+                  isActive ? "text-slate-300" : "text-slate-500"
                 )}
               >
                 {tab.description}
@@ -121,13 +121,13 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
           {activeTab === "compare" && <ProductCompare />}
         </div>
       ) : (
-        <div className="border-2 border-dashed border-stone-300 rounded-md p-8 text-center print:hidden">
-          <p className="text-sm text-stone-500">
+        <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center print:hidden">
+          <p className="text-sm text-slate-500">
             계산기는 사용 안내 확인 후 이용할 수 있습니다.
           </p>
           <button
             onClick={() => setShowDisclaimer(true)}
-            className="mt-3 px-4 py-2 text-sm bg-stone-900 text-white hover:bg-stone-800 rounded-sm font-semibold"
+            className="mt-3 px-4 py-2 text-sm bg-slate-900 text-white hover:bg-slate-800 rounded-sm font-semibold"
           >
             사용 안내 보기
           </button>

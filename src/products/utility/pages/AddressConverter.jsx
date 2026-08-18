@@ -29,10 +29,10 @@ const CopyRow = ({ value, label, emphasis }) => {
       onClick={copy}
       title="복사"
       className={cn(
-        "group flex w-full items-start gap-3 rounded-md border px-3.5 py-3 text-left transition-colors",
+        "group flex w-full items-start gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors",
         emphasis
           ? "border-2 border-sky-300 bg-sky-50/50"
-          : "border-stone-200 bg-white hover:border-sky-400",
+          : "border-slate-200 bg-white hover:border-sky-400",
         copied && "border-sky-500"
       )}
     >
@@ -44,7 +44,7 @@ const CopyRow = ({ value, label, emphasis }) => {
         )}
         <span
           className={cn(
-            "block break-words text-stone-900",
+            "block break-words text-slate-900",
             /* 서식에 옮겨 적는 용도라 강조 결과는 크게 */
           emphasis ? "text-[17px] font-bold leading-relaxed tracking-wide" : "text-[13.5px]"
           )}
@@ -55,7 +55,7 @@ const CopyRow = ({ value, label, emphasis }) => {
       {copied ? (
         <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-sky-600" />
       ) : (
-        <Copy className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-300 group-hover:text-stone-500" />
+        <Copy className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-300 group-hover:text-slate-500" />
       )}
     </button>
   );
@@ -69,44 +69,44 @@ export const AddressConverter = () => {
     <>
     <div className="space-y-5 print:hidden">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
           영문 주소 변환기
         </h1>
-        <p className="text-sm text-stone-600 mt-1">
+        <p className="text-sm text-slate-600 mt-1">
           한글 도로명주소를 영문 표기로 바꿉니다.
         </p>
       </div>
 
       <div className="flex items-start gap-2 rounded-r-sm border-l-4 border-amber-500 bg-amber-50/60 px-4 py-2.5">
         <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
-        <p className="text-xs leading-relaxed text-stone-800">
+        <p className="text-xs leading-relaxed text-slate-800">
           외래어가 섞인 도로명은 소리대로 옮겨져 공식 표기와 다를 수 있습니다. 정확히 맞아야 하는
           서식은 공식 영문주소로 확인해 주세요.
         </p>
       </div>
 
-      <div className="rounded-md border border-stone-200 bg-white p-5">
-        <label className="mb-1.5 block text-xs font-bold text-stone-700">
+      <div className="rounded-xl border border-slate-200 bg-white p-5">
+        <label className="mb-1.5 block text-xs font-bold text-slate-700">
           한글 도로명주소
         </label>
         <div className="relative">
-          <MapPin className="absolute left-3 top-3 h-4 w-4 text-stone-400" />
+          <MapPin className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             rows={2}
             placeholder="예: 서울특별시 강남구 테헤란로 152"
-            className="w-full resize-y rounded-md border border-stone-300 py-2.5 pl-9 pr-3 text-[14px] leading-relaxed focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-200"
+            className="w-full resize-y rounded-xl border border-slate-300 py-2.5 pl-9 pr-3 text-[14px] leading-relaxed focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-200"
           />
         </div>
 
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          <span className="text-[11px] text-stone-500">예시</span>
+          <span className="text-[11px] text-slate-500">예시</span>
           {EXAMPLES.map((ex) => (
             <button
               key={ex}
               onClick={() => setInput(ex)}
-              className="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] text-stone-600 transition-colors hover:border-sky-400 hover:text-sky-700"
+              className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] text-slate-600 transition-colors hover:border-sky-400 hover:text-sky-700"
             >
               {ex}
             </button>
@@ -123,7 +123,7 @@ export const AddressConverter = () => {
             {result.incomplete && (
               <div className="flex items-start gap-2 rounded-sm border border-amber-200 bg-amber-50/60 px-3 py-2">
                 <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-amber-600" />
-                <p className="text-[11.5px] leading-relaxed text-stone-700">
+                <p className="text-[11.5px] leading-relaxed text-slate-700">
                   {!result.parts.road
                     ? "도로명과 건물번호를 찾지 못했습니다. 지번주소이거나 형식이 달라 보이니 도로명주소로 다시 입력해 주세요."
                     : "시/도를 찾지 못했습니다. 「서울특별시」처럼 앞에 시·도를 포함해 입력해 주세요."}
@@ -132,7 +132,7 @@ export const AddressConverter = () => {
             )}
 
             {result.parenthetical.length > 0 && (
-              <p className="text-[11.5px] leading-relaxed text-stone-500">
+              <p className="text-[11.5px] leading-relaxed text-slate-500">
                 괄호 안 참고항목({result.parenthetical.join(", ")})은 영문 주소에 넣지 않는 것이
                 일반적이라 제외했습니다.
               </p>
@@ -141,7 +141,7 @@ export const AddressConverter = () => {
             <button
               onClick={() => window.print()}
               title="전표 형태로 인쇄합니다"
-              className="flex w-full items-center justify-center gap-2 rounded-md bg-stone-900 px-4 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-slate-800"
             >
               <Printer className="h-4 w-4" />
               전표 인쇄
@@ -150,8 +150,8 @@ export const AddressConverter = () => {
         )}
       </div>
 
-      <div className="rounded-md border border-stone-200 bg-stone-50 p-3 text-[11.5px] leading-relaxed text-stone-600">
-        <strong className="text-stone-800">근거</strong> 도로명주소 로마자 표기 규칙. 작은 단위부터
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-[11.5px] leading-relaxed text-slate-600">
+        <strong className="text-slate-800">근거</strong> 도로명주소 로마자 표기 규칙. 작은 단위부터
         역순으로 적고, 도로 유형(daero·ro·gil)과 행정구역(si·gun·gu·eup·myeon·dong·ri)은 붙임표로
         잇습니다.
       </div>

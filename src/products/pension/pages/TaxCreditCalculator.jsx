@@ -193,16 +193,16 @@ export const TaxCreditCalculator = () => {
               key={m.id}
               onClick={() => setIncomeType(m.id)}
               className={cn(
-                "flex items-center gap-2.5 p-3 border rounded-md transition-all text-left",
+                "flex items-center gap-2.5 p-3 border rounded-xl transition-all text-left",
                 active
                   ? "bg-violet-700 text-white border-violet-700 shadow-sm"
-                  : "bg-white text-stone-700 border-stone-200 hover:border-violet-400"
+                  : "bg-white text-slate-700 border-slate-200 hover:border-violet-400"
               )}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
               <div>
                 <div className="text-sm font-bold">{m.label}</div>
-                <div className={cn("text-[11px]", active ? "text-violet-100" : "text-stone-500")}>
+                <div className={cn("text-[11px]", active ? "text-violet-100" : "text-slate-500")}>
                   {m.sub}
                 </div>
               </div>
@@ -214,11 +214,11 @@ export const TaxCreditCalculator = () => {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 print:hidden">
         {/* 입력부 */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="bg-white border border-stone-200 rounded-md p-5 space-y-4">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 space-y-4">
             <SectionTitle sub="고객 조건을 입력하세요">입력</SectionTitle>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
                 {isSalary ? "총급여" : "종합소득금액"}: {formatKRW(income)}
               </label>
               <input
@@ -230,7 +230,7 @@ export const TaxCreditCalculator = () => {
                 onChange={(e) => setIncome(Number(e.target.value))}
                 className="w-full accent-violet-600"
               />
-              <div className="flex justify-between text-[11px] text-stone-500 mt-1">
+              <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                 <span>1천만원</span>
                 <span>1억원</span>
                 <span>1억 5천만원</span>
@@ -240,7 +240,7 @@ export const TaxCreditCalculator = () => {
                   "mt-2 rounded-sm px-2.5 py-1.5 text-[11.5px] font-semibold",
                   income <= threshold
                     ? "bg-violet-50 text-violet-800"
-                    : "bg-stone-100 text-stone-600"
+                    : "bg-slate-100 text-slate-600"
                 )}
               >
                 공제율 {(result.rate * 100).toFixed(1)}% 적용 —{" "}
@@ -251,9 +251,9 @@ export const TaxCreditCalculator = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
                 기존 연금저축 연 납입액: {formatKRW(pensionSaving)}
-                <span className="ml-1 font-normal text-stone-500">
+                <span className="ml-1 font-normal text-slate-500">
                   (월 {formatKRWShort(pensionSaving / 12)})
                 </span>
               </label>
@@ -264,22 +264,22 @@ export const TaxCreditCalculator = () => {
                 step={SLIDER_STEP}
                 value={pensionSaving}
                 onChange={(e) => setPensionSaving(Number(e.target.value))}
-                className="w-full accent-stone-500"
+                className="w-full accent-slate-500"
               />
-              <div className="flex justify-between text-[11px] text-stone-500 mt-1">
+              <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                 <span>0</span>
-                <span className="font-semibold text-stone-600">공제한도 600만원</span>
+                <span className="font-semibold text-slate-600">공제한도 600만원</span>
                 <span>900만원</span>
               </div>
-              <p className="mt-1 text-[11px] text-stone-500 leading-relaxed">
+              <p className="mt-1 text-[11px] text-slate-500 leading-relaxed">
                 타사 연금저축(증권사 펀드 등) 포함. 900만원 한도를 함께 쓰므로 먼저 확인하세요.
               </p>
             </div>
 
-            <div className="rounded-md border-2 border-violet-200 bg-violet-50/40 p-3">
+            <div className="rounded-xl border-2 border-violet-200 bg-violet-50/40 p-3">
               <label className="block text-xs font-bold text-violet-900 mb-1.5">
                 IRP 연 납입액: {formatKRW(irp)}
-                <span className="ml-1 font-normal text-stone-500">
+                <span className="ml-1 font-normal text-slate-500">
                   (월 {formatKRWShort(irp / 12)})
                 </span>
               </label>
@@ -292,7 +292,7 @@ export const TaxCreditCalculator = () => {
                 onChange={(e) => setIrp(Number(e.target.value))}
                 className="w-full accent-violet-600"
               />
-              <div className="flex justify-between text-[11px] text-stone-500 mt-1">
+              <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                 <span>0</span>
                 <span className="font-semibold text-violet-700">
                   공제 여지 {formatKRWShort(CREDIT_RULES.totalLimit - result.savingEligible)}
@@ -300,8 +300,8 @@ export const TaxCreditCalculator = () => {
               </div>
             </div>
 
-            <div className="rounded-sm bg-stone-50 border border-stone-200 px-3 py-2 text-[11.5px] text-stone-600 leading-relaxed">
-              총 납입 <strong className="text-stone-900">{formatKRW(result.totalPaid)}</strong> (월{" "}
+            <div className="rounded-sm bg-slate-50 border border-slate-200 px-3 py-2 text-[11.5px] text-slate-600 leading-relaxed">
+              총 납입 <strong className="text-slate-900">{formatKRW(result.totalPaid)}</strong> (월{" "}
               {formatKRWShort(result.totalPaid / 12)})
               {result.overContribution > 0 && (
                 <div className="mt-1 text-rose-700 font-semibold">
@@ -314,17 +314,17 @@ export const TaxCreditCalculator = () => {
 
         {/* 결과부 */}
         <div className="lg:col-span-3 space-y-4">
-          <div className="bg-white border border-stone-200 rounded-md p-5">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
             <SectionTitle sub="연말정산 시 환급 예상액">추정 결과</SectionTitle>
 
-            <div className="mt-3 rounded-md bg-violet-50/50 border-2 border-violet-300 p-4">
+            <div className="mt-3 rounded-xl bg-violet-50/50 border-2 border-violet-300 p-4">
               <div className="text-[11px] font-bold uppercase tracking-wider text-violet-700 mb-1">
                 예상 환급액
               </div>
-              <div className="text-3xl font-black text-stone-900 tabular-nums">
+              <div className="text-3xl font-black text-slate-900 tabular-nums">
                 {formatKRW(result.credit)}
               </div>
-              <div className="text-[12px] text-stone-600 mt-1">
+              <div className="text-[12px] text-slate-600 mt-1">
                 공제대상 {formatKRW(result.eligible)} × {(result.rate * 100).toFixed(1)}%
                 {result.totalPaid > 0 && (
                   <> · 납입액 대비 실효 {(result.effectiveRate * 100).toFixed(1)}%</>
@@ -333,31 +333,31 @@ export const TaxCreditCalculator = () => {
 
               <button
                 onClick={() => window.print()}
-                className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-stone-900 hover:bg-stone-800 text-white rounded-md font-semibold transition-colors"
+                className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold transition-colors"
                 title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
               >
                 <Printer className="w-4 h-4" />
                 <span>상담 자료 인쇄</span>
-                <span className="text-[11px] font-normal text-stone-300 hidden sm:inline">
+                <span className="text-[11px] font-normal text-slate-300 hidden sm:inline">
                   PDF 저장 가능 · 디스클레이머·입력 조건 포함
                 </span>
               </button>
             </div>
 
             <div className="mt-3 grid grid-cols-2 gap-2 text-[12px]">
-              <div className="rounded-sm border border-stone-200 px-3 py-2">
-                <div className="text-stone-500">연금저축 공제대상</div>
-                <div className="font-bold text-stone-900 tabular-nums">
+              <div className="rounded-sm border border-slate-200 px-3 py-2">
+                <div className="text-slate-500">연금저축 공제대상</div>
+                <div className="font-bold text-slate-900 tabular-nums">
                   {formatKRW(result.savingEligible)}
                 </div>
-                <div className="text-[10.5px] text-stone-400">한도 600만원</div>
+                <div className="text-[10.5px] text-slate-400">한도 600만원</div>
               </div>
-              <div className="rounded-sm border border-stone-200 px-3 py-2">
-                <div className="text-stone-500">IRP 공제대상</div>
-                <div className="font-bold text-stone-900 tabular-nums">
+              <div className="rounded-sm border border-slate-200 px-3 py-2">
+                <div className="text-slate-500">IRP 공제대상</div>
+                <div className="font-bold text-slate-900 tabular-nums">
                   {formatKRW(result.irpEligible)}
                 </div>
-                <div className="text-[10.5px] text-stone-400">
+                <div className="text-[10.5px] text-slate-400">
                   합산 900만원 중 잔여분
                 </div>
               </div>
@@ -366,7 +366,7 @@ export const TaxCreditCalculator = () => {
             {result.wasted > 0 && (
               <div className="mt-3 flex items-start gap-2 rounded-sm border border-rose-200 bg-rose-50/60 px-3 py-2.5">
                 <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-rose-600" />
-                <div className="text-[12px] leading-relaxed text-stone-800">
+                <div className="text-[12px] leading-relaxed text-slate-800">
                   <strong className="text-rose-800">
                     {formatKRW(result.wasted)}은 세액공제를 받지 못합니다.
                   </strong>{" "}
@@ -379,14 +379,14 @@ export const TaxCreditCalculator = () => {
 
             {/* 최적화 제안 — 이 계산기의 핵심 */}
             {(result.reallocGain > 0 || result.roomToLimit > 0) && (
-              <div className="mt-3 rounded-md border-2 border-violet-300 bg-violet-50/50 p-3.5">
+              <div className="mt-3 rounded-xl border-2 border-violet-300 bg-violet-50/50 p-3.5">
                 <div className="flex items-center gap-1.5 mb-2">
                   <Sparkles className="h-4 w-4 text-violet-700" />
                   <span className="text-[12px] font-bold text-violet-900">
                     IRP 권유 포인트
                   </span>
                 </div>
-                <ul className="space-y-1.5 text-[12.5px] leading-relaxed text-stone-800">
+                <ul className="space-y-1.5 text-[12.5px] leading-relaxed text-slate-800">
                   {result.reallocGain > 0 && (
                     <li className="flex gap-2">
                       <span className="text-violet-600 mt-1 text-[9px] flex-shrink-0">●</span>
@@ -419,7 +419,7 @@ export const TaxCreditCalculator = () => {
                   )}
                   <li className="flex gap-2 pt-0.5 border-t border-violet-200/70 mt-1">
                     <span className="text-violet-600 mt-1 text-[9px] flex-shrink-0">●</span>
-                    <span className="text-[11.5px] text-stone-600">
+                    <span className="text-[11.5px] text-slate-600">
                       iM뱅크 IRP는 <strong>비대면 신규가입 시 수수료 면제</strong>(운용관리·자산관리),
                       연금 수령 신청 시 운용관리수수료 0.01%p 감면입니다.
                     </span>
@@ -429,7 +429,7 @@ export const TaxCreditCalculator = () => {
             )}
 
             {result.reallocGain === 0 && result.roomToLimit === 0 && result.totalPaid > 0 && (
-              <div className="mt-3 rounded-md border border-violet-200 bg-violet-50/40 px-3 py-2.5 text-[12.5px] text-violet-900">
+              <div className="mt-3 rounded-xl border border-violet-200 bg-violet-50/40 px-3 py-2.5 text-[12.5px] text-violet-900">
                 ✓ 세액공제 한도(900만원)를 최적으로 활용하고 계십니다. 최대 환급액{" "}
                 <strong>{formatKRW(result.maxCredit)}</strong>.
               </div>
@@ -437,8 +437,8 @@ export const TaxCreditCalculator = () => {
           </div>
 
           {result.chartData.length > 1 && (
-            <div className="bg-white border border-stone-200 rounded-md p-4">
-              <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">
+            <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
                 환급액 비교
               </h4>
               <ResponsiveContainer width="100%" height={150}>
@@ -475,8 +475,8 @@ export const TaxCreditCalculator = () => {
 
           <SalesScript accent="violet" {...script} />
 
-          <div className="bg-stone-50 border border-stone-200 rounded-md p-3 text-xs text-stone-600 leading-relaxed">
-            <strong className="text-stone-800">근거</strong> 소득세법 제59조의3. 연금저축 600만원, 합산 900만원 한도.
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600 leading-relaxed">
+            <strong className="text-slate-800">근거</strong> 소득세법 제59조의3. 연금저축 600만원, 합산 900만원 한도.
             공제율 16.5%(총급여 5,500만원 이하) / 13.2%. 실제 공제액은 산출세액 범위 내에서 적용됩니다.
           </div>
         </div>

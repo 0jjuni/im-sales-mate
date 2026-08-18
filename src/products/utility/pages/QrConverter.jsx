@@ -55,37 +55,37 @@ export const QrConverter = () => {
     <>
       <div className="space-y-5 print:hidden">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
             링크 QR 변환기
           </h1>
-          <p className="text-sm text-stone-600 mt-1">
+          <p className="text-sm text-slate-600 mt-1">
             신청 링크를 QR로 만들어 전표로 인쇄합니다.
           </p>
         </div>
 
-        <div className="rounded-md border border-stone-200 bg-white p-5 space-y-4">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
           <div>
-            <label className="mb-1.5 block text-xs font-bold text-stone-700">링크</label>
+            <label className="mb-1.5 block text-xs font-bold text-slate-700">링크</label>
             <div className="relative">
-              <Link2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+              <Link2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="예: im-sales-mate.vercel.app 또는 https://…"
-                className="w-full rounded-sm border border-stone-300 py-2.5 pl-9 pr-3 text-sm focus:border-sky-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 py-2.5 pl-9 pr-3 text-sm focus:border-sky-500 focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-bold text-stone-700">
-              용도 <span className="font-medium text-stone-400">(선택 · 전표에 함께 인쇄)</span>
+            <label className="mb-1.5 block text-xs font-bold text-slate-700">
+              용도 <span className="font-medium text-slate-400">(선택 · 전표에 함께 인쇄)</span>
             </label>
             <input
               value={purpose}
               onChange={(e) => setPurpose(e.target.value)}
               placeholder="예: 카드 신청"
-              className="w-full rounded-sm border border-stone-300 px-3 py-2.5 text-sm focus:border-sky-500 focus:outline-none"
+              className="w-full rounded-sm border border-slate-300 px-3 py-2.5 text-sm focus:border-sky-500 focus:outline-none"
             />
             <div className="mt-2 flex flex-wrap gap-1.5">
               {PURPOSE_PRESETS.map((p) => (
@@ -96,7 +96,7 @@ export const QrConverter = () => {
                     "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors",
                     purpose === p
                       ? "border-sky-500 bg-sky-500 text-white"
-                      : "border-stone-300 bg-white text-stone-500 hover:border-sky-400 hover:text-sky-700"
+                      : "border-slate-300 bg-white text-slate-500 hover:border-sky-400 hover:text-sky-700"
                   )}
                 >
                   {p}
@@ -109,7 +109,7 @@ export const QrConverter = () => {
         {(tooLong || tooDense) && (
           <div className="flex items-start gap-2 rounded-r-sm border-l-4 border-amber-500 bg-amber-50/60 px-4 py-2.5">
             <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
-            <p className="text-xs leading-relaxed text-stone-800">
+            <p className="text-xs leading-relaxed text-slate-800">
               {tooLong
                 ? "링크가 너무 길어 QR로 만들 수 없습니다. 단축 링크를 사용해 주세요."
                 : "링크가 길어 QR이 촘촘합니다. 전표로 인쇄하면 잘 안 읽힐 수 있으니 단축 링크를 권합니다."}
@@ -118,9 +118,9 @@ export const QrConverter = () => {
         )}
 
         {ready && (
-          <div className="rounded-md border border-stone-200 bg-white p-5">
+          <div className="rounded-xl border border-slate-200 bg-white p-5">
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-              <div className="flex-shrink-0 rounded-sm border border-stone-200 bg-white p-3">
+              <div className="flex-shrink-0 rounded-sm border border-slate-200 bg-white p-3">
                 <QrSvg text={url} size="200px" />
               </div>
 
@@ -130,14 +130,14 @@ export const QrConverter = () => {
                     <div className="text-[11px] font-bold uppercase tracking-wider text-sky-700">
                       용도
                     </div>
-                    <div className="text-[15px] font-bold text-stone-900">{purpose}</div>
+                    <div className="text-[15px] font-bold text-slate-900">{purpose}</div>
                   </div>
                 )}
                 <div>
                   <div className="text-[11px] font-bold uppercase tracking-wider text-sky-700">
                     연결 주소
                   </div>
-                  <p className="break-all text-[13.5px] leading-relaxed text-stone-800">{url}</p>
+                  <p className="break-all text-[13.5px] leading-relaxed text-slate-800">{url}</p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 pt-1">
@@ -147,7 +147,7 @@ export const QrConverter = () => {
                       "inline-flex items-center gap-1.5 rounded-sm border px-3 py-2 text-[12.5px] font-semibold transition-colors",
                       copied
                         ? "border-sky-500 text-sky-700"
-                        : "border-stone-300 text-stone-600 hover:border-sky-400 hover:text-sky-700"
+                        : "border-slate-300 text-slate-600 hover:border-sky-400 hover:text-sky-700"
                     )}
                   >
                     {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
@@ -155,7 +155,7 @@ export const QrConverter = () => {
                   </button>
                   <button
                     onClick={() => window.print()}
-                    className="inline-flex items-center gap-1.5 rounded-sm bg-stone-900 px-3.5 py-2 text-[12.5px] font-bold text-white transition-colors hover:bg-stone-700"
+                    className="inline-flex items-center gap-1.5 rounded-sm bg-slate-900 px-3.5 py-2 text-[12.5px] font-bold text-white transition-colors hover:bg-slate-700"
                   >
                     <Printer className="h-3.5 w-3.5" />
                     전표 인쇄
@@ -164,7 +164,7 @@ export const QrConverter = () => {
               </div>
             </div>
 
-            <p className="mt-4 border-t border-stone-100 pt-3 text-[11px] leading-relaxed text-stone-500">
+            <p className="mt-4 border-t border-slate-100 pt-3 text-[11px] leading-relaxed text-slate-500">
               인쇄 전에 QR을 직접 찍어 링크가 맞는지 확인하세요.
             </p>
           </div>

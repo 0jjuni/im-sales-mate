@@ -16,8 +16,8 @@ export function PinToolButton({ toolId, className }) {
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors print:hidden",
         pinned
-          ? "border-stone-800 bg-stone-900 text-white hover:bg-stone-700"
-          : "border-stone-300 bg-white text-stone-600 hover:border-stone-400 hover:text-stone-900",
+          ? "border-slate-800 bg-slate-900 text-white hover:bg-slate-700"
+          : "border-slate-300 bg-white text-slate-600 hover:border-slate-400 hover:text-slate-900",
         className
       )}
     >

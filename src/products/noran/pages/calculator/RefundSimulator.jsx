@@ -214,11 +214,11 @@ export const RefundSimulator = ({ onOpenArticle }) => {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 print:hidden">
         {/* 입력부 */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="bg-white border border-stone-200 rounded-md p-5 space-y-4">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 space-y-4">
             <SectionTitle sub="가입 조건을 입력하세요">입력</SectionTitle>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
                 부금월액: {formatKRW(monthlyAmount)}
               </label>
               <input
@@ -230,7 +230,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
                 onChange={(e) => setMonthlyAmount(Number(e.target.value))}
                 className="w-full accent-amber-600"
               />
-              <div className="flex justify-between text-[11px] text-stone-500 mt-1">
+              <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                 <span>5만원</span>
                 <span>75만원</span>
                 <span>150만원</span>
@@ -238,7 +238,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
                 납입 기간: {years}년 ({paidMonths}회)
               </label>
               <input
@@ -250,7 +250,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
                 onChange={(e) => setPaidMonths(Number(e.target.value))}
                 className="w-full accent-amber-600"
               />
-              <div className="flex justify-between text-[11px] text-stone-500 mt-1">
+              <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                 <span>1회</span>
                 <span>10년 (120회)</span>
                 <span>20년 (240회)</span>
@@ -258,7 +258,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
                 가정 기준이율: {assumedRate.toFixed(1)}%
               </label>
               <input
@@ -270,7 +270,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
                 onChange={(e) => setAssumedRate(Number(e.target.value))}
                 className="w-full accent-amber-600"
               />
-              <p className="text-[11px] text-stone-500 mt-1">
+              <p className="text-[11px] text-slate-500 mt-1">
                 실제 기준이율은 매 분기 변동 — 노란우산 홈페이지 공시 확인
               </p>
             </div>
@@ -283,17 +283,17 @@ export const RefundSimulator = ({ onOpenArticle }) => {
                 className="mt-0.5 w-4 h-4 accent-emerald-600"
               />
               <div className="flex-1">
-                <div className="text-sm font-semibold text-stone-900">
+                <div className="text-sm font-semibold text-slate-900">
                   임의해약에 특별해지사유 적용
                 </div>
-                <div className="text-xs text-stone-600 mt-0.5 leading-relaxed">
+                <div className="text-xs text-slate-600 mt-0.5 leading-relaxed">
                   120개월+ 경영악화, 천재지변, 해외이주, 3월+ 입원, 중앙회 해산, 재난 15일 입원 등 6종 충족 시 → 임의해약도 퇴직소득세 (기타소득세 16.5% → 약 8.8%로 완화)
                 </div>
               </div>
             </label>
           </div>
 
-          <div className="bg-blue-50/40 border border-blue-200 rounded-md p-3 text-xs text-stone-700 leading-relaxed">
+          <div className="bg-blue-50/40 border border-blue-200 rounded-xl p-3 text-xs text-slate-700 leading-relaxed">
             <Info className="w-3.5 h-3.5 inline-block mr-1 text-blue-600" />
             연단위 복리 적립식 추정. 부가지급률·매 분기 변동 기준이율은 미반영이므로 실제 환급금과 ±5~10% 편차가 발생할 수 있습니다.
           </div>
@@ -302,11 +302,11 @@ export const RefundSimulator = ({ onOpenArticle }) => {
         {/* 결과부 */}
         <div className="lg:col-span-3 space-y-4">
           {/* 헤더 — 입력 요약 */}
-          <div className="bg-stone-900 text-white rounded-md p-4">
-            <div className="text-[10px] uppercase tracking-widest text-stone-400 font-bold mb-1">
+          <div className="bg-slate-900 text-white rounded-xl p-4">
+            <div className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">
               가입 조건
             </div>
-            <div className="text-sm text-stone-300">
+            <div className="text-sm text-slate-300">
               월 <strong className="text-white">{formatKRW(monthlyAmount)}</strong> × {paidMonths}회({years}년) = 총 납부원금{" "}
               <strong className="text-amber-300">{formatKRW(result.principal)}</strong>
             </div>
@@ -327,19 +327,19 @@ export const RefundSimulator = ({ onOpenArticle }) => {
           {/* 인쇄 버튼 */}
           <button
             onClick={() => window.print()}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-stone-900 hover:bg-stone-800 text-white rounded-md font-semibold transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold transition-colors"
             title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
           >
             <Printer className="w-4 h-4" />
             <span>상담 자료 인쇄</span>
-            <span className="text-[11px] font-normal text-stone-300 hidden sm:inline">
+            <span className="text-[11px] font-normal text-slate-300 hidden sm:inline">
               PDF 저장 가능 · 모든 사유 환급금 + 디스클레이머 포함
             </span>
           </button>
 
           {/* 차트 — 세전 환급금만 비교 */}
-          <div className="bg-white border border-stone-200 rounded-md p-4">
-            <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
+            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
               사유별 환급금 비교 (세전 기준)
             </h4>
             <ResponsiveContainer width="100%" height={260}>
@@ -353,15 +353,15 @@ export const RefundSimulator = ({ onOpenArticle }) => {
                 <Bar dataKey="추정 환급금" fill="#f59e0b" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
-            <p className="text-xs text-stone-500 mt-2 leading-relaxed">
+            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
               ※ 세전 기준. 수령 시 과세는 사유·가입기간·다른 소득에 따라 변동하므로 시뮬에서 별도 차감하지 않습니다.
             </p>
           </div>
 
           <SalesScript accent="amber" {...script} />
 
-          <div className="bg-stone-50 border border-stone-200 rounded-md p-3 text-xs text-stone-600 leading-relaxed">
-            <strong className="text-stone-800">근거</strong>{" "}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600 leading-relaxed">
+            <strong className="text-slate-800">근거</strong>{" "}
             <button onClick={() => onOpenArticle("제17조")} className="text-amber-700 hover:text-amber-800 underline">약관 제17조</button>(공제사유),{" "}
             <button onClick={() => onOpenArticle("제18조")} className="text-amber-700 hover:text-amber-800 underline">제18조</button>(공제금),{" "}
             <button onClick={() => onOpenArticle("제24조")} className="text-amber-700 hover:text-amber-800 underline">제24조</button>(해약환급금) + 별표1·2·3. 연단위 복리 적립식 추정치이며, 실제 환급금은 분기별 기준이율·부가지급률에 따라 달라집니다.
@@ -420,12 +420,12 @@ const CaseCard = ({ data, isBest, onOpenArticle }) => {
   return (
     <div
       className={cn(
-        "border-2 rounded-md p-4 transition-colors",
+        "border-2 rounded-xl p-4 transition-colors",
         isBest
           ? "bg-emerald-50 border-emerald-400"
           : isLoss
-          ? "bg-stone-50 border-stone-200"
-          : "bg-white border-stone-200"
+          ? "bg-slate-50 border-slate-200"
+          : "bg-white border-slate-200"
       )}
     >
       <div className="flex items-start justify-between gap-3 mb-2">
@@ -437,7 +437,7 @@ const CaseCard = ({ data, isBest, onOpenArticle }) => {
                 가장 유리
               </span>
             )}
-            <span className="text-[9px] uppercase tracking-wider font-bold text-stone-500 bg-stone-100 border border-stone-200 px-1.5 py-0.5 rounded-sm">
+            <span className="text-[9px] uppercase tracking-wider font-bold text-slate-500 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-sm">
               {data.table}
             </span>
             <button
@@ -447,14 +447,14 @@ const CaseCard = ({ data, isBest, onOpenArticle }) => {
               {data.article}
             </button>
           </div>
-          <h4 className="text-sm font-bold text-stone-900 leading-snug">{data.title}</h4>
-          <p className="text-[11px] text-stone-500 mt-0.5">{data.sublabel}</p>
+          <h4 className="text-sm font-bold text-slate-900 leading-snug">{data.title}</h4>
+          <p className="text-[11px] text-slate-500 mt-0.5">{data.sublabel}</p>
         </div>
       </div>
 
-      <div className="mt-3 pt-3 border-t border-stone-200/70">
+      <div className="mt-3 pt-3 border-t border-slate-200/70">
         <div className="flex items-baseline justify-between gap-3 mb-1">
-          <div className="text-[10px] uppercase tracking-wider text-stone-500 font-bold">
+          <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
             추정 환급금 (세전)
           </div>
           <div
@@ -472,15 +472,15 @@ const CaseCard = ({ data, isBest, onOpenArticle }) => {
         <div
           className={cn(
             "text-2xl font-black tracking-tight",
-            isBest ? "text-emerald-700" : "text-stone-900"
+            isBest ? "text-emerald-700" : "text-slate-900"
           )}
         >
           {formatKRW(data.refund)}
         </div>
       </div>
 
-      <div className="mt-2.5 pt-2 border-t border-stone-200/70 text-[11px] text-stone-600 leading-relaxed">
-        <span className="font-semibold text-stone-700">수령 시 과세:</span> {data.taxNote}
+      <div className="mt-2.5 pt-2 border-t border-slate-200/70 text-[11px] text-slate-600 leading-relaxed">
+        <span className="font-semibold text-slate-700">수령 시 과세:</span> {data.taxNote}
       </div>
     </div>
   );

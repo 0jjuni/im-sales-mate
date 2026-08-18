@@ -10,7 +10,7 @@ export const SourceBadge = ({ articles = [], onClick }) => {
         <Tag
           key={a}
           onClick={onClick ? () => onClick(a) : undefined}
-          className={`inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium border border-stone-300 bg-stone-50 text-stone-700 rounded-sm ${
+          className={`inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium border border-slate-300 bg-slate-50 text-slate-700 rounded-sm ${
             onClick ? "hover:bg-amber-50 hover:border-amber-400 transition-colors" : ""
           }`}
         >

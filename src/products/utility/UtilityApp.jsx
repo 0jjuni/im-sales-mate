@@ -33,14 +33,14 @@ const buildPath = (page) => `/tools/${page}`;
 const Brand = () => (
   <div className="flex items-center gap-2.5">
     <div className="relative w-9 h-9 flex-shrink-0">
-      <div className="absolute inset-0 bg-gradient-to-br from-sky-300 to-blue-500 rounded-md transform rotate-3" />
-      <div className="absolute inset-0 bg-gradient-to-br from-sky-400 to-blue-500 rounded-md flex items-center justify-center shadow-sm">
+      <div className="absolute inset-0 bg-gradient-to-br from-sky-300 to-blue-500 rounded-xl transform rotate-3" />
+      <div className="absolute inset-0 bg-gradient-to-br from-sky-400 to-blue-500 rounded-xl flex items-center justify-center shadow-sm">
         <Wrench className="w-5 h-5 text-white" />
       </div>
     </div>
     <div className="min-w-0">
-      <div className="text-[13px] font-black text-stone-900 leading-tight">보조 도구</div>
-      <div className="text-[10px] text-stone-500 leading-tight mt-0.5">창구 업무 도우미</div>
+      <div className="text-[13px] font-black text-slate-900 leading-tight">보조 도구</div>
+      <div className="text-[10px] text-slate-500 leading-tight mt-0.5">창구 업무 도우미</div>
     </div>
   </div>
 );
@@ -82,16 +82,16 @@ export default function UtilityApp() {
 
   const sidebarContent = (
     <>
-      <div className="p-4 border-b border-stone-200 space-y-3">
+      <div className="p-4 border-b border-slate-200 space-y-3">
         <HubLink />
         <div className="flex items-center justify-between gap-2">
           <Brand />
           <button
             onClick={() => setDrawerOpen(false)}
-            className="md:hidden p-1.5 hover:bg-stone-100 rounded-sm flex-shrink-0"
+            className="md:hidden p-1.5 hover:bg-slate-100 rounded-sm flex-shrink-0"
             aria-label="메뉴 닫기"
           >
-            <X className="w-5 h-5 text-stone-600" />
+            <X className="w-5 h-5 text-slate-600" />
           </button>
         </div>
       </div>
@@ -110,8 +110,8 @@ export default function UtilityApp() {
               className={cn(
                 "w-full flex items-center gap-2.5 px-3 py-2 text-sm rounded-sm transition-colors",
                 isActive
-                  ? "bg-stone-900 text-white font-semibold"
-                  : "text-stone-700 hover:bg-stone-100"
+                  ? "bg-slate-900 text-white font-semibold"
+                  : "text-slate-700 hover:bg-slate-100"
               )}
             >
               <Icon className="w-4 h-4" />
@@ -120,12 +120,12 @@ export default function UtilityApp() {
           );
         })}
       </nav>
-      <div className="p-3 border-t border-stone-200">
+      <div className="p-3 border-t border-slate-200">
         <div className="bg-amber-50/60 border border-amber-200 rounded-sm p-3">
           <div className="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1">
             확인 필수
           </div>
-          <p className="text-[10.5px] text-stone-600 leading-relaxed">
+          <p className="text-[10.5px] text-slate-600 leading-relaxed">
             영문 이름은 여권 표기가, 영문 주소는 도로명주소 안내시스템 조회 결과가 기준입니다. 이
             도구의 결과는 후보로만 사용하세요.
           </p>
@@ -136,16 +136,16 @@ export default function UtilityApp() {
 
   return (
     <div
-      className="min-h-screen bg-stone-50 text-stone-900 print:min-h-0 print:bg-white"
+      className="min-h-screen bg-slate-50 text-slate-900 print:min-h-0 print:bg-white"
       style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
     >
-      <header className="md:hidden sticky top-0 z-30 bg-white border-b border-stone-200 flex items-center gap-3 px-3 py-2 print:hidden">
+      <header className="md:hidden sticky top-0 z-30 bg-white border-b border-slate-200 flex items-center gap-3 px-3 py-2 print:hidden">
         <button
           onClick={() => setDrawerOpen(true)}
-          className="p-1.5 hover:bg-stone-100 rounded-sm"
+          className="p-1.5 hover:bg-slate-100 rounded-sm"
           aria-label="메뉴 열기"
         >
-          <Menu className="w-5 h-5 text-stone-700" />
+          <Menu className="w-5 h-5 text-slate-700" />
         </button>
         <div className="flex-1 min-w-0">
           <Brand />
@@ -164,7 +164,7 @@ export default function UtilityApp() {
 
         <aside
           className={cn(
-            "bg-white border-r border-stone-200 flex flex-col print:hidden",
+            "bg-white border-r border-slate-200 flex flex-col print:hidden",
             "md:w-60 md:min-h-screen md:static md:translate-x-0",
             "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] transform transition-transform duration-200 ease-out",
             drawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"

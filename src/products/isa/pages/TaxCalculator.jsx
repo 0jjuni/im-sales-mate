@@ -159,16 +159,16 @@ export const TaxCalculator = () => {
               key={m.id}
               onClick={() => setMode(m.id)}
               className={cn(
-                "flex items-center gap-2.5 p-3 border rounded-md transition-all text-left",
+                "flex items-center gap-2.5 p-3 border rounded-xl transition-all text-left",
                 active
                   ? "bg-emerald-700 text-white border-emerald-700 shadow-sm"
-                  : "bg-white text-stone-700 border-stone-200 hover:border-emerald-400"
+                  : "bg-white text-slate-700 border-slate-200 hover:border-emerald-400"
               )}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
               <div>
                 <div className="text-sm font-bold">{m.label}</div>
-                <div className={cn("text-[11px]", active ? "text-emerald-100" : "text-stone-500")}>
+                <div className={cn("text-[11px]", active ? "text-emerald-100" : "text-slate-500")}>
                   {m.sub}
                 </div>
               </div>
@@ -180,11 +180,11 @@ export const TaxCalculator = () => {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 print:hidden">
         {/* 입력부 */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="bg-white border border-stone-200 rounded-md p-5 space-y-4">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 space-y-4">
             <SectionTitle sub="고객 조건을 입력하세요">입력</SectionTitle>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1.5">ISA 유형</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">ISA 유형</label>
               <div className="grid grid-cols-2 gap-1.5">
                 {ISA_TYPES.map((t) => (
                   <button
@@ -194,14 +194,14 @@ export const TaxCalculator = () => {
                       "px-3 py-2 text-sm rounded-sm border transition-colors",
                       typeId === t.id
                         ? "bg-emerald-700 text-white border-emerald-700 font-semibold"
-                        : "bg-white text-stone-700 border-stone-300 hover:border-emerald-400"
+                        : "bg-white text-slate-700 border-slate-300 hover:border-emerald-400"
                     )}
                   >
                     {t.label}
                   </button>
                 ))}
               </div>
-              <p className="text-[11px] text-stone-500 mt-1.5">
+              <p className="text-[11px] text-slate-500 mt-1.5">
                 비과세 한도 {formatKRWShort(type.taxFreeLimit)} · {type.eligibility}
               </p>
             </div>
@@ -209,7 +209,7 @@ export const TaxCalculator = () => {
             {isDeposit ? (
               <>
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
                     예치금액: {formatKRW(principal)}
                   </label>
                   <input
@@ -221,7 +221,7 @@ export const TaxCalculator = () => {
                     onChange={(e) => setPrincipal(Number(e.target.value))}
                     className="w-full accent-emerald-600"
                   />
-                  <div className="flex justify-between text-[11px] text-stone-500 mt-1">
+                  <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                     <span>100만원</span>
                     <span>5천만원</span>
                     <span>1억원</span>
@@ -229,7 +229,7 @@ export const TaxCalculator = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
                     예금 연 금리: {rate.toFixed(1)}%
                   </label>
                   <input
@@ -241,14 +241,14 @@ export const TaxCalculator = () => {
                     onChange={(e) => setRate(Number(e.target.value))}
                     className="w-full accent-emerald-600"
                   />
-                  <div className="flex justify-between text-[11px] text-stone-500 mt-1">
+                  <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                     <span>{ISA_DEPOSIT_DEFAULTS.rateMin.toFixed(1)}%</span>
                     <span>{ISA_DEPOSIT_DEFAULTS.rateMax.toFixed(1)}%</span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1.5">예치 기간</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">예치 기간</label>
                   <div className="grid grid-cols-3 gap-1.5">
                     {[1, 2, 3].map((y) => (
                       <button
@@ -258,21 +258,21 @@ export const TaxCalculator = () => {
                           "px-3 py-2 text-sm rounded-sm border transition-colors",
                           years === y
                             ? "bg-emerald-700 text-white border-emerald-700 font-semibold"
-                            : "bg-white text-stone-700 border-stone-300 hover:border-emerald-400"
+                            : "bg-white text-slate-700 border-slate-300 hover:border-emerald-400"
                         )}
                       >
                         {y}년
                       </button>
                     ))}
                   </div>
-                  <p className="text-[11px] text-stone-500 mt-1.5">
+                  <p className="text-[11px] text-slate-500 mt-1.5">
                     ISA 의무가입기간은 3년입니다. 단리(만기일시지급) 가정.
                   </p>
                 </div>
               </>
             ) : (
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
                   예상 순이익 (손익통산 후): {formatKRW(directProfit)}
                 </label>
                 <input
@@ -284,7 +284,7 @@ export const TaxCalculator = () => {
                   onChange={(e) => setDirectProfit(Number(e.target.value))}
                   className="w-full accent-emerald-600"
                 />
-                <div className="flex justify-between text-[11px] text-stone-500 mt-1">
+                <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                   <span>0</span>
                   <span>1천만원</span>
                   <span>2천만원</span>
@@ -298,13 +298,13 @@ export const TaxCalculator = () => {
                   onChange={(e) =>
                     setDirectProfit(Math.max(0, Math.min(20000000, Number(e.target.value))))
                   }
-                  className="mt-2 w-full px-3 py-2 text-sm border border-stone-300 rounded-sm focus:outline-none focus:border-emerald-500"
+                  className="mt-2 w-full px-3 py-2 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-emerald-500"
                 />
               </div>
             )}
           </div>
 
-          <div className="bg-blue-50/40 border border-blue-200 rounded-md p-3 text-xs text-stone-700 leading-relaxed">
+          <div className="bg-blue-50/40 border border-blue-200 rounded-xl p-3 text-xs text-slate-700 leading-relaxed">
             <Info className="w-3.5 h-3.5 inline-block mr-1 text-blue-600" />
             {isDeposit
               ? "같은 예금을 ISA 안에서 예치할 때와 일반 예금으로 둘 때의 이자 세금을 비교합니다. 이자는 월복리·만기일시지급(iM뱅크 판매 ISA 정기예금 기준) 가정이며 신탁보수 차감 전입니다. 기본 금리는 설명서 고시(2025.3.7)의 12개월 약정이율 2.8%입니다."
@@ -314,16 +314,16 @@ export const TaxCalculator = () => {
 
         {/* 결과부 */}
         <div className="lg:col-span-3 space-y-4">
-          <div className="bg-emerald-50/50 border-2 border-emerald-400 rounded-md p-6">
+          <div className="bg-emerald-50/50 border-2 border-emerald-400 rounded-xl p-6">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <div className="text-xs uppercase tracking-wider text-emerald-700 font-bold mb-1">
                   추정 절세액
                 </div>
-                <div className="text-4xl font-black text-stone-900 tracking-tight">
+                <div className="text-4xl font-black text-slate-900 tracking-tight">
                   {formatKRW(result.saving)}
                 </div>
-                <div className="text-sm text-stone-600 mt-1">
+                <div className="text-sm text-slate-600 mt-1">
                   {isDeposit ? "일반 예금 대비 세금 절감" : "일반계좌 대비 세부담 절감"}
                 </div>
               </div>
@@ -332,12 +332,12 @@ export const TaxCalculator = () => {
 
             <button
               onClick={() => window.print()}
-              className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-stone-900 hover:bg-stone-800 text-white rounded-md font-semibold transition-colors"
+              className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold transition-colors"
               title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
             >
               <Printer className="w-4 h-4" />
               <span>상담 자료 인쇄</span>
-              <span className="text-[11px] font-normal text-stone-300 hidden sm:inline">
+              <span className="text-[11px] font-normal text-slate-300 hidden sm:inline">
                 PDF 저장 가능 · 디스클레이머·입력 조건 포함
               </span>
             </button>
@@ -345,19 +345,19 @@ export const TaxCalculator = () => {
             <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-emerald-200">
               {isDeposit && (
                 <div className="col-span-2">
-                  <div className="text-[11px] uppercase tracking-wider text-stone-500 font-semibold mb-0.5">
+                  <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
                     예상 이자 (월복리)
                   </div>
-                  <div className="text-base font-bold text-stone-900">
+                  <div className="text-base font-bold text-slate-900">
                     {formatKRW(result.interest)}
-                    <span className="text-[11px] font-normal text-stone-500 ml-1">
+                    <span className="text-[11px] font-normal text-slate-500 ml-1">
                       {formatKRWShort(principal)} · 연 {rate.toFixed(1)}% · {years}년 · 만기일시지급
                     </span>
                   </div>
                 </div>
               )}
               <div>
-                <div className="text-[11px] uppercase tracking-wider text-stone-500 font-semibold mb-0.5">
+                <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
                   ISA 예상 세금
                 </div>
                 <div className="text-base font-bold text-emerald-700">
@@ -365,10 +365,10 @@ export const TaxCalculator = () => {
                 </div>
               </div>
               <div>
-                <div className="text-[11px] uppercase tracking-wider text-stone-500 font-semibold mb-0.5">
+                <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
                   {isDeposit ? "일반예금 세금" : "일반계좌 세금"}
                 </div>
-                <div className="text-base font-bold text-stone-900">
+                <div className="text-base font-bold text-slate-900">
                   {formatKRW(result.normalTax)}
                 </div>
               </div>
@@ -377,10 +377,10 @@ export const TaxCalculator = () => {
                   <div className="text-[11px] uppercase tracking-wider text-emerald-700 font-semibold mb-0.5">
                     세후 실효금리 (연)
                   </div>
-                  <div className="text-base font-bold text-stone-900">
+                  <div className="text-base font-bold text-slate-900">
                     ISA 약 {result.isaEffRate.toFixed(2)}%
-                    <span className="text-stone-500 mx-1.5">vs</span>
-                    <span className="text-stone-500">일반 약 {result.normalEffRate.toFixed(2)}%</span>
+                    <span className="text-slate-500 mx-1.5">vs</span>
+                    <span className="text-slate-500">일반 약 {result.normalEffRate.toFixed(2)}%</span>
                     <span className="ml-2 text-[12px] font-bold text-emerald-700">
                       +{(result.isaEffRate - result.normalEffRate).toFixed(2)}%p
                     </span>
@@ -389,20 +389,20 @@ export const TaxCalculator = () => {
               ) : (
                 <>
                   <div>
-                    <div className="text-[11px] uppercase tracking-wider text-stone-500 font-semibold mb-0.5">
+                    <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
                       비과세 한도
                     </div>
-                    <div className="text-base font-bold text-stone-900">
+                    <div className="text-base font-bold text-slate-900">
                       {formatKRW(result.taxFreeLimit)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-[11px] uppercase tracking-wider text-stone-500 font-semibold mb-0.5">
+                    <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
                       ISA 실효세율
                     </div>
-                    <div className="text-base font-bold text-stone-900">
+                    <div className="text-base font-bold text-slate-900">
                       {(result.isaEffective * 100).toFixed(1)}%
-                      <span className="text-[11px] font-normal text-stone-500 ml-1">vs 일반 15.4%</span>
+                      <span className="text-[11px] font-normal text-slate-500 ml-1">vs 일반 15.4%</span>
                     </div>
                   </div>
                 </>
@@ -410,8 +410,8 @@ export const TaxCalculator = () => {
             </div>
           </div>
 
-          <div className="bg-white border border-stone-200 rounded-md p-4">
-            <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
+            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
               {isDeposit ? "세후 실수령 이자 비교" : "세부담 비교"}
             </h4>
             <ResponsiveContainer width="100%" height={isDeposit ? 140 : 180}>
@@ -447,8 +447,8 @@ export const TaxCalculator = () => {
 
           <SalesScript accent="emerald" {...script} />
 
-          <div className="bg-stone-50 border border-stone-200 rounded-md p-3 text-xs text-stone-600 leading-relaxed">
-            <strong className="text-stone-800">근거</strong> 조세특례제한법 제91조의18. 비과세 한도(일반형 200만원 / 서민·농어민형 400만원) 초과분 9.9% 분리과세, 일반 이자소득 15.4% 가정.{" "}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600 leading-relaxed">
+            <strong className="text-slate-800">근거</strong> 조세특례제한법 제91조의18. 비과세 한도(일반형 200만원 / 서민·농어민형 400만원) 초과분 9.9% 분리과세, 일반 이자소득 15.4% 가정.{" "}
             {isDeposit
               ? "예금 이자는 월복리·만기일시지급(iM뱅크 판매 ISA 정기예금 기준) 가정이며 신탁보수 차감 전입니다. 실제 금리·요율·세법 개정에 따라 달라집니다."
               : "순이익은 손익통산 후 기준이며 실제 세액은 상품 구성·세법 개정에 따라 달라집니다."}

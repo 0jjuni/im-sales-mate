@@ -63,8 +63,8 @@ const calcTab = (sub) => (CALC_TABS.includes(sub) ? sub : "tax");
 const Brand = () => (
   <div className="flex items-center gap-2.5">
     <div className="relative w-9 h-9 flex-shrink-0">
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-300 to-amber-500 rounded-md transform rotate-3" />
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-md flex items-center justify-center shadow-sm">
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-300 to-amber-500 rounded-xl transform rotate-3" />
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-xl flex items-center justify-center shadow-sm">
         <svg
           viewBox="0 0 24 24"
           fill="none"
@@ -72,7 +72,7 @@ const Brand = () => (
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="w-5 h-5 text-stone-900"
+          className="w-5 h-5 text-slate-900"
         >
           <path d="M12 2v2M12 20v2M2 12c0-5.523 4.477-10 10-10s10 4.477 10 10H2z" />
           <path d="M12 12v8a2 2 0 0 1-2-2" />
@@ -80,10 +80,10 @@ const Brand = () => (
       </div>
     </div>
     <div className="min-w-0">
-      <div className="text-[13px] font-black text-stone-900 leading-tight">
+      <div className="text-[13px] font-black text-slate-900 leading-tight">
         노란우산 상담 가이드
       </div>
-      <div className="text-[10px] text-stone-500 leading-tight mt-0.5">
+      <div className="text-[10px] text-slate-500 leading-tight mt-0.5">
         iM뱅크 영업점 전용
       </div>
     </div>
@@ -195,28 +195,28 @@ export default function NoranApp() {
 
   const sidebarContent = (
     <>
-      <div className="p-4 border-b border-stone-200 space-y-3">
+      <div className="p-4 border-b border-slate-200 space-y-3">
         <HubLink />
         <div className="flex items-center justify-between gap-2">
           <Brand />
           <button
             onClick={() => setDrawerOpen(false)}
-            className="md:hidden p-1.5 hover:bg-stone-100 rounded-sm flex-shrink-0"
+            className="md:hidden p-1.5 hover:bg-slate-100 rounded-sm flex-shrink-0"
             aria-label="메뉴 닫기"
           >
-            <X className="w-5 h-5 text-stone-600" />
+            <X className="w-5 h-5 text-slate-600" />
           </button>
         </div>
 
         <button
           onClick={() => handleNavigate("faq")}
-          className="w-full flex items-center gap-2 px-2.5 py-1.5 bg-stone-50 hover:bg-stone-100 border border-stone-200 rounded-sm transition-colors group"
+          className="w-full flex items-center gap-2 px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-sm transition-colors group"
         >
-          <Search className="w-3.5 h-3.5 text-stone-400 group-hover:text-stone-600" />
-          <span className="text-[11px] text-stone-500 group-hover:text-stone-700 flex-1 text-left">
+          <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600" />
+          <span className="text-[11px] text-slate-500 group-hover:text-slate-700 flex-1 text-left">
             약관·FAQ 검색
           </span>
-          <kbd className="text-[9px] font-mono text-stone-400 bg-white px-1 py-0.5 rounded border border-stone-200">
+          <kbd className="text-[9px] font-mono text-slate-400 bg-white px-1 py-0.5 rounded border border-slate-200">
             /
           </kbd>
         </button>
@@ -238,10 +238,10 @@ export default function NoranApp() {
               className={cn(
                 "w-full flex items-center gap-2.5 px-3 py-2 text-sm rounded-sm transition-colors relative",
                 isActive
-                  ? "bg-stone-900 text-white font-semibold"
+                  ? "bg-slate-900 text-white font-semibold"
                   : item.highlight
-                  ? "text-stone-800 hover:bg-amber-50 border border-amber-200 bg-amber-50/30"
-                  : "text-stone-700 hover:bg-stone-100"
+                  ? "text-slate-800 hover:bg-amber-50 border border-amber-200 bg-amber-50/30"
+                  : "text-slate-700 hover:bg-slate-100"
               )}
             >
               <Icon className="w-4 h-4" />
@@ -260,26 +260,26 @@ export default function NoranApp() {
           );
         })}
       </nav>
-      <div className="p-3 border-t border-stone-200 space-y-2">
-        <div className="bg-stone-50 border border-stone-200 rounded-sm p-3">
+      <div className="p-3 border-t border-slate-200 space-y-2">
+        <div className="bg-slate-50 border border-slate-200 rounded-sm p-3">
           <div className="flex items-center justify-between mb-1">
-            <div className="text-[10px] uppercase tracking-wider text-stone-500 font-bold">
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
               중앙회 콜센터
             </div>
             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" title="운영 중" />
           </div>
-          <div className="text-sm font-bold text-stone-900">1666-9988</div>
+          <div className="text-sm font-bold text-slate-900">1666-9988</div>
           <a
             href="https://www.8899.or.kr"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[10px] text-stone-500 hover:text-amber-700 mt-0.5 flex items-center gap-0.5"
+            className="text-[10px] text-slate-500 hover:text-amber-700 mt-0.5 flex items-center gap-0.5"
           >
             www.8899.or.kr
             <ExternalLink className="w-2.5 h-2.5" />
           </a>
         </div>
-        <div className="text-[9px] text-stone-400 text-center leading-relaxed px-1">
+        <div className="text-[9px] text-slate-400 text-center leading-relaxed px-1">
           v1.6 · 약관 2026.7.1 + 조특법 법률 2025.7.1<br />
           + 시행령 2026.2.27 + 중협법 2026.6.3 반영
         </div>
@@ -288,15 +288,15 @@ export default function NoranApp() {
   );
 
   return (
-    <div className="min-h-screen bg-stone-50 text-stone-900 print:min-h-0 print:bg-white" style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-slate-50 text-slate-900 print:min-h-0 print:bg-white" style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}>
       {/* Mobile top bar */}
-      <header className="md:hidden sticky top-0 z-30 bg-white border-b border-stone-200 flex items-center gap-3 px-3 py-2 print:hidden">
+      <header className="md:hidden sticky top-0 z-30 bg-white border-b border-slate-200 flex items-center gap-3 px-3 py-2 print:hidden">
         <button
           onClick={() => setDrawerOpen(true)}
-          className="p-1.5 hover:bg-stone-100 rounded-sm"
+          className="p-1.5 hover:bg-slate-100 rounded-sm"
           aria-label="메뉴 열기"
         >
-          <Menu className="w-5 h-5 text-stone-700" />
+          <Menu className="w-5 h-5 text-slate-700" />
         </button>
         <div className="flex-1 min-w-0">
           <Brand />
@@ -317,7 +317,7 @@ export default function NoranApp() {
         {/* Sidebar — desktop static, mobile drawer */}
         <aside
           className={cn(
-            "bg-white border-r border-stone-200 flex flex-col print:hidden",
+            "bg-white border-r border-slate-200 flex flex-col print:hidden",
             // Desktop
             "md:w-60 md:min-h-screen md:static md:translate-x-0",
             // Mobile drawer

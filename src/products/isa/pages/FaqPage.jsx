@@ -15,49 +15,49 @@ export const FaqPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
           자주 묻는 질문
         </h1>
-        <p className="text-sm text-stone-600 mt-1">
+        <p className="text-sm text-slate-600 mt-1">
           조세특례제한법 근거 핵심 문항 · 자사 상품 FAQ는 자료 확보 후 확장 예정
         </p>
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="질문 검색 (예: 비과세, 납입한도, 손익통산)"
-          className="w-full pl-9 pr-3 py-2.5 text-sm border border-stone-300 rounded-md focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200"
+          className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200"
         />
       </div>
 
       <div className="space-y-2">
         {filtered.length === 0 && (
-          <div className="text-center text-sm text-stone-500 py-8">
+          <div className="text-center text-sm text-slate-500 py-8">
             검색 결과가 없습니다.
           </div>
         )}
         {filtered.map((f, i) => {
           const isOpen = openIdx === i;
           return (
-            <div key={i} className="bg-white border border-stone-200 rounded-md overflow-hidden">
+            <div key={i} className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
               <button
                 onClick={() => setOpenIdx(isOpen ? -1 : i)}
-                className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-stone-50"
+                className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-slate-50"
               >
-                <span className="text-sm font-semibold text-stone-900">{f.q}</span>
+                <span className="text-sm font-semibold text-slate-900">{f.q}</span>
                 <ChevronDown
                   className={cn(
-                    "w-4 h-4 text-stone-400 flex-shrink-0 transition-transform",
+                    "w-4 h-4 text-slate-400 flex-shrink-0 transition-transform",
                     isOpen && "rotate-180"
                   )}
                 />
               </button>
               {isOpen && (
-                <div className="px-4 pb-3.5 pt-0.5 border-t border-stone-100">
-                  <p className="text-[13px] text-stone-700 leading-relaxed">{f.a}</p>
+                <div className="px-4 pb-3.5 pt-0.5 border-t border-slate-100">
+                  <p className="text-[13px] text-slate-700 leading-relaxed">{f.a}</p>
                   <div className="mt-2 inline-flex items-center gap-1 rounded-sm border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
                     {f.ref}
                   </div>

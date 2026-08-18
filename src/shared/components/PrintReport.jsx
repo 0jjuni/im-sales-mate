@@ -58,32 +58,32 @@ export const PrintReport = ({
 
   return (
     <div
-      className="hidden print:block print-report bg-white text-stone-900"
+      className="hidden print:block print-report bg-white text-slate-900"
       style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
       aria-hidden="true"
     >
       <div className="px-2 py-2 max-w-3xl mx-auto leading-snug">
         {/* 헤더 */}
-        <div className="border-b-2 border-stone-900 pb-2 mb-3">
+        <div className="border-b-2 border-slate-900 pb-2 mb-3">
           <div className="flex items-baseline justify-between gap-3">
             <div>
               {/* uppercase를 적용하면 「iM뱅크」가 「IM뱅크」로 출력돼 브랜드 표기가 틀어진다 */}
-              <div className="text-[9px] tracking-widest text-stone-500 font-bold">
+              <div className="text-[9px] tracking-widest text-slate-500 font-bold">
                 {brandLabel}
               </div>
-              <h1 className="text-base font-black text-stone-900 mt-0.5 leading-tight">
+              <h1 className="text-base font-black text-slate-900 mt-0.5 leading-tight">
                 {title}
               </h1>
               {subtitle && (
-                <p className="text-[11px] text-stone-700 mt-0.5">{subtitle}</p>
+                <p className="text-[11px] text-slate-700 mt-0.5">{subtitle}</p>
               )}
             </div>
-            <div className="text-right text-[9px] text-stone-500 leading-snug flex-shrink-0">
+            <div className="text-right text-[9px] text-slate-500 leading-snug flex-shrink-0">
               <div>인쇄일시: {printedAt}</div>
               {showId && <div>참조번호: {showId}</div>}
               {/* 고객이 자료를 가지고 돌아간 뒤 어디로 문의할지 알 수 있도록 손으로 적는 칸 */}
               <div className="mt-1.5">상담 점포 · 담당자</div>
-              <div className="ml-auto mt-0.5 h-3 w-28 border-b border-stone-400" />
+              <div className="ml-auto mt-0.5 h-3 w-28 border-b border-slate-400" />
             </div>
           </div>
         </div>
@@ -96,7 +96,7 @@ export const PrintReport = ({
               <div className={`text-[10px] font-black ${ac.boxTitle} tracking-wider mb-0.5`}>
                 본 안내는 추정치입니다. 반드시 확인해 주세요.
               </div>
-              <p className="text-[10.5px] text-stone-900 leading-snug whitespace-pre-line">
+              <p className="text-[10.5px] text-slate-900 leading-snug whitespace-pre-line">
                 {disclaimer}
               </p>
             </div>
@@ -106,17 +106,17 @@ export const PrintReport = ({
         {/* 입력 조건 — 어떤 조건으로 산정했는지 명시 */}
         {inputs.length > 0 && (
           <section className="mb-3 break-inside-avoid">
-            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-0.5 mb-1">
               입력 조건 (산정 기준)
             </h2>
             <table className="w-full text-[11px]">
               <tbody>
                 {inputs.map(({ label, value }, i) => (
-                  <tr key={i} className="border-b border-stone-100 last:border-b-0">
-                    <td className="py-1 pr-3 text-stone-600 w-2/5 align-top">
+                  <tr key={i} className="border-b border-slate-100 last:border-b-0">
+                    <td className="py-1 pr-3 text-slate-600 w-2/5 align-top">
                       {label}
                     </td>
-                    <td className="py-1 text-stone-900 font-semibold">{value}</td>
+                    <td className="py-1 text-slate-900 font-semibold">{value}</td>
                   </tr>
                 ))}
               </tbody>
@@ -127,7 +127,7 @@ export const PrintReport = ({
         {/* 추정 결과 */}
         {results.length > 0 && (
           <section className="mb-3 break-inside-avoid">
-            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-0.5 mb-1">
               추정 결과
             </h2>
             <table className="w-full text-[11px]">
@@ -136,11 +136,11 @@ export const PrintReport = ({
                   <tr
                     key={i}
                     className={
-                      emphasis ? ac.rowBorder : "border-b border-stone-100"
+                      emphasis ? ac.rowBorder : "border-b border-slate-100"
                     }
                   >
                     <td
-                      className={`py-1 px-1.5 text-stone-600 w-2/5 align-top ${
+                      className={`py-1 px-1.5 text-slate-600 w-2/5 align-top ${
                         emphasis ? `font-bold ${ac.rowText}` : ""
                       }`}
                     >
@@ -150,12 +150,12 @@ export const PrintReport = ({
                       className={`py-1 px-1.5 ${
                         emphasis
                           ? `text-sm font-black ${ac.rowText}`
-                          : "text-stone-900 font-semibold"
+                          : "text-slate-900 font-semibold"
                       }`}
                     >
                       {value}
                       {sub && (
-                        <div className="text-[10px] font-normal text-stone-600 mt-0.5">
+                        <div className="text-[10px] font-normal text-slate-600 mt-0.5">
                           {sub}
                         </div>
                       )}
@@ -170,7 +170,7 @@ export const PrintReport = ({
         {/* 차트 (옵션) — 고정 사이즈로 전달되어야 hidden 상태에서도 안전하게 렌더 */}
         {chart && (
           <section className="mb-3 break-inside-avoid">
-            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-0.5 mb-1">
               시각화
             </h2>
             <div className="flex justify-center">{chart}</div>
@@ -180,13 +180,13 @@ export const PrintReport = ({
         {/* 참고 사항 */}
         {notes.length > 0 && (
           <section className="mb-3 break-inside-avoid">
-            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-0.5 mb-1">
               참고 사항
             </h2>
-            <ul className="text-[10.5px] text-stone-800 leading-snug space-y-0.5">
+            <ul className="text-[10.5px] text-slate-800 leading-snug space-y-0.5">
               {notes.map((n, i) => (
                 <li key={i} className="flex gap-1.5">
-                  <span className="text-stone-500 flex-shrink-0">·</span>
+                  <span className="text-slate-500 flex-shrink-0">·</span>
                   <span className="flex-1 whitespace-pre-line">{n}</span>
                 </li>
               ))}
@@ -195,28 +195,28 @@ export const PrintReport = ({
         )}
 
         {/* 푸터 — 법령 근거 + 출처 + 문의 + 단정 안내 금지 고지 */}
-        <div className="border-t-2 border-stone-900 pt-1.5 mt-2 text-[9.5px] text-stone-700 leading-snug space-y-0.5 break-inside-avoid">
+        <div className="border-t-2 border-slate-900 pt-1.5 mt-2 text-[9.5px] text-slate-700 leading-snug space-y-0.5 break-inside-avoid">
           {legalBasis && (
             <p>
-              <strong className="text-stone-900">법령 근거:</strong> {legalBasis}
+              <strong className="text-slate-900">법령 근거:</strong> {legalBasis}
             </p>
           )}
           {sourceLine && (
             <p>
-              <strong className="text-stone-900">출처:</strong> {sourceLine}
+              <strong className="text-slate-900">출처:</strong> {sourceLine}
             </p>
           )}
           {contactLine && (
             <p>
-              <strong className="text-stone-900">문의:</strong> {contactLine}
+              <strong className="text-slate-900">문의:</strong> {contactLine}
             </p>
           )}
-          <p className="text-stone-500 mt-1">{footerNote}</p>
+          <p className="text-slate-500 mt-1">{footerNote}</p>
 
           {/* 심의를 받은 서식에만 번호를 표기한다. 심의 전에는 아무것도 붙이지 않고,
               대신 이 출력물을 「고객 교부용」이 아닌 상담용 자료로 다룬다. */}
           {complianceReviewNo && (
-            <p className="mt-1 font-semibold text-stone-800">
+            <p className="mt-1 font-semibold text-slate-800">
               준법감시인 심의필 제{complianceReviewNo}호
               {complianceValidUntil && ` (유효기간 ~${complianceValidUntil})`}
             </p>

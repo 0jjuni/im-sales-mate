@@ -254,11 +254,11 @@ export const ProductCompare = ({ onOpenArticle }) => {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 print:hidden">
         {/* 입력부 */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="bg-white border border-stone-200 rounded-md p-5 space-y-4">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 space-y-4">
             <SectionTitle sub="고객의 가입 조건을 입력하세요">입력</SectionTitle>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
                 월 납입액: {formatKRW(monthlyAmount)}
               </label>
               <input
@@ -273,7 +273,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
                 가입기간: {years}년
               </label>
               <input
@@ -294,13 +294,13 @@ export const ProductCompare = ({ onOpenArticle }) => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
                 소득금액 구간 (절세 계산용)
               </label>
               <select
                 value={bracketId}
                 onChange={(e) => setBracketId(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-stone-300 rounded-sm focus:outline-none focus:border-amber-500"
+                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-amber-500"
               >
                 {INCOME_BRACKETS.map((b) => (
                   <option key={b.id} value={b.id}>
@@ -308,17 +308,17 @@ export const ProductCompare = ({ onOpenArticle }) => {
                   </option>
                 ))}
               </select>
-              <p className="text-[11px] text-stone-500 mt-1">
+              <p className="text-[11px] text-slate-500 mt-1">
                 연금저축 세액공제율 자동 분기: 4천만 이하 16.5%, 그 외 13.2%
               </p>
             </div>
 
-            <div className="pt-3 border-t border-stone-100 space-y-3">
-              <div className="text-xs font-bold text-stone-500 uppercase tracking-wider">
+            <div className="pt-3 border-t border-slate-100 space-y-3">
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 가정 이율
               </div>
               <div>
-                <label className="block text-xs text-stone-700 mb-1">
+                <label className="block text-xs text-slate-700 mb-1">
                   노란우산공제: {yumamRate.toFixed(1)}%
                 </label>
                 <input
@@ -332,7 +332,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
                 />
               </div>
               <div>
-                <label className="block text-xs text-stone-700 mb-1">
+                <label className="block text-xs text-slate-700 mb-1">
                   일반 적금: {savingsRate.toFixed(1)}%
                 </label>
                 <input
@@ -342,11 +342,11 @@ export const ProductCompare = ({ onOpenArticle }) => {
                   step="0.1"
                   value={savingsRate}
                   onChange={(e) => setSavingsRate(Number(e.target.value))}
-                  className="w-full accent-stone-500"
+                  className="w-full accent-slate-500"
                 />
               </div>
               <div>
-                <label className="block text-xs text-stone-700 mb-1">
+                <label className="block text-xs text-slate-700 mb-1">
                   연금저축: {pensionRate.toFixed(1)}%
                 </label>
                 <input
@@ -369,10 +369,10 @@ export const ProductCompare = ({ onOpenArticle }) => {
                 className="mt-0.5 w-4 h-4 accent-amber-600"
               />
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-stone-900">
+                <div className="text-sm font-semibold text-slate-900">
                   지자체 가입(희망)장려금 포함
                 </div>
-                <div className="text-xs text-stone-600 mt-0.5 leading-relaxed">
+                <div className="text-xs text-slate-600 mt-0.5 leading-relaxed">
                   월 {formatKRW(incentiveMonthly)} × 1년 적립 후 연복리. 임의해약 시 미지급/감액 위험.
                 </div>
                 {withIncentive && (
@@ -394,7 +394,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
             </label>
           </div>
 
-          <div className="bg-blue-50/40 border border-blue-200 rounded-md p-3 text-xs text-stone-700 leading-relaxed">
+          <div className="bg-blue-50/40 border border-blue-200 rounded-xl p-3 text-xs text-slate-700 leading-relaxed">
             <Info className="w-3.5 h-3.5 inline-block mr-1 text-blue-600" />
             노란우산공제·연금저축은 연단위 복리 적립식 + 매월 평균 6개월 추가 적립 보정. 적금은 매월 단리. 모든 결과는 세전 추정치이며 ±5~10% 편차 가능.
           </div>
@@ -403,11 +403,11 @@ export const ProductCompare = ({ onOpenArticle }) => {
         {/* 결과부 */}
         <div className="lg:col-span-3 space-y-4">
           {/* 헤더 — 입력 요약 */}
-          <div className="bg-stone-900 text-white rounded-md p-4">
-            <div className="text-[10px] uppercase tracking-widest text-stone-400 font-bold mb-1">
+          <div className="bg-slate-900 text-white rounded-xl p-4">
+            <div className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">
               가입 조건
             </div>
-            <div className="text-sm text-stone-300">
+            <div className="text-sm text-slate-300">
               월 <strong className="text-white">{formatKRW(monthlyAmount)}</strong> × {years}년 = 총 납부원금{" "}
               <strong className="text-amber-300">{formatKRW(result.totalPrincipal)}</strong>
             </div>
@@ -427,18 +427,18 @@ export const ProductCompare = ({ onOpenArticle }) => {
           {/* 인쇄 */}
           <button
             onClick={() => window.print()}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-stone-900 hover:bg-stone-800 text-white rounded-md font-semibold transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold transition-colors"
           >
             <Printer className="w-4 h-4" />
             <span>상담 자료 인쇄</span>
-            <span className="text-[11px] font-normal text-stone-300 hidden sm:inline">
+            <span className="text-[11px] font-normal text-slate-300 hidden sm:inline">
               PDF 저장 가능 · 비교표 + 디스클레이머 포함
             </span>
           </button>
 
           {/* 차트 — 원금 제외, 순 혜택만 비교 (세전 기준) */}
-          <div className="bg-white border border-stone-200 rounded-md p-4">
-            <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
+            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
               {years}년 후 순 혜택 비교 (원금 제외 · 세전 기준)
             </h4>
             <ResponsiveContainer width="100%" height={260}>
@@ -453,14 +453,14 @@ export const ProductCompare = ({ onOpenArticle }) => {
                 <Bar dataKey="장려금" stackId="a" fill="#8b5cf6" />
               </BarChart>
             </ResponsiveContainer>
-            <p className="text-[11px] text-stone-500 mt-2 leading-relaxed">
+            <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
               원금은 모든 상품 동일하므로 제외. 막대 높이 = 「이자수익 + 절세액 + 장려금」 (세전). 수령 시 과세 별도.
             </p>
           </div>
 
           {/* 노란우산 차별점 카드 */}
-          <div className="bg-amber-50/40 border border-amber-200 rounded-md p-4">
-            <h4 className="text-sm font-bold text-stone-900 mb-3 flex items-center gap-1.5">
+          <div className="bg-amber-50/40 border border-amber-200 rounded-xl p-4">
+            <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-amber-600" />
               노란우산만의 차별점 (수치 외 영업 포인트)
             </h4>
@@ -481,50 +481,50 @@ export const ProductCompare = ({ onOpenArticle }) => {
           </div>
 
           {/* 수령 단계 비교 표 */}
-          <div className="bg-white border border-stone-200 rounded-md p-4">
-            <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
+            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
               수령 단계·과세 비교
             </h4>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-stone-200 text-left">
-                    <th className="py-2 px-1 font-bold text-stone-600">항목</th>
+                  <tr className="border-b border-slate-200 text-left">
+                    <th className="py-2 px-1 font-bold text-slate-600">항목</th>
                     <th className="py-2 px-2 font-bold text-amber-700">노란우산</th>
-                    <th className="py-2 px-2 font-bold text-stone-600">적금</th>
+                    <th className="py-2 px-2 font-bold text-slate-600">적금</th>
                     <th className="py-2 px-2 font-bold text-blue-700">연금저축</th>
                   </tr>
                 </thead>
-                <tbody className="text-stone-800">
-                  <tr className="border-b border-stone-100">
+                <tbody className="text-slate-800">
+                  <tr className="border-b border-slate-100">
                     <td className="py-2 px-1 font-semibold">수령 시기</td>
                     <td className="py-2 px-2">사유 발생 시</td>
                     <td className="py-2 px-2">만기 일시금</td>
                     <td className="py-2 px-2">만 55세+ 연금</td>
                   </tr>
-                  <tr className="border-b border-stone-100">
+                  <tr className="border-b border-slate-100">
                     <td className="py-2 px-1 font-semibold">정상 과세</td>
                     <td className="py-2 px-2">퇴직소득세 (5~15%)</td>
                     <td className="py-2 px-2">이자소득세 15.4%</td>
                     <td className="py-2 px-2">연금소득세 3.3~5.5%</td>
                   </tr>
-                  <tr className="border-b border-stone-100">
+                  <tr className="border-b border-slate-100">
                     <td className="py-2 px-1 font-semibold">중도해지 과세</td>
                     <td className="py-2 px-2">기타소득세 16.5%</td>
                     <td className="py-2 px-2">동일</td>
                     <td className="py-2 px-2 text-red-600 font-semibold">기타소득세 16.5% ⚠</td>
                   </tr>
-                  <tr className="border-b border-stone-100">
+                  <tr className="border-b border-slate-100">
                     <td className="py-2 px-1 font-semibold">압류 보호</td>
                     <td className="py-2 px-2 text-emerald-700 font-bold">✓ 양도·압류·담보 금지</td>
-                    <td className="py-2 px-2 text-stone-500">없음</td>
-                    <td className="py-2 px-2 text-stone-500">없음</td>
+                    <td className="py-2 px-2 text-slate-500">없음</td>
+                    <td className="py-2 px-2 text-slate-500">없음</td>
                   </tr>
-                  <tr className="border-b border-stone-100">
+                  <tr className="border-b border-slate-100">
                     <td className="py-2 px-1 font-semibold">담보 대출</td>
                     <td className="py-2 px-2 text-emerald-700 font-bold">✓ 무담보</td>
-                    <td className="py-2 px-2 text-stone-500">예적금담보 가능</td>
-                    <td className="py-2 px-2 text-stone-500">제한적</td>
+                    <td className="py-2 px-2 text-slate-500">예적금담보 가능</td>
+                    <td className="py-2 px-2 text-slate-500">제한적</td>
                   </tr>
                 </tbody>
               </table>
@@ -533,8 +533,8 @@ export const ProductCompare = ({ onOpenArticle }) => {
 
           <SalesScript accent="amber" {...script} />
 
-          <div className="bg-stone-50 border border-stone-200 rounded-md p-3 text-xs text-stone-600 leading-relaxed">
-            <strong className="text-stone-800">계산 가정:</strong> 노란우산 만기 = 노령급부 도달(만 60세+120개월)·별표1 기준이율 부리적립. 퇴직소득세 8.8% 추정(실제 5~15%). 연금저축 = 적립식 미래가치, 세액공제율은 소득구간 분기, 연금소득세 5.5% 추정. 적금 = 매월 단리, 이자소득세 15.4%. 가입(희망)장려금은 첫 1년 적립 후 가정이율 복리. 모두 추정치이며 실제 상품의 약관·이율·수령 단계 과세는 직접 확인 필요.
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600 leading-relaxed">
+            <strong className="text-slate-800">계산 가정:</strong> 노란우산 만기 = 노령급부 도달(만 60세+120개월)·별표1 기준이율 부리적립. 퇴직소득세 8.8% 추정(실제 5~15%). 연금저축 = 적립식 미래가치, 세액공제율은 소득구간 분기, 연금소득세 5.5% 추정. 적금 = 매월 단리, 이자소득세 15.4%. 가입(희망)장려금은 첫 1년 적립 후 가정이율 복리. 모두 추정치이며 실제 상품의 약관·이율·수령 단계 과세는 직접 확인 필요.
           </div>
         </div>
       </div>
@@ -560,7 +560,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
 const ProductCard = ({ data, isBest }) => {
   const palette = {
     amber: { bg: "bg-amber-50/50", border: "border-amber-300", accent: "text-amber-700" },
-    stone: { bg: "bg-stone-50", border: "border-stone-200", accent: "text-stone-600" },
+    stone: { bg: "bg-slate-50", border: "border-slate-200", accent: "text-slate-600" },
     blue: { bg: "bg-blue-50/40", border: "border-blue-300", accent: "text-blue-700" },
   };
   const c = palette[data.color] || palette.stone;
@@ -569,7 +569,7 @@ const ProductCard = ({ data, isBest }) => {
   return (
     <div
       className={cn(
-        "border-2 rounded-md p-4 transition-colors",
+        "border-2 rounded-xl p-4 transition-colors",
         isBest ? "bg-emerald-50 border-emerald-400" : `${c.bg} ${c.border}`
       )}
     >
@@ -578,7 +578,7 @@ const ProductCard = ({ data, isBest }) => {
           <Icon className={cn("w-5 h-5 mt-0.5 flex-shrink-0", isBest ? "text-emerald-700" : c.accent)} />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-              <h4 className="text-base font-bold text-stone-900">{data.name}</h4>
+              <h4 className="text-base font-bold text-slate-900">{data.name}</h4>
               {isBest && (
                 <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-wider font-bold text-emerald-700 bg-emerald-100 border border-emerald-300 px-1.5 py-0.5 rounded-sm">
                   <Sparkles className="w-2.5 h-2.5" />
@@ -592,30 +592,30 @@ const ProductCard = ({ data, isBest }) => {
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-stone-600 leading-relaxed">{data.scenario}</p>
+            <p className="text-[11px] text-slate-600 leading-relaxed">{data.scenario}</p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 pt-3 border-t border-stone-200/70">
+      <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-200/70">
         <div>
-          <div className="text-[10px] uppercase tracking-wider text-stone-500 font-bold mb-0.5">
+          <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-0.5">
             만기 적립금 (세전)
           </div>
-          <div className="text-lg font-black text-stone-900 tracking-tight">
+          <div className="text-lg font-black text-slate-900 tracking-tight">
             {formatKRW(data.fv)}
           </div>
         </div>
         <div>
-          <div className="text-[10px] uppercase tracking-wider text-stone-500 font-bold mb-0.5">
+          <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-0.5">
             {data.taxSavingLabel}
           </div>
-          <div className={cn("text-lg font-black tracking-tight", data.taxSaving > 0 ? "text-emerald-700" : "text-stone-400")}>
+          <div className={cn("text-lg font-black tracking-tight", data.taxSaving > 0 ? "text-emerald-700" : "text-slate-400")}>
             {data.taxSaving > 0 ? formatKRW(data.taxSaving) : "—"}
           </div>
         </div>
         {data.incentive > 0 && (
-          <div className="col-span-2 pt-3 border-t border-stone-200/70">
+          <div className="col-span-2 pt-3 border-t border-slate-200/70">
             <div className="text-[10px] uppercase tracking-wider text-violet-700 font-bold mb-0.5">
               가입(희망)장려금 적립
             </div>
@@ -626,15 +626,15 @@ const ProductCard = ({ data, isBest }) => {
         )}
       </div>
 
-      <div className="mt-3 pt-2 border-t border-stone-200/70 flex items-baseline justify-between gap-3">
-        <span className="text-xs text-stone-600">총 혜택 합계 (세전 + 절세 + 장려)</span>
-        <span className={cn("text-xl font-black tracking-tight", isBest ? "text-emerald-700" : "text-stone-900")}>
+      <div className="mt-3 pt-2 border-t border-slate-200/70 flex items-baseline justify-between gap-3">
+        <span className="text-xs text-slate-600">총 혜택 합계 (세전 + 절세 + 장려)</span>
+        <span className={cn("text-xl font-black tracking-tight", isBest ? "text-emerald-700" : "text-slate-900")}>
           {formatKRW(data.total)}
         </span>
       </div>
 
-      <div className="mt-2 pt-2 border-t border-stone-200/70 text-[11px] text-stone-600 leading-relaxed">
-        <span className="font-semibold text-stone-700">수령 시 과세:</span> {data.taxNote}
+      <div className="mt-2 pt-2 border-t border-slate-200/70 text-[11px] text-slate-600 leading-relaxed">
+        <span className="font-semibold text-slate-700">수령 시 과세:</span> {data.taxNote}
       </div>
     </div>
   );
@@ -644,8 +644,8 @@ const DiffRow = ({ icon: Icon, title, children }) => (
   <div className="flex items-start gap-2.5">
     <Icon className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
     <div className="flex-1 min-w-0">
-      <span className="font-bold text-stone-900">{title}</span>
-      <span className="text-stone-700"> — {children}</span>
+      <span className="font-bold text-slate-900">{title}</span>
+      <span className="text-slate-700"> — {children}</span>
     </div>
   </div>
 );
@@ -671,7 +671,7 @@ const ProductComparePrint = ({
 
   return (
     <div
-      className="hidden print:block print-report bg-white text-stone-900"
+      className="hidden print:block print-report bg-white text-slate-900"
       style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
       aria-hidden="true"
     >
@@ -679,25 +679,25 @@ const ProductComparePrint = ({
       <div style={{ pageBreakAfter: "always" }}>
         <div className="px-2 py-2 max-w-4xl mx-auto leading-snug">
           {/* 헤더 */}
-          <div className="border-b-2 border-stone-900 pb-2 mb-3">
+          <div className="border-b-2 border-slate-900 pb-2 mb-3">
             <div className="flex items-baseline justify-between gap-3">
               <div>
                 {/* uppercase를 적용하면 「iM뱅크」가 「IM뱅크」로 출력된다 */}
-                <div className="text-[9px] tracking-widest text-stone-500 font-bold">
+                <div className="text-[9px] tracking-widest text-slate-500 font-bold">
                   노란우산공제 상담 자료 · iM뱅크
                 </div>
-                <h1 className="text-base font-black text-stone-900 mt-0.5 leading-tight">
+                <h1 className="text-base font-black text-slate-900 mt-0.5 leading-tight">
                   가입 시 상품 비교 안내
                 </h1>
-                <p className="text-[11px] text-stone-700 mt-0.5">
+                <p className="text-[11px] text-slate-700 mt-0.5">
                   노란우산공제 vs 일반 적금 vs 연금저축 · 월 {formatKRW(monthlyAmount)} × {years}년
                 </p>
               </div>
-              <div className="text-right text-[9px] text-stone-500 leading-snug flex-shrink-0">
+              <div className="text-right text-[9px] text-slate-500 leading-snug flex-shrink-0">
                 <div>인쇄일시: {printedAt}</div>
                 <div>page 1 / 2</div>
                 <div className="mt-1.5">상담 점포 · 담당자</div>
-                <div className="ml-auto mt-0.5 h-3 w-28 border-b border-stone-400" />
+                <div className="ml-auto mt-0.5 h-3 w-28 border-b border-slate-400" />
               </div>
             </div>
           </div>
@@ -706,7 +706,7 @@ const ProductComparePrint = ({
           <div className="border border-amber-600 bg-amber-50 rounded-sm p-2 mb-3 break-inside-avoid">
             <div className="flex items-start gap-1.5">
               <span className="text-sm leading-none mt-0.5">⚠</span>
-              <div className="flex-1 text-[10px] text-stone-900 leading-snug">
+              <div className="flex-1 text-[10px] text-slate-900 leading-snug">
                 <strong className="text-amber-900">본 안내는 추정치이며 모두 세전 기준입니다.</strong> 수령 시 과세(상품별로 퇴직소득세 / 이자소득세 15.4% / 연금소득세)는 가입자 다른 소득·근속·소득공제 등에 따라 변수가 많아 별도 차감하지 않았습니다. 정확한 실수령액은 중앙회 시스템(1666-9988) + 세무 전문가 상담으로 확인해 주세요.
                 {!result.isNorengEligible && (
                   <span className="block mt-1 text-amber-900">
@@ -719,7 +719,7 @@ const ProductComparePrint = ({
 
           {/* 입력 조건 — 한 줄 압축 */}
           <section className="mb-3 break-inside-avoid">
-            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1.5">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-0.5 mb-1.5">
               가입 조건
             </h2>
             <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10.5px]">
@@ -744,13 +744,13 @@ const ProductComparePrint = ({
 
           {/* 4컬럼 비교 표 */}
           <section className="mb-3 break-inside-avoid">
-            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1.5">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-0.5 mb-1.5">
               상품별 비교 (모두 세전 기준 — 수령 시 과세 별도)
             </h2>
-            <table className="w-full text-[10px] border border-stone-300">
-              <thead className="bg-stone-100 border-b-2 border-stone-400">
+            <table className="w-full text-[10px] border border-slate-300">
+              <thead className="bg-slate-100 border-b-2 border-slate-400">
                 <tr>
-                  <th className="px-1.5 py-1 text-left font-bold text-stone-700 w-1/5">항목</th>
+                  <th className="px-1.5 py-1 text-left font-bold text-slate-700 w-1/5">항목</th>
                   {result.products.map((p) => (
                     <th
                       key={p.key}
@@ -758,7 +758,7 @@ const ProductComparePrint = ({
                         "px-1.5 py-1 text-right font-bold leading-tight",
                         p.key === result.best.key
                           ? "bg-amber-100 text-amber-900"
-                          : "text-stone-700"
+                          : "text-slate-700"
                       )}
                     >
                       {p.name}
@@ -767,15 +767,15 @@ const ProductComparePrint = ({
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-200">
+              <tbody className="divide-y divide-slate-200">
                 <tr>
-                  <td className="px-1.5 py-1 text-stone-600 font-semibold">만기 적립금 (세전)</td>
+                  <td className="px-1.5 py-1 text-slate-600 font-semibold">만기 적립금 (세전)</td>
                   {result.products.map((p) => (
                     <td
                       key={p.key}
                       className={cn(
                         "px-1.5 py-1 text-right tabular-nums",
-                        p.key === result.best.key ? "bg-amber-50 font-bold text-amber-900" : "text-stone-900"
+                        p.key === result.best.key ? "bg-amber-50 font-bold text-amber-900" : "text-slate-900"
                       )}
                     >
                       {formatKRW(p.fv)}
@@ -783,14 +783,14 @@ const ProductComparePrint = ({
                   ))}
                 </tr>
                 <tr>
-                  <td className="px-1.5 py-1 text-stone-600 font-semibold">절세·세액공제</td>
+                  <td className="px-1.5 py-1 text-slate-600 font-semibold">절세·세액공제</td>
                   {result.products.map((p) => (
                     <td
                       key={p.key}
                       className={cn(
                         "px-1.5 py-1 text-right tabular-nums",
                         p.key === result.best.key ? "bg-amber-50" : "",
-                        p.taxSaving === 0 ? "text-stone-400" : "text-emerald-700 font-semibold"
+                        p.taxSaving === 0 ? "text-slate-400" : "text-emerald-700 font-semibold"
                       )}
                     >
                       {p.taxSaving > 0 ? formatKRW(p.taxSaving) : "—"}
@@ -798,22 +798,22 @@ const ProductComparePrint = ({
                   ))}
                 </tr>
                 <tr>
-                  <td className="px-1.5 py-1 text-stone-600 font-semibold">가입장려금</td>
+                  <td className="px-1.5 py-1 text-slate-600 font-semibold">가입장려금</td>
                   {result.products.map((p) => (
                     <td
                       key={p.key}
                       className={cn(
                         "px-1.5 py-1 text-right tabular-nums",
                         p.key === result.best.key ? "bg-amber-50" : "",
-                        p.incentive === 0 ? "text-stone-400" : "text-violet-700 font-semibold"
+                        p.incentive === 0 ? "text-slate-400" : "text-violet-700 font-semibold"
                       )}
                     >
                       {p.incentive > 0 ? formatKRW(p.incentive) : "—"}
                     </td>
                   ))}
                 </tr>
-                <tr className="border-t-2 border-stone-400 bg-stone-50">
-                  <td className="px-1.5 py-1.5 text-stone-700 font-bold">총 혜택 합계</td>
+                <tr className="border-t-2 border-slate-400 bg-slate-50">
+                  <td className="px-1.5 py-1.5 text-slate-700 font-bold">총 혜택 합계</td>
                   {result.products.map((p) => (
                     <td
                       key={p.key}
@@ -821,7 +821,7 @@ const ProductComparePrint = ({
                         "px-1.5 py-1.5 text-right tabular-nums font-black",
                         p.key === result.best.key
                           ? "bg-amber-200 text-amber-900 text-[12px]"
-                          : "text-stone-900"
+                          : "text-slate-900"
                       )}
                     >
                       {formatKRW(p.total)}
@@ -829,7 +829,7 @@ const ProductComparePrint = ({
                   ))}
                 </tr>
                 <tr>
-                  <td className="px-1.5 py-0.5 text-stone-500 text-[8.5px]">원금 대비</td>
+                  <td className="px-1.5 py-0.5 text-slate-500 text-[8.5px]">원금 대비</td>
                   {result.products.map((p) => {
                     const pct = (((p.total - result.totalPrincipal) / result.totalPrincipal) * 100).toFixed(1);
                     return (
@@ -847,12 +847,12 @@ const ProductComparePrint = ({
                   })}
                 </tr>
                 <tr>
-                  <td className="px-1.5 py-1 text-stone-500 align-top text-[8.5px]">시나리오</td>
+                  <td className="px-1.5 py-1 text-slate-500 align-top text-[8.5px]">시나리오</td>
                   {result.products.map((p) => (
                     <td
                       key={p.key}
                       className={cn(
-                        "px-1.5 py-1 text-[8.5px] text-stone-600 leading-tight",
+                        "px-1.5 py-1 text-[8.5px] text-slate-600 leading-tight",
                         p.key === result.best.key ? "bg-amber-50" : ""
                       )}
                     >
@@ -861,12 +861,12 @@ const ProductComparePrint = ({
                   ))}
                 </tr>
                 <tr>
-                  <td className="px-1.5 py-1 text-stone-500 align-top text-[8.5px]">수령 시 과세</td>
+                  <td className="px-1.5 py-1 text-slate-500 align-top text-[8.5px]">수령 시 과세</td>
                   {result.products.map((p) => (
                     <td
                       key={p.key}
                       className={cn(
-                        "px-1.5 py-1 text-[8.5px] text-stone-600 leading-tight",
+                        "px-1.5 py-1 text-[8.5px] text-slate-600 leading-tight",
                         p.key === result.best.key ? "bg-amber-50" : ""
                       )}
                     >
@@ -884,7 +884,7 @@ const ProductComparePrint = ({
 
           {/* 차트 */}
           <section className="break-inside-avoid">
-            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1.5">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-0.5 mb-1.5">
               순 혜택 시각 비교 (원금 제외 · 세전)
             </h2>
             <div className="flex justify-center">
@@ -921,17 +921,17 @@ const ProductComparePrint = ({
       <div>
         <div className="px-2 py-2 max-w-4xl mx-auto leading-snug">
           {/* 헤더 (간략) */}
-          <div className="border-b-2 border-stone-900 pb-2 mb-3">
+          <div className="border-b-2 border-slate-900 pb-2 mb-3">
             <div className="flex items-baseline justify-between gap-3">
               <div>
-                <div className="text-[9px] tracking-widest text-stone-500 font-bold">
+                <div className="text-[9px] tracking-widest text-slate-500 font-bold">
                   노란우산공제 상담 자료 · iM뱅크
                 </div>
-                <h1 className="text-base font-black text-stone-900 mt-0.5 leading-tight">
+                <h1 className="text-base font-black text-slate-900 mt-0.5 leading-tight">
                   노란우산만의 차별점 · 수령 단계 비교
                 </h1>
               </div>
-              <div className="text-right text-[9px] text-stone-500 leading-snug flex-shrink-0">
+              <div className="text-right text-[9px] text-slate-500 leading-snug flex-shrink-0">
                 <div>인쇄일시: {printedAt}</div>
                 <div>page 2 / 2</div>
               </div>
@@ -940,7 +940,7 @@ const ProductComparePrint = ({
 
           {/* 차별점 4종 */}
           <section className="mb-3 break-inside-avoid">
-            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1.5">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-0.5 mb-1.5">
               노란우산만의 차별점 (수치 외 영업 포인트)
             </h2>
             <div className="grid grid-cols-2 gap-2 text-[10.5px]">
@@ -961,19 +961,19 @@ const ProductComparePrint = ({
 
           {/* 수령 단계 비교 표 */}
           <section className="mb-3 break-inside-avoid">
-            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1.5">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-0.5 mb-1.5">
               수령 단계 · 과세 · 보호 비교
             </h2>
-            <table className="w-full text-[10px] border border-stone-300">
-              <thead className="bg-stone-100 border-b-2 border-stone-400">
+            <table className="w-full text-[10px] border border-slate-300">
+              <thead className="bg-slate-100 border-b-2 border-slate-400">
                 <tr>
-                  <th className="px-1.5 py-1 text-left font-bold text-stone-700">항목</th>
+                  <th className="px-1.5 py-1 text-left font-bold text-slate-700">항목</th>
                   <th className="px-1.5 py-1 text-left font-bold text-amber-700">노란우산</th>
-                  <th className="px-1.5 py-1 text-left font-bold text-stone-700">일반 적금</th>
+                  <th className="px-1.5 py-1 text-left font-bold text-slate-700">일반 적금</th>
                   <th className="px-1.5 py-1 text-left font-bold text-blue-700">연금저축</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-200 text-stone-800">
+              <tbody className="divide-y divide-slate-200 text-slate-800">
                 <tr>
                   <td className="px-1.5 py-1 font-semibold">수령 시기</td>
                   <td className="px-1.5 py-1">사유 발생 시</td>
@@ -995,34 +995,34 @@ const ProductComparePrint = ({
                 <tr>
                   <td className="px-1.5 py-1 font-semibold">압류 보호</td>
                   <td className="px-1.5 py-1 text-emerald-700 font-bold">✓ 양도·압류·담보 금지</td>
-                  <td className="px-1.5 py-1 text-stone-500">없음</td>
-                  <td className="px-1.5 py-1 text-stone-500">없음</td>
+                  <td className="px-1.5 py-1 text-slate-500">없음</td>
+                  <td className="px-1.5 py-1 text-slate-500">없음</td>
                 </tr>
                 <tr>
                   <td className="px-1.5 py-1 font-semibold">담보 대출</td>
                   <td className="px-1.5 py-1 text-emerald-700 font-bold">✓ 무담보</td>
-                  <td className="px-1.5 py-1 text-stone-500">예적금담보 가능</td>
-                  <td className="px-1.5 py-1 text-stone-500">제한적</td>
+                  <td className="px-1.5 py-1 text-slate-500">예적금담보 가능</td>
+                  <td className="px-1.5 py-1 text-slate-500">제한적</td>
                 </tr>
                 <tr>
                   <td className="px-1.5 py-1 font-semibold">소득공제·세액공제</td>
                   <td className="px-1.5 py-1 text-emerald-700 font-bold">소득공제 최대 600만</td>
-                  <td className="px-1.5 py-1 text-stone-500">없음</td>
+                  <td className="px-1.5 py-1 text-slate-500">없음</td>
                   <td className="px-1.5 py-1 text-emerald-700">세액공제 13.2~16.5%</td>
                 </tr>
                 <tr>
                   <td className="px-1.5 py-1 font-semibold">부가서비스</td>
                   <td className="px-1.5 py-1 text-emerald-700 font-bold">단체상해보험 + 복지플러스</td>
-                  <td className="px-1.5 py-1 text-stone-500">없음</td>
-                  <td className="px-1.5 py-1 text-stone-500">없음</td>
+                  <td className="px-1.5 py-1 text-slate-500">없음</td>
+                  <td className="px-1.5 py-1 text-slate-500">없음</td>
                 </tr>
               </tbody>
             </table>
           </section>
 
           {/* 상세 디스클레이머·법령 근거 */}
-          <section className="mb-3 break-inside-avoid text-[10px] text-stone-800 leading-snug space-y-1">
-            <h2 className="text-[10px] font-black uppercase tracking-wider text-stone-700 border-b border-stone-300 pb-0.5 mb-1.5">
+          <section className="mb-3 break-inside-avoid text-[10px] text-slate-800 leading-snug space-y-1">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-0.5 mb-1.5">
               참고 사항
             </h2>
             <p>
@@ -1049,17 +1049,17 @@ const ProductComparePrint = ({
           </section>
 
           {/* 푸터 */}
-          <div className="border-t-2 border-stone-900 pt-1.5 mt-2 text-[9.5px] text-stone-700 leading-snug space-y-0.5 break-inside-avoid">
+          <div className="border-t-2 border-slate-900 pt-1.5 mt-2 text-[9.5px] text-slate-700 leading-snug space-y-0.5 break-inside-avoid">
             <p>
-              <strong className="text-stone-900">법령 근거:</strong> 조세특례제한법 제86조의3 · 중소기업협동조합법 제115조·제119조 · 약관 별표1·별표2·별표3
+              <strong className="text-slate-900">법령 근거:</strong> 조세특례제한법 제86조의3 · 중소기업협동조합법 제115조·제119조 · 약관 별표1·별표2·별표3
             </p>
             <p>
-              <strong className="text-stone-900">출처:</strong> 소기업·소상공인공제 약관(2026.7.1 시행), 조세특례제한법(법률 2025.7.1 시행 / 시행령 2026.2.27 시행), 중소기업협동조합법(제121조의2 2026.6.3 시행)
+              <strong className="text-slate-900">출처:</strong> 소기업·소상공인공제 약관(2026.7.1 시행), 조세특례제한법(법률 2025.7.1 시행 / 시행령 2026.2.27 시행), 중소기업협동조합법(제121조의2 2026.6.3 시행)
             </p>
             <p>
-              <strong className="text-stone-900">문의:</strong> 중소기업중앙회 노란우산공제 1666-9988 · https://www.8899.or.kr/
+              <strong className="text-slate-900">문의:</strong> 중소기업중앙회 노란우산공제 1666-9988 · https://www.8899.or.kr/
             </p>
-            <p className="text-stone-500 mt-1">
+            <p className="text-slate-500 mt-1">
               본 자료는 iM뱅크 영업점 직원이 고객 상담 시 참고용으로 제공하는 추정 안내입니다. 실제 공제금·환급금·세액·이율은 다른 소득공제 항목, 추가 소득, 시점, 세법 개정, 분기별 기준이율 변동 등에 따라 달라질 수 있으니 정확한 금액은 중앙회 시스템 조회 결과로 확인해 주시기 바랍니다.
             </p>
           </div>
@@ -1071,8 +1071,8 @@ const ProductComparePrint = ({
 
 const PRow = ({ label, value, emphasis }) => (
   <>
-    <div className={cn("text-stone-600", emphasis && "font-bold text-stone-900")}>{label}</div>
-    <div className={cn("text-right text-stone-900 font-semibold tabular-nums", emphasis && "text-amber-900 font-black")}>
+    <div className={cn("text-slate-600", emphasis && "font-bold text-slate-900")}>{label}</div>
+    <div className={cn("text-right text-slate-900 font-semibold tabular-nums", emphasis && "text-amber-900 font-black")}>
       {value}
     </div>
   </>
@@ -1081,6 +1081,6 @@ const PRow = ({ label, value, emphasis }) => (
 const PrintDiff = ({ title, children }) => (
   <div className="border border-amber-300 bg-amber-50/50 rounded-sm p-2">
     <div className="font-bold text-amber-900 mb-0.5">{title}</div>
-    <div className="text-stone-700 leading-snug">{children}</div>
+    <div className="text-slate-700 leading-snug">{children}</div>
   </div>
 );

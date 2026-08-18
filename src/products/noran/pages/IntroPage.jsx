@@ -33,13 +33,13 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
             5분 입문
           </span>
         </div>
-        <h1 className="text-4xl md:text-5xl font-black text-stone-900 tracking-tight leading-[1.15]">
+        <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
           노란우산공제,<br />
           한 번에 정리합니다
         </h1>
-        <p className="text-lg text-stone-600 mt-5 leading-loose">
+        <p className="text-lg text-slate-600 mt-5 leading-loose">
           이 페이지만 읽으셔도 고객 응대에 필요한 기본은 다 잡힙니다.<br />
-          처음 듣는 단어가 나오면 본문 아래 <strong className="text-stone-800">「용어 풀이」</strong> 박스를 펼쳐 보세요.
+          처음 듣는 단어가 나오면 본문 아래 <strong className="text-slate-800">「용어 풀이」</strong> 박스를 펼쳐 보세요.
         </p>
       </div>
 
@@ -50,14 +50,14 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
         subtitle="한 줄로 — 소기업·소상공인 대표자를 위한 「퇴직금」 성격의 공제 제도"
       >
         <div className="bg-amber-50/60 border-l-4 border-amber-500 p-6 rounded-r-md space-y-4">
-          <p className="text-[15px] text-stone-800 leading-loose">
-            <strong className="text-stone-900">운영 주체</strong> — 중소기업중앙회의 공제사업
+          <p className="text-[15px] text-slate-800 leading-loose">
+            <strong className="text-slate-900">운영 주체</strong> — 중소기업중앙회의 공제사업
           </p>
-          <p className="text-[15px] text-stone-800 leading-loose">
-            <strong className="text-stone-900">본질</strong> — 일반 「적금」이 아니라 「공제」. 사업자가 폐업·사망·노령·재난·질병 등으로 사업을 더 못 하시게 됐을 때, 그동안 모으신 돈을 「퇴직금」처럼 받으시는 구조입니다.
+          <p className="text-[15px] text-slate-800 leading-loose">
+            <strong className="text-slate-900">본질</strong> — 일반 「적금」이 아니라 「공제」. 사업자가 폐업·사망·노령·재난·질병 등으로 사업을 더 못 하시게 됐을 때, 그동안 모으신 돈을 「퇴직금」처럼 받으시는 구조입니다.
           </p>
-          <p className="text-[15px] text-stone-800 leading-loose">
-            <strong className="text-stone-900">다른 상품과 차이</strong> — ① 소득공제 ② 공제금 수급권 양도·압류·담보 금지. 적금엔 둘 다 없습니다.
+          <p className="text-[15px] text-slate-800 leading-loose">
+            <strong className="text-slate-900">다른 상품과 차이</strong> — ① 소득공제 ② 공제금 수급권 양도·압류·담보 금지. 적금엔 둘 다 없습니다.
           </p>
         </div>
 
@@ -84,7 +84,7 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card title="가입 가능">
-            <ul className="text-[15px] text-stone-800 space-y-2.5 leading-relaxed">
+            <ul className="text-[15px] text-slate-800 space-y-2.5 leading-relaxed">
               <li>· 개인사업자 또는 영리법인 대표자</li>
               <li>· 청약 시점 사업 영위 중</li>
               <li>· 이미 가입한 노란우산이 없을 것</li>
@@ -92,7 +92,7 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
             </ul>
           </Card>
           <Card title="가입 제한 7개 업종" color="red">
-            <ul className="text-[15px] text-stone-800 space-y-2.5 leading-relaxed">
+            <ul className="text-[15px] text-slate-800 space-y-2.5 leading-relaxed">
               <li>· 일반/무도유흥주점업 (56211/56212)</li>
               <li>· 무도장 운영업 (91291)</li>
               <li>· 기타 사행시설 관리·운영업 (91249)</li>
@@ -102,8 +102,8 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
             </ul>
           </Card>
         </div>
-        <p className="text-sm text-stone-700 mt-5 leading-loose">
-          부금월액은 <strong className="text-stone-900">월 5만원부터 150만원까지 1만원 단위</strong>로 선택. 매월 자동이체 (2026.7.1 시행 개정으로 신규는 분기납 폐지 · 상한 150만원으로 상향).
+        <p className="text-sm text-slate-700 mt-5 leading-loose">
+          부금월액은 <strong className="text-slate-900">월 5만원부터 150만원까지 1만원 단위</strong>로 선택. 매월 자동이체 (2026.7.1 시행 개정으로 신규는 분기납 폐지 · 상한 150만원으로 상향).
         </p>
 
         <Glossary>
@@ -126,24 +126,24 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
         icon={Coins}
       >
         <div className="overflow-x-auto">
-          <table className="w-full text-[15px] border border-stone-200 rounded-md overflow-hidden">
-            <thead className="bg-stone-100 border-b-2 border-stone-300">
+          <table className="w-full text-[15px] border border-slate-200 rounded-xl overflow-hidden">
+            <thead className="bg-slate-100 border-b-2 border-slate-300">
               <tr className="text-left">
-                <th className="px-4 py-3 font-bold text-stone-800">사업·근로소득금액</th>
-                <th className="px-4 py-3 font-bold text-stone-800">소득공제 한도</th>
-                <th className="px-4 py-3 font-bold text-stone-800 text-right">절세 예시</th>
+                <th className="px-4 py-3 font-bold text-slate-800">사업·근로소득금액</th>
+                <th className="px-4 py-3 font-bold text-slate-800">소득공제 한도</th>
+                <th className="px-4 py-3 font-bold text-slate-800 text-right">절세 예시</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-200 text-stone-800">
-              <tr className="hover:bg-stone-50/50"><td className="px-4 py-3.5">4천만원 이하</td><td className="px-4 py-3.5 font-bold">600만원</td><td className="px-4 py-3.5 text-right text-emerald-700 font-black">약 99만원</td></tr>
-              <tr className="hover:bg-stone-50/50"><td className="px-4 py-3.5">4천만원 초과 ~ 6천만원 이하</td><td className="px-4 py-3.5 font-bold">500만원</td><td className="px-4 py-3.5 text-right text-emerald-700 font-black">약 132만원</td></tr>
-              <tr className="hover:bg-stone-50/50"><td className="px-4 py-3.5">6천만원 초과 ~ 1억원 이하</td><td className="px-4 py-3.5 font-bold">400만원</td><td className="px-4 py-3.5 text-right text-emerald-700 font-black">약 154만원</td></tr>
-              <tr className="hover:bg-stone-50/50"><td className="px-4 py-3.5">1억원 초과</td><td className="px-4 py-3.5 font-bold">200만원</td><td className="px-4 py-3.5 text-right text-emerald-700 font-black">약 84만원</td></tr>
+            <tbody className="divide-y divide-slate-200 text-slate-800">
+              <tr className="hover:bg-slate-50/50"><td className="px-4 py-3.5">4천만원 이하</td><td className="px-4 py-3.5 font-bold">600만원</td><td className="px-4 py-3.5 text-right text-emerald-700 font-black">약 99만원</td></tr>
+              <tr className="hover:bg-slate-50/50"><td className="px-4 py-3.5">4천만원 초과 ~ 6천만원 이하</td><td className="px-4 py-3.5 font-bold">500만원</td><td className="px-4 py-3.5 text-right text-emerald-700 font-black">약 132만원</td></tr>
+              <tr className="hover:bg-slate-50/50"><td className="px-4 py-3.5">6천만원 초과 ~ 1억원 이하</td><td className="px-4 py-3.5 font-bold">400만원</td><td className="px-4 py-3.5 text-right text-emerald-700 font-black">약 154만원</td></tr>
+              <tr className="hover:bg-slate-50/50"><td className="px-4 py-3.5">1억원 초과</td><td className="px-4 py-3.5 font-bold">200만원</td><td className="px-4 py-3.5 text-right text-emerald-700 font-black">약 84만원</td></tr>
             </tbody>
           </table>
         </div>
-        <div className="bg-amber-50/60 border border-amber-200 rounded-md p-5 mt-5 text-[15px] text-stone-800 leading-loose">
-          <strong className="text-stone-900">법인대표는 다릅니다.</strong> 총급여 8천만원 초과(= 근로소득금액 6,625만원 초과) 시 근로소득금액에서 소득공제 불가. 사업소득은 부동산임대업 비중만큼 한도 차감.
+        <div className="bg-amber-50/60 border border-amber-200 rounded-xl p-5 mt-5 text-[15px] text-slate-800 leading-loose">
+          <strong className="text-slate-900">법인대표는 다릅니다.</strong> 총급여 8천만원 초과(= 근로소득금액 6,625만원 초과) 시 근로소득금액에서 소득공제 불가. 사업소득은 부동산임대업 비중만큼 한도 차감.
         </div>
 
         <Glossary>
@@ -189,16 +189,16 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
       >
         <div className="space-y-4">
           <div className="bg-emerald-50/50 border-l-4 border-emerald-500 rounded-r-md p-6">
-            <p className="text-[15px] text-stone-800 leading-loose">
-              <strong className="text-stone-900">공제금 수급권은 양도·압류·담보 제공 모두 금지</strong>. 사업자가 채무·소송에 휘말려도 노란우산 공제금은 안전하게 받으실 수 있습니다.
+            <p className="text-[15px] text-slate-800 leading-loose">
+              <strong className="text-slate-900">공제금 수급권은 양도·압류·담보 제공 모두 금지</strong>. 사업자가 채무·소송에 휘말려도 노란우산 공제금은 안전하게 받으실 수 있습니다.
             </p>
-            <p className="text-sm text-stone-600 mt-3 leading-relaxed">
+            <p className="text-sm text-slate-600 mt-3 leading-relaxed">
               ※ 단 「행복지킴이 통장」 등 압류방지 통장을 사용하셔야 통장 단계에서도 완전 보호.
             </p>
           </div>
           <div className="bg-blue-50/50 border-l-4 border-blue-500 rounded-r-md p-6">
-            <p className="text-[15px] text-stone-800 leading-loose">
-              <strong className="text-stone-900">공제계약 대출도 가능</strong> — 해약환급금 범위 내 무담보 대출. 일시적 자금 필요 시 해약 대신 대출로 유지 권장.
+            <p className="text-[15px] text-slate-800 leading-loose">
+              <strong className="text-slate-900">공제계약 대출도 가능</strong> — 해약환급금 범위 내 무담보 대출. 일시적 자금 필요 시 해약 대신 대출로 유지 권장.
             </p>
           </div>
         </div>
@@ -281,13 +281,13 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
             "⑦ 회생절차 개시",
             "⑧ 파산선고",
           ].map((reason, i) => (
-            <div key={i} className="flex items-start gap-2.5 p-4 bg-white border border-stone-200 rounded-md hover:border-amber-300 transition-colors">
+            <div key={i} className="flex items-start gap-2.5 p-4 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-amber-300 transition-colors">
               <CheckCircle2 className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-              <span className="text-stone-800 leading-relaxed">{reason}</span>
+              <span className="text-slate-800 leading-relaxed">{reason}</span>
             </div>
           ))}
         </div>
-        <p className="text-sm text-stone-700 mt-5 leading-loose">
+        <p className="text-sm text-slate-700 mt-5 leading-loose">
           공제금 = 납부부금 + 별표1 차등지급이율표 적용 (15년간 기준이율 + 0.3%, 이후 단계적 인하).
         </p>
 
@@ -329,16 +329,16 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
         icon={AlertTriangle}
       >
         <div className="bg-red-50 border-l-4 border-red-500 rounded-r-md p-6 space-y-4">
-          <p className="text-[15px] text-stone-800 leading-loose">
+          <p className="text-[15px] text-slate-800 leading-loose">
             <strong className="text-red-700">1~3회 납부 후 해약 시 80%, 4~6회 90%, 7~12회 100%만 환급</strong> (별표3 일반해약환급금). 즉 단기에 해약하시면 원금 손실이 발생합니다.
           </p>
-          <p className="text-[15px] text-stone-800 leading-loose">
+          <p className="text-[15px] text-slate-800 leading-loose">
             일시적 사정이신 고객에게는 해약 대신 먼저 다음 대안을 안내해 주세요:
           </p>
-          <ul className="text-[15px] text-stone-800 space-y-2 leading-relaxed pl-2">
-            <li><strong className="text-stone-900">① 부금납부 중지</strong> — 재해·입원·경영악화 6개월 / 휴업·파산절차·출산 1년</li>
-            <li><strong className="text-stone-900">② 부금월액 감액</strong> — 3개월 이상 납입 후 가능</li>
-            <li><strong className="text-stone-900">③ 공제계약 대출</strong> — 해약환급금 범위 내 무담보</li>
+          <ul className="text-[15px] text-slate-800 space-y-2 leading-relaxed pl-2">
+            <li><strong className="text-slate-900">① 부금납부 중지</strong> — 재해·입원·경영악화 6개월 / 휴업·파산절차·출산 1년</li>
+            <li><strong className="text-slate-900">② 부금월액 감액</strong> — 3개월 이상 납입 후 가능</li>
+            <li><strong className="text-slate-900">③ 공제계약 대출</strong> — 해약환급금 범위 내 무담보</li>
           </ul>
         </div>
 
@@ -381,13 +381,13 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
             { k: "행정정보 공동이용 동의", v: "별지 제61호 동의서 자필서명 시 12종(사업자등록증명·폐업사실증명·소득세액공제확인서 등) 자동 조회. 신분증·청구서만 받아도 OK." },
             { k: "고객 개인정보 금지", v: "본 도구의 시뮬레이션·계산기에는 절대 실제 고객정보 입력 금지. 가상 변수로만 진행." },
           ].map((item, i) => (
-            <div key={i} className="flex gap-4 p-5 bg-white border border-stone-200 rounded-md hover:border-amber-300 transition-colors">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-stone-900 text-white text-sm font-black flex-shrink-0">
+            <div key={i} className="flex gap-4 p-5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-amber-300 transition-colors">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-900 text-white text-sm font-black flex-shrink-0">
                 {i + 1}
               </span>
               <div className="flex-1 min-w-0">
-                <div className="text-base font-bold text-stone-900 mb-1.5">{item.k}</div>
-                <div className="text-[15px] text-stone-700 leading-loose">{item.v}</div>
+                <div className="text-base font-bold text-slate-900 mb-1.5">{item.k}</div>
+                <div className="text-[15px] text-slate-700 leading-loose">{item.v}</div>
               </div>
             </div>
           ))}
@@ -428,10 +428,10 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
           />
         </div>
 
-        <div className="mt-5 p-6 bg-stone-900 text-white rounded-md flex items-center gap-4">
+        <div className="mt-5 p-6 bg-slate-900 text-white rounded-xl flex items-center gap-4">
           <Phone className="w-6 h-6 text-amber-400 flex-shrink-0" />
           <div className="flex-1">
-            <div className="text-[11px] uppercase tracking-widest text-stone-400 font-bold mb-0.5">중앙회 콜센터</div>
+            <div className="text-[11px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">중앙회 콜센터</div>
             <div className="text-2xl font-black tracking-tight">1666-9988</div>
           </div>
           <a
@@ -451,19 +451,19 @@ export const IntroPage = ({ onNavigate, onOpenArticle }) => {
 /* 스크롤 섹션 wrapper */
 const Section = ({ num, title, subtitle, icon: Icon, children }) => (
   <section className="space-y-5">
-    <div className="flex items-start gap-4 border-b-2 border-stone-900 pb-4">
+    <div className="flex items-start gap-4 border-b-2 border-slate-900 pb-4">
       <span className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500 text-white text-lg font-black tracking-tight flex-shrink-0">
         {num}
       </span>
       <div className="flex-1 min-w-0 pt-0.5">
         <div className="flex items-center gap-2">
-          {Icon && <Icon className="w-5 h-5 text-stone-700" />}
-          <h2 className="text-xl md:text-2xl font-black text-stone-900 tracking-tight leading-snug">
+          {Icon && <Icon className="w-5 h-5 text-slate-700" />}
+          <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight leading-snug">
             {title}
           </h2>
         </div>
         {subtitle && (
-          <p className="text-sm text-stone-600 mt-1.5 leading-relaxed">{subtitle}</p>
+          <p className="text-sm text-slate-600 mt-1.5 leading-relaxed">{subtitle}</p>
         )}
       </div>
     </div>
@@ -473,13 +473,13 @@ const Section = ({ num, title, subtitle, icon: Icon, children }) => (
 
 const Card = ({ title, color = "stone", children }) => {
   const colors = {
-    stone: "bg-stone-50 border-stone-200",
+    stone: "bg-slate-50 border-slate-200",
     red: "bg-red-50/40 border-red-200",
     amber: "bg-amber-50/40 border-amber-200",
   };
   return (
-    <div className={`${colors[color]} border rounded-md p-5`}>
-      <div className="text-xs font-bold uppercase tracking-wider text-stone-600 mb-3">{title}</div>
+    <div className={`${colors[color]} border rounded-xl p-5`}>
+      <div className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-3">{title}</div>
       {children}
     </div>
   );
@@ -488,19 +488,19 @@ const Card = ({ title, color = "stone", children }) => {
 const NextCard = ({ icon: Icon, title, desc, onClick, highlight }) => (
   <button
     onClick={onClick}
-    className={`group text-left p-5 border rounded-md transition-all ${
+    className={`group text-left p-5 border rounded-xl transition-all ${
       highlight
         ? "bg-amber-50 border-amber-300 hover:border-amber-500"
-        : "bg-white border-stone-200 hover:border-stone-400"
+        : "bg-white border-slate-200 hover:border-slate-400"
     }`}
   >
     <div className="flex items-start gap-3">
-      <Icon className={`w-5 h-5 mt-0.5 flex-shrink-0 ${highlight ? "text-amber-700" : "text-stone-600"}`} />
+      <Icon className={`w-5 h-5 mt-0.5 flex-shrink-0 ${highlight ? "text-amber-700" : "text-slate-600"}`} />
       <div className="flex-1 min-w-0">
-        <div className="text-base font-bold text-stone-900 mb-1">{title}</div>
-        <div className="text-sm text-stone-600 leading-relaxed">{desc}</div>
+        <div className="text-base font-bold text-slate-900 mb-1">{title}</div>
+        <div className="text-sm text-slate-600 leading-relaxed">{desc}</div>
       </div>
-      <ChevronRight className={`w-4 h-4 flex-shrink-0 mt-1.5 transition-transform group-hover:translate-x-0.5 ${highlight ? "text-amber-700" : "text-stone-400"}`} />
+      <ChevronRight className={`w-4 h-4 flex-shrink-0 mt-1.5 transition-transform group-hover:translate-x-0.5 ${highlight ? "text-amber-700" : "text-slate-400"}`} />
     </div>
   </button>
 );
@@ -519,12 +519,12 @@ const BenefitCard = ({ icon: Icon, title, color, tag, children }) => {
         <Icon className={`w-6 h-6 ${c.text} flex-shrink-0 mt-0.5`} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-base font-bold text-stone-900">{title}</h3>
+            <h3 className="text-base font-bold text-slate-900">{title}</h3>
             <span className={`text-[10px] font-bold uppercase tracking-wider ${c.tag} px-1.5 py-0.5 rounded-sm`}>
               {tag}
             </span>
           </div>
-          <p className="text-[15px] text-stone-800 leading-loose">{children}</p>
+          <p className="text-[15px] text-slate-800 leading-loose">{children}</p>
         </div>
       </div>
     </div>
@@ -536,7 +536,7 @@ const Refs = ({ items = [], onOpenArticle }) => {
   if (!items.length) return null;
   return (
     <div className="flex flex-wrap items-center gap-1.5 mt-4">
-      <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-wider font-bold text-stone-500">
+      <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-wider font-bold text-slate-500">
         <BookOpen className="w-3 h-3" />
         근거
       </span>
@@ -544,7 +544,7 @@ const Refs = ({ items = [], onOpenArticle }) => {
         <button
           key={a}
           onClick={() => onOpenArticle?.(a)}
-          className="text-xs text-stone-600 hover:text-amber-700 bg-stone-100 hover:bg-amber-50 border border-stone-200 hover:border-amber-300 px-2 py-0.5 rounded-sm transition-colors"
+          className="text-xs text-slate-600 hover:text-amber-700 bg-slate-100 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 px-2 py-0.5 rounded-sm transition-colors"
         >
           {a}
         </button>
@@ -555,10 +555,10 @@ const Refs = ({ items = [], onOpenArticle }) => {
 
 /* 「용어 풀이」 묶음 — 섹션 본문 끝에 두는 접히는 박스 모음 */
 const Glossary = ({ children }) => (
-  <div className="mt-5 bg-stone-50 border border-stone-200 rounded-md divide-y divide-stone-200 overflow-hidden">
-    <div className="flex items-center gap-1.5 px-4 py-2.5 bg-stone-100/50">
-      <HelpCircle className="w-3.5 h-3.5 text-stone-500" />
-      <span className="text-[11px] uppercase tracking-wider font-bold text-stone-600">
+  <div className="mt-5 bg-slate-50 border border-slate-200 rounded-xl divide-y divide-slate-200 overflow-hidden">
+    <div className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100/50">
+      <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
+      <span className="text-[11px] uppercase tracking-wider font-bold text-slate-600">
         용어 풀이
       </span>
     </div>
@@ -568,11 +568,11 @@ const Glossary = ({ children }) => (
 
 const Term = ({ word, children }) => (
   <details className="group">
-    <summary className="flex items-start gap-2 px-4 py-3 cursor-pointer hover:bg-white text-[14px] text-stone-800 font-semibold list-none">
-      <ChevronDown className="w-4 h-4 text-stone-500 flex-shrink-0 mt-0.5 transition-transform group-open:rotate-0 -rotate-90" />
+    <summary className="flex items-start gap-2 px-4 py-3 cursor-pointer hover:bg-white text-[14px] text-slate-800 font-semibold list-none">
+      <ChevronDown className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5 transition-transform group-open:rotate-0 -rotate-90" />
       <span className="flex-1">{word}</span>
     </summary>
-    <div className="px-4 pb-4 pl-10 space-y-2 text-[14px] text-stone-700 leading-loose">
+    <div className="px-4 pb-4 pl-10 space-y-2 text-[14px] text-slate-700 leading-loose">
       {children}
     </div>
   </details>

@@ -45,7 +45,7 @@ export const SalesScript = ({ accent = "amber", opening, detail = [], objections
   return (
     <div className={cn("rounded-md border p-4 print:hidden", ac.box)}>
       <div className="mb-2.5 flex items-center justify-between gap-2">
-        <h4 className="flex items-center gap-1.5 text-sm font-bold text-stone-900">
+        <h4 className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
           <MessageSquareQuote className={cn("h-4 w-4", ac.icon)} />
           고객 안내 멘트
         </h4>
@@ -55,8 +55,8 @@ export const SalesScript = ({ accent = "amber", opening, detail = [], objections
           className={cn(
             "inline-flex items-center gap-1 rounded-sm border px-2 py-1 text-[11px] font-semibold transition-colors",
             copied
-              ? "border-stone-400 bg-white text-stone-700"
-              : "border-stone-300 bg-white text-stone-600 hover:border-stone-400"
+              ? "border-slate-400 bg-white text-slate-700"
+              : "border-slate-300 bg-white text-slate-600 hover:border-slate-400"
           )}
         >
           {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
@@ -66,7 +66,7 @@ export const SalesScript = ({ accent = "amber", opening, detail = [], objections
 
       {/* 처음 꺼내는 한 마디 */}
       <blockquote
-        className={cn("border-l-[3px] bg-white/70 px-3.5 py-3 text-[14px] font-semibold leading-relaxed text-stone-900", ac.quote)}
+        className={cn("border-l-[3px] bg-white/70 px-3.5 py-3 text-[14px] font-semibold leading-relaxed text-slate-900", ac.quote)}
       >
         {opening}
       </blockquote>
@@ -77,7 +77,7 @@ export const SalesScript = ({ accent = "amber", opening, detail = [], objections
           {detail.map((d, i) => (
             <p
               key={i}
-              className="rounded-sm bg-white/50 px-3.5 py-2 text-[13px] leading-relaxed text-stone-800"
+              className="rounded-sm bg-white/50 px-3.5 py-2 text-[13px] leading-relaxed text-slate-800"
             >
               {d}
             </p>
@@ -88,28 +88,28 @@ export const SalesScript = ({ accent = "amber", opening, detail = [], objections
       {/* 되묻는 질문 대응 — 필요할 때만 펼친다 */}
       {objections.length > 0 && (
         <div className="mt-3">
-          <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-stone-500">
+          <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
             이렇게 되물으시면
           </div>
           <div className="space-y-1">
             {objections.map((o, i) => {
               const open = openIdx === i;
               return (
-                <div key={i} className="overflow-hidden rounded-sm border border-stone-200 bg-white">
+                <div key={i} className="overflow-hidden rounded-sm border border-slate-200 bg-white">
                   <button
                     onClick={() => setOpenIdx(open ? null : i)}
-                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-stone-50"
+                    className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-slate-50"
                   >
-                    <span className="text-[12.5px] font-semibold text-stone-800">"{o.q}"</span>
+                    <span className="text-[12.5px] font-semibold text-slate-800">"{o.q}"</span>
                     <ChevronDown
                       className={cn(
-                        "h-3.5 w-3.5 flex-shrink-0 text-stone-400 transition-transform",
+                        "h-3.5 w-3.5 flex-shrink-0 text-slate-400 transition-transform",
                         open && "rotate-180"
                       )}
                     />
                   </button>
                   {open && (
-                    <p className="border-t border-stone-100 px-3 py-2 text-[12.5px] leading-relaxed text-stone-700">
+                    <p className="border-t border-slate-100 px-3 py-2 text-[12.5px] leading-relaxed text-slate-700">
                       {o.a}
                     </p>
                   )}
