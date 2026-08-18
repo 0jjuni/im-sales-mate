@@ -24,6 +24,15 @@ function googleNewsRss_(query) {
   return 'https://news.google.com/rss/search?q=' + encodeURIComponent(query) + '&hl=ko&gl=KR&ceid=KR:ko';
 }
 const RSS_FEEDS = [
+  /* 1차 출처(규제기관 보도자료) — 사실관계 정확. 한글이 깨지면 인코딩 이슈이므로
+     parseRss_의 getContentText()를 getContentText('EUC-KR')로 바꿔 본다.
+     피드 파싱이 실패해도 collectAndDraft가 해당 피드만 건너뛰므로 나머지는 정상 동작. */
+  { name: '금융위 보도자료', url: 'https://www.fsc.go.kr/about/fsc_bbs_rss/?fid=0111' },
+  // 참고: 한국은행은 RSS 대신 뉴스레터만 제공(https://www.bok.or.kr, menuNo=200172),
+  //       기획재정부는 국문 RSS가 불명확하고 영문 RSS만 확인됨
+  //       (http://english.moef.go.kr/pc/engmosfrss.do?boardCd=N0001).
+
+  /* 보조 소스: Google News 키워드 검색(무료·안정적, 건수 많음). 창구 관심 주제 위주. */
   { name: '금리',     url: googleNewsRss_('한국은행 기준금리 금통위') },
   { name: '대출규제', url: googleNewsRss_('DSR 가계대출 규제') },
   { name: '세제',     url: googleNewsRss_('세법개정 ISA 연금저축 세액공제') },
@@ -172,7 +181,20 @@ function summarizeWithGemini_(item) {
 }
 
 // ── ⑥ 웹앱: published 행만 BriefingShape JSON으로 서빙 ────────
-function doGet() {
+function doGet(e) {
+  /* 접근토큰(선택) — 스크립트 속성 ACCESS_TOKEN을 넣으면 ?token=값 이 일치해야 응답한다.
+     ⚠ 프론트 번들에 노출되므로 완전한 보안은 아니고, 캐주얼 접근·크롤링 차단 수준.
+     실서비스의 진짜 접근통제는 자체 서버 프록시로 해야 한다. */
+  const required = PropertiesService.getScriptProperties().getProperty('ACCESS_TOKEN');
+  if (required) {
+    const provided = e && e.parameter && e.parameter.token;
+    if (provided !== required) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ error: 'unauthorized' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
   const sh = getSheet_();
   const rows = sh.getDataRange().getValues();
   rows.shift(); // 헤더 제거
