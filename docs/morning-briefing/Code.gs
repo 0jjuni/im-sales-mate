@@ -41,7 +41,19 @@ const RSS_FEEDS = [
 
 // ── 유틸 ─────────────────────────────────────────────────────
 function getSheet_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  /* 시트에 연결된(bound) 스크립트면 getActiveSpreadsheet()가 시트를 준다.
+     독립(standalone) 스크립트면 null이므로, 스크립트 속성 SPREADSHEET_ID로 연다. */
+  let ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) {
+    const id = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
+    if (!id) {
+      throw new Error(
+        '시트에 연결돼 있지 않습니다. 시트의 [확장 프로그램 → Apps Script]로 만들거나, ' +
+        '스크립트 속성 SPREADSHEET_ID에 시트 ID(시트 URL의 /d/ 와 /edit 사이 문자열)를 넣으세요.'
+      );
+    }
+    ss = SpreadsheetApp.openById(id);
+  }
   let sh = ss.getSheetByName(SHEET_NAME);
   if (!sh) {
     sh = ss.insertSheet(SHEET_NAME);

@@ -21,8 +21,14 @@ RSS 수집 → Gemini 요약 → 시트 draft 적재 → [담당자 검수 → p
 
 ## 2. Apps Script 붙여넣기
 
-1. 시트에서 **확장 프로그램 → Apps Script**.
+1. **시트 안에서** [확장 프로그램 → Apps Script]로 연다. (이렇게 하면 스크립트가 시트에 자동 연결됨)
 2. `Code.gs`의 내용을 전부 붙여넣고 저장.
+
+> **`Cannot read properties of null (getSheetByName)` 에러가 나면?**
+> 스크립트가 시트에 연결돼 있지 않은 것(독립 스크립트로 만든 경우). 둘 중 하나로 해결:
+> - 위 1번처럼 **시트 안에서** 새로 만들거나,
+> - 스크립트 속성에 **`SPREADSHEET_ID`** 를 추가한다. 값은 시트 URL의
+>   `https://docs.google.com/spreadsheets/d/`**`이 부분`**`/edit` 이다.
 
 ## 3. Gemini API 키 발급·등록
 
