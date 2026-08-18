@@ -12,6 +12,7 @@ import {
 import { ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { ddayOf } from "./useFollowups";
 import { toISO, isShared } from "./parts";
+import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 
 /* 월 달력 — 날짜 칸 안에 예정 건을 직접 보여 주고, 끌어서 다른 날짜로 옮길 수 있다.
@@ -49,7 +50,7 @@ const ItemBar = ({ item }) => {
         item.memo
       }\n끌어서 날짜 변경`}
       className={cn(
-        "block cursor-grab truncate rounded-sm px-1.5 py-1 text-[11px] font-medium leading-tight active:cursor-grabbing",
+        "block cursor-grab truncate rounded-md px-1.5 py-1 text-[11px] font-medium leading-tight transition-shadow hover:shadow-sm active:cursor-grabbing",
         itemTone(item),
         shared && "border-l-2 border-teal-500",
         isDragging && "opacity-30"
@@ -169,9 +170,9 @@ export function MonthCalendar({ items, selectedDate, onSelectDate, onMoveItem })
       onDragCancel={() => setDragging(null)}
       onDragEnd={handleDragEnd}
     >
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+      <div className={cn(CARD, "overflow-hidden")}>
         {/* 월 이동 */}
-        <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2.5">
+        <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2.5">
           <div className="flex items-center gap-1">
             <button
               onClick={() => move(-1)}
@@ -205,13 +206,13 @@ export function MonthCalendar({ items, selectedDate, onSelectDate, onMoveItem })
         </div>
 
         {/* 요일 */}
-        <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50">
+        <div className="grid grid-cols-7 border-b border-slate-100 bg-slate-50/60">
           {DOW.map((d, i) => (
             <div
               key={d}
               className={cn(
-                "py-2 text-center text-[12px] font-bold",
-                i === 0 ? "text-rose-500" : i === 6 ? "text-blue-500" : "text-slate-500"
+                "py-2 text-center text-[11px] font-semibold tracking-wide",
+                i === 0 ? "text-rose-400" : i === 6 ? "text-blue-400" : "text-slate-400"
               )}
             >
               {d}

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, StickyNote, Search, X, ShieldAlert, Lock, Users } from "lucide-react";
+import { CalendarDays, StickyNote, Search, X, ShieldAlert, Lock, Users, PlusCircle, CalendarClock } from "lucide-react";
 import { HubShell } from "../HubShell";
 import { HubLink } from "@shared/components/HubLink";
 import { useFollowups } from "./useFollowups";
 import { MonthCalendar } from "./MonthCalendar";
 import { FollowupRow, FollowupForm, PrivacyNotice, fmtDate, toISO, isShared } from "./parts";
+import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 
 /* 고객 후속 관리 전체 화면.
@@ -81,10 +82,15 @@ export default function FollowupsPage() {
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <HubLink compact className="mb-2" />
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
-            고객 후속 관리
-          </h1>
-          <p className="mt-0.5 text-[12px] text-slate-500">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-im-500 to-im-600 text-white shadow-sm shadow-im-600/25 ring-1 ring-inset ring-white/20">
+              <CalendarDays className="h-[18px] w-[18px]" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
+              고객 후속 관리
+            </h1>
+          </div>
+          <p className="mt-1.5 max-w-2xl text-[12px] text-slate-500">
             상담 중 나온 약속과 고객 메모를 고객번호로 기록하고 다시 찾습니다. 지점이 함께 챙길 건은
             공유로 올립니다.
           </p>
@@ -128,7 +134,7 @@ export default function FollowupsPage() {
       </div>
 
       {searchResults ? (
-        <div className="rounded-lg border border-slate-200 bg-white">
+        <div className={cn(CARD, "overflow-hidden")}>
           <div className="border-b border-slate-100 px-3 py-2 text-[12px] text-slate-600">
             「<span className="font-bold text-slate-900">{q}</span>」 검색 결과{" "}
             <span className="font-bold text-im-700">{searchResults.length}건</span>
@@ -212,7 +218,7 @@ export default function FollowupsPage() {
               </div>
 
               <div className="space-y-3 lg:col-span-2">
-                <div className="rounded-lg border border-slate-200 bg-white">
+                <div className={cn(CARD, "overflow-hidden")}>
                   <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-3 py-2.5">
                     <span className="text-[13px] font-bold text-slate-900">
                       전체 목록
@@ -248,18 +254,25 @@ export default function FollowupsPage() {
                   )}
                 </div>
 
-                <div className="rounded-lg border border-slate-200 bg-white p-3">
-                  <div className="mb-2 text-[12px] font-bold text-slate-700">
-                    {fmtDate(selectedDate)}에 기록 추가
+                <div className={cn(CARD, "overflow-hidden")}>
+                  <div className="flex items-center gap-2 border-b border-slate-100 bg-im-50/50 px-3.5 py-2.5">
+                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-im-600 text-white">
+                      <PlusCircle className="h-3.5 w-3.5" />
+                    </span>
+                    <div className="text-[12.5px] font-bold text-slate-800">
+                      <span className="text-im-700">{fmtDate(selectedDate)}</span>에 기록 추가
+                    </div>
                   </div>
-                  <FollowupForm onAdd={add} defaultDate={selectedDate} fixedType="followup" />
+                  <div className="p-3.5">
+                    <FollowupForm onAdd={add} defaultDate={selectedDate} fixedType="followup" />
+                  </div>
                 </div>
               </div>
             </div>
           ) : (
             <div className="grid gap-3 lg:grid-cols-5">
               <div className="lg:col-span-3">
-                <div className="rounded-lg border border-slate-200 bg-white">
+                <div className={cn(CARD, "overflow-hidden")}>
                   <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2.5">
                     <span className="text-[13px] font-bold text-slate-900">고객 메모</span>
                     <span className="text-[11px] text-slate-400">{visibleNotes.length}건</span>
@@ -280,9 +293,16 @@ export default function FollowupsPage() {
                 </div>
               </div>
               <div className="lg:col-span-2">
-                <div className="rounded-lg border border-slate-200 bg-white p-3">
-                  <div className="mb-2 text-[12px] font-bold text-slate-700">고객 메모 추가</div>
-                  <FollowupForm onAdd={add} fixedType="note" />
+                <div className={cn(CARD, "overflow-hidden")}>
+                  <div className="flex items-center gap-2 border-b border-slate-100 bg-violet-50/50 px-3.5 py-2.5">
+                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-violet-600 text-white">
+                      <PlusCircle className="h-3.5 w-3.5" />
+                    </span>
+                    <div className="text-[12.5px] font-bold text-slate-800">고객 메모 추가</div>
+                  </div>
+                  <div className="p-3.5">
+                    <FollowupForm onAdd={add} fixedType="note" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -290,7 +310,7 @@ export default function FollowupsPage() {
 
           {/* 완료된 건 */}
           {view === "calendar" && visibleDone.length > 0 && (
-            <details className="mt-3 rounded-lg border border-slate-200 bg-white">
+            <details className={cn(CARD, "mt-3 overflow-hidden")}>
               <summary className="cursor-pointer px-3 py-2.5 text-[12px] font-bold text-slate-700">
                 완료 {visibleDone.length}건
               </summary>
