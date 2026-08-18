@@ -312,6 +312,27 @@ export const RefundSimulator = ({ onOpenArticle }) => {
             </div>
           </div>
 
+          {/* 가장 유리한 경우 — 대표 결과 */}
+          <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-5 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
+                  가장 많이 받는 경우
+                </div>
+                <div className="mt-1 text-[32px] font-black leading-none tracking-tight text-amber-700">
+                  {formatKRW(result.best.refund)}
+                </div>
+                <p className="mt-2 text-[13px] leading-relaxed text-slate-600">
+                  {result.best.title} · 납부원금 대비 {result.best.pctGross >= 0 ? "+" : ""}
+                  {result.best.pctGross.toFixed(1)}%. 아래 사유에 따라 금액이 달라집니다.
+                </p>
+              </div>
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-sm">
+                <Sparkles className="h-5 w-5" />
+              </div>
+            </div>
+          </div>
+
           {/* 사유별 환급금 카드 4종 */}
           <div className="space-y-2.5">
             {result.cases.map((c) => (
@@ -344,12 +365,12 @@ export const RefundSimulator = ({ onOpenArticle }) => {
             </h4>
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
-                <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#78716c" }} />
-                <YAxis tickFormatter={(v) => formatKRWShort(v)} tick={{ fontSize: 10, fill: "#78716c" }} />
-                <Tooltip formatter={(v) => formatKRW(v)} contentStyle={{ fontSize: 12, borderRadius: 4, border: "1px solid #e7e5e4" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#64748b" }} />
+                <YAxis tickFormatter={(v) => formatKRWShort(v)} tick={{ fontSize: 10, fill: "#64748b" }} />
+                <Tooltip formatter={(v) => formatKRW(v)} contentStyle={{ fontSize: 12, borderRadius: 4, border: "1px solid #e2e8f0" }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="원금" fill="#a8a29e" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="원금" fill="#94a3b8" radius={[2, 2, 0, 0]} />
                 <Bar dataKey="추정 환급금" fill="#f59e0b" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -420,12 +441,12 @@ const CaseCard = ({ data, isBest, onOpenArticle }) => {
   return (
     <div
       className={cn(
-        "border-2 rounded-xl p-4 transition-colors",
+        "rounded-xl p-4 shadow-sm transition-colors",
         isBest
-          ? "bg-emerald-50 border-emerald-400"
+          ? "border-2 border-emerald-400 bg-emerald-50"
           : isLoss
-          ? "bg-slate-50 border-slate-200"
-          : "bg-white border-slate-200"
+          ? "border border-slate-200 bg-slate-50"
+          : "border border-slate-200 bg-white"
       )}
     >
       <div className="flex items-start justify-between gap-3 mb-2">

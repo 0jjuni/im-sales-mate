@@ -72,7 +72,7 @@ export const TaxCreditCalculator = () => {
     /* 납입액 대비 실제 환급률 — 배분이 어긋나면 공제율보다 떨어진다 */
     const effectiveRate = totalPaid > 0 ? credit / totalPaid : 0;
 
-    const chartData = [{ name: "현재", value: credit, fill: "#a8a29e" }];
+    const chartData = [{ name: "현재", value: credit, fill: "#94a3b8" }];
     if (reallocGain > 0)
       chartData.push({ name: "초과분 IRP 이동", value: optCredit, fill: "#8b5cf6" });
     if (roomGain > 0)
@@ -317,31 +317,26 @@ export const TaxCreditCalculator = () => {
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
             <SectionTitle sub="연말정산 시 환급 예상액">추정 결과</SectionTitle>
 
-            <div className="mt-3 rounded-xl bg-violet-50/50 border-2 border-violet-300 p-4">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-violet-700 mb-1">
-                예상 환급액
+            <div className="mt-3 rounded-xl border border-violet-200 bg-violet-50/60 p-5 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-violet-700">
+                    예상 환급액
+                  </div>
+                  <div className="mt-1 text-[38px] font-black leading-none tracking-tight tabular-nums text-violet-700">
+                    {formatKRW(result.credit)}
+                  </div>
+                  <p className="mt-2 text-[13px] leading-relaxed text-slate-600">
+                    공제대상 {formatKRW(result.eligible)} × {(result.rate * 100).toFixed(1)}%
+                    {result.totalPaid > 0 && (
+                      <> · 납입액 대비 실효 {(result.effectiveRate * 100).toFixed(1)}%</>
+                    )}
+                  </p>
+                </div>
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-violet-600 text-white shadow-sm">
+                  <Sparkles className="h-5 w-5" />
+                </div>
               </div>
-              <div className="text-3xl font-black text-slate-900 tabular-nums">
-                {formatKRW(result.credit)}
-              </div>
-              <div className="text-[12px] text-slate-600 mt-1">
-                공제대상 {formatKRW(result.eligible)} × {(result.rate * 100).toFixed(1)}%
-                {result.totalPaid > 0 && (
-                  <> · 납입액 대비 실효 {(result.effectiveRate * 100).toFixed(1)}%</>
-                )}
-              </div>
-
-              <button
-                onClick={() => window.print()}
-                className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold transition-colors"
-                title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
-              >
-                <Printer className="w-4 h-4" />
-                <span>상담 자료 인쇄</span>
-                <span className="text-[11px] font-normal text-slate-300 hidden sm:inline">
-                  PDF 저장 가능 · 디스클레이머·입력 조건 포함
-                </span>
-              </button>
             </div>
 
             <div className="mt-3 grid grid-cols-2 gap-2 text-[12px]">
@@ -436,6 +431,18 @@ export const TaxCreditCalculator = () => {
             )}
           </div>
 
+          <button
+            onClick={() => window.print()}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold shadow-sm transition-all hover:shadow-md"
+            title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
+          >
+            <Printer className="w-4 h-4" />
+            <span>상담 자료 인쇄</span>
+            <span className="text-[11px] font-normal text-slate-300 hidden sm:inline">
+              PDF 저장 가능 · 디스클레이머·입력 조건 포함
+            </span>
+          </button>
+
           {result.chartData.length > 1 && (
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
               <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
@@ -447,21 +454,21 @@ export const TaxCreditCalculator = () => {
                   layout="vertical"
                   margin={{ left: 0, right: 40, top: 5, bottom: 5 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis
                     type="number"
                     tickFormatter={(v) => formatKRWShort(v)}
-                    tick={{ fontSize: 10, fill: "#78716c" }}
+                    tick={{ fontSize: 10, fill: "#64748b" }}
                   />
                   <YAxis
                     type="category"
                     dataKey="name"
-                    tick={{ fontSize: 11, fill: "#44403c" }}
+                    tick={{ fontSize: 11, fill: "#334155" }}
                     width={110}
                   />
                   <Tooltip
                     formatter={(v) => formatKRW(v)}
-                    contentStyle={{ fontSize: 12, borderRadius: 4, border: "1px solid #e7e5e4" }}
+                    contentStyle={{ fontSize: 12, borderRadius: 4, border: "1px solid #e2e8f0" }}
                   />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                     {result.chartData.map((entry, i) => (

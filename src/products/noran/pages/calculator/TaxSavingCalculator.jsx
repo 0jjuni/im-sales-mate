@@ -243,72 +243,87 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
             </div>
           ) : (
             <>
-              <div className="bg-amber-50/50 border-2 border-amber-400 rounded-xl p-6">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <div className="text-xs uppercase tracking-wider text-amber-700 font-bold mb-1">
-                      추정 절세액
+              {/* 핵심 결과 — 추정 절세액 */}
+              <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-5 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
+                      추정 절세액 · 연간
                     </div>
-                    <div className="text-4xl font-black text-slate-900 tracking-tight">
+                    <div className="mt-1 text-[38px] font-black leading-none tracking-tight text-amber-700">
                       {formatKRW(result.taxSaving)}
-                      <span className="text-base font-normal text-slate-500 ml-1">
-                        /년
-                      </span>
                     </div>
-                    <div className="text-sm text-slate-600 mt-1">
-                      월 평균 약 {formatKRW(result.monthlyTaxSaving)}
-                    </div>
+                    <p className="mt-2 text-[13px] leading-relaxed text-slate-600">
+                      월 평균 약 {formatKRW(result.monthlyTaxSaving)} 돌려받는 셈입니다.
+                    </p>
                   </div>
-                  <Coins className="w-10 h-10 text-amber-500" />
-                </div>
-
-                <button
-                  onClick={() => window.print()}
-                  className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold transition-colors"
-                  title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
-                >
-                  <Printer className="w-4 h-4" />
-                  <span>상담 자료 인쇄</span>
-                  <span className="text-[11px] font-normal text-slate-300 hidden sm:inline">
-                    PDF 저장 가능 · 디스클레이머·입력 조건 포함
-                  </span>
-                </button>
-
-                <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-amber-200">
-                  <div>
-                    <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
-                      연 납입액
-                    </div>
-                    <div className="text-base font-bold text-slate-900">
-                      {formatKRW(result.annualPayment)}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
-                      소득공제 한도
-                    </div>
-                    <div className="text-base font-bold text-slate-900">
-                      {formatKRW(result.deductionLimit)}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
-                      실제 공제액
-                    </div>
-                    <div className="text-base font-bold text-slate-900">
-                      {formatKRW(result.actualDeduction)}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">
-                      추정 한계세율
-                    </div>
-                    <div className="text-base font-bold text-slate-900">
-                      {(result.marginalRate * 100).toFixed(1)}%
-                    </div>
+                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-sm">
+                    <Coins className="h-5 w-5" />
                   </div>
                 </div>
               </div>
+
+              {/* 월 부금 vs 실부담 */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <div className="text-[12px] font-bold text-slate-500">월 부금</div>
+                  <div className="mt-2 text-[19px] font-bold tabular-nums text-slate-900">
+                    {formatKRW(monthlyAmount)}
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-slate-400">매달 납입액</div>
+                </div>
+                <div className="relative rounded-xl border-2 border-amber-400 bg-white p-4 shadow-sm">
+                  <span className="absolute -top-2 left-4 rounded-full bg-amber-500 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-sm">
+                    실부담
+                  </span>
+                  <div className="text-[12px] font-bold text-amber-700">절세 반영 후</div>
+                  <div className="mt-2 text-[19px] font-bold tabular-nums text-amber-700">
+                    {formatKRW(monthlyAmount - result.monthlyTaxSaving)}
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-slate-400">월 환산 절세 차감</div>
+                </div>
+              </div>
+
+              {/* 부가 지표 */}
+              <div className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div>
+                  <div className="text-[11px] text-slate-400">연 납입액</div>
+                  <div className="text-[14px] font-bold tabular-nums text-slate-900">
+                    {formatKRW(result.annualPayment)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] text-slate-400">소득공제 한도</div>
+                  <div className="text-[14px] font-bold tabular-nums text-slate-900">
+                    {formatKRW(result.deductionLimit)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] text-slate-400">실제 공제액</div>
+                  <div className="text-[14px] font-bold tabular-nums text-slate-900">
+                    {formatKRW(result.actualDeduction)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] text-slate-400">추정 한계세율</div>
+                  <div className="text-[14px] font-bold tabular-nums text-slate-900">
+                    {(result.marginalRate * 100).toFixed(1)}%
+                  </div>
+                </div>
+              </div>
+
+              {/* 인쇄 */}
+              <button
+                onClick={() => window.print()}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold shadow-sm transition-all hover:shadow-md"
+                title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
+              >
+                <Printer className="w-4 h-4" />
+                <span>상담 자료 인쇄</span>
+                <span className="text-[11px] font-normal text-slate-300 hidden sm:inline">
+                  PDF 저장 가능 · 디스클레이머·입력 조건 포함
+                </span>
+              </button>
 
               <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
                 <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
@@ -320,16 +335,16 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
                     layout="vertical"
                     margin={{ left: 0, right: 30, top: 5, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis
                       type="number"
                       tickFormatter={(v) => formatKRWShort(v)}
-                      tick={{ fontSize: 10, fill: "#78716c" }}
+                      tick={{ fontSize: 10, fill: "#64748b" }}
                     />
                     <YAxis
                       type="category"
                       dataKey="name"
-                      tick={{ fontSize: 11, fill: "#44403c" }}
+                      tick={{ fontSize: 11, fill: "#334155" }}
                       width={75}
                     />
                     <Tooltip
@@ -337,7 +352,7 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
                       contentStyle={{
                         fontSize: 12,
                         borderRadius: 4,
-                        border: "1px solid #e7e5e4",
+                        border: "1px solid #e2e8f0",
                       }}
                     />
                     <Bar dataKey="value" radius={[0, 4, 4, 0]}>

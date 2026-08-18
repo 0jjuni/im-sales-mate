@@ -413,6 +413,27 @@ export const ProductCompare = ({ onOpenArticle }) => {
             </div>
           </div>
 
+          {/* 가장 유리한 상품 — 대표 결과 */}
+          <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-5 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
+                  가장 유리한 상품
+                </div>
+                <div className="mt-1 text-[22px] font-black leading-tight tracking-tight text-amber-700">
+                  {result.best.name}
+                </div>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-slate-600">
+                  총 혜택 약 <strong className="text-slate-900">{formatKRW(result.best.total)}</strong> · 납부원금 대비 +
+                  {(((result.best.total - result.totalPrincipal) / result.totalPrincipal) * 100).toFixed(1)}%. 적금·연금저축과 비교한 결과입니다.
+                </p>
+              </div>
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-sm">
+                <Sparkles className="h-5 w-5" />
+              </div>
+            </div>
+          </div>
+
           {/* 상품별 카드 3종 */}
           <div className="space-y-2.5">
             {result.products.map((p) => (
@@ -443,10 +464,10 @@ export const ProductCompare = ({ onOpenArticle }) => {
             </h4>
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
-                <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#44403c" }} interval={0} angle={-12} textAnchor="end" height={70} />
-                <YAxis tickFormatter={(v) => formatKRWShort(v)} tick={{ fontSize: 10, fill: "#78716c" }} />
-                <Tooltip formatter={(v) => formatKRW(v)} contentStyle={{ fontSize: 12, borderRadius: 4, border: "1px solid #e7e5e4" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#334155" }} interval={0} angle={-12} textAnchor="end" height={70} />
+                <YAxis tickFormatter={(v) => formatKRWShort(v)} tick={{ fontSize: 10, fill: "#64748b" }} />
+                <Tooltip formatter={(v) => formatKRW(v)} contentStyle={{ fontSize: 12, borderRadius: 4, border: "1px solid #e2e8f0" }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Bar dataKey="이자수익" stackId="a" fill="#f59e0b" />
                 <Bar dataKey="절세액" stackId="a" fill="#10b981" />
@@ -569,8 +590,8 @@ const ProductCard = ({ data, isBest }) => {
   return (
     <div
       className={cn(
-        "border-2 rounded-xl p-4 transition-colors",
-        isBest ? "bg-emerald-50 border-emerald-400" : `${c.bg} ${c.border}`
+        "rounded-xl p-4 shadow-sm transition-colors",
+        isBest ? "border-2 border-emerald-400 bg-emerald-50" : `border ${c.border} ${c.bg}`
       )}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
@@ -894,17 +915,17 @@ const ProductComparePrint = ({
                 data={chartData}
                 margin={{ top: 5, right: 15, bottom: 25, left: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#d6d3d1" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" />
                 <XAxis
                   dataKey="name"
-                  tick={{ fontSize: 9, fill: "#44403c" }}
+                  tick={{ fontSize: 9, fill: "#334155" }}
                   interval={0}
                   angle={-12}
                   textAnchor="end"
                 />
                 <YAxis
                   tickFormatter={(v) => formatKRWShort(v)}
-                  tick={{ fontSize: 8, fill: "#78716c" }}
+                  tick={{ fontSize: 8, fill: "#64748b" }}
                   width={55}
                 />
                 <Legend wrapperStyle={{ fontSize: 9 }} />
