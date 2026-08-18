@@ -23,9 +23,14 @@ export const UtilitySlip = ({ title, rows = [], note, figure }) => {
         style={{ width: "148mm" }}
       >
         {/* 머리 */}
-        <div className="flex items-baseline justify-between border-b border-slate-900 pb-1">
-          <div className="text-[12px] font-black tracking-tight">{title}</div>
-          <div className="text-[8px] tracking-widest text-slate-500">iM뱅크</div>
+        <div className="border-b-2 border-slate-900 pb-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[7.5px] font-bold uppercase tracking-[0.2em] text-slate-500">
+              iM SalesMate · 창구 전표
+            </span>
+            <span className="text-[8px] tracking-widest text-slate-500">iM뱅크</span>
+          </div>
+          <div className="mt-0.5 text-[13px] font-black leading-tight tracking-tight">{title}</div>
         </div>
 
         {/* 항목 — figure가 있으면 왼쪽에 그림, 오른쪽에 항목 */}
@@ -42,7 +47,7 @@ export const UtilitySlip = ({ title, rows = [], note, figure }) => {
                   <span
                     className={
                       emphasis
-                        ? "block break-all text-[15px] font-black leading-tight tracking-[0.08em]"
+                        ? "block break-all rounded-sm border border-slate-300 bg-slate-50 px-2 py-1 text-[15px] font-black leading-tight tracking-[0.08em]"
                         : "block break-words leading-snug"
                     }
                   >

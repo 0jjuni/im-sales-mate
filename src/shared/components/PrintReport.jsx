@@ -71,7 +71,7 @@ export const PrintReport = ({
               <div className="text-[9px] tracking-widest text-slate-500 font-bold">
                 {brandLabel}
               </div>
-              <h1 className="text-base font-black text-slate-900 mt-0.5 leading-tight">
+              <h1 className="text-[17px] font-black text-slate-900 mt-0.5 leading-tight tracking-tight">
                 {title}
               </h1>
               {subtitle && (
@@ -124,46 +124,57 @@ export const PrintReport = ({
           </section>
         )}
 
-        {/* 추정 결과 */}
+        {/* 추정 결과 — 핵심 수치는 박스로 부각, 세부는 표로 */}
         {results.length > 0 && (
           <section className="mb-3 break-inside-avoid">
-            <h2 className="text-[10px] font-black uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-0.5 mb-1">
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-0.5 mb-1.5">
               추정 결과
             </h2>
-            <table className="w-full text-[11px]">
-              <tbody>
-                {results.map(({ label, value, emphasis, sub }, i) => (
-                  <tr
-                    key={i}
-                    className={
-                      emphasis ? ac.rowBorder : "border-b border-slate-100"
-                    }
-                  >
-                    <td
-                      className={`py-1 px-1.5 text-slate-600 w-2/5 align-top ${
-                        emphasis ? `font-bold ${ac.rowText}` : ""
-                      }`}
+
+            {/* 핵심(emphasis) 결과 — 고객이 가장 먼저 보는 숫자 */}
+            {results.some((r) => r.emphasis) && (
+              <div className="mb-2 flex flex-wrap gap-2">
+                {results
+                  .filter((r) => r.emphasis)
+                  .map(({ label, value, sub }, i) => (
+                    <div
+                      key={i}
+                      className={`min-w-[9rem] flex-1 border-2 ${ac.box} rounded-sm px-3 py-1.5 break-inside-avoid`}
                     >
-                      {label}
-                    </td>
-                    <td
-                      className={`py-1 px-1.5 ${
-                        emphasis
-                          ? `text-sm font-black ${ac.rowText}`
-                          : "text-slate-900 font-semibold"
-                      }`}
-                    >
-                      {value}
+                      <div className={`text-[9px] font-black uppercase tracking-wider ${ac.boxTitle}`}>
+                        {label}
+                      </div>
+                      <div className={`text-[18px] font-black leading-tight ${ac.rowText}`}>
+                        {value}
+                      </div>
                       {sub && (
-                        <div className="text-[10px] font-normal text-slate-600 mt-0.5">
-                          {sub}
-                        </div>
+                        <div className="mt-0.5 text-[9.5px] leading-snug text-slate-700">{sub}</div>
                       )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  ))}
+              </div>
+            )}
+
+            {/* 세부 내역 */}
+            {results.some((r) => !r.emphasis) && (
+              <table className="w-full text-[11px]">
+                <tbody>
+                  {results
+                    .filter((r) => !r.emphasis)
+                    .map(({ label, value, sub }, i) => (
+                      <tr key={i} className="border-b border-slate-100 last:border-b-0">
+                        <td className="py-1 pr-3 text-slate-600 w-2/5 align-top">{label}</td>
+                        <td className="py-1 text-slate-900 font-semibold">
+                          {value}
+                          {sub && (
+                            <div className="text-[10px] font-normal text-slate-600 mt-0.5">{sub}</div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            )}
           </section>
         )}
 
