@@ -7,7 +7,9 @@
 
 import { fetchMarketQuotes } from "./marketQuotes";
 
-/* 자동 수집 연동 시 사용할 엔드포인트 — 확정되면 여기만 설정 */
+/* 자동 수집 연동 엔드포인트 — Apps Script 웹앱 URL을 넣으면 실데이터로 전환.
+   설정 방법은 docs/morning-briefing/SETUP.md 참고.
+   비워두면(null) 아래 BRIEFING 목업을 그대로 쓴다. */
 export const BRIEFING_ENDPOINT = null;
 
 /* BriefingShape:
@@ -96,21 +98,46 @@ const BRIEFING = {
   ],
 };
 
+/* 엔드포인트에서 발행된 뉴스를 가져온다. 없거나 형태가 어긋나면 null → 목업으로 후퇴.
+   창구에 쓰이는 정보라, 형태 검증에 실패하면 조용히 목업을 쓰는 편이 안전하다. */
+async function fetchLiveNews() {
+  if (!BRIEFING_ENDPOINT) return null;
+  try {
+    const res = await fetch(BRIEFING_ENDPOINT, { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const news = data?.news;
+    if (!Array.isArray(news) || news.length === 0) return null;
+    /* 각 항목이 최소 형태(headline·summary)를 갖췄는지 확인 — 부분 손상 방지 */
+    if (!news.every((n) => n && n.headline && n.summary)) return null;
+    return {
+      date: data.date ?? BRIEFING.date,
+      session: data.session ?? BRIEFING.session,
+      news,
+    };
+  } catch {
+    return null;
+  }
+}
+
 /* 브리핑을 가져온다. 성공 시 BriefingShape를 resolve.
-   지표는 실시간 조회, 뉴스는 위 상수를 그대로 쓴다. */
+   지표는 실시간 조회, 뉴스는 엔드포인트(있으면) 또는 목업. 어느 쪽이 실패해도 나머지는 보인다. */
 export async function fetchMorningBriefing() {
-  /* 시세 조회가 실패해도 뉴스는 보여야 하므로 실패를 삼키고 진행한다 */
-  const [quotes] = await Promise.all([
+  const [quotes, live] = await Promise.all([
     fetchMarketQuotes().catch(() => null),
-    new Promise((resolve) => setTimeout(resolve, 300)),
+    fetchLiveNews(),
   ]);
 
+  const base = live
+    ? { ...BRIEFING, date: live.date, session: live.session, news: live.news }
+    : BRIEFING;
+
   if (!quotes) {
-    return { ...BRIEFING, marketsLive: false };
+    return { ...base, marketsLive: false };
   }
 
   return {
-    ...BRIEFING,
+    ...base,
     markets: quotes.markets,
     marketsLive: true,
     marketsAsOf: quotes.asOf,
