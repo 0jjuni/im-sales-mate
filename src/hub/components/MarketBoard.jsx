@@ -4,6 +4,7 @@ import { cn } from "@shared/lib/format";
 
 /* 마켓 보드 — 주요 지표를 한 줄로 훑는 얇은 대시보드 스트립.
    시황 해석은 뉴스 카드가 담당하고, 여기는 숫자만 담백하게 보여준다.
+   구분선으로 나뉜 셀 구조 — 줄무늬 없이, 지표 수만큼만.
    등락 색은 국내 금융 관례(상승=빨강, 하락=파랑)를 따른다. */
 
 const ChangeBadge = ({ change }) => {
@@ -29,8 +30,12 @@ const ChangeBadge = ({ change }) => {
   );
 };
 
-const SkeletonChip = () => (
-  <div className="min-w-[7rem] flex-1 animate-pulse rounded-md bg-slate-100 py-5" />
+const SkeletonCell = () => (
+  <div className="min-w-[7.5rem] flex-1 px-4 py-3">
+    <div className="h-2.5 w-12 animate-pulse rounded bg-slate-100" />
+    <div className="mt-2 h-4 w-20 animate-pulse rounded bg-slate-100" />
+    <div className="mt-1.5 h-2.5 w-14 animate-pulse rounded bg-slate-100" />
+  </div>
 );
 
 const fmtAsOf = (d) => {
@@ -43,37 +48,32 @@ const fmtAsOf = (d) => {
 export function MarketBoard({ markets, status, live, asOf }) {
   const asOfText = fmtAsOf(asOf);
   return (
-    <section className={cn(CARD, "px-4 py-3")}>
-      <div className="mb-2 flex items-baseline justify-between gap-2">
+    <section className={cn(CARD, "overflow-hidden")}>
+      <div className="flex items-baseline justify-between gap-2 border-b border-slate-100 px-4 py-2.5">
         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
           마켓 보드
         </span>
-        <span className="text-[10px] text-slate-500">
+        <span className="text-[10px] text-slate-400">
           {live
             ? `${asOfText ? `${asOfText} ` : ""}종가 기준 · Yahoo Finance`
             : "예시 데이터 (시세 조회 실패)"}
         </span>
       </div>
 
-      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-0.5">
+      <div className="flex divide-x divide-slate-100 overflow-x-auto">
         {status !== "ready"
-          ? Array.from({ length: 6 }).map((_, i) => <SkeletonChip key={i} />)
-          : markets.map((m, i) => (
-              <div
-                key={m.label}
-                className={cn(
-                  "flex min-w-[7rem] flex-1 flex-col gap-0.5 rounded-md px-3 py-2",
-                  i % 2 === 0 ? "bg-slate-50" : "bg-white",
-                  "border border-slate-100"
-                )}
-              >
-                <span className="whitespace-nowrap text-[10px] font-medium uppercase tracking-wide text-slate-500">
+          ? Array.from({ length: 6 }).map((_, i) => <SkeletonCell key={i} />)
+          : markets.map((m) => (
+              <div key={m.label} className="min-w-[7.5rem] flex-1 px-4 py-3">
+                <span className="whitespace-nowrap text-[10px] font-medium uppercase tracking-wide text-slate-400">
                   {m.label}
                 </span>
-                <span className="text-[14px] font-bold tabular-nums text-slate-900">
+                <div className="mt-1 text-[16px] font-bold leading-none tabular-nums text-slate-900">
                   {m.value}
-                </span>
-                <ChangeBadge change={m.change} />
+                </div>
+                <div className="mt-1.5">
+                  <ChangeBadge change={m.change} />
+                </div>
               </div>
             ))}
       </div>

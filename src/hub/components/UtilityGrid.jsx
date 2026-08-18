@@ -21,7 +21,10 @@ export function UtilityGrid() {
           <Link
             key={tool.id}
             to={tool.to}
-            className={cn(CARD_INTERACTIVE, "flex items-start gap-3 p-4 hover:border-sky-300")}
+            className={cn(
+              CARD_INTERACTIVE,
+              "flex items-start gap-3 bg-gradient-to-br from-sky-50 to-transparent p-4 hover:border-sky-300"
+            )}
           >
             <div
               className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg shadow-sm transition-transform group-hover:scale-105 ${accent.icon}`}

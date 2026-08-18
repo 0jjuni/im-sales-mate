@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, ShieldAlert, CalendarDays } from "lucide-react";
+import { ArrowRight, ShieldAlert, CalendarDays, CalendarCheck, PenLine } from "lucide-react";
 import { useFollowups } from "../followups/useFollowups";
 import { FollowupRow, FollowupForm, PrivacyNotice } from "../followups/parts";
 import { CARD } from "@shared/lib/surface";
@@ -53,9 +53,15 @@ export function FollowupBoard() {
 
       {/* 임박한 건 미리보기 */}
       {preview.length === 0 ? (
-        <p className="px-3 py-5 text-center text-[12.5px] text-slate-400">
-          예정된 후속 연락이 없습니다. 상담 중 나온 약속을 아래에 기록해 두세요.
-        </p>
+        <div className="flex flex-col items-center gap-2.5 px-4 py-8 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-im-50 text-im-500">
+            <CalendarCheck className="h-6 w-6" />
+          </div>
+          <p className="text-[13px] font-semibold text-slate-600">예정된 후속 연락이 없습니다</p>
+          <p className="max-w-[22rem] text-[12px] leading-relaxed text-slate-400">
+            상담 중 나온 약속을 아래에 기록해 두면, 연락일이 다가올 때 여기서 먼저 챙길 수 있습니다.
+          </p>
+        </div>
       ) : (
         <ul className="divide-y divide-slate-100 py-1">
           {preview.map((item) => (
@@ -82,6 +88,10 @@ export function FollowupBoard() {
 
       {/* 빠른 기록 */}
       <div className="border-t border-slate-100 bg-slate-50/50 p-3">
+        <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <PenLine className="h-3 w-3" />
+          빠른 기록
+        </div>
         <FollowupForm onAdd={add} />
       </div>
 
