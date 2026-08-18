@@ -5,6 +5,8 @@
    ⚠ 개인정보 최소화 원칙: 고객번호와 메모만 저장하며,
    이름·주민번호·연락처 등 민감 개인정보는 입력받지 않는다(UI에서 안내·차단). */
 
+import { buildSeedItems } from "./seedFollowups";
+
 const STORAGE_KEY = "salesbridge.followups";
 const SCHEMA_VERSION = 1;
 
@@ -31,8 +33,18 @@ export const followupStore = {
     try {
       const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
       const migrated = migrate(raw);
-      if (!migrated) return { ...DEFAULT_STATE };
-      return { ...DEFAULT_STATE, ...migrated, version: SCHEMA_VERSION };
+      const state = migrated
+        ? { ...DEFAULT_STATE, ...migrated, version: SCHEMA_VERSION }
+        : { ...DEFAULT_STATE };
+
+      /* 데모: 기록이 하나도 없으면 예시로 채운다.
+         load()는 useState 초기화에서 불리므로 부작용(플래그 쓰기)을 두지 않는다 —
+         StrictMode가 초기화를 두 번 호출해도 같은 결과가 나오도록 순수하게 유지.
+         완료·메모 포함 기록이 하나라도 있으면 시드하지 않는다. */
+      if (state.items.length === 0) {
+        return { ...state, items: buildSeedItems() };
+      }
+      return state;
     } catch {
       return { ...DEFAULT_STATE };
     }
