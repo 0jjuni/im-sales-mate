@@ -14,7 +14,7 @@
 
 // ── 설정 ─────────────────────────────────────────────────────
 const SHEET_NAME = 'briefing';
-const GEMINI_MODEL = 'gemini-2.0-flash';   // 무료 티어. 필요 시 gemini-1.5-flash 등으로 교체
+const GEMINI_MODEL = 'gemini-3.6-flash';   // 모델은 단종될 수 있음. 404 뜨면 에러 메시지가 알려주는 최신명으로 교체
 const MAX_ITEMS_PER_RUN = 8;               // 한 번에 요약할 최대 뉴스 수(무료 쿼터 보호)
 const TZ = 'Asia/Seoul';
 
