@@ -13,9 +13,9 @@ import { fetchMarketQuotes } from "./marketQuotes";
 export const BRIEFING_ENDPOINT =
   "https://script.google.com/macros/s/AKfycbzYG7r1vMmMyLp0jquvndWvHhLx9lnf0ZWTSGUthJzNYhUNMF4tstYEiytT8DQbX6-dEQ/exec";
 
-const DEV_PROXY = "https://corsproxy.io/?url=";
-const briefingFetchUrl = () =>
-  import.meta.env.DEV ? DEV_PROXY + encodeURIComponent(BRIEFING_ENDPOINT) : "/api/briefing";
+/* 항상 같은 도메인의 /api/briefing 경유 — dev는 Vite 프록시(vite.config.js),
+   배포는 서버리스(api/briefing.js)가 Apps Script를 서버사이드로 대신 부른다(CORS 우회). */
+const briefingFetchUrl = () => "/api/briefing";
 
 /* 시트가 날짜를 Date로 자동변환해 긴 문자열로 올 수 있어 yyyy-mm-dd로 정규화 */
 const normalizeDate = (v) => {

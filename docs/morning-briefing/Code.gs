@@ -109,9 +109,12 @@ function collectAndDraft() {
     try {
       const ai = summarizeWithGemini_(it);
       if (!ai || ai.importance === 'skip' || !ai.summary) continue; // 막연·부적합은 건너뜀
+      const reportedAt = it.pubDate
+        ? Utilities.formatDate(new Date(it.pubDate), TZ, 'yyyy-MM-dd')
+        : today; // 보도 날짜(기사 pubDate). 없으면 수집일
       sh.appendRow([
         'auto_' + Utilities.getUuid().slice(0, 8),
-        today,
+        reportedAt,
         'draft',                       // 담당자 검수 전까지는 노출 안 됨
         ai.importance === 'high' ? 'high' : 'normal',
         ai.category || '기타',
@@ -141,12 +144,13 @@ function parseRss_(feed) {
   return items.map((item) => {
     const get = (t) => { const c = item.getChild(t); return c ? c.getText() : ''; };
     const pub = get('pubDate');
+    const srcEl = item.getChild('source'); // Google News RSS는 <source>에 언론사명이 들어있다
     return {
       title: get('title'),
       link: get('link'),
       description: get('description'),
       pubDate: pub ? new Date(pub).getTime() : 0,
-      source: feed.name,
+      source: srcEl ? srcEl.getText() : feed.name, // 실제 언론사(없으면 피드명)
     };
   });
 }
@@ -219,23 +223,29 @@ function doGet(e) {
   const rows = sh.getDataRange().getValues();
   rows.shift(); // 헤더 제거
 
-  const published = rows.filter((r) => String(r[2]).trim() === 'published' && r[5]);
+  /* 시트가 날짜를 Date로 자동변환할 수 있어 yyyy-MM-dd 문자열로 정규화 */
+  const norm = (v) => (v instanceof Date ? Utilities.formatDate(v, TZ, 'yyyy-MM-dd') : String(v).trim());
 
-  /* 가장 최근 발행일의 항목만 노출 — 옛 발행분이 시트에 남아 있어도 그날치만 나간다 */
-  const latestDate = published.map((r) => String(r[1])).filter(Boolean).sort().pop() || '';
-  const todays = latestDate ? published.filter((r) => String(r[1]) === latestDate) : published;
+  /* 최근 30일치 발행분만 최신순으로. 프론트가 이 중 최근 7일을 기본 노출하고 나머지는 접는다.
+     항목마다 보도 날짜(date)·출처(source)·원문 링크(sourceUrl)를 함께 내보낸다. */
+  const cutoff = Utilities.formatDate(new Date(Date.now() - 30 * 86400000), TZ, 'yyyy-MM-dd');
+  const news = rows
+    .filter((r) => String(r[2]).trim() === 'published' && r[5])
+    .map((r) => ({
+      id: String(r[0]),
+      date: norm(r[1]),
+      importance: String(r[3]) === 'high' ? 'high' : 'normal',
+      category: String(r[4]),
+      headline: String(r[5]),
+      summary: String(r[6]),
+      pbNote: String(r[7]),
+      source: String(r[8]),
+      sourceUrl: String(r[9]),
+    }))
+    .filter((n) => n.date >= cutoff)
+    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
-  const news = todays.map((r) => ({
-    id: String(r[0]),
-    importance: String(r[3]) === 'high' ? 'high' : 'normal',
-    category: String(r[4]),
-    headline: String(r[5]),
-    summary: String(r[6]),
-    pbNote: String(r[7]),
-    source: String(r[8]),
-  }));
-
-  const date = latestDate || Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd');
+  const date = news.length ? news[0].date : Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd');
 
   const payload = { date: date, session: '오늘의 브리핑', news: news };
   return ContentService

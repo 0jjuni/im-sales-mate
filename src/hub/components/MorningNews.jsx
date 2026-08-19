@@ -1,8 +1,12 @@
+import { useState } from "react";
 import {
   Sparkles,
   RefreshCw,
   AlertCircle,
   MessageSquareText,
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
@@ -11,7 +15,11 @@ import { cn } from "@shared/lib/format";
    금융 리서치 노트 톤: 채도 높은 배너 대신 흰 마스트헤드 + 타이포 위계.
    각 항목은 사실 요약(summary)과 「상담 포인트」(pbNote)를 분리해서
    "무슨 일이 있었나"와 "오늘 창구에서 어떤 의미인가"를 한눈에 잇는다.
-   필수(importance:high) 항목만 민트 좌측 강조로 시선을 먼저 붙든다. */
+   필수(importance:high) 항목만 민트 좌측 강조로 시선을 먼저 붙든다.
+
+   최근 7일치를 기본 노출하고, 그보다 오래된 것은 「지난 뉴스」로 접는다. */
+
+const WEEK = 7;
 
 const fmtDate = (iso) => {
   const d = new Date(iso + "T00:00:00");
@@ -20,8 +28,26 @@ const fmtDate = (iso) => {
   return `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()} (${day})`;
 };
 
+/* 항목의 보도 날짜 — 짧게 "8.19 (수)" */
+const fmtShort = (iso) => {
+  if (!iso) return null;
+  const d = new Date(iso + "T00:00:00");
+  if (isNaN(d)) return iso;
+  const day = ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
+  return `${d.getMonth() + 1}.${d.getDate()} (${day})`;
+};
+
+/* 오늘 기준 며칠 전. 날짜 없으면(목업 등) 0으로 봐서 최근으로 취급 */
+const daysAgo = (iso) => {
+  if (!iso) return 0;
+  const d = new Date(iso + "T00:00:00");
+  if (isNaN(d)) return 0;
+  return Math.floor((Date.now() - d.getTime()) / 86400000);
+};
+
 const NewsItem = ({ item }) => {
   const must = item.importance === "high";
+  const dateText = fmtShort(item.date);
   return (
     <li
       className={cn(
@@ -29,8 +55,8 @@ const NewsItem = ({ item }) => {
         must ? "border-im-500 bg-im-50/25" : "border-transparent"
       )}
     >
-      {/* 메타 라인 — 카테고리 주도, 필수는 우선 배지 */}
-      <div className="flex flex-wrap items-center gap-2">
+      {/* 메타 라인 — 필수·카테고리·출처(링크)·보도날짜 */}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         {must && (
           <span className="rounded-sm bg-im-500 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
             필수
@@ -39,16 +65,31 @@ const NewsItem = ({ item }) => {
         <span className="rounded-sm border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">
           {item.category}
         </span>
-        <span className="text-[10px] text-slate-400">{item.source}</span>
+        {item.source &&
+          (item.sourceUrl ? (
+            <a
+              href={item.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="원문 보기 (새 창)"
+              className="inline-flex items-center gap-0.5 text-[10px] text-slate-400 transition-colors hover:text-im-700 hover:underline"
+            >
+              {item.source}
+              <ExternalLink className="h-2.5 w-2.5" />
+            </a>
+          ) : (
+            <span className="text-[10px] text-slate-400">{item.source}</span>
+          ))}
+        {dateText && (
+          <span className="text-[10px] tabular-nums text-slate-400">· {dateText} 보도</span>
+        )}
       </div>
 
       {/* 헤드라인 + 요약 */}
       <h3 className="mt-2 text-[15px] font-bold leading-snug tracking-tight text-slate-900">
         {item.headline}
       </h3>
-      <p className="mt-1.5 text-[13px] leading-relaxed text-slate-600">
-        {item.summary}
-      </p>
+      <p className="mt-1.5 text-[13px] leading-relaxed text-slate-600">{item.summary}</p>
 
       {/* 상담 포인트 — 이 뉴스가 오늘 창구에서 갖는 의미 */}
       <div className="mt-3 flex gap-2.5 rounded-lg bg-im-50/60 px-3.5 py-2.5 ring-1 ring-inset ring-im-100/70">
@@ -72,7 +113,12 @@ const SkeletonItem = () => (
 );
 
 export function MorningNews({ data, status, onReload }) {
-  const mustCount = data?.news?.filter((n) => n.importance === "high").length ?? 0;
+  const [showOlder, setShowOlder] = useState(false);
+
+  const items = status === "ready" ? data?.news ?? [] : [];
+  const recent = items.filter((n) => daysAgo(n.date) <= WEEK);
+  const older = items.filter((n) => daysAgo(n.date) > WEEK);
+  const mustCount = recent.filter((n) => n.importance === "high").length;
 
   return (
     <section className={cn(CARD, "overflow-hidden")}>
@@ -93,7 +139,7 @@ export function MorningNews({ data, status, onReload }) {
             </div>
             <p className="mt-0.5 text-[12px] text-slate-500">
               {status === "ready" && data
-                ? `${fmtDate(data.date)} · ${data.session} · 필수 ${mustCount}건`
+                ? `${fmtDate(data.date)} · 최근 7일 · 필수 ${mustCount}건`
                 : "불러오는 중…"}
             </p>
           </div>
@@ -116,9 +162,41 @@ export function MorningNews({ data, status, onReload }) {
         </div>
       ) : (
         <ul className="divide-y divide-slate-100">
-          {status === "loading"
-            ? Array.from({ length: 3 }).map((_, i) => <SkeletonItem key={i} />)
-            : data.news.map((item) => <NewsItem key={item.id} item={item} />)}
+          {status === "loading" ? (
+            Array.from({ length: 3 }).map((_, i) => <SkeletonItem key={i} />)
+          ) : (
+            <>
+              {recent.map((item) => (
+                <NewsItem key={item.id} item={item} />
+              ))}
+
+              {recent.length === 0 && (
+                <li className="px-5 py-6 text-center text-[12.5px] text-slate-400">
+                  {older.length > 0
+                    ? "최근 7일 새 브리핑이 없습니다."
+                    : "표시할 브리핑이 없습니다."}
+                </li>
+              )}
+
+              {/* 지난 뉴스 — 7일보다 오래된 발행분을 접어둔다 */}
+              {older.length > 0 && (
+                <li className="border-l-[3px] border-transparent">
+                  <button
+                    onClick={() => setShowOlder((v) => !v)}
+                    className="flex w-full items-center justify-center gap-1.5 px-5 py-2.5 text-[12px] font-semibold text-slate-500 transition-colors hover:bg-slate-50 hover:text-im-700"
+                  >
+                    {showOlder ? (
+                      <ChevronUp className="h-3.5 w-3.5" />
+                    ) : (
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    )}
+                    {showOlder ? "지난 뉴스 접기" : `지난 뉴스 ${older.length}건 더 보기`}
+                  </button>
+                </li>
+              )}
+              {showOlder && older.map((item) => <NewsItem key={item.id} item={item} />)}
+            </>
+          )}
         </ul>
       )}
 
