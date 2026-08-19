@@ -221,7 +221,11 @@ function doGet(e) {
 
   const published = rows.filter((r) => String(r[2]).trim() === 'published' && r[5]);
 
-  const news = published.map((r) => ({
+  /* 가장 최근 발행일의 항목만 노출 — 옛 발행분이 시트에 남아 있어도 그날치만 나간다 */
+  const latestDate = published.map((r) => String(r[1])).filter(Boolean).sort().pop() || '';
+  const todays = latestDate ? published.filter((r) => String(r[1]) === latestDate) : published;
+
+  const news = todays.map((r) => ({
     id: String(r[0]),
     importance: String(r[3]) === 'high' ? 'high' : 'normal',
     category: String(r[4]),
@@ -231,8 +235,7 @@ function doGet(e) {
     source: String(r[8]),
   }));
 
-  const dates = published.map((r) => String(r[1])).filter(Boolean).sort();
-  const date = dates.length ? dates[dates.length - 1] : Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd');
+  const date = latestDate || Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd');
 
   const payload = { date: date, session: '오늘의 브리핑', news: news };
   return ContentService
