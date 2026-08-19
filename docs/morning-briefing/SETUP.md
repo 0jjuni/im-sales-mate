@@ -71,7 +71,9 @@ export const BRIEFING_ENDPOINT = "https://script.google.com/macros/s/…/exec";
 ```
 
 - 값이 있으면 앱이 그 엔드포인트에서 뉴스를 가져오고, **실패하거나 비어 있으면 기존 목업으로 자동 후퇴**한다.
-- 코드 수정·재배포 없이도 되돌리려면 `null`로 두면 된다.
+- CORS 때문에 **개발 서버는 corsproxy**로, **배포는 `api/briefing.js` 서버리스 함수**로 우회한다.
+  (그래서 URL을 바꾸면 `morningBriefing.js`와 `api/briefing.js` **두 곳**을 함께 고친다.)
+- 되돌리려면 `BRIEFING_ENDPOINT`를 `null`로 두면 목업으로 돌아간다.
 
 ---
 
