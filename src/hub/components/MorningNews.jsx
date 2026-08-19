@@ -8,9 +8,11 @@ import {
   ChevronDown,
   ChevronUp,
   LineChart,
+  CalendarClock,
 } from "lucide-react";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
+import { getEconomicCalendar } from "../data/economicCalendar";
 
 /* 오늘 아침 꼭 알아야 할 뉴스 — PB/VM 출근 브리핑.
    금융 리서치 노트 톤: 채도 높은 배너 대신 흰 마스트헤드 + 타이포 위계.
@@ -47,6 +49,8 @@ const PRODUCTS_BY_CATEGORY = {
   세제: ["ISA", "연금", "노란우산"],
   퇴직연금: ["연금·IRP"],
   "예금·수신": ["예금", "ISA"],
+  "투자·펀드": ["ISA"],
+  상속증여: ["연금", "노란우산"],
 };
 
 /* 마켓 데이터 → 오늘의 시황 한 줄 + PB 관점 메모.
@@ -184,6 +188,7 @@ export function MorningNews({ data, status, onReload }) {
   const older = items.filter((n) => daysAgo(n.date) > WEEK);
   const mustCount = recent.filter((n) => n.importance === "high").length;
   const market = status === "ready" ? marketSummary(data?.markets) : null;
+  const calendar = getEconomicCalendar();
 
   return (
     <section className={cn(CARD, "overflow-hidden")}>
@@ -228,6 +233,38 @@ export function MorningNews({ data, status, onReload }) {
           </div>
           <p className="mt-1 text-[12.5px] font-semibold text-slate-800">{market.line}</p>
           <p className="mt-0.5 text-[12px] leading-relaxed text-slate-600">{market.note}</p>
+        </div>
+      )}
+
+      {/* 다가오는 일정 — 주간 수동 관리 */}
+      {calendar.length > 0 && (
+        <div className="border-b border-slate-100 px-5 py-3">
+          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <CalendarClock className="h-3 w-3" />
+            다가오는 일정
+          </div>
+          <ul className="mt-1.5 space-y-1">
+            {calendar.map((e, i) => (
+              <li key={i} className="flex items-center gap-2 text-[12px]">
+                <span className="w-[3.6rem] flex-shrink-0 tabular-nums font-semibold text-slate-500">
+                  {fmtShort(e.date)}
+                </span>
+                <span
+                  className={cn(
+                    "flex-shrink-0 rounded-sm px-1.5 py-0.5 text-[9px] font-bold",
+                    e.kind === "해외"
+                      ? "bg-blue-50 text-blue-600"
+                      : e.kind === "상품"
+                      ? "bg-im-50 text-im-700"
+                      : "bg-slate-100 text-slate-500"
+                  )}
+                >
+                  {e.kind}
+                </span>
+                <span className="text-slate-700">{e.label}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

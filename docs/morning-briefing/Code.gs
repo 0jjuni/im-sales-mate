@@ -15,7 +15,7 @@
 // ── 설정 ─────────────────────────────────────────────────────
 const SHEET_NAME = 'briefing';
 const GEMINI_MODEL = 'gemini-3.6-flash';   // 모델은 단종될 수 있음. 404 뜨면 에러 메시지가 알려주는 최신명으로 교체
-const MAX_ITEMS_PER_RUN = 8;               // 한 번에 요약할 최대 뉴스 수(무료 쿼터 보호)
+const MAX_ITEMS_PER_RUN = 12;              // 한 번에 요약할 최대 뉴스 수(무료 쿼터 보호)
 const MAX_PER_FEED = 2;                     // 피드(주제)별 최대 — 한 주제가 브리핑을 독점하지 않게
 const CUTOFF_DAYS = 5;                      // 최근 며칠 내 기사만 (오래된 뉴스 배제)
 const TZ = 'Asia/Seoul';
@@ -35,10 +35,14 @@ const RSS_FEEDS = [
   //       (http://english.moef.go.kr/pc/engmosfrss.do?boardCd=N0001).
 
   /* 보조 소스: Google News 키워드 검색(무료·안정적, 건수 많음). 창구 관심 주제 위주. */
-  { name: '금리',     url: googleNewsRss_('한국은행 기준금리 금통위') },
-  { name: '대출규제', url: googleNewsRss_('DSR 가계대출 규제') },
-  { name: '세제',     url: googleNewsRss_('세법개정 ISA 연금저축 세액공제') },
-  { name: '퇴직연금', url: googleNewsRss_('퇴직연금 IRP 의무화') },
+  { name: '금리',      url: googleNewsRss_('한국은행 기준금리 금통위') },
+  { name: '대출규제',  url: googleNewsRss_('DSR 가계대출 규제') },
+  { name: '세제',      url: googleNewsRss_('세법개정 ISA 연금저축 세액공제') },
+  { name: '퇴직연금',  url: googleNewsRss_('퇴직연금 IRP 의무화') },
+  { name: '예금·수신', url: googleNewsRss_('예금 금리 특판 수신') },
+  { name: '부동산',    url: googleNewsRss_('부동산 정책 주택시장') },
+  { name: '투자·펀드', url: googleNewsRss_('펀드 ETF 증시 투자') },
+  { name: '상속증여',  url: googleNewsRss_('상속세 증여세 절세') },
 ];
 
 // ── 유틸 ─────────────────────────────────────────────────────
@@ -164,7 +168,7 @@ function summarizeWithGemini_(item) {
     '규칙(반드시 지킬 것):',
     '- summary: 1~2문장 사실 요약, 존댓말. 수치·날짜는 원문에 명시된 것만 인용하고, 없으면 쓰지 마라. 추측·과장 금지.',
     '- pbNote: 이 소식이 창구 상담에서 갖는 의미 1~2문장. 단정적 안내 금지. 확정 전 사안이면 "확정 전"임을 밝혀라.',
-    '- category: [금리, 대출규제, 세제, 퇴직연금, 부동산, 예금·수신, 기타] 중 하나.',
+    '- category: [금리, 대출규제, 세제, 퇴직연금, 부동산, 예금·수신, 투자·펀드, 상속증여, 기타] 중 하나.',
     '- importance: 창구에서 오늘 반드시 인지해야 하면 "high", 아니면 "normal".',
     '- headline: 25자 내외 한 줄. 원문 제목을 그대로 복사하지 말고 다듬어라.',
     '- 원문 문장을 그대로 옮기지 말고 재작성하라(저작권).',
