@@ -7,10 +7,23 @@
 
 import { fetchMarketQuotes } from "./marketQuotes";
 
-/* 자동 수집 연동 엔드포인트 — Apps Script 웹앱 URL을 넣으면 실데이터로 전환.
-   설정 방법은 docs/morning-briefing/SETUP.md 참고.
-   비워두면(null) 아래 BRIEFING 목업을 그대로 쓴다. */
-export const BRIEFING_ENDPOINT = null;
+/* 자동 수집 연동 — Apps Script 웹앱 /exec URL. 비우면(null) 아래 BRIEFING 목업 사용.
+   dev(vite)는 CORS 때문에 공개 프록시(corsproxy) 경유, 배포는 api/briefing.js 서버리스 경유.
+   URL을 바꾸면 api/briefing.js의 값도 함께 고칠 것. 설정: docs/morning-briefing/SETUP.md */
+export const BRIEFING_ENDPOINT =
+  "https://script.google.com/macros/s/AKfycbzYG7r1vMmMyLp0jquvndWvHhLx9lnf0ZWTSGUthJzNYhUNMF4tstYEiytT8DQbX6-dEQ/exec";
+
+const DEV_PROXY = "https://corsproxy.io/?url=";
+const briefingFetchUrl = () =>
+  import.meta.env.DEV ? DEV_PROXY + encodeURIComponent(BRIEFING_ENDPOINT) : "/api/briefing";
+
+/* 시트가 날짜를 Date로 자동변환해 긴 문자열로 올 수 있어 yyyy-mm-dd로 정규화 */
+const normalizeDate = (v) => {
+  const d = new Date(v);
+  if (isNaN(d)) return BRIEFING.date;
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+};
 
 /* BriefingShape:
    {
@@ -103,7 +116,7 @@ const BRIEFING = {
 async function fetchLiveNews() {
   if (!BRIEFING_ENDPOINT) return null;
   try {
-    const res = await fetch(BRIEFING_ENDPOINT, { cache: "no-store" });
+    const res = await fetch(briefingFetchUrl(), { cache: "no-store" });
     if (!res.ok) return null;
     const data = await res.json();
     const news = data?.news;
@@ -111,7 +124,7 @@ async function fetchLiveNews() {
     /* 각 항목이 최소 형태(headline·summary)를 갖췄는지 확인 — 부분 손상 방지 */
     if (!news.every((n) => n && n.headline && n.summary)) return null;
     return {
-      date: data.date ?? BRIEFING.date,
+      date: normalizeDate(data.date),
       session: data.session ?? BRIEFING.session,
       news,
     };
