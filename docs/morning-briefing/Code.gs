@@ -148,13 +148,20 @@ function parseRss_(feed) {
   return items.map((item) => {
     const get = (t) => { const c = item.getChild(t); return c ? c.getText() : ''; };
     const pub = get('pubDate');
-    const srcEl = item.getChild('source'); // Google News RSS는 <source>에 언론사명이 들어있다
+    const title = get('title');
+    const srcEl = item.getChild('source'); // Google News RSS는 <source>에 언론사명
+    let outlet = srcEl ? srcEl.getText() : '';
+    if (!outlet) {
+      // Google News 제목은 "제목 - 언론사" 형식 → 끝의 언론사만 추출
+      const parts = title.split(' - ');
+      if (parts.length > 1) outlet = parts[parts.length - 1].trim();
+    }
     return {
-      title: get('title'),
+      title: title,
       link: get('link'),
       description: get('description'),
       pubDate: pub ? new Date(pub).getTime() : 0,
-      source: srcEl ? srcEl.getText() : feed.name, // 실제 언론사(없으면 피드명)
+      source: outlet || feed.name, // 실제 언론사(없으면 피드명)
     };
   });
 }
