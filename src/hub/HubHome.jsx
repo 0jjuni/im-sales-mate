@@ -28,7 +28,7 @@ import { cn } from "@shared/lib/format";
 
 const SectionHeader = ({ icon: Icon, title, sub }) => (
   <div className="mb-4 flex items-center gap-2.5">
-    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-im-500 to-im-600 text-white shadow-sm shadow-im-600/25 ring-1 ring-inset ring-white/20">
+    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-im-50 text-im-600">
       <Icon className="h-[18px] w-[18px]" />
     </div>
     <div className="min-w-0">

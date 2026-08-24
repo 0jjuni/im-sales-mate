@@ -32,11 +32,8 @@ const buildPath = (page) => `/isa/${page}`;
 
 const Brand = () => (
   <div className="flex items-center gap-2.5">
-    <div className="relative w-9 h-9 flex-shrink-0">
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-300 to-teal-500 rounded-xl transform rotate-3" />
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-sm">
-        <PiggyBank className="w-5 h-5 text-white" />
-      </div>
+    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+      <PiggyBank className="w-5 h-5" />
     </div>
     <div className="min-w-0">
       <div className="text-[13px] font-black text-slate-900 leading-tight">

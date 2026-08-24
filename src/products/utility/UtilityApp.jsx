@@ -40,11 +40,8 @@ const buildPath = (page) => `/tools/${page}`;
 
 const Brand = () => (
   <div className="flex items-center gap-2.5">
-    <div className="relative w-9 h-9 flex-shrink-0">
-      <div className="absolute inset-0 bg-gradient-to-br from-sky-300 to-blue-500 rounded-xl transform rotate-3" />
-      <div className="absolute inset-0 bg-gradient-to-br from-sky-400 to-blue-500 rounded-xl flex items-center justify-center shadow-sm">
-        <Wrench className="w-5 h-5 text-white" />
-      </div>
+    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
+      <Wrench className="w-5 h-5" />
     </div>
     <div className="min-w-0">
       <div className="text-[13px] font-black text-slate-900 leading-tight">보조 도구</div>
@@ -69,7 +66,7 @@ const UtilityHome = ({ onNavigate }) => (
           <button
             key={t.id}
             onClick={() => onNavigate(t.id)}
-            className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-gradient-to-br from-sky-50 to-transparent p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-[0_12px_28px_-12px_rgba(6,161,137,0.28)]"
+            className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-[0_12px_28px_-12px_rgba(6,161,137,0.28)]"
           >
             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-700 transition-transform group-hover:scale-105">
               <Icon className="h-5 w-5" />

@@ -195,7 +195,7 @@ export function MorningNews({ data, status, onReload }) {
       {/* 마스트헤드 */}
       <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-im-500 to-im-600 text-white shadow-sm shadow-im-600/25 ring-1 ring-inset ring-white/20">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-im-50 text-im-600">
             <Sparkles className="h-[18px] w-[18px]" />
           </div>
           <div className="min-w-0">

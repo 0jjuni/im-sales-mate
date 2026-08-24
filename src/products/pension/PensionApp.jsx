@@ -33,11 +33,8 @@ const buildPath = (page) => `/pension/${page}`;
 
 const Brand = () => (
   <div className="flex items-center gap-2.5">
-    <div className="relative w-9 h-9 flex-shrink-0">
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-300 to-purple-500 rounded-xl transform rotate-3" />
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-400 to-purple-500 rounded-xl flex items-center justify-center shadow-sm">
-        <Landmark className="w-5 h-5 text-white" />
-      </div>
+    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
+      <Landmark className="w-5 h-5" />
     </div>
     <div className="min-w-0">
       <div className="text-[13px] font-black text-slate-900 leading-tight">연금계좌 상담 가이드</div>

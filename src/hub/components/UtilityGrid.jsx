@@ -23,7 +23,7 @@ export function UtilityGrid() {
             to={tool.to}
             className={cn(
               CARD_INTERACTIVE,
-              "flex items-start gap-3 bg-gradient-to-br from-sky-50 to-transparent p-4 hover:border-sky-300"
+              "flex items-start gap-3 p-4 hover:border-sky-300"
             )}
           >
             <div

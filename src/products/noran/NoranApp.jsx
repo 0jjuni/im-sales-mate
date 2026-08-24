@@ -60,22 +60,19 @@ const calcTab = (sub) => (CALC_TABS.includes(sub) ? sub : "tax");
 
 const Brand = () => (
   <div className="flex items-center gap-2.5">
-    <div className="relative w-9 h-9 flex-shrink-0">
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-300 to-amber-500 rounded-xl transform rotate-3" />
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-xl flex items-center justify-center shadow-sm">
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="w-5 h-5 text-slate-900"
-        >
-          <path d="M12 2v2M12 20v2M2 12c0-5.523 4.477-10 10-10s10 4.477 10 10H2z" />
-          <path d="M12 12v8a2 2 0 0 1-2-2" />
-        </svg>
-      </div>
+    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-5 h-5"
+      >
+        <path d="M12 2v2M12 20v2M2 12c0-5.523 4.477-10 10-10s10 4.477 10 10H2z" />
+        <path d="M12 12v8a2 2 0 0 1-2-2" />
+      </svg>
     </div>
     <div className="min-w-0">
       <div className="text-[13px] font-black text-slate-900 leading-tight">

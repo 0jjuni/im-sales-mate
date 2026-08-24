@@ -83,7 +83,7 @@ export default function FollowupsPage() {
         <div>
           <HubLink compact className="mb-2" />
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-im-500 to-im-600 text-white shadow-sm shadow-im-600/25 ring-1 ring-inset ring-white/20">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-im-50 text-im-600">
               <CalendarDays className="h-[18px] w-[18px]" />
             </div>
             <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
