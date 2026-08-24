@@ -35,7 +35,7 @@ export const getToolIcon = (name) => TOOL_ICONS[name] ?? Wrench;
    MyTools 타일·UtilityGrid 카드가 이 icon 클래스를 공유한다. */
 export const TOOL_ACCENT = {
   amber: { chip: "bg-amber-100 text-amber-800", icon: "bg-amber-50 text-amber-700" },
-  rose: { chip: "bg-rose-100 text-rose-800", icon: "bg-rose-50 text-rose-700" },
+  fuchsia: { chip: "bg-fuchsia-100 text-fuchsia-800", icon: "bg-fuchsia-50 text-fuchsia-700" },
   violet: { chip: "bg-violet-100 text-violet-800", icon: "bg-violet-50 text-violet-700" },
   sky: { chip: "bg-sky-100 text-sky-800", icon: "bg-sky-50 text-sky-700" },
 };

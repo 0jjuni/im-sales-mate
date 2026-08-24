@@ -58,12 +58,12 @@ export const TaxCalculator = () => {
     const chartData = isDeposit
       ? [
           { name: "일반예금 세후이자", value: normalNet, fill: "#94a3b8" },
-          { name: "ISA예금 세후이자", value: isaNet, fill: "#e11d48" },
+          { name: "ISA예금 세후이자", value: isaNet, fill: "#c026d3" },
         ]
       : [
           { name: "일반계좌 세금", value: normalTax, fill: "#94a3b8" },
-          { name: "ISA 세금", value: isaTax, fill: "#e11d48" },
-          { name: "추정 절세액", value: saving, fill: "#f43f5e" },
+          { name: "ISA 세금", value: isaTax, fill: "#c026d3" },
+          { name: "추정 절세액", value: saving, fill: "#d946ef" },
         ];
 
     return {
@@ -161,14 +161,14 @@ export const TaxCalculator = () => {
               className={cn(
                 "flex items-center gap-2.5 p-3 border rounded-xl transition-all text-left",
                 active
-                  ? "bg-rose-700 text-white border-rose-700 shadow-sm"
-                  : "bg-white text-slate-700 border-slate-200 hover:border-rose-400"
+                  ? "bg-fuchsia-700 text-white border-fuchsia-700 shadow-sm"
+                  : "bg-white text-slate-700 border-slate-200 hover:border-fuchsia-400"
               )}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
               <div>
                 <div className="text-sm font-bold">{m.label}</div>
-                <div className={cn("text-[11px]", active ? "text-rose-100" : "text-slate-500")}>
+                <div className={cn("text-[11px]", active ? "text-fuchsia-100" : "text-slate-500")}>
                   {m.sub}
                 </div>
               </div>
@@ -193,8 +193,8 @@ export const TaxCalculator = () => {
                     className={cn(
                       "px-3 py-2 text-sm rounded-sm border transition-colors",
                       typeId === t.id
-                        ? "bg-rose-700 text-white border-rose-700 font-semibold"
-                        : "bg-white text-slate-700 border-slate-300 hover:border-rose-400"
+                        ? "bg-fuchsia-700 text-white border-fuchsia-700 font-semibold"
+                        : "bg-white text-slate-700 border-slate-300 hover:border-fuchsia-400"
                     )}
                   >
                     {t.label}
@@ -219,7 +219,7 @@ export const TaxCalculator = () => {
                     step="1000000"
                     value={principal}
                     onChange={(e) => setPrincipal(Number(e.target.value))}
-                    className="w-full accent-rose-600"
+                    className="w-full accent-fuchsia-600"
                   />
                   <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                     <span>100만원</span>
@@ -239,7 +239,7 @@ export const TaxCalculator = () => {
                     step={ISA_DEPOSIT_DEFAULTS.rateStep}
                     value={rate}
                     onChange={(e) => setRate(Number(e.target.value))}
-                    className="w-full accent-rose-600"
+                    className="w-full accent-fuchsia-600"
                   />
                   <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                     <span>{ISA_DEPOSIT_DEFAULTS.rateMin.toFixed(1)}%</span>
@@ -257,8 +257,8 @@ export const TaxCalculator = () => {
                         className={cn(
                           "px-3 py-2 text-sm rounded-sm border transition-colors",
                           years === y
-                            ? "bg-rose-700 text-white border-rose-700 font-semibold"
-                            : "bg-white text-slate-700 border-slate-300 hover:border-rose-400"
+                            ? "bg-fuchsia-700 text-white border-fuchsia-700 font-semibold"
+                            : "bg-white text-slate-700 border-slate-300 hover:border-fuchsia-400"
                         )}
                       >
                         {y}년
@@ -282,7 +282,7 @@ export const TaxCalculator = () => {
                   step="500000"
                   value={directProfit}
                   onChange={(e) => setDirectProfit(Number(e.target.value))}
-                  className="w-full accent-rose-600"
+                  className="w-full accent-fuchsia-600"
                 />
                 <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                   <span>0</span>
@@ -298,7 +298,7 @@ export const TaxCalculator = () => {
                   onChange={(e) =>
                     setDirectProfit(Math.max(0, Math.min(20000000, Number(e.target.value))))
                   }
-                  className="mt-2 w-full px-3 py-2 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-rose-500"
+                  className="mt-2 w-full px-3 py-2 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-fuchsia-500"
                 />
               </div>
             )}
@@ -315,13 +315,13 @@ export const TaxCalculator = () => {
         {/* 결과부 */}
         <div className="lg:col-span-3 space-y-4">
           {/* 핵심 결과 — 추정 절세액 */}
-          <div className="rounded-xl border border-rose-200 bg-rose-50/60 p-5 shadow-sm">
+          <div className="rounded-xl border border-fuchsia-200 bg-fuchsia-50/60 p-5 shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-rose-700">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-fuchsia-700">
                   추정 절세액 · {isDeposit ? "일반 예금 대비" : "일반계좌 대비"}
                 </div>
-                <div className="mt-1 text-[38px] font-black leading-none tracking-tight text-rose-700">
+                <div className="mt-1 text-[38px] font-black leading-none tracking-tight text-fuchsia-700">
                   {formatKRW(result.saving)}
                 </div>
                 <p className="mt-2 text-[13px] leading-relaxed text-slate-600">
@@ -330,7 +330,7 @@ export const TaxCalculator = () => {
                     : "같은 이익인데, ISA에서는 세부담이 이만큼 줄어듭니다."}
                 </p>
               </div>
-              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-rose-600 text-white shadow-sm">
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-fuchsia-600 text-white shadow-sm">
                 <Percent className="h-5 w-5" />
               </div>
             </div>
@@ -358,21 +358,21 @@ export const TaxCalculator = () => {
               </div>
             </div>
 
-            <div className="relative rounded-xl border-2 border-rose-400 bg-white p-4 shadow-sm">
-              <span className="absolute -top-2 left-4 rounded-full bg-rose-600 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-sm">
+            <div className="relative rounded-xl border-2 border-fuchsia-400 bg-white p-4 shadow-sm">
+              <span className="absolute -top-2 left-4 rounded-full bg-fuchsia-600 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-sm">
                 유리
               </span>
-              <div className="text-[12px] font-bold text-rose-700">
+              <div className="text-[12px] font-bold text-fuchsia-700">
                 ISA {isDeposit ? "예금" : "계좌"}
               </div>
               <div className="mt-3 space-y-2.5">
                 <div>
                   <div className="text-[11px] text-slate-400">세금</div>
-                  <div className="text-[19px] font-bold tabular-nums text-rose-700">
+                  <div className="text-[19px] font-bold tabular-nums text-fuchsia-700">
                     {formatKRW(result.isaTax)}
                   </div>
                 </div>
-                <div className="border-t border-rose-100 pt-2.5">
+                <div className="border-t border-fuchsia-100 pt-2.5">
                   <div className="text-[11px] text-slate-400">세후 실수령</div>
                   <div className="text-[14px] font-semibold tabular-nums text-slate-900">
                     {formatKRW(result.isaNet)}
@@ -400,10 +400,10 @@ export const TaxCalculator = () => {
                 <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1 border-t border-slate-100 pt-3">
                   <span className="text-[12px] text-slate-500">세후 실효금리 (연)</span>
                   <span className="text-[13.5px] font-bold tabular-nums">
-                    <span className="text-rose-700">ISA {result.isaEffRate.toFixed(2)}%</span>
+                    <span className="text-fuchsia-700">ISA {result.isaEffRate.toFixed(2)}%</span>
                     <span className="mx-1 text-slate-400">vs</span>
                     <span className="text-slate-500">일반 {result.normalEffRate.toFixed(2)}%</span>
-                    <span className="ml-1.5 rounded bg-rose-100 px-1.5 py-0.5 text-[12px] text-rose-700">
+                    <span className="ml-1.5 rounded bg-fuchsia-100 px-1.5 py-0.5 text-[12px] text-fuchsia-700">
                       +{(result.isaEffRate - result.normalEffRate).toFixed(2)}%p
                     </span>
                   </span>
@@ -476,7 +476,7 @@ export const TaxCalculator = () => {
             </ResponsiveContainer>
           </div>
 
-          <SalesScript accent="rose" {...script} />
+          <SalesScript accent="fuchsia" {...script} />
 
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600 leading-relaxed">
             <strong className="text-slate-800">근거</strong> 조세특례제한법 제91조의18. 비과세 한도(일반형 200만원 / 서민·농어민형 400만원) 초과분 9.9% 분리과세, 일반 이자소득 15.4% 가정.{" "}

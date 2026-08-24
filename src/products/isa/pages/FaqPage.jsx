@@ -29,7 +29,7 @@ export const FaqPage = () => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="질문 검색 (예: 비과세, 납입한도, 손익통산)"
-          className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-200"
+          className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-fuchsia-500 focus:ring-1 focus:ring-fuchsia-200"
         />
       </div>
 
@@ -58,7 +58,7 @@ export const FaqPage = () => {
               {isOpen && (
                 <div className="px-4 pb-3.5 pt-0.5 border-t border-slate-100">
                   <p className="text-[13px] text-slate-700 leading-relaxed">{f.a}</p>
-                  <div className="mt-2 inline-flex items-center gap-1 rounded-sm border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-semibold text-rose-700">
+                  <div className="mt-2 inline-flex items-center gap-1 rounded-sm border border-fuchsia-200 bg-fuchsia-50 px-2 py-0.5 text-[10px] font-semibold text-fuchsia-700">
                     {f.ref}
                   </div>
                 </div>

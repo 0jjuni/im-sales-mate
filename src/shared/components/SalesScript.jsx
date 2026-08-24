@@ -16,11 +16,11 @@ const ACCENTS = {
     icon: "text-amber-600",
     quote: "border-amber-300",
   },
-  rose: {
-    box: "border-rose-200 bg-rose-50/40",
-    chip: "bg-rose-100 text-rose-800",
-    icon: "text-rose-600",
-    quote: "border-rose-300",
+  fuchsia: {
+    box: "border-fuchsia-200 bg-fuchsia-50/40",
+    chip: "bg-fuchsia-100 text-fuchsia-800",
+    icon: "text-fuchsia-600",
+    quote: "border-fuchsia-300",
   },
   violet: {
     box: "border-violet-200 bg-violet-50/40",
