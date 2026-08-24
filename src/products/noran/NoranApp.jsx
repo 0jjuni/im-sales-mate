@@ -29,6 +29,7 @@ import { usePersonalization } from "@hub/personalization/PersonalizationContext"
 import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
 import { HubLink } from "@shared/components/HubLink";
+import { GlobalNav } from "@shared/components/GlobalNav";
 import { cn } from "@shared/lib/format";
 
 const NAV_ITEMS = [
@@ -289,8 +290,9 @@ export default function NoranApp() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 print:min-h-0 print:bg-white" style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}>
-      {/* Mobile top bar */}
-      <header className="md:hidden sticky top-0 z-30 bg-white border-b border-slate-200 flex items-center gap-3 px-3 py-2 print:hidden">
+      <GlobalNav />
+      {/* Mobile top bar — 하위 페이지 메뉴 여는 햄버거 (GlobalNav 아래, 비고정) */}
+      <header className="md:hidden bg-white border-b border-slate-200 flex items-center gap-3 px-3 py-2 print:hidden">
         <button
           onClick={() => setDrawerOpen(true)}
           className="p-1.5 hover:bg-slate-100 rounded-sm"

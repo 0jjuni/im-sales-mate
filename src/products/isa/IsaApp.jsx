@@ -5,6 +5,7 @@ import { usePersonalization } from "@hub/personalization/PersonalizationContext"
 import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
 import { HubLink } from "@shared/components/HubLink";
+import { GlobalNav } from "@shared/components/GlobalNav";
 import { cn } from "@shared/lib/format";
 import { Overview } from "./pages/Overview";
 import { CalculatorPage } from "./pages/CalculatorPage";
@@ -166,7 +167,8 @@ export default function IsaApp() {
       className="min-h-screen bg-slate-50 text-slate-900 print:min-h-0 print:bg-white"
       style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
     >
-      <header className="md:hidden sticky top-0 z-30 bg-white border-b border-slate-200 flex items-center gap-3 px-3 py-2 print:hidden">
+      <GlobalNav />
+      <header className="md:hidden bg-white border-b border-slate-200 flex items-center gap-3 px-3 py-2 print:hidden">
         <button
           onClick={() => setDrawerOpen(true)}
           className="p-1.5 hover:bg-slate-100 rounded-sm"
