@@ -51,4 +51,10 @@ body {
     box-shadow: none !important;
     margin: 0;
   }
+
+  /* 마켓 상담자료 인쇄 — 대시보드 전체(#root)를 숨기고 body로 포탈된 전표만 출력.
+     (MarketDetailModal이 인쇄 직전 html.printing-market을 붙이고, afterprint에 뗀다) */
+  html.printing-market #root {
+    display: none !important;
+  }
 }

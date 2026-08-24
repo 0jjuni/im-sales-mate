@@ -59,6 +59,8 @@ const parseChart = (json) => {
     prevClose,
     change: ((close - prevClose) / prevClose) * 100,
     asOf: new Date(lastTs * 1000),
+    /* 스파크라인·상세 차트용 일별 종가 시계열(그대로 재사용, 추가 조회 없음) */
+    series: pairs.map(([t, c]) => ({ t: t * 1000, c })),
   };
 };
 
@@ -72,9 +74,14 @@ const fetchOne = async ({ label, symbol, format }) => {
     if (!parsed) throw new Error("파싱 실패");
     return {
       label,
+      symbol,
+      format,
       value: formatValue(parsed.close, format),
       change: Number(parsed.change.toFixed(2)),
+      close: parsed.close,
+      prevClose: parsed.prevClose,
       asOf: parsed.asOf,
+      series: parsed.series,
     };
   } finally {
     clearTimeout(timer);
@@ -92,7 +99,16 @@ export const fetchMarketQuotes = async () => {
     .sort((a, b) => b - a)[0];
 
   return {
-    markets: results.map(({ label, value, change }) => ({ label, value, change })),
+    markets: results.map(({ label, symbol, format, value, change, close, prevClose, series }) => ({
+      label,
+      symbol,
+      format,
+      value,
+      change,
+      close,
+      prevClose,
+      series,
+    })),
     asOf: latest ?? null,
   };
 };
