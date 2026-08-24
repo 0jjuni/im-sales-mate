@@ -28,7 +28,6 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { usePersonalization } from "@hub/personalization/PersonalizationContext";
 import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
-import { HubLink } from "@shared/components/HubLink";
 import { GlobalNav } from "@shared/components/GlobalNav";
 import { cn } from "@shared/lib/format";
 
@@ -197,7 +196,6 @@ export default function NoranApp() {
   const sidebarContent = (
     <>
       <div className="p-4 border-b border-slate-200 space-y-3">
-        <HubLink />
         <div className="flex items-center justify-between gap-2">
           <Brand />
           <button
@@ -303,7 +301,6 @@ export default function NoranApp() {
         <div className="flex-1 min-w-0">
           <Brand />
         </div>
-        <HubLink compact />
       </header>
 
       <div className="md:flex">

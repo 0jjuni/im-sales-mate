@@ -4,7 +4,6 @@ import { UserRound, MapPin, QrCode, Menu, X, Wrench } from "lucide-react";
 import { usePersonalization } from "@hub/personalization/PersonalizationContext";
 import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
-import { HubLink } from "@shared/components/HubLink";
 import { GlobalNav } from "@shared/components/GlobalNav";
 import { cn } from "@shared/lib/format";
 import { NameRomanizer } from "./pages/NameRomanizer";
@@ -84,7 +83,6 @@ export default function UtilityApp() {
   const sidebarContent = (
     <>
       <div className="p-4 border-b border-slate-200 space-y-3">
-        <HubLink />
         <div className="flex items-center justify-between gap-2">
           <Brand />
           <button
@@ -152,7 +150,6 @@ export default function UtilityApp() {
         <div className="flex-1 min-w-0">
           <Brand />
         </div>
-        <HubLink compact />
       </header>
 
       <div className="md:flex">
