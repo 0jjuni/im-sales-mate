@@ -38,6 +38,14 @@ const SectionHeader = ({ icon: Icon, title, sub }) => (
   </div>
 );
 
+/* 섹션 묶음 패널 — 헤더 + 카드들을 하나의 박스로 그룹핑해 섹션 경계를 분명히 한다.
+   마켓 보드·뉴스는 이미 자체 카드라 감싸지 않고, 헤더+그리드로 「떠 있던」 섹션만 감싼다.
+   페이지 캔버스가 slate-50이라, 박스는 흰색+테두리+옅은 그림자로 두어 캔버스 위로 떠 보이게 한다.
+   명도 층: 캔버스(slate-50) → 박스(white) → 안쪽 카드(white, 테두리로 구분). (스킬: 절제 · 명도로 층 만들기) */
+const SectionPanel = ({ children }) => (
+  <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">{children}</div>
+);
+
 /* 편집 모드의 섹션 한 줄.
    섹션 내용을 미리보기로 펼치면 7개를 옮기는 데 화면을 한참 스크롤해야 해서,
    편집 중에는 제목·설명만 있는 목록으로 접는다.
@@ -164,54 +172,54 @@ export function HubHome() {
       case "mytools": {
         const meta = getSection("mytools");
         return (
-          <>
+          <SectionPanel>
             <SectionHeader icon={meta.icon} title="내 도구" sub="자주 쓰는 계산기·도구를 등록해 바로 진입하세요" />
             <MyTools />
-          </>
+          </SectionPanel>
         );
       }
       case "followups": {
         const meta = getSection("followups");
         return (
-          <>
+          <SectionPanel>
             <SectionHeader
               icon={meta.icon}
               title="고객 후속 관리"
               sub="가까운 후속 연락과 빠른 기록 · 달력과 검색은 전체 관리에서"
             />
             <FollowupBoard />
-          </>
+          </SectionPanel>
         );
       }
       case "products": {
         const meta = getSection("products");
         return (
-          <>
+          <SectionPanel>
             <SectionHeader icon={meta.icon} title="상품 상담" sub="상담할 상품을 선택해 시작하세요" />
             <ProductGrid />
-          </>
+          </SectionPanel>
         );
       }
       case "utility": {
         const meta = getSection("utility");
         return (
-          <>
+          <SectionPanel>
             <SectionHeader
               icon={meta.icon}
               title="보조 도구"
               sub="상품과 무관하게 창구에서 자주 쓰는 도구"
             />
             <UtilityGrid />
-          </>
+          </SectionPanel>
         );
       }
       case "knowledge": {
         const meta = getSection("knowledge");
         return (
-          <>
+          <SectionPanel>
             <SectionHeader icon={meta.icon} title="PB 지식 라이브러리" sub="세무·규제·용어 — 상담 근거 자료" />
             <KnowledgeLibrary />
-          </>
+          </SectionPanel>
         );
       }
       default:
@@ -311,7 +319,7 @@ export function HubHome() {
           {showGuide && <EditGuide onClose={closeGuide} />}
         </>
       ) : (
-        <div className="space-y-10">
+        <div className="space-y-6">
           {sectionOrder
             .filter((id) => !isSectionHidden(id))
             .map((id) => (
