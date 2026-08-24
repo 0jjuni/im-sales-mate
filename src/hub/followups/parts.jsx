@@ -20,7 +20,7 @@ import { cn } from "@shared/lib/format";
 /* 권유 상품 태그 — 색은 각 상품 아이덴티티와 맞춘다 (Tailwind 정적 클래스) */
 export const PRODUCT_TAGS = [
   { id: "noran", label: "노란우산", on: "bg-amber-500 text-white border-amber-500", chip: "bg-amber-100 text-amber-800" },
-  { id: "isa", label: "ISA", on: "bg-emerald-600 text-white border-emerald-600", chip: "bg-emerald-100 text-emerald-800" },
+  { id: "isa", label: "ISA", on: "bg-rose-600 text-white border-rose-600", chip: "bg-rose-100 text-rose-800" },
   { id: "pension", label: "연금저축", on: "bg-violet-600 text-white border-violet-600", chip: "bg-violet-100 text-violet-800" },
   { id: "irp", label: "IRP", on: "bg-sky-600 text-white border-sky-600", chip: "bg-sky-100 text-sky-800" },
   { id: "deposit", label: "예금", on: "bg-slate-600 text-white border-slate-600", chip: "bg-slate-200 text-slate-700" },

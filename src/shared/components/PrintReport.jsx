@@ -15,11 +15,11 @@ const ACCENTS = {
     rowBorder: "border-b-2 border-amber-600 bg-amber-50",
     rowText: "text-amber-900",
   },
-  emerald: {
-    box: "border-emerald-600 bg-emerald-50",
-    boxTitle: "text-emerald-900",
-    rowBorder: "border-b-2 border-emerald-600 bg-emerald-50",
-    rowText: "text-emerald-900",
+  rose: {
+    box: "border-rose-600 bg-rose-50",
+    boxTitle: "text-rose-900",
+    rowBorder: "border-b-2 border-rose-600 bg-rose-50",
+    rowText: "text-rose-900",
   },
   violet: {
     box: "border-violet-600 bg-violet-50",

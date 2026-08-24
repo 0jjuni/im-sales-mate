@@ -18,7 +18,7 @@ const ICONS = { Umbrella, PiggyBank, Landmark, Wallet, Shield };
    색은 '식별'용으로만 쓰고 장식을 줄인다. */
 const ACCENT = {
   amber: { text: "text-amber-700", hover: "hover:border-amber-300", icon: "bg-amber-50 text-amber-700" },
-  emerald: { text: "text-emerald-700", hover: "hover:border-emerald-300", icon: "bg-emerald-50 text-emerald-700" },
+  rose: { text: "text-rose-700", hover: "hover:border-rose-300", icon: "bg-rose-50 text-rose-700" },
   violet: { text: "text-violet-700", hover: "hover:border-violet-300", icon: "bg-violet-50 text-violet-700" },
   sky: { text: "text-sky-700", hover: "hover:border-sky-300", icon: "bg-sky-50 text-sky-700" },
 };

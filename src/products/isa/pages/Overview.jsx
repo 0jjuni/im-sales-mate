@@ -7,7 +7,7 @@ import { formatKRWShort } from "@shared/lib/format";
 const StatCard = ({ icon: Icon, label, value, sub }) => (
   <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
     <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-      <Icon className="w-3.5 h-3.5 text-emerald-600" />
+      <Icon className="w-3.5 h-3.5 text-rose-600" />
       {label}
     </div>
     <div className="text-lg font-black text-slate-900 leading-tight">{value}</div>
@@ -68,7 +68,7 @@ export const Overview = ({ onNavigate }) => (
       <div className="divide-y divide-slate-100">
         {ISA_TYPES.map((t) => (
           <div key={t.id} className="flex items-center gap-3 px-4 py-3">
-            <div className="flex-shrink-0 w-28 text-sm font-bold text-emerald-700">{t.label}</div>
+            <div className="flex-shrink-0 w-28 text-sm font-bold text-rose-700">{t.label}</div>
             <div className="flex-shrink-0 text-base font-black text-slate-900 tabular-nums">
               {formatKRWShort(t.taxFreeLimit)}
             </div>
@@ -81,11 +81,11 @@ export const Overview = ({ onNavigate }) => (
     {/* 계산기 유도 */}
     <button
       onClick={() => onNavigate("calculator")}
-      className="w-full text-left bg-emerald-50/50 border border-emerald-200 rounded-xl p-5 shadow-sm transition-all hover:border-emerald-300 hover:shadow-md group"
+      className="w-full text-left bg-rose-50/50 border border-rose-200 rounded-xl p-5 shadow-sm transition-all hover:border-rose-300 hover:shadow-md group"
     >
       <div className="flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700 mb-1">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-rose-700 mb-1">
             <Percent className="w-3.5 h-3.5" />
             세일즈 계산기
           </div>
@@ -96,7 +96,7 @@ export const Overview = ({ onNavigate }) => (
             예금 원금·금리·기간을 넣으면 ISA 예금 vs 일반 예금의 세후 실수령·실효금리를 비교합니다. (펀드 등은 순이익 직접입력 모드)
           </p>
         </div>
-        <ArrowRight className="w-5 h-5 text-emerald-600 flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
+        <ArrowRight className="w-5 h-5 text-rose-600 flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
       </div>
     </button>
 
@@ -106,7 +106,7 @@ export const Overview = ({ onNavigate }) => (
       <ul className="space-y-1.5">
         {ISA_ELIGIBILITY_NOTES.map((n, i) => (
           <li key={i} className="flex gap-2 text-[13px] text-slate-700 leading-relaxed">
-            <span className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-emerald-500" />
+            <span className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-rose-500" />
             {n}
           </li>
         ))}
@@ -124,7 +124,7 @@ export const Overview = ({ onNavigate }) => (
 
     <button
       onClick={() => onNavigate("faq")}
-      className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-emerald-700 hover:text-emerald-800"
+      className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-rose-700 hover:text-rose-800"
     >
       <HelpCircle className="w-4 h-4" />
       자주 묻는 질문 보기

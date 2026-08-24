@@ -3,7 +3,7 @@
 export const ISA_MODULE = {
   id: "isa",
   name: "ISA",
-  accent: "emerald",
+  accent: "rose",
 };
 
 export const ISA_TOOLS = [

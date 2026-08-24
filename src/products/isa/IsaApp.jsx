@@ -10,7 +10,7 @@ import { Overview } from "./pages/Overview";
 import { CalculatorPage } from "./pages/CalculatorPage";
 import { FaqPage } from "./pages/FaqPage";
 
-/* ISA 모듈 셸 — 노란과 동일한 셸 패턴(사이드바 + 경로 라우팅)에 emerald 아이덴티티.
+/* ISA 모듈 셸 — 노란과 동일한 셸 패턴(사이드바 + 경로 라우팅)에 rose 아이덴티티.
    상위 라우터의 "/isa/*"에 마운트. */
 
 const NAV_ITEMS = [
@@ -32,7 +32,7 @@ const buildPath = (page) => `/isa/${page}`;
 
 const Brand = () => (
   <div className="flex items-center gap-2.5">
-    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-700">
       <PiggyBank className="w-5 h-5" />
     </div>
     <div className="min-w-0">
@@ -129,14 +129,14 @@ export default function IsaApp() {
                 isActive
                   ? "bg-slate-900 text-white font-semibold"
                   : item.highlight
-                  ? "text-slate-800 hover:bg-emerald-50 border border-emerald-200 bg-emerald-50/30"
+                  ? "text-slate-800 hover:bg-rose-50 border border-rose-200 bg-rose-50/30"
                   : "text-slate-700 hover:bg-slate-100"
               )}
             >
               <Icon className="w-4 h-4" />
               <span className="flex-1 text-left">{item.label}</span>
               {item.highlight && !isActive && (
-                <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-200 px-1.5 py-0.5 rounded-sm">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-rose-700 bg-rose-200 px-1.5 py-0.5 rounded-sm">
                   세일즈
                 </span>
               )}

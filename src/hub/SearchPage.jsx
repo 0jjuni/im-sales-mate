@@ -10,7 +10,7 @@ import { cn } from "@shared/lib/format";
    결과는 해당 모듈 FAQ 페이지로 연결. (상세 앵커 딥링크는 이후 확장) */
 const MODULE_TONE = {
   노란우산: "bg-amber-100 text-amber-800",
-  ISA: "bg-emerald-100 text-emerald-800",
+  ISA: "bg-rose-100 text-rose-800",
   연금: "bg-violet-100 text-violet-800",
 };
 
