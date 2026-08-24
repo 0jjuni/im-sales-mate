@@ -71,7 +71,7 @@ const UtilityHome = ({ onNavigate }) => (
             onClick={() => onNavigate(t.id)}
             className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-gradient-to-br from-sky-50 to-transparent p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-[0_12px_28px_-12px_rgba(6,161,137,0.28)]"
           >
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-sm transition-transform group-hover:scale-105">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-700 transition-transform group-hover:scale-105">
               <Icon className="h-5 w-5" />
             </div>
             <div className="min-w-0 flex-1">

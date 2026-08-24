@@ -31,11 +31,13 @@ export const getToolIcon = (name) => TOOL_ICONS[name] ?? Wrench;
 
 /* 모듈 아이덴티티 컬러(accent 키) → 정적 Tailwind 클래스.
    ProductGrid의 ACCENT와 같은 원칙 — 동적 클래스 조합은 purge에 잡히지 않으므로 금지 */
+/* 프로페셔널 톤: 채도 높은 그라디언트 대신 옅은 틴트 + 같은 색 플랫 아이콘.
+   MyTools 타일·UtilityGrid 카드가 이 icon 클래스를 공유한다. */
 export const TOOL_ACCENT = {
-  amber: { chip: "bg-amber-100 text-amber-800", icon: "bg-gradient-to-br from-amber-500 to-amber-600 text-white" },
-  emerald: { chip: "bg-emerald-100 text-emerald-800", icon: "bg-gradient-to-br from-emerald-500 to-teal-600 text-white" },
-  violet: { chip: "bg-violet-100 text-violet-800", icon: "bg-gradient-to-br from-violet-500 to-purple-600 text-white" },
-  sky: { chip: "bg-sky-100 text-sky-800", icon: "bg-gradient-to-br from-sky-500 to-blue-600 text-white" },
+  amber: { chip: "bg-amber-100 text-amber-800", icon: "bg-amber-50 text-amber-700" },
+  emerald: { chip: "bg-emerald-100 text-emerald-800", icon: "bg-emerald-50 text-emerald-700" },
+  violet: { chip: "bg-violet-100 text-violet-800", icon: "bg-violet-50 text-violet-700" },
+  sky: { chip: "bg-sky-100 text-sky-800", icon: "bg-sky-50 text-sky-700" },
 };
 
 export const getToolAccent = (accent) => TOOL_ACCENT[accent] ?? TOOL_ACCENT.sky;
