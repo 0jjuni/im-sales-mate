@@ -192,14 +192,18 @@ export function MorningNews({ data, status, onReload }) {
   const older = items.filter((n) => daysAgo(n.date) > WEEK);
   const mustCount = recent.filter((n) => n.importance === "high").length;
 
-  /* 접힌 상태 노출 규칙 — 총 노출 = max(필수 건수, RECENT_PREVIEW).
-     ① 「필수」는 접혀도 전부 노출(출근 브리핑상 놓치면 안 됨)
-     ② 남는 슬롯만큼만 최신순 일반 뉴스로 채우고, 나머지는 접는다(길이 실제로 단축). */
-  const normalRecent = recent.filter((n) => n.importance !== "high");
-  const normalSlots = Math.max(0, RECENT_PREVIEW - (recent.length - normalRecent.length));
-  const collapsedRecent = recent.filter(
-    (n) => n.importance === "high" || normalRecent.indexOf(n) < normalSlots
+  /* 접힌 상태 노출 규칙 — 정확히 RECENT_PREVIEW건만.
+     「필수」를 먼저 채우고(놓치면 안 되니), 남는 자리만 최신순 일반 뉴스로 채운다.
+     화면에는 원래 순서를 유지해 렌더한다. */
+  const collapsedIds = new Set(
+    [
+      ...recent.filter((n) => n.importance === "high"),
+      ...recent.filter((n) => n.importance !== "high"),
+    ]
+      .slice(0, RECENT_PREVIEW)
+      .map((n) => n.id)
   );
+  const collapsedRecent = recent.filter((n) => collapsedIds.has(n.id));
   const shownRecent = showAllRecent ? recent : collapsedRecent;
   const hiddenRecent = recent.length - collapsedRecent.length;
   const canCollapseRecent = hiddenRecent > 0;
