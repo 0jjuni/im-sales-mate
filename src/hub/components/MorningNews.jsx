@@ -20,6 +20,9 @@ import { getEconomicCalendar } from "../data/economicCalendar";
    최근 7일치를 기본 노출하고, 그보다 오래된 것은 「지난 뉴스」로 접는다. */
 
 const WEEK = 7;
+/* 최근 뉴스도 길어지므로 기본은 미리보기 몇 건만 펼치고 나머지는 접는다.
+   단, 「필수」로 표시된 건은 접힌 상태에서도 항상 노출한다(출근 브리핑 성격상 놓치면 안 됨). */
+const RECENT_PREVIEW = 3;
 
 const fmtDate = (iso) => {
   const d = new Date(iso + "T00:00:00");
@@ -182,11 +185,24 @@ const SkeletonItem = () => (
 
 export function MorningNews({ data, status, onReload }) {
   const [showOlder, setShowOlder] = useState(false);
+  const [showAllRecent, setShowAllRecent] = useState(false);
 
   const items = status === "ready" ? data?.news ?? [] : [];
   const recent = items.filter((n) => daysAgo(n.date) <= WEEK);
   const older = items.filter((n) => daysAgo(n.date) > WEEK);
   const mustCount = recent.filter((n) => n.importance === "high").length;
+
+  /* 접힌 상태 노출 규칙 — 총 노출 = max(필수 건수, RECENT_PREVIEW).
+     ① 「필수」는 접혀도 전부 노출(출근 브리핑상 놓치면 안 됨)
+     ② 남는 슬롯만큼만 최신순 일반 뉴스로 채우고, 나머지는 접는다(길이 실제로 단축). */
+  const normalRecent = recent.filter((n) => n.importance !== "high");
+  const normalSlots = Math.max(0, RECENT_PREVIEW - (recent.length - normalRecent.length));
+  const collapsedRecent = recent.filter(
+    (n) => n.importance === "high" || normalRecent.indexOf(n) < normalSlots
+  );
+  const shownRecent = showAllRecent ? recent : collapsedRecent;
+  const hiddenRecent = recent.length - collapsedRecent.length;
+  const canCollapseRecent = hiddenRecent > 0;
   const market = status === "ready" ? marketSummary(data?.markets) : null;
   const calendar = getEconomicCalendar();
 
@@ -280,7 +296,7 @@ export function MorningNews({ data, status, onReload }) {
             Array.from({ length: 3 }).map((_, i) => <SkeletonItem key={i} />)
           ) : (
             <>
-              {recent.map((item) => (
+              {shownRecent.map((item) => (
                 <NewsItem key={item.id} item={item} />
               ))}
 
@@ -289,6 +305,23 @@ export function MorningNews({ data, status, onReload }) {
                   {older.length > 0
                     ? "최근 7일 새 브리핑이 없습니다."
                     : "표시할 브리핑이 없습니다."}
+                </li>
+              )}
+
+              {/* 최근 뉴스 접기/펼치기 — 필수 건은 이미 위에 노출되므로 여기선 나머지만 다룬다 */}
+              {canCollapseRecent && (
+                <li className="border-l-[3px] border-transparent">
+                  <button
+                    onClick={() => setShowAllRecent((v) => !v)}
+                    className="flex w-full items-center justify-center gap-1.5 px-5 py-2.5 text-[12px] font-semibold text-slate-500 transition-colors hover:bg-slate-50 hover:text-im-700"
+                  >
+                    {showAllRecent ? (
+                      <ChevronUp className="h-3.5 w-3.5" />
+                    ) : (
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    )}
+                    {showAllRecent ? "간략히 접기" : `뉴스 ${hiddenRecent}건 더 보기`}
+                  </button>
                 </li>
               )}
 
