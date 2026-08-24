@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { UserRound, MapPin, QrCode, Menu, X, Wrench } from "lucide-react";
+import { UserRound, MapPin, QrCode, Menu, X, Wrench, Home, ArrowRight } from "lucide-react";
 import { usePersonalization } from "@hub/personalization/PersonalizationContext";
 import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
@@ -15,16 +15,24 @@ import { QrConverter } from "./pages/QrConverter";
    상위 라우터의 "/tools/*"에 마운트. */
 
 const NAV_ITEMS = [
+  { id: "home", label: "홈", icon: Home },
   { id: "name", label: "영문 이름 변환기", icon: UserRound },
   { id: "address", label: "영문 주소 변환기", icon: MapPin },
   { id: "qr", label: "링크 QR 변환기", icon: QrCode },
+];
+
+/* 홈(개요) 런처에 쓰는 도구 카드 — 설명 포함 */
+const TOOL_CARDS = [
+  { id: "name", label: "영문 이름 변환기", desc: "한글 이름을 여권식 영문 표기로 변환", icon: UserRound },
+  { id: "address", label: "영문 주소 변환기", desc: "도로명주소를 영문 표기로 변환", icon: MapPin },
+  { id: "qr", label: "링크 QR 변환기", desc: "신청 링크를 QR로 만들어 전표 인쇄", icon: QrCode },
 ];
 
 const VALID_PAGES = NAV_ITEMS.map((i) => i.id);
 
 const parseSplat = (splat) => {
   const raw = (splat || "").replace(/^\/+|\/+$/g, "");
-  if (!raw) return "name";
+  if (!raw) return "home";
   return raw.split("/")[0];
 };
 
@@ -45,11 +53,44 @@ const Brand = () => (
   </div>
 );
 
+/* 보조 도구 홈 — 상품 모듈과 같은 '홈(개요)' 역할. 도구를 카드 런처로 보여 준다. */
+const UtilityHome = ({ onNavigate }) => (
+  <div className="space-y-6">
+    <div>
+      <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">보조 도구</h1>
+      <p className="mt-1 text-sm text-slate-600">
+        특정 상품에 매이지 않고 창구 업무 전반에서 쓰는 도구입니다. 결과는 전표로 인쇄할 수 있습니다.
+      </p>
+    </div>
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {TOOL_CARDS.map((t) => {
+        const Icon = t.icon;
+        return (
+          <button
+            key={t.id}
+            onClick={() => onNavigate(t.id)}
+            className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-gradient-to-br from-sky-50 to-transparent p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-[0_12px_28px_-12px_rgba(6,161,137,0.28)]"
+          >
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-sm transition-transform group-hover:scale-105">
+              <Icon className="h-5 w-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[14px] font-bold text-slate-900">{t.label}</div>
+              <p className="mt-0.5 text-[11.5px] leading-relaxed text-slate-500">{t.desc}</p>
+            </div>
+            <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-slate-200 transition-colors group-hover:text-sky-500" />
+          </button>
+        );
+      })}
+    </div>
+  </div>
+);
+
 export default function UtilityApp() {
   const routerNavigate = useNavigate();
   const params = useParams();
   const raw = parseSplat(params["*"]);
-  const page = VALID_PAGES.includes(raw) ? raw : "name";
+  const page = VALID_PAGES.includes(raw) ? raw : "home";
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const { recordToolVisit } = usePersonalization();
@@ -179,7 +220,9 @@ export default function UtilityApp() {
                 <PinToolButton toolId={currentTool.id} />
               </div>
             )}
-            {page === "qr" ? (
+            {page === "home" ? (
+              <UtilityHome onNavigate={navigate} />
+            ) : page === "qr" ? (
               <QrConverter />
             ) : page === "address" ? (
               <AddressConverter />
