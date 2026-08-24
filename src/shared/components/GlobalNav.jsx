@@ -1,5 +1,6 @@
-import { Link, useLocation } from "react-router-dom";
-import { CalendarDays } from "lucide-react";
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { CalendarDays, Search } from "lucide-react";
 import { IMSymbol } from "@hub/components/IMSymbol";
 import { cn } from "@shared/lib/format";
 
@@ -34,6 +35,15 @@ const TodayBadge = () => {
 
 export function GlobalNav({ right = null }) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const [q, setQ] = useState("");
+
+  const submitSearch = (e) => {
+    e.preventDefault();
+    const t = q.trim();
+    if (t) navigate(`/search?q=${encodeURIComponent(t)}`);
+  };
+
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur print:hidden">
       <div className="h-1 bg-gradient-to-r from-im-500 via-im-400 to-im-lime" />
@@ -71,8 +81,29 @@ export function GlobalNav({ right = null }) {
           })}
         </nav>
 
+        {/* 전역 검색 — 데스크톱은 입력창, 모바일은 아이콘 */}
+        <form onSubmit={submitSearch} className="hidden flex-shrink-0 md:block">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="FAQ 검색"
+              aria-label="전역 FAQ 검색"
+              className="w-36 rounded-md border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-2.5 text-[12px] transition-all focus:w-52 focus:border-im-400 focus:bg-white focus:outline-none lg:w-44"
+            />
+          </div>
+        </form>
+
         {/* 우측 — 날짜 + 페이지별 액션 슬롯 */}
         <div className="flex flex-shrink-0 items-center gap-2">
+          <Link
+            to="/search"
+            aria-label="검색"
+            className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 md:hidden"
+          >
+            <Search className="h-4 w-4" />
+          </Link>
           <TodayBadge />
           {right}
         </div>

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  Search,
   Home,
   ClipboardList,
   HelpCircle,
@@ -15,7 +14,6 @@ import {
 import { GUIDES } from "./data/guides";
 import { ArticleModal } from "./components/ArticleModal";
 import { GlobalWarning } from "./components/GlobalWarning";
-import { DateBadge } from "./components/DateBadge";
 import { Dashboard } from "./pages/Dashboard";
 import { GuideListPage } from "./pages/GuideListPage";
 import { GuideDetailPage } from "./pages/GuideDetailPage";
@@ -207,20 +205,6 @@ export default function NoranApp() {
           </button>
         </div>
 
-        <button
-          onClick={() => handleNavigate("faq")}
-          className="w-full flex items-center gap-2 px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-sm transition-colors group"
-        >
-          <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600" />
-          <span className="text-[11px] text-slate-500 group-hover:text-slate-700 flex-1 text-left">
-            약관·FAQ 검색
-          </span>
-          <kbd className="text-[9px] font-mono text-slate-400 bg-white px-1 py-0.5 rounded border border-slate-200">
-            /
-          </kbd>
-        </button>
-
-        <DateBadge />
       </div>
       <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
         {NAV_ITEMS.map((item) => {
