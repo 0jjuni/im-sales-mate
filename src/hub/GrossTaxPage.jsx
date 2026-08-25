@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Search,
   UserRound,
@@ -528,6 +528,7 @@ function ResultView({ data }) {
 }
 
 export default function GrossTaxPage() {
+  const [params] = useSearchParams();
   const [input, setInput] = useState("");
   const [result, setResult] = useState(undefined); // undefined=미조회, null=결과없음, obj=조회됨
   const [queriedNo, setQueriedNo] = useState("");
@@ -539,6 +540,16 @@ export default function GrossTaxPage() {
       document.title = prev;
     };
   }, []);
+
+  /* 홈 대시보드 등에서 ?no= 로 넘어오면 바로 조회 */
+  useEffect(() => {
+    const no = (params.get("no") || "").replace(/\D/g, "");
+    if (no.length === 9) {
+      setInput(no);
+      setQueriedNo(no);
+      setResult(queryGrossTax(no));
+    }
+  }, [params]);
 
   const runQuery = (no) => {
     const clean = (no ?? input).replace(/\D/g, "");

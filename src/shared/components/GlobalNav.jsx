@@ -13,12 +13,12 @@ import { cn } from "@shared/lib/format";
 
 const NAV = [
   { to: "/", label: "홈" },
+  { to: "/tax", label: "종합과세 관리" },
   { to: "/noran", label: "노란우산" },
   { to: "/isa", label: "ISA" },
   { to: "/pension", label: "연금" },
   { to: "/tools", label: "보조도구" },
-  { to: "/tax", label: "종합과세 관리" },
-  { to: "/followups", label: "고객 관리" },
+  { to: "/followups", label: "일정 관리" },
 ];
 
 const isActive = (pathname, to) => (to === "/" ? pathname === "/" : pathname.startsWith(to));

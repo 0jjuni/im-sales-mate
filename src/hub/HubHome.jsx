@@ -21,6 +21,7 @@ import { MorningNews } from "./components/MorningNews";
 import { MyTools } from "./components/MyTools";
 import { FollowupBoard } from "./components/FollowupBoard";
 import { ProductGrid } from "./components/ProductGrid";
+import { GrossTaxCard } from "./components/GrossTaxCard";
 import { UtilityGrid } from "./components/UtilityGrid";
 import { KnowledgeLibrary } from "./components/KnowledgeLibrary";
 import { EditGuide, hasSeenEditGuide, markEditGuideSeen } from "./components/EditGuide";
@@ -197,6 +198,15 @@ export function HubHome() {
           <SectionPanel>
             <SectionHeader icon={meta.icon} title="상품 상담" sub="상담할 상품을 선택해 시작하세요" />
             <ProductGrid />
+          </SectionPanel>
+        );
+      }
+      case "grosstax": {
+        const meta = getSection("grosstax");
+        return (
+          <SectionPanel>
+            <SectionHeader icon={meta.icon} title="종합과세 관리" sub="고객번호로 종합과세 대상·절세상품 조회" />
+            <GrossTaxCard />
           </SectionPanel>
         );
       }

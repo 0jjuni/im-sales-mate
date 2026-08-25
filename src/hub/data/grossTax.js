@@ -218,7 +218,7 @@ export function viewProduct(product, manual, restricted = false) {
         note: "사업소득자 소득공제 핵심 — 미보유, 가입 권유.",
       };
     }
-    return { ...product, state: "none", metrics: [{ label: "가입 자격", value: "소기업·소상공인" }], note: "근로소득자는 가입 대상 아님." };
+    return { ...product, state: "none", metrics: [{ label: "가입 자격", value: "소기업·소상공인" }], note: "사업소득자(소기업·소상공인)만 가입 대상 — 해당 없음." };
   }
 
   if (product.key === "housing") {
