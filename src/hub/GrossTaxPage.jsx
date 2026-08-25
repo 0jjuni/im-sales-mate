@@ -359,7 +359,7 @@ function ResultView({ data }) {
       <VerdictBanner data={data} />
 
       <section>
-        <SectionTitle icon={Layers} sub="당행 보유 기준 · 예적금·방카·노란우산 통합 — 지금 무엇으로 절세하고 있나">
+        <SectionTitle icon={Layers} sub="당행 보유 기준">
           절세 상품 활용 현황
         </SectionTitle>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -370,9 +370,7 @@ function ResultView({ data }) {
       </section>
 
       <section>
-        <SectionTitle icon={ShieldCheck} sub="대상 여부·보유·남은 한도에서 규칙으로 도출 — 절세 유도 + 상품 제안 우선순위">
-          맞춤 절세 전략 · 상품 제안
-        </SectionTitle>
+        <SectionTitle icon={ShieldCheck}>맞춤 절세 전략 · 상품 제안</SectionTitle>
         <ol className="space-y-2">
           {strategy.map((s, i) => (
             <StrategyItem key={i} item={s} />
@@ -460,17 +458,12 @@ export default function GrossTaxPage() {
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">금융소득 종합과세 관리</h1>
         </div>
-        <p className="mt-1 max-w-3xl text-[13px] leading-relaxed text-slate-600">
-          여러 화면(0192-8·0192-1·0192-74/75 등)에서 <span className="font-semibold text-slate-800">따로 조회</span>해야 하는
-          당행 절세상품 현황과 종합과세 대상 여부를 <span className="font-semibold text-im-700">고객번호 하나로 통합 조회</span>합니다.
-          이 고객이 <span className="font-semibold text-slate-800">지금 어떻게 절세하는지</span> 진단하고, 절세를 더 유도하며{" "}
-          <span className="font-semibold text-im-700">맞는 상품을 제안</span>하는 것이 목적입니다.
+        <p className="mt-1 text-[13px] text-slate-500">
+          고객번호로 종합과세 대상 여부와 당행 절세상품을 조회합니다.
         </p>
         <div className="mt-3">
           <IntegrationStrip />
-          <p className="mt-1.5 text-[11px] text-slate-400">
-            ※ 조회 범위는 <span className="font-semibold text-slate-500">당행 보유 기준</span>입니다. 타행 가입 여부·잔액은 조회할 수 없습니다(합산 한도는 표기만).
-          </p>
+          <p className="mt-1.5 text-[11px] text-slate-400">당행 보유 기준 · 타행 조회 불가</p>
         </div>
       </div>
 
@@ -515,9 +508,9 @@ const IdleState = ({ onPick }) => (
       <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-im-50 text-im-600">
         <Layers className="h-6 w-6" />
       </div>
-      <p className="text-[14px] font-semibold text-slate-700">고객번호 9자리를 입력하면 통합 결과가 나옵니다</p>
+      <p className="text-[14px] font-semibold text-slate-700">고객번호 9자리를 입력하세요</p>
       <p className="max-w-md text-[12.5px] leading-relaxed text-slate-400">
-        종합과세 대상 여부(관할 세무서 포함) · 비과세·분리과세 상품 현황 · 이 고객 맞춤 절세 전략을 한 번에 확인합니다.
+        종합과세 대상 여부 · 당행 절세상품 현황 · 절세 전략을 확인합니다.
       </p>
       <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
         <span className="text-[11px] text-slate-400">예시 고객:</span>
