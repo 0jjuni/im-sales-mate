@@ -408,9 +408,11 @@ export const FollowupForm = ({ onAdd, defaultDate = "", fixedType }) => {
       <div className="flex flex-col gap-2 sm:flex-row">
         <input
           value={customerNo}
-          onChange={(e) => setCustomerNo(e.target.value)}
-          placeholder={isNoteEntry ? "고객번호 — 필수" : "고객번호"}
-          className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] focus:border-im-500 focus:outline-none sm:w-44"
+          onChange={(e) => setCustomerNo(e.target.value.replace(/\D/g, "").slice(0, 9))}
+          inputMode="numeric"
+          maxLength={9}
+          placeholder={isNoteEntry ? "고객번호 9자리 — 필수" : "고객번호 9자리"}
+          className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] tabular-nums focus:border-im-500 focus:outline-none sm:w-44"
         />
         {!isNoteEntry && (
           <div className="flex items-center gap-2">
