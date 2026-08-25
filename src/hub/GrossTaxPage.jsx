@@ -15,7 +15,6 @@ import {
   Info,
   Printer,
   BadgePercent,
-  PencilLine,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { PrintReport } from "@shared/components/PrintReport";
@@ -236,35 +235,57 @@ const StrategyItem = ({ item }) => {
   );
 };
 
-/* 수기 확인 패널 — 자동 조회로는 최신 여부를 보장 못 하는 소득 유형을 상담 시 조정 */
-const ManualPanel = ({ incomeType, onChange }) => (
-  <div className="rounded-xl border border-slate-200 bg-white p-3.5">
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-      <span className="inline-flex items-center gap-1.5">
-        <PencilLine className="h-3.5 w-3.5 text-slate-400" />
-        <span className="text-[12.5px] font-bold text-slate-700">소득 유형</span>
-        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">수기 확인</span>
-      </span>
-      <div className="flex flex-wrap gap-1">
-        {INCOME_TYPES.map((t) => (
-          <button
-            key={t}
-            onClick={() => onChange(t)}
-            className={cn(
-              "rounded-md border px-3 py-1.5 text-[12px] font-semibold transition-colors",
-              incomeType === t
-                ? "border-im-500 bg-im-500 text-white"
-                : "border-slate-300 bg-white text-slate-600 hover:border-slate-400"
-            )}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
-      <span className="text-[11px] text-slate-400 sm:ml-auto">기록이 최신이 아닐 수 있어 상담 시 확인·조정</span>
-    </div>
+const SegBtn = ({ active, onClick, children }) => (
+  <button
+    onClick={onClick}
+    className={cn(
+      "rounded-md border px-3 py-1.5 text-[12px] font-semibold transition-colors",
+      active ? "border-im-500 bg-im-500 text-white" : "border-slate-300 bg-white text-slate-600 hover:border-slate-400"
+    )}
+  >
+    {children}
+  </button>
+);
+
+const YesNo = ({ value, onChange }) => (
+  <div className="flex gap-1">
+    <SegBtn active={value === true} onClick={() => onChange(true)}>예</SegBtn>
+    <SegBtn active={value === false} onClick={() => onChange(false)}>아니오</SegBtn>
   </div>
 );
+
+const ManualField = ({ label, children }) => (
+  <div className="flex items-center gap-2">
+    <span className="text-[12.5px] font-semibold text-slate-700">{label}</span>
+    {children}
+  </div>
+);
+
+/* 상담 시 조정하는 값 — 소득 유형·무주택 세대주·비과세종합저축 자격 */
+const ManualPanel = ({ manual, onChange }) => {
+  const set = (k, v) => onChange({ ...manual, [k]: v });
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-3.5">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <ManualField label="소득 유형">
+          <div className="flex flex-wrap gap-1">
+            {INCOME_TYPES.map((t) => (
+              <SegBtn key={t} active={manual.incomeType === t} onClick={() => set("incomeType", t)}>
+                {t}
+              </SegBtn>
+            ))}
+          </div>
+        </ManualField>
+        <ManualField label="무주택 세대주">
+          <YesNo value={manual.homeless} onChange={(v) => set("homeless", v)} />
+        </ManualField>
+        <ManualField label="비과세종합저축 자격">
+          <YesNo value={manual.nontaxEligible} onChange={(v) => set("nontaxEligible", v)} />
+        </ManualField>
+      </div>
+    </div>
+  );
+};
 
 const SectionTitle = ({ icon: Icon, children, sub }) => (
   <div className="mb-3 flex items-center gap-2.5">
@@ -361,12 +382,20 @@ const ReferenceGuide = () => {
 /* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
 function ResultView({ data }) {
   const j = data.jonghap;
-  const [incomeType, setIncomeType] = useState(data.incomeType);
+  const [manual, setManual] = useState({
+    incomeType: data.incomeType,
+    homeless: data.homeless,
+    nontaxEligible: data.nontaxEligible,
+  });
   /* 다른 고객을 조회하면 그 고객의 기록값으로 초기화 */
-  useEffect(() => setIncomeType(data.incomeType), [data.customerNo, data.incomeType]);
+  useEffect(
+    () => setManual({ incomeType: data.incomeType, homeless: data.homeless, nontaxEligible: data.nontaxEligible }),
+    [data.customerNo, data.incomeType, data.homeless, data.nontaxEligible]
+  );
 
-  const products = data.products.map((p) => viewProduct(p, incomeType));
-  const strategy = deriveStrategy(data, incomeType);
+  const restricted = j.isTarget || j.restrictedByHistory;
+  const products = data.products.map((p) => viewProduct(p, manual, restricted));
+  const strategy = deriveStrategy(data, manual);
 
   useEffect(() => {
     const cleanup = () => document.documentElement.classList.remove("printing-market");
@@ -396,7 +425,7 @@ function ResultView({ data }) {
 
       <VerdictBanner data={data} />
 
-      <ManualPanel incomeType={incomeType} onChange={setIncomeType} />
+      <ManualPanel manual={manual} onChange={setManual} />
 
       <section>
         <SectionTitle icon={Layers} sub="당행 보유 기준">
@@ -429,12 +458,14 @@ function ResultView({ data }) {
       {createPortal(
         <PrintReport
           title={`금융소득 종합과세 진단 · ${data.name}`}
-          subtitle={`${data.customerNo} · ${data.age} · ${incomeType}(수기) · ${j.taxYear}년 기준`}
+          subtitle={`${data.customerNo} · ${data.age} · ${manual.incomeType} · ${j.taxYear}년 기준`}
           disclaimer="본 자료는 당행 보유 기준 내부 조회를 통합한 상담 참고용입니다(데모 — 표시 데이터는 예시). 타행 가입분은 조회되지 않으며, 실제 과세 여부·한도·세액은 소득 전체와 세법 개정에 따라 달라집니다. 신고·납부는 관할세무서·홈택스 기준으로 확인해야 하며, 특정 상품의 투자권유가 아닙니다."
           inputs={[
             { label: "고객번호", value: data.customerNo },
             { label: "연령", value: data.age },
-            { label: "소득 유형(수기 확인)", value: incomeType },
+            { label: "소득 유형", value: manual.incomeType },
+            { label: "무주택 세대주", value: manual.homeless ? "예" : "아니오" },
+            { label: "비과세종합저축 자격", value: manual.nontaxEligible ? "예" : "아니오" },
             { label: "기준 연도", value: `${j.taxYear}년` },
             {
               label: "직전 3년 이력",

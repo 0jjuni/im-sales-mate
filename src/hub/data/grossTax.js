@@ -39,8 +39,10 @@ const CUSTOMERS = {
     customerNo: "841023391",
     name: "김○호",
     age: "52세",
-    /* 은행 기록상 마지막 소득 유형(수기 확인 대상 — 상담 시 바뀌었을 수 있어 조정 가능) */
+    /* 상담 시 조정하는 값(자동 조회로는 최신 여부를 보장 못 하거나 조회 불가) */
     incomeType: "개인사업자",
+    homeless: false,
+    nontaxEligible: false,
     jonghap: {
       taxYear: 2025,
       isTarget: true,
@@ -55,16 +57,7 @@ const CUSTOMERS = {
       restrictedByHistory: true,
     },
     products: [
-      {
-        key: "nontaxSavings",
-        state: "none",
-        headline: "당행 미가입 · 가입 대상 아님",
-        metrics: [
-          { label: "비과세 한도", value: "5,000만원(전금융기관 합산)" },
-          { label: "당행 가입", value: "없음" },
-        ],
-        note: "만 65세 이상·장애인·독립유공자 등만 가입 가능 — 현재 요건 미해당. 합산 한도라 타행 가입분은 조회 불가.",
-      },
+      { key: "nontaxSavings", held: false },
       {
         key: "insMonthly",
         state: "available",
@@ -95,6 +88,8 @@ const CUSTOMERS = {
     name: "이○희",
     age: "48세",
     incomeType: "근로소득자",
+    homeless: true,
+    nontaxEligible: false,
     jonghap: {
       taxYear: 2025,
       isTarget: false,
@@ -109,16 +104,7 @@ const CUSTOMERS = {
       restrictedByHistory: false,
     },
     products: [
-      {
-        key: "nontaxSavings",
-        state: "none",
-        headline: "당행 미가입 · 가입 대상 아님",
-        metrics: [
-          { label: "비과세 한도", value: "5,000만원(전금융기관 합산)" },
-          { label: "당행 가입", value: "없음" },
-        ],
-        note: "만 65세 이상 등 요건 미해당(48세).",
-      },
+      { key: "nontaxSavings", held: false },
       {
         key: "insOther",
         state: "available",
@@ -152,6 +138,8 @@ const CUSTOMERS = {
     name: "박○수",
     age: "59세",
     incomeType: "개인사업자",
+    homeless: false,
+    nontaxEligible: false,
     jonghap: {
       taxYear: 2025,
       isTarget: false,
@@ -166,16 +154,7 @@ const CUSTOMERS = {
       restrictedByHistory: true,
     },
     products: [
-      {
-        key: "nontaxSavings",
-        state: "none",
-        headline: "당행 미가입 · 가입 대상 아님",
-        metrics: [
-          { label: "비과세 한도", value: "5,000만원(전금융기관 합산)" },
-          { label: "당행 가입", value: "없음" },
-        ],
-        note: "만 65세 이상 등 요건 미해당(59세).",
-      },
+      { key: "nontaxSavings", held: false },
       {
         key: "isa",
         state: "restricted",
@@ -189,12 +168,52 @@ const CUSTOMERS = {
   },
 };
 
-/* 수기 확인 대상 — 소득 유형(자동 조회로는 최신 여부를 보장 못 함). PB가 상담 시 조정한다. */
 export const INCOME_TYPES = ["근로소득자", "개인사업자", "기타"];
 
-/* 소득 유형에 따라 자격·소득공제가 달라지는 상품(노란우산·주택청약)을 파생한다.
-   나머지 상품은 그대로 반환. 조회는 「가입 여부(held)」만, 자격 판단은 수기 소득유형으로. */
-export function viewProduct(product, incomeType) {
+/* 상담 시 조정하는 값(소득 유형·무주택 세대주·비과세종합저축 자격)에 따라
+   자격·소득공제가 달라지는 상품을 파생한다. 조회는 「가입 여부(held)」만, 자격 판단은 이 값으로. */
+export function viewProduct(product, manual, restricted = false) {
+  const { incomeType, homeless, nontaxEligible } = manual;
+
+  if (product.key === "nontaxSavings") {
+    const limitMetric = { label: "비과세 한도", value: "5,000만원(전금융기관 합산)" };
+    if (nontaxEligible) {
+      if (product.held) {
+        return {
+          ...product,
+          state: "active",
+          headline: "당행 가입 중",
+          metrics: [limitMetric, { label: "당행 가입", value: "보유" }],
+          note: "기초연금 수급자·장애인·만 65세 이상 등 비과세 대상. 타행 가입분은 합산 한도에서 별도 확인.",
+        };
+      }
+      /* 자격은 있으나 종합과세 대상/이력이면 신규 가입 제한 상품 */
+      if (restricted) {
+        return {
+          ...product,
+          state: "restricted",
+          headline: "자격 있음 · 가입 제한",
+          metrics: [limitMetric, { label: "당행 가입", value: "없음" }],
+          note: "비과세 자격은 있으나 종합과세 대상/직전 이력으로 신규 가입 제한.",
+        };
+      }
+      return {
+        ...product,
+        state: "recommend",
+        headline: "당행 미가입 · 가입 권유",
+        metrics: [limitMetric, { label: "당행 가입", value: "없음" }],
+        note: "기초연금 수급자·장애인·만 65세 이상 등 → 비과세 예적금 가입 권유. 타행 가입분은 별도 확인.",
+      };
+    }
+    return {
+      ...product,
+      state: "none",
+      headline: "가입 대상 아님",
+      metrics: [limitMetric, { label: "당행 가입", value: "없음" }],
+      note: "만 65세 이상 기초연금 수급자·장애인·독립유공자 등만 가입 가능.",
+    };
+  }
+
   if (product.key === "noran") {
     const eligible = incomeType === "개인사업자";
     if (product.held) {
@@ -234,18 +253,18 @@ export function viewProduct(product, incomeType) {
   }
 
   if (product.key === "housing") {
-    const deductible = incomeType === "근로소득자";
+    const deductible = incomeType === "근로소득자" && homeless;
     return {
       ...product,
       state: "active",
       headline: "당행 가입 중",
       metrics: [
         { label: "당행 월 납입", value: product.monthly || "10만원" },
-        { label: "소득공제", value: deductible ? "총급여 7천 이하 — 대상" : "근로소득자만 대상 — 해당 없음" },
+        { label: "소득공제", value: deductible ? "무주택 세대주 근로자 — 대상" : "대상 아님" },
       ],
       note: deductible
-        ? "무주택 세대주 근로소득자 소득공제 대상. 납입 유지 권장."
-        : "청약 자격 유지 목적. 소득공제는 근로소득자 한정.",
+        ? "무주택 세대주 근로소득자 소득공제 대상(총급여 7천 이하). 납입 유지 권장."
+        : "청약 자격 유지 목적. 소득공제는 무주택 세대주 근로소득자 한정.",
     };
   }
 
@@ -274,13 +293,15 @@ const cleanLabel = (label) => label.replace(" 가입 여부", "");
    이 고객이 지금 어떻게 절세하는지 + 어떻게 더 유도하고 무슨 상품을 팔지를 우선순위로 만든다.
    실서비스에서도 이 함수 하나가 모든 고객의 제안을 결정론적으로 생성 — 근거가 규칙으로 추적된다.
    입력: jonghap(대상여부·기준근접·이력제한) + products(상태·남은한도·미보유). */
-export function deriveStrategy(data, incomeType) {
+export function deriveStrategy(data, manual) {
   const j = data.jonghap;
+  const incomeType = manual.incomeType;
   const ratio = j.threshold ? j.financialIncome / j.threshold : 0;
   const near = !j.isTarget && ratio >= 0.8;
   const won = (v) => v.toLocaleString();
-  /* 소득 유형(수기)에 따라 자격이 달라지는 상품을 반영해 전략을 도출 */
-  const products = data.products.map((p) => viewProduct(p, incomeType));
+  /* 수기 값(소득유형·무주택·비과세자격)에 따라 자격이 달라지는 상품을 반영해 전략을 도출 */
+  const restricted = j.isTarget || j.restrictedByHistory;
+  const products = data.products.map((p) => viewProduct(p, manual, restricted));
   const items = [];
 
   /* 1) 진단 헤드라인 */
@@ -353,12 +374,14 @@ export function deriveStrategy(data, incomeType) {
   /* 5) 세액공제·소득공제 — 소득 유형에 맞춰 제안 (가입 제한과 무관) */
   const noranActive = products.some((p) => p.key === "noran" && p.state === "active");
   if (incomeType === "근로소득자") {
+    const housingDeduct = manual.homeless;
     items.push({
       tag: "세액공제",
       kind: "action",
-      title: "IRP·연금저축 세액공제 + 주택청약 소득공제",
-      detail:
-        "연말정산에서 연금계좌 세액공제(IRP·연금저축 합산 900만원)와 무주택 세대주 주택청약 소득공제를 함께 챙기도록 제안하세요.",
+      title: housingDeduct ? "IRP·연금저축 세액공제 + 주택청약 소득공제" : "IRP·연금저축 세액공제 제안",
+      detail: housingDeduct
+        ? "연말정산에서 연금계좌 세액공제(IRP·연금저축 합산 900만원)와 무주택 세대주 주택청약 소득공제를 함께 챙기도록 제안하세요."
+        : "연말정산 연금계좌 세액공제(IRP·연금저축 합산 900만원)로 환급을 늘리도록 제안하세요.",
       cta: { to: "/pension", label: "연금 세액공제 계산" },
     });
   } else {
