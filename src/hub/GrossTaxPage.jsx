@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { Link } from "react-router-dom";
 import {
   Search,
   UserRound,
@@ -13,6 +14,7 @@ import {
   Layers,
   Info,
   Printer,
+  BadgePercent,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { PrintReport } from "@shared/components/PrintReport";
@@ -49,7 +51,7 @@ const SourceChip = ({ code }) => (
 const IntegrationStrip = () => (
   <div className="flex flex-wrap items-center gap-1.5">
     {Object.values(SOURCES).map((s) => (
-      <span key={s.code} className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-1 text-[11px] text-slate-500">
+      <span key={s.label} className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-1 text-[11px] text-slate-500">
         <SourceChip code={s.code} />
         <span className="text-slate-600">{s.label}</span>
       </span>
@@ -184,6 +186,16 @@ const ProductCard = ({ product }) => {
           {product.note}
         </p>
       )}
+
+      {product.cta && (
+        <Link
+          to={product.cta.to}
+          className="mt-2.5 inline-flex items-center gap-1 rounded-md bg-im-600 px-2.5 py-1.5 text-[11.5px] font-bold text-white transition-colors hover:bg-im-700"
+        >
+          {product.cta.label}
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      )}
     </div>
   );
 };
@@ -191,6 +203,7 @@ const ProductCard = ({ product }) => {
 const STRATEGY_KIND = {
   warn: { wrap: "border-amber-200 bg-amber-50/60", icon: AlertTriangle, iconColor: "text-amber-600", tag: "bg-amber-100 text-amber-800" },
   action: { wrap: "border-slate-200 bg-white", icon: ArrowRight, iconColor: "text-im-600", tag: "bg-im-100 text-im-700" },
+  sell: { wrap: "border-im-300 bg-im-50/70 ring-1 ring-inset ring-im-100", icon: BadgePercent, iconColor: "text-im-600", tag: "bg-im-600 text-white" },
   ok: { wrap: "border-im-200 bg-im-50/50", icon: Check, iconColor: "text-im-600", tag: "bg-im-100 text-im-700" },
 };
 
@@ -200,12 +213,21 @@ const StrategyItem = ({ item }) => {
   return (
     <li className={cn("flex gap-3 rounded-xl border p-3.5", k.wrap)}>
       <Icon className={cn("mt-0.5 h-4 w-4 flex-shrink-0", k.iconColor)} />
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", k.tag)}>{item.tag}</span>
           <h4 className="text-[13.5px] font-bold text-slate-900">{item.title}</h4>
         </div>
         <p className="mt-1 text-[12.5px] leading-relaxed text-slate-600">{item.detail}</p>
+        {item.cta && (
+          <Link
+            to={item.cta.to}
+            className="mt-2 inline-flex items-center gap-1 rounded-md border border-im-300 bg-white px-2.5 py-1 text-[11.5px] font-bold text-im-700 transition-colors hover:bg-im-50"
+          >
+            {item.cta.label}
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        )}
       </div>
     </li>
   );
@@ -337,8 +359,8 @@ function ResultView({ data }) {
       <VerdictBanner data={data} />
 
       <section>
-        <SectionTitle icon={Layers} sub="종합과세에서 제외되는 비과세·분리과세 상품 — 계정계·보험·노란우산 통합">
-          제외 상품 현황
+        <SectionTitle icon={Layers} sub="당행 보유 기준 · 예적금·방카·노란우산 통합 — 지금 무엇으로 절세하고 있나">
+          절세 상품 활용 현황
         </SectionTitle>
         <div className="grid gap-3 sm:grid-cols-2">
           {data.products.map((p) => (
@@ -348,8 +370,8 @@ function ResultView({ data }) {
       </section>
 
       <section>
-        <SectionTitle icon={ShieldCheck} sub="대상 여부 · 보유 상품 · 남은 한도에서 규칙으로 도출한 실행 우선순위">
-          맞춤 절세 전략
+        <SectionTitle icon={ShieldCheck} sub="대상 여부·보유·남은 한도에서 규칙으로 도출 — 절세 유도 + 상품 제안 우선순위">
+          맞춤 절세 전략 · 상품 제안
         </SectionTitle>
         <ol className="space-y-2">
           {strategy.map((s, i) => (
@@ -370,7 +392,7 @@ function ResultView({ data }) {
         <PrintReport
           title={`금융소득 종합과세 진단 · ${data.name}`}
           subtitle={`${data.customerNo} · ${data.profile} · ${j.taxYear}년 기준`}
-          disclaimer="본 자료는 계정계·보험·노란우산 등 내부 조회를 통합한 상담 참고용입니다(데모 — 표시 데이터는 예시). 실제 과세 여부·한도·세액은 소득 전체와 세법 개정에 따라 달라지며, 신고·납부는 관할세무서·홈택스 기준으로 확인해야 합니다. 특정 상품의 투자권유가 아닙니다."
+          disclaimer="본 자료는 당행 보유 기준 내부 조회를 통합한 상담 참고용입니다(데모 — 표시 데이터는 예시). 타행 가입분은 조회되지 않으며, 실제 과세 여부·한도·세액은 소득 전체와 세법 개정에 따라 달라집니다. 신고·납부는 관할세무서·홈택스 기준으로 확인해야 하며, 특정 상품의 투자권유가 아닙니다."
           inputs={[
             { label: "고객번호", value: data.customerNo },
             { label: "고객 유형", value: data.profile },
@@ -397,7 +419,7 @@ function ResultView({ data }) {
           ]}
           notes={strategy.map((s) => `[${s.tag}] ${s.title} — ${s.detail}`)}
           legalBasis="소득세법 제14조·제62조(금융소득 종합과세) · 조세특례제한법(비과세종합저축·ISA)"
-          sourceLine="계정계 통합 조회(0192-8·0192-1·0192-74/75 등) — 데모, 실서비스 시 실제 조회로 대체"
+          sourceLine="당행 내부 조회 통합(0192-8·0192-1·0192-74/75 · ISA/주택청약/노란우산 가입여부) — 데모, 실서비스 시 실제 조회로 대체"
           brandLabel="iM 세일즈메이트 · 종합과세 진단자료 · iM뱅크"
           accent="amber"
         />,
@@ -439,12 +461,16 @@ export default function GrossTaxPage() {
           <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">금융소득 종합과세 관리</h1>
         </div>
         <p className="mt-1 max-w-3xl text-[13px] leading-relaxed text-slate-600">
-          지금은 계정계·보험·노란우산 등 <span className="font-semibold text-slate-800">여러 화면에서 따로 조회</span>해야 하는
-          비과세·분리과세 상품 현황과 종합과세 대상 여부를,{" "}
-          <span className="font-semibold text-im-700">고객번호 하나로 이 화면에서 통합 조회</span>하고 맞춤 절세 전략까지 제시합니다.
+          여러 화면(0192-8·0192-1·0192-74/75 등)에서 <span className="font-semibold text-slate-800">따로 조회</span>해야 하는
+          당행 절세상품 현황과 종합과세 대상 여부를 <span className="font-semibold text-im-700">고객번호 하나로 통합 조회</span>합니다.
+          이 고객이 <span className="font-semibold text-slate-800">지금 어떻게 절세하는지</span> 진단하고, 절세를 더 유도하며{" "}
+          <span className="font-semibold text-im-700">맞는 상품을 제안</span>하는 것이 목적입니다.
         </p>
         <div className="mt-3">
           <IntegrationStrip />
+          <p className="mt-1.5 text-[11px] text-slate-400">
+            ※ 조회 범위는 <span className="font-semibold text-slate-500">당행 보유 기준</span>입니다. 타행 가입 여부·잔액은 조회할 수 없습니다(합산 한도는 표기만).
+          </p>
         </div>
       </div>
 

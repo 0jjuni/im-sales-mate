@@ -1,36 +1,39 @@
 /* 금융소득 종합과세 관리 — 데이터 계층.
 
-   목적: 지금은 계정계·보험·노란우산 등 여러 내부 화면(0192-1, 0192-74/75, 0192-8 …)에서
-   따로 조회해야 하는 「비과세·분리과세 상품 현황」과 「종합과세 대상 여부」를,
-   고객번호 하나로 이 사이트 한 곳에서 통합 조회하기 위한 스캐폴드.
+   목적: 이 고객이 「지금 어떻게 절세하고 있는지」를 당행 보유 기준으로 진단하고,
+   절세를 더 유도하면서 우리 상품(ISA·방카·노란우산·연금 등)을 제안하기 위한 스캐폴드.
+   여러 내부 화면(0192-8·0192-1·0192-74/75 등)에서 따로 봐야 하는 걸 고객번호 하나로 통합한다.
 
-   ⚠ 데모 목업이다. 실서비스에서는 각 항목의 source(내부 조회)를 실제 계정계 API로 대체한다.
-   호출부는 queryGrossTax(customerNo)의 반환 형태에만 의존한다. */
+   ⚠ 조회 범위는 「당행 보유분」이다. 타행 가입 여부·잔액은 조회할 수 없다(법정 합산한도는 표기만).
+   ⚠ 데모 목업이다. 실서비스에서는 각 source(내부 조회)를 실제 조회 결과로 대체한다.
+      호출부는 queryGrossTax(customerNo)·deriveStrategy(data)의 형태에만 의존한다. */
 
-/* 통합 조회 소스 — 각 데이터가 「원래 어느 화면에서 오는지」이자, 이 사이트가 통합하는 대상.
-   출처 각주가 아니라, "흩어진 조회를 여기로 모은다"는 의도를 드러내는 라벨로 쓴다. */
+/* 통합 조회 소스 — 각 데이터가 원래 어느 화면/조회에서 오는지이자, 이 사이트가 통합하는 대상.
+   0192-x는 내부 조회 화면 코드, 나머지는 당행 계좌 보유 여부 확인. */
 export const SOURCES = {
   jonghap: { code: "0192-8", label: "종합과세 대상자 조회" },
-  nontaxSavings: { code: "0192-1", label: "비과세종합저축 한도" },
+  nontaxSavings: { code: "0192-1", label: "비과세종합저축" },
   insMonthly: { code: "0192-74", label: "저축성보험(월적립식)" },
   insOther: { code: "0192-75", label: "저축성보험(월적립식 외)" },
-  isa: { code: "계정계", label: "ISA 순이익·한도" },
-  housing: { code: "전금융기관", label: "주택청약 가입조회" },
-  noran: { code: "노란우산", label: "노란우산공제 조회" },
+  isa: { code: "당행", label: "ISA 가입 여부" },
+  housing: { code: "당행", label: "주택청약 가입 여부" },
+  noran: { code: "노란우산", label: "노란우산공제" },
 };
 
 /* 상품 상태 → 색/의미.
-   active=활용 중 · available=여력 있음(권유) · restricted=가입·연장 제한 · none=미가입/대상 아님 */
+   active=활용 중 · available=추가 납입 여력(추가 판매) · recommend=미보유·가입 권유(신규 판매)
+   restricted=가입/연장 제한 · none=해당 없음 */
 export const PRODUCT_STATE = {
   active: { label: "활용 중", tone: "im" },
-  available: { label: "여력 있음", tone: "amber" },
-  restricted: { label: "가입 제한", tone: "rose" },
-  none: { label: "미보유", tone: "slate" },
+  available: { label: "추가 납입 여력", tone: "amber" },
+  recommend: { label: "미보유 · 가입 권유", tone: "im" },
+  restricted: { label: "가입/연장 제한", tone: "rose" },
+  none: { label: "해당 없음", tone: "slate" },
 };
 
 /* ── 대표 고객 3인(리치 목업) ─────────────────────────────────────────
-   기존 후속관리 seed 고객번호를 재사용해 화면 간 일관성 유지.
-   841023391 종합과세 대상자 / 772501180 비대상·절세 잘 활용 / 904176624 경계(직전 3년 중 1회 대상) */
+   후속관리 seed 고객번호 재사용. 조회 데이터는 모두 「당행 보유 기준」.
+   841023391 종합과세 대상자 / 772501180 비대상·ISA 미보유(판매 기회) / 904176624 경계(직전 3년 대상 이력) */
 const CUSTOMERS = {
   "841023391": {
     customerNo: "841023391",
@@ -39,7 +42,7 @@ const CUSTOMERS = {
     jonghap: {
       taxYear: 2025,
       isTarget: true,
-      financialIncome: 3120, // 만원
+      financialIncome: 3120,
       threshold: 2000,
       taxOffice: "동대구세무서",
       history: [
@@ -47,26 +50,26 @@ const CUSTOMERS = {
         { year: 2023, isTarget: false },
         { year: 2022, isTarget: false },
       ],
-      restrictedByHistory: true, // 직전 3개 과세기간 중 1회 이상 대상 → 비과세종합저축·ISA 가입/연장 제한
+      restrictedByHistory: true,
     },
     products: [
       {
         key: "nontaxSavings",
         state: "none",
-        headline: "가입 대상 아님",
+        headline: "당행 미가입 · 가입 대상 아님",
         metrics: [
-          { label: "한도(전금융기관 합산)", value: "5,000만원" },
-          { label: "사용", value: "0원" },
+          { label: "비과세 한도", value: "5,000만원(전금융기관 합산)" },
+          { label: "당행 가입", value: "없음" },
         ],
-        note: "만 65세 이상·장애인·독립유공자 등만 가입 가능 — 현재 요건 미해당.",
+        note: "만 65세 이상·장애인·독립유공자 등만 가입 가능 — 현재 요건 미해당. 합산 한도라 타행 가입분은 조회 불가.",
       },
       {
         key: "insMonthly",
         state: "available",
         remaining: "월 70만원",
-        headline: "월적립식 가입 · 납입 여력 있음",
+        headline: "당행(방카) 월적립식 가입 · 납입 여력",
         metrics: [
-          { label: "월 납입", value: "80만원" },
+          { label: "당행 월 납입", value: "80만원" },
           { label: "월 한도", value: "150만원" },
           { label: "남은 여력", value: "월 70만원" },
         ],
@@ -75,32 +78,29 @@ const CUSTOMERS = {
       {
         key: "isa",
         state: "restricted",
-        headline: "일반형 보유 · 연장·재가입 제한",
-        metrics: [
-          { label: "납입", value: "1,400 / 2,000만원" },
-          { label: "비과세 한도", value: "200만원(일반형)" },
-        ],
-        note: "직전 3년 중 종합과세 대상 이력 → 만기 후 재가입·연장 제한 대상. 현 계좌 유지 위주로 안내.",
+        headline: "당행 ISA 보유 · 재가입/연장 제한",
+        metrics: [{ label: "당행 가입", value: "보유(일반형)" }],
+        note: "직전 3년 종합과세 대상 이력 → 만기 후 재가입·연장 제한. 현 계좌 유지 위주로 안내.",
       },
       {
         key: "housing",
         state: "active",
-        headline: "가입 중",
+        headline: "당행 가입 중",
         metrics: [
-          { label: "월 납입", value: "10만원" },
+          { label: "당행 월 납입", value: "10만원" },
           { label: "소득공제", value: "사업소득자 — 대상 아님" },
         ],
-        note: "무주택 세대주 근로소득자만 소득공제. 청약 자격 유지 목적으로 활용.",
+        note: "무주택 세대주 근로소득자만 소득공제. 청약 자격 유지 목적.",
       },
       {
         key: "noran",
         state: "active",
-        headline: "가입 중 · 소득공제 적용",
+        headline: "당행 가입 중 · 소득공제 적용",
         metrics: [
-          { label: "월 부금", value: "20만원" },
-          { label: "소득공제", value: "연 최대 500만원(사업소득 규모별)" },
+          { label: "당행 월 부금", value: "20만원" },
+          { label: "소득공제", value: "사업소득 규모별 한도" },
         ],
-        note: "폐업·퇴임 시 공제금 수령. 사업소득자 소득공제 핵심 수단 — 부금 증액 여력 점검.",
+        note: "폐업·퇴임 시 공제금 수령. 사업소득자 소득공제 핵심 — 부금 증액 여력 점검.",
       },
     ],
   },
@@ -126,20 +126,20 @@ const CUSTOMERS = {
       {
         key: "nontaxSavings",
         state: "none",
-        headline: "가입 대상 아님",
+        headline: "당행 미가입 · 가입 대상 아님",
         metrics: [
-          { label: "한도(전금융기관 합산)", value: "5,000만원" },
-          { label: "사용", value: "0원" },
+          { label: "비과세 한도", value: "5,000만원(전금융기관 합산)" },
+          { label: "당행 가입", value: "없음" },
         ],
-        note: "만 65세 이상·장애인 등 요건 미해당(48세).",
+        note: "만 65세 이상 등 요건 미해당(48세).",
       },
       {
         key: "insOther",
         state: "available",
         remaining: "2,000만원",
-        headline: "일시납 보유 · 납입 여력 있음",
+        headline: "당행(방카) 일시납 보유 · 납입 여력",
         metrics: [
-          { label: "일시납 보험료", value: "8,000만원" },
+          { label: "당행 일시납", value: "8,000만원" },
           { label: "일시납 한도", value: "1억원" },
           { label: "남은 여력", value: "2,000만원" },
         ],
@@ -147,22 +147,21 @@ const CUSTOMERS = {
       },
       {
         key: "isa",
-        state: "available",
-        remaining: "200만원",
-        headline: "서민형 보유 · 납입 여력 있음",
+        state: "recommend",
+        cta: { to: "/isa", label: "ISA 상담 시작" },
+        headline: "당행 ISA 미보유 · 가입 권유",
         metrics: [
-          { label: "납입", value: "1,800 / 2,000만원" },
-          { label: "비과세 한도", value: "400만원(서민형)" },
-          { label: "남은 납입", value: "200만원" },
+          { label: "당행 가입", value: "없음" },
+          { label: "권유 유형", value: "서민형(비과세 400만원)" },
         ],
-        note: "서민형(비과세 400) 활용 우수. 올해 납입 여력 200만원을 마저 채우면 유리.",
+        note: "비대상·가입 제한 없음 → 서민형 ISA로 순이익 비과세. 지금 화면에서 바로 잡을 대표 판매 기회.",
       },
       {
         key: "housing",
         state: "active",
-        headline: "가입 중 · 소득공제 대상",
+        headline: "당행 가입 중 · 소득공제 대상",
         metrics: [
-          { label: "월 납입", value: "10만원" },
+          { label: "당행 월 납입", value: "10만원" },
           { label: "소득공제", value: "총급여 7천 이하 — 대상" },
         ],
         note: "무주택 세대주 근로소득자 소득공제 대상. 납입 유지 권장.",
@@ -172,7 +171,7 @@ const CUSTOMERS = {
         state: "none",
         headline: "가입 대상 아님",
         metrics: [{ label: "가입 자격", value: "소기업·소상공인" }],
-        note: "근로소득자는 가입 대상 아님(사업소득 발생 시 재검토).",
+        note: "근로소득자는 대상 아님(사업소득 발생 시 재검토).",
       },
     ],
   },
@@ -198,39 +197,36 @@ const CUSTOMERS = {
       {
         key: "nontaxSavings",
         state: "none",
-        headline: "가입 대상 아님",
+        headline: "당행 미가입 · 가입 대상 아님",
         metrics: [
-          { label: "한도(전금융기관 합산)", value: "5,000만원" },
-          { label: "사용", value: "0원" },
+          { label: "비과세 한도", value: "5,000만원(전금융기관 합산)" },
+          { label: "당행 가입", value: "없음" },
         ],
         note: "만 65세 이상 등 요건 미해당(59세).",
       },
       {
         key: "isa",
         state: "restricted",
-        headline: "일반형 보유 · 재가입·연장 제한",
-        metrics: [
-          { label: "납입", value: "600 / 2,000만원" },
-          { label: "비과세 한도", value: "200만원(일반형)" },
-        ],
-        note: "직전 3년 중 대상 이력(2023) → 만기 후 재가입·연장 제한. 신규 비과세상품 가입도 제한.",
+        headline: "당행 ISA 보유 · 재가입/연장 제한",
+        metrics: [{ label: "당행 가입", value: "보유(일반형)" }],
+        note: "직전 3년 대상 이력(2023) → 재가입·연장 및 신규 비과세상품 가입 제한.",
       },
       {
         key: "housing",
         state: "active",
-        headline: "가입 중",
+        headline: "당행 가입 중",
         metrics: [
-          { label: "월 납입", value: "10만원" },
+          { label: "당행 월 납입", value: "10만원" },
           { label: "소득공제", value: "사업소득자 — 대상 아님" },
         ],
-        note: "청약 자격 유지 목적. 소득공제는 근로소득자 한정.",
+        note: "청약 자격 유지 목적.",
       },
       {
         key: "noran",
         state: "active",
-        headline: "가입 중 · 소득공제 적용",
+        headline: "당행 가입 중 · 소득공제 적용",
         metrics: [
-          { label: "월 부금", value: "10만원" },
+          { label: "당행 월 부금", value: "10만원" },
           { label: "소득공제", value: "사업소득 규모별 한도" },
         ],
         note: "부금 증액 시 소득공제 확대 여지 — 사업소득 규모 확인 후 안내.",
@@ -239,10 +235,28 @@ const CUSTOMERS = {
   },
 };
 
-/* 절세 전략 = 조회된 사실에서 규칙으로 도출한다(하드코딩 아님).
-   실서비스에서도 이 함수 하나가 모든 고객의 전략을 결정론적으로 생성한다 —
-   "왜 이 전략이 나왔나"가 규칙으로 추적되어 컴플라이언스에도 부합.
-   입력: jonghap(대상여부·기준근접·이력제한) + products(상태·남은한도) + 소득유형 */
+/* 고객번호로 통합 조회. 없으면 null. */
+export function queryGrossTax(customerNo) {
+  const key = (customerNo || "").replace(/\D/g, "");
+  return CUSTOMERS[key] || null;
+}
+
+export const SAMPLE_CUSTOMERS = Object.values(CUSTOMERS).map((c) => ({
+  customerNo: c.customerNo,
+  name: c.name,
+  tag: c.jonghap.isTarget
+    ? "종합과세 대상"
+    : c.jonghap.restrictedByHistory
+    ? "가입 제한(이력)"
+    : "비대상 · 판매 기회",
+}));
+
+const cleanLabel = (label) => label.replace(" 가입 여부", "");
+
+/* 절세 전략·상품 제안 = 조회된 사실에서 규칙으로 도출(하드코딩 아님).
+   이 고객이 지금 어떻게 절세하는지 + 어떻게 더 유도하고 무슨 상품을 팔지를 우선순위로 만든다.
+   실서비스에서도 이 함수 하나가 모든 고객의 제안을 결정론적으로 생성 — 근거가 규칙으로 추적된다.
+   입력: jonghap(대상여부·기준근접·이력제한) + products(상태·남은한도·미보유). */
 export function deriveStrategy(data) {
   const j = data.jonghap;
   const ratio = j.threshold ? j.financialIncome / j.threshold : 0;
@@ -250,7 +264,7 @@ export function deriveStrategy(data) {
   const won = (v) => v.toLocaleString();
   const items = [];
 
-  /* 1) 진단 헤드라인 — 대상 / 기준근접 / 비대상 */
+  /* 1) 진단 헤드라인 */
   if (j.isTarget) {
     items.push({
       tag: "우선",
@@ -258,7 +272,7 @@ export function deriveStrategy(data) {
       title: "종합과세 대상 — 신규 비과세·ISA 가입/연장 제한",
       detail: `당해 금융소득 ${won(j.financialIncome)}만원으로 기준(${won(
         j.threshold
-      )}만원)을 초과했습니다. 비과세종합저축·ISA 신규가입·연장이 제한되니, 상품 가입보다 소득 분산·이연으로 방향을 잡으세요.`,
+      )}만원)을 초과했습니다. 신규 비과세·ISA 가입이 제한되니, 상품 판매보다 소득 분산·이연으로 방향을 잡으세요.`,
     });
   } else if (near) {
     items.push({
@@ -267,57 +281,71 @@ export function deriveStrategy(data) {
       title: `금융소득 ${won(j.financialIncome)}만원 — 기준에 근접`,
       detail: `기준(${won(j.threshold)}만원)의 ${Math.round(
         ratio * 100
-      )}% 수준입니다. 남은 기간 이자 수령 시점을 조절해 당해 합산소득이 기준을 넘지 않게 관리하세요.`,
+      )}% 수준입니다. 이자 수령 시점을 조절해 당해 합산소득이 기준을 넘지 않게 관리하세요.`,
     });
   } else {
     items.push({
       tag: "양호",
       kind: "ok",
-      title: "비대상 · 현 절세 구조 유지",
+      title: "비대상 · 절세상품을 더 채울 여지",
       detail: `금융소득 ${won(
         j.financialIncome
-      )}만원으로 종합과세 대상이 아닙니다. 보유 중인 비과세·분리과세 상품을 유지하며 남은 한도를 활용하세요.`,
+      )}만원으로 종합과세 대상이 아닙니다. 가입 제한이 없으므로 비과세·분리과세 상품을 적극 제안하기 좋은 고객입니다.`,
     });
   }
 
-  /* 2) 직전 3년 이력 제한(현재 비대상이라도 상품 가입 제한) */
+  /* 2) 직전 3년 이력 제한(현재 비대상이라도) */
   if (!j.isTarget && j.restrictedByHistory) {
     items.push({
       tag: "제한 유의",
       kind: "warn",
       title: "직전 3년 대상 이력 → 비과세·ISA 가입/연장 제한",
       detail:
-        "직전 3개 과세기간 중 종합과세 대상 이력이 있어 비과세종합저축·ISA 신규가입·연장이 제한됩니다. 신규 절세는 세액공제·소득공제 상품 위주로 설계하세요.",
+        "직전 3개 과세기간 중 대상 이력이 있어 비과세종합저축·ISA 신규가입·연장이 제한됩니다. 신규 제안은 세액공제·소득공제 상품 위주로 설계하세요.",
     });
   }
 
-  /* 3) 보유 상품 납입 여력 — 제한 대상이 아닌 비과세 상품의 남은 한도 채우기 */
+  /* 3) 미보유·가입 권유(신규 판매) — 제한이 없을 때 최우선 판매 기회 */
   data.products.forEach((p) => {
-    if (p.state === "available" && p.remaining) {
-      const label = SOURCES[p.key]?.label ?? p.key;
+    if (p.state === "recommend") {
       items.push({
-        tag: "상품",
-        kind: "action",
-        title: `${label} 납입 여력(${p.remaining}) 활용`,
-        detail: `제한 대상이 아닌 ${label}의 남은 한도를 채워, 과세되는 예금 이자를 비과세 구조로 이전할 수 있습니다.`,
+        tag: "판매 기회",
+        kind: "sell",
+        title: `${cleanLabel(SOURCES[p.key]?.label ?? p.key)} 신규 가입 권유`,
+        detail: p.note,
+        cta: p.cta,
       });
     }
   });
 
-  /* 4) 세액공제·소득공제 — 가입 제한과 무관하므로 항상 권유. 노란우산 보유 시 증액 우선 */
+  /* 4) 보유 상품 추가 납입 여력(추가 판매) */
+  data.products.forEach((p) => {
+    if (p.state === "available" && p.remaining) {
+      const label = cleanLabel(SOURCES[p.key]?.label ?? p.key);
+      items.push({
+        tag: "추가 판매",
+        kind: "action",
+        title: `${label} 납입 여력(${p.remaining}) 활용`,
+        detail: `보유 중인 ${label}의 남은 한도를 채워, 과세되는 예금 이자를 비과세 구조로 이전하도록 제안하세요.`,
+      });
+    }
+  });
+
+  /* 5) 세액공제·소득공제 — 가입 제한과 무관하므로 항상 제안. 노란우산 보유 시 증액 우선 */
   const noranActive = data.products.some((p) => p.key === "noran" && p.state === "active");
   items.push({
     tag: "세액공제",
     kind: "action",
     title: noranActive
-      ? "노란우산 부금 증액 + 개인형 IRP·연금저축 세액공제"
-      : "개인형 IRP·연금저축 세액공제 활용",
+      ? "노란우산 부금 증액 + 개인형 IRP·연금저축 제안"
+      : "개인형 IRP·연금저축 세액공제 제안",
     detail: noranActive
-      ? "가입 제한이 없는 소득공제(노란우산)·세액공제(IRP·연금저축)로 절세를 확보하세요. 사업소득 규모에 맞춰 부금 증액 여력을 점검합니다."
-      : "연금계좌 세액공제(합산 900만원 한도)로 연말정산·종합소득세 부담을 줄일 수 있습니다. 연금계좌 모듈에서 환급액을 계산해 제시하세요.",
+      ? "가입 제한이 없는 소득공제(노란우산)·세액공제(IRP·연금저축)로 절세를 확보하게 하세요. 사업소득 규모에 맞춰 부금 증액을 제안합니다."
+      : "연금계좌 세액공제(합산 900만원 한도)로 연말정산·종합소득세 부담을 줄이도록 IRP·연금저축을 제안하세요.",
+    cta: { to: "/pension", label: "연금 세액공제 계산" },
   });
 
-  /* 5) 소득 분산 — 대상자·기준근접·이력제한일 때 */
+  /* 6) 소득 분산 — 대상자·기준근접·이력제한일 때 */
   if (j.isTarget || near || j.restrictedByHistory) {
     items.push({
       tag: "소득 분산",
@@ -328,7 +356,7 @@ export function deriveStrategy(data) {
     });
   }
 
-  /* 6) 시기 분산·과세 이연 — 이미 대상인 경우 강조 */
+  /* 7) 시기 분산·과세 이연 — 이미 대상인 경우 강조 */
   if (j.isTarget) {
     items.push({
       tag: "시기 분산",
@@ -348,19 +376,6 @@ export function deriveStrategy(data) {
 
   return items;
 }
-
-/* 고객번호로 통합 조회. 없으면 null(→ 화면에서 '조회 결과 없음' + 대표번호 안내). */
-export function queryGrossTax(customerNo) {
-  const key = (customerNo || "").replace(/\D/g, "");
-  return CUSTOMERS[key] || null;
-}
-
-/* 데모 안내용 — 리치데이터가 있는 대표 고객번호 목록 */
-export const SAMPLE_CUSTOMERS = Object.values(CUSTOMERS).map((c) => ({
-  customerNo: c.customerNo,
-  name: c.name,
-  tag: c.jonghap.isTarget ? "종합과세 대상" : c.jonghap.restrictedByHistory ? "가입 제한(이력)" : "비대상",
-}));
 
 /* ── 참고 자료(사진 반영) — 접이식 가이드 ─────────────────────────── */
 
