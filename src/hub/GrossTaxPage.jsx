@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Search,
   UserRound,
@@ -11,12 +12,15 @@ import {
   ShieldCheck,
   Layers,
   Info,
+  Printer,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
+import { PrintReport } from "@shared/components/PrintReport";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 import {
   queryGrossTax,
+  deriveStrategy,
   SOURCES,
   PRODUCT_STATE,
   SAMPLE_CUSTOMERS,
@@ -299,6 +303,110 @@ const ReferenceGuide = () => {
   );
 };
 
+/* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
+function ResultView({ data }) {
+  const strategy = deriveStrategy(data);
+  const j = data.jonghap;
+
+  useEffect(() => {
+    const cleanup = () => document.documentElement.classList.remove("printing-market");
+    window.addEventListener("afterprint", cleanup);
+    return () => {
+      window.removeEventListener("afterprint", cleanup);
+      cleanup();
+    };
+  }, []);
+
+  const handlePrint = () => {
+    document.documentElement.classList.add("printing-market");
+    setTimeout(() => window.print(), 30);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-end">
+        <button
+          onClick={handlePrint}
+          className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3.5 py-1.5 text-[12px] font-bold text-white transition-colors hover:bg-slate-800"
+        >
+          <Printer className="h-3.5 w-3.5" />
+          A4 상담자료 인쇄
+        </button>
+      </div>
+
+      <VerdictBanner data={data} />
+
+      <section>
+        <SectionTitle icon={Layers} sub="종합과세에서 제외되는 비과세·분리과세 상품 — 계정계·보험·노란우산 통합">
+          제외 상품 현황
+        </SectionTitle>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {data.products.map((p) => (
+            <ProductCard key={p.key} product={p} />
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <SectionTitle icon={ShieldCheck} sub="대상 여부 · 보유 상품 · 남은 한도에서 규칙으로 도출한 실행 우선순위">
+          맞춤 절세 전략
+        </SectionTitle>
+        <ol className="space-y-2">
+          {strategy.map((s, i) => (
+            <StrategyItem key={i} item={s} />
+          ))}
+        </ol>
+      </section>
+
+      <ReferenceGuide />
+
+      <p className="text-[11px] leading-relaxed text-slate-400">
+        본 화면은 내부 조회 데이터를 통합해 상담을 돕는 참고 자료입니다(데모 — 표시 데이터는 예시). 실제 과세 여부·한도·세액은
+        소득 전체와 세법 개정에 따라 달라지며, 신고·납부는 관할세무서·홈택스 기준으로 확인해야 합니다. 특정 상품의 투자권유가 아닙니다.
+      </p>
+
+      {/* 인쇄 전용 A4 — body로 포탈해 대시보드(#root)와 분리 (html.printing-market 격리) */}
+      {createPortal(
+        <PrintReport
+          title={`금융소득 종합과세 진단 · ${data.name}`}
+          subtitle={`${data.customerNo} · ${data.profile} · ${j.taxYear}년 기준`}
+          disclaimer="본 자료는 계정계·보험·노란우산 등 내부 조회를 통합한 상담 참고용입니다(데모 — 표시 데이터는 예시). 실제 과세 여부·한도·세액은 소득 전체와 세법 개정에 따라 달라지며, 신고·납부는 관할세무서·홈택스 기준으로 확인해야 합니다. 특정 상품의 투자권유가 아닙니다."
+          inputs={[
+            { label: "고객번호", value: data.customerNo },
+            { label: "고객 유형", value: data.profile },
+            { label: "기준 연도", value: `${j.taxYear}년` },
+            {
+              label: "직전 3년 이력",
+              value: j.history.map((h) => `${h.year} ${h.isTarget ? "대상" : "비대상"}`).join(" · "),
+            },
+          ]}
+          results={[
+            { label: "종합과세 대상 여부", value: j.isTarget ? "대상" : "비대상", emphasis: true },
+            {
+              label: "당해 금융소득 / 기준",
+              value: `${j.financialIncome.toLocaleString()}만원 / ${j.threshold.toLocaleString()}만원`,
+            },
+            { label: "소득 관할 세무서", value: j.taxOffice },
+            ...(j.restrictedByHistory
+              ? [{ label: "가입 제한", value: "비과세종합저축·ISA 신규가입·연장 제한" }]
+              : []),
+            ...data.products.map((p) => ({
+              label: SOURCES[p.key]?.label ?? p.key,
+              value: `${PRODUCT_STATE[p.state].label} · ${p.headline}`,
+            })),
+          ]}
+          notes={strategy.map((s) => `[${s.tag}] ${s.title} — ${s.detail}`)}
+          legalBasis="소득세법 제14조·제62조(금융소득 종합과세) · 조세특례제한법(비과세종합저축·ISA)"
+          sourceLine="계정계 통합 조회(0192-8·0192-1·0192-74/75 등) — 데모, 실서비스 시 실제 조회로 대체"
+          brandLabel="iM 세일즈메이트 · 종합과세 진단자료 · iM뱅크"
+          accent="amber"
+        />,
+        document.body
+      )}
+    </div>
+  );
+}
+
 export default function GrossTaxPage() {
   const [input, setInput] = useState("");
   const [result, setResult] = useState(undefined); // undefined=미조회, null=결과없음, obj=조회됨
@@ -368,38 +476,7 @@ export default function GrossTaxPage() {
       ) : result === null ? (
         <NotFound no={queriedNo} onPick={(no) => { setInput(no); runQuery(no); }} />
       ) : (
-        <div className="space-y-6">
-          <VerdictBanner data={result} />
-
-          <section>
-            <SectionTitle icon={Layers} sub="종합과세에서 제외되는 비과세·분리과세 상품 — 계정계·보험·노란우산 통합">
-              제외 상품 현황
-            </SectionTitle>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {result.products.map((p) => (
-                <ProductCard key={p.key} product={p} />
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <SectionTitle icon={ShieldCheck} sub="대상 여부 · 보유 상품 · 남은 한도를 반영한 실행 우선순위">
-              맞춤 절세 전략
-            </SectionTitle>
-            <ol className="space-y-2">
-              {result.strategy.map((s, i) => (
-                <StrategyItem key={i} item={s} />
-              ))}
-            </ol>
-          </section>
-
-          <ReferenceGuide />
-
-          <p className="text-[11px] leading-relaxed text-slate-400">
-            본 화면은 내부 조회 데이터를 통합해 상담을 돕는 참고 자료입니다(데모 — 표시 데이터는 예시). 실제 과세 여부·한도·세액은
-            소득 전체와 세법 개정에 따라 달라지며, 신고·납부는 관할세무서·홈택스 기준으로 확인해야 합니다. 특정 상품의 투자권유가 아닙니다.
-          </p>
-        </div>
+        <ResultView data={result} />
       )}
     </HubShell>
   );

@@ -63,6 +63,7 @@ const CUSTOMERS = {
       {
         key: "insMonthly",
         state: "available",
+        remaining: "월 70만원",
         headline: "월적립식 가입 · 납입 여력 있음",
         metrics: [
           { label: "월 납입", value: "80만원" },
@@ -102,43 +103,6 @@ const CUSTOMERS = {
         note: "폐업·퇴임 시 공제금 수령. 사업소득자 소득공제 핵심 수단 — 부금 증액 여력 점검.",
       },
     ],
-    strategy: [
-      {
-        tag: "우선",
-        kind: "warn",
-        title: "종합과세 대상 — 신규 비과세·ISA 가입 제한부터 인지",
-        detail:
-          "직전 3개 과세기간 중 1회 이상 대상이라 비과세종합저축·ISA 신규가입·연장이 제한됩니다. 상품 가입보다 '소득 분산·이연'으로 방향을 잡으세요.",
-      },
-      {
-        tag: "소득 분산",
-        kind: "action",
-        title: "배우자·자녀 사전 증여로 금융자산 명의 분산",
-        detail:
-          "배우자 6억, 자녀 5천만원(미성년 2천만원)까지 10년 단위 비과세 증여. 이자·배당이 발생하는 자산을 나눠 1인당 금융소득 2,000만원 기준을 낮춥니다.",
-      },
-      {
-        tag: "시기 분산",
-        kind: "action",
-        title: "이자 수령 시기를 분산 — 특정 연도 집중 회피",
-        detail:
-          "3년 만기 일시수령 상품보다 매년 이자 수령·월이자지급식으로 옮기면 특정 과세연도에 2,000만원을 넘기는 것을 피할 수 있습니다.",
-      },
-      {
-        tag: "과세 이연",
-        kind: "action",
-        title: "만기 도래 상품 해지 시점을 다음 해로 연기",
-        detail:
-          "올해 금융소득이 이미 3,120만원. 만기 상품 해지·재예치 시점을 내년으로 넘겨 당해 합산소득을 낮추는 것을 검토하세요.",
-      },
-      {
-        tag: "상품",
-        kind: "action",
-        title: "저축성보험 납입 여력(월 70만원) 활용",
-        detail:
-          "제한 대상이 아닌 저축성보험은 10년 유지 시 비과세. 월 한도 150만원까지 여력이 있어, 과세되는 예금 이자를 비과세 구조로 이전할 수 있습니다.",
-      },
-    ],
   },
 
   "772501180": {
@@ -172,6 +136,7 @@ const CUSTOMERS = {
       {
         key: "insOther",
         state: "available",
+        remaining: "2,000만원",
         headline: "일시납 보유 · 납입 여력 있음",
         metrics: [
           { label: "일시납 보험료", value: "8,000만원" },
@@ -183,6 +148,7 @@ const CUSTOMERS = {
       {
         key: "isa",
         state: "available",
+        remaining: "200만원",
         headline: "서민형 보유 · 납입 여력 있음",
         metrics: [
           { label: "납입", value: "1,800 / 2,000만원" },
@@ -207,36 +173,6 @@ const CUSTOMERS = {
         headline: "가입 대상 아님",
         metrics: [{ label: "가입 자격", value: "소기업·소상공인" }],
         note: "근로소득자는 가입 대상 아님(사업소득 발생 시 재검토).",
-      },
-    ],
-    strategy: [
-      {
-        tag: "양호",
-        kind: "ok",
-        title: "비대상 · 절세상품 활용 우수 — 현 구조 유지",
-        detail:
-          "금융소득 860만원으로 종합과세 대상이 아니며, ISA 서민형·저축성보험·주택청약을 고르게 활용 중입니다. 현 절세 구조를 유지하세요.",
-      },
-      {
-        tag: "상품",
-        kind: "action",
-        title: "ISA 올해 납입 여력 200만원 마저 채우기",
-        detail:
-          "서민형 비과세 한도 400만원을 온전히 쓰려면 납입 여력(200만원)을 연내 채우는 것이 유리합니다.",
-      },
-      {
-        tag: "상품",
-        kind: "action",
-        title: "저축성보험 일시납 여력 2,000만원 활용",
-        detail:
-          "일시납 한도 1억원까지 2,000만원 여력. 과세되는 예금 이자를 10년 유지 비과세 구조로 이전할 수 있습니다.",
-      },
-      {
-        tag: "세액공제",
-        kind: "action",
-        title: "개인형 IRP·연금저축으로 세액공제 추가 확보",
-        detail:
-          "근로소득자라면 연금계좌 세액공제(합산 900만원 한도)로 연말정산 환급을 늘릴 수 있습니다. 연금계좌 모듈에서 환급액을 계산해 제시하세요.",
       },
     ],
   },
@@ -300,38 +236,118 @@ const CUSTOMERS = {
         note: "부금 증액 시 소득공제 확대 여지 — 사업소득 규모 확인 후 안내.",
       },
     ],
-    strategy: [
-      {
-        tag: "우선",
-        kind: "warn",
-        title: "금융소득 1,750만원 — 2,000만원 기준에 근접",
-        detail:
-          "올해는 비대상이나 기준(2,000만원)에 가깝습니다. 남은 기간 이자 수령 시점을 조절해 당해 합산소득이 기준을 넘지 않게 관리하세요.",
-      },
-      {
-        tag: "제한 유의",
-        kind: "warn",
-        title: "직전 3년 중 대상 이력 → 비과세·ISA 가입/연장 제한",
-        detail:
-          "2023년 대상 이력으로 비과세종합저축·ISA 신규가입·연장이 제한됩니다. 신규 절세는 세액공제·소득공제 상품 위주로 설계하세요.",
-      },
-      {
-        tag: "세액공제",
-        kind: "action",
-        title: "노란우산 부금 증액 + 개인형 IRP·연금저축 활용",
-        detail:
-          "가입 제한이 없는 소득공제(노란우산)·세액공제(IRP·연금저축)로 절세를 확보하세요. 사업소득 규모에 맞춰 노란우산 부금 증액 여력을 점검합니다.",
-      },
-      {
-        tag: "소득 분산",
-        kind: "action",
-        title: "배우자·자녀 사전 증여로 내년 이후 대상 회피 준비",
-        detail:
-          "기준에 근접한 만큼, 이자·배당 자산을 배우자(6억)·자녀에게 10년 단위로 분산 증여해 향후 종합과세 진입을 예방하세요.",
-      },
-    ],
   },
 };
+
+/* 절세 전략 = 조회된 사실에서 규칙으로 도출한다(하드코딩 아님).
+   실서비스에서도 이 함수 하나가 모든 고객의 전략을 결정론적으로 생성한다 —
+   "왜 이 전략이 나왔나"가 규칙으로 추적되어 컴플라이언스에도 부합.
+   입력: jonghap(대상여부·기준근접·이력제한) + products(상태·남은한도) + 소득유형 */
+export function deriveStrategy(data) {
+  const j = data.jonghap;
+  const ratio = j.threshold ? j.financialIncome / j.threshold : 0;
+  const near = !j.isTarget && ratio >= 0.8;
+  const won = (v) => v.toLocaleString();
+  const items = [];
+
+  /* 1) 진단 헤드라인 — 대상 / 기준근접 / 비대상 */
+  if (j.isTarget) {
+    items.push({
+      tag: "우선",
+      kind: "warn",
+      title: "종합과세 대상 — 신규 비과세·ISA 가입/연장 제한",
+      detail: `당해 금융소득 ${won(j.financialIncome)}만원으로 기준(${won(
+        j.threshold
+      )}만원)을 초과했습니다. 비과세종합저축·ISA 신규가입·연장이 제한되니, 상품 가입보다 소득 분산·이연으로 방향을 잡으세요.`,
+    });
+  } else if (near) {
+    items.push({
+      tag: "우선",
+      kind: "warn",
+      title: `금융소득 ${won(j.financialIncome)}만원 — 기준에 근접`,
+      detail: `기준(${won(j.threshold)}만원)의 ${Math.round(
+        ratio * 100
+      )}% 수준입니다. 남은 기간 이자 수령 시점을 조절해 당해 합산소득이 기준을 넘지 않게 관리하세요.`,
+    });
+  } else {
+    items.push({
+      tag: "양호",
+      kind: "ok",
+      title: "비대상 · 현 절세 구조 유지",
+      detail: `금융소득 ${won(
+        j.financialIncome
+      )}만원으로 종합과세 대상이 아닙니다. 보유 중인 비과세·분리과세 상품을 유지하며 남은 한도를 활용하세요.`,
+    });
+  }
+
+  /* 2) 직전 3년 이력 제한(현재 비대상이라도 상품 가입 제한) */
+  if (!j.isTarget && j.restrictedByHistory) {
+    items.push({
+      tag: "제한 유의",
+      kind: "warn",
+      title: "직전 3년 대상 이력 → 비과세·ISA 가입/연장 제한",
+      detail:
+        "직전 3개 과세기간 중 종합과세 대상 이력이 있어 비과세종합저축·ISA 신규가입·연장이 제한됩니다. 신규 절세는 세액공제·소득공제 상품 위주로 설계하세요.",
+    });
+  }
+
+  /* 3) 보유 상품 납입 여력 — 제한 대상이 아닌 비과세 상품의 남은 한도 채우기 */
+  data.products.forEach((p) => {
+    if (p.state === "available" && p.remaining) {
+      const label = SOURCES[p.key]?.label ?? p.key;
+      items.push({
+        tag: "상품",
+        kind: "action",
+        title: `${label} 납입 여력(${p.remaining}) 활용`,
+        detail: `제한 대상이 아닌 ${label}의 남은 한도를 채워, 과세되는 예금 이자를 비과세 구조로 이전할 수 있습니다.`,
+      });
+    }
+  });
+
+  /* 4) 세액공제·소득공제 — 가입 제한과 무관하므로 항상 권유. 노란우산 보유 시 증액 우선 */
+  const noranActive = data.products.some((p) => p.key === "noran" && p.state === "active");
+  items.push({
+    tag: "세액공제",
+    kind: "action",
+    title: noranActive
+      ? "노란우산 부금 증액 + 개인형 IRP·연금저축 세액공제"
+      : "개인형 IRP·연금저축 세액공제 활용",
+    detail: noranActive
+      ? "가입 제한이 없는 소득공제(노란우산)·세액공제(IRP·연금저축)로 절세를 확보하세요. 사업소득 규모에 맞춰 부금 증액 여력을 점검합니다."
+      : "연금계좌 세액공제(합산 900만원 한도)로 연말정산·종합소득세 부담을 줄일 수 있습니다. 연금계좌 모듈에서 환급액을 계산해 제시하세요.",
+  });
+
+  /* 5) 소득 분산 — 대상자·기준근접·이력제한일 때 */
+  if (j.isTarget || near || j.restrictedByHistory) {
+    items.push({
+      tag: "소득 분산",
+      kind: "action",
+      title: "배우자·자녀 사전 증여로 금융자산 명의 분산",
+      detail:
+        "배우자 6억, 자녀 5천만원(미성년 2천만원)까지 10년 단위 비과세 증여. 이자·배당 자산을 나눠 1인당 금융소득 기준을 낮춥니다.",
+    });
+  }
+
+  /* 6) 시기 분산·과세 이연 — 이미 대상인 경우 강조 */
+  if (j.isTarget) {
+    items.push({
+      tag: "시기 분산",
+      kind: "action",
+      title: "이자 수령 시기 분산 — 특정 연도 집중 회피",
+      detail:
+        "3년 만기 일시수령보다 매년 이자 수령·월이자지급식으로 옮겨, 특정 과세연도에 기준을 넘기는 것을 피하세요.",
+    });
+    items.push({
+      tag: "과세 이연",
+      kind: "action",
+      title: "만기 도래 상품 해지 시점을 다음 해로 연기",
+      detail:
+        "당해 금융소득이 이미 기준을 초과했으므로, 만기 상품 해지·재예치 시점을 내년으로 넘겨 합산소득을 낮추는 것을 검토하세요.",
+    });
+  }
+
+  return items;
+}
 
 /* 고객번호로 통합 조회. 없으면 null(→ 화면에서 '조회 결과 없음' + 대표번호 안내). */
 export function queryGrossTax(customerNo) {
