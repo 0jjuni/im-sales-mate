@@ -15,6 +15,7 @@ import {
   Info,
   Printer,
   BadgePercent,
+  MessageSquareText,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { PrintReport } from "@shared/components/PrintReport";
@@ -27,6 +28,7 @@ import {
   SOURCES,
   PRODUCT_STATE,
   INCOME_TYPES,
+  NONTAX_QUALS,
   SAMPLE_CUSTOMERS,
   EXCLUDED_PRODUCTS,
   DISADVANTAGES,
@@ -41,6 +43,7 @@ const STATE_CLASS = {
   amber: { card: "border-amber-200 bg-amber-50/50", badge: "bg-amber-100 text-amber-800" },
   rose: { card: "border-rose-200 bg-rose-50/50", badge: "bg-rose-100 text-rose-700" },
   slate: { card: "border-slate-200 bg-white", badge: "bg-slate-100 text-slate-600" },
+  prompt: { card: "border-dashed border-slate-300 bg-slate-50/60", badge: "bg-slate-100 text-slate-500" },
 };
 
 const SourceChip = ({ code }) => (
@@ -158,30 +161,42 @@ const ProductCard = ({ product }) => {
   const src = SOURCES[product.key];
   const st = PRODUCT_STATE[product.state];
   const cls = STATE_CLASS[st.tone];
+  const sell = st.sell;
+  const metrics = product.metrics || [];
+  const hero = metrics.find((m) => m.strong);
+  const rest = metrics.filter((m) => !m.strong);
   return (
-    <div className={cn("rounded-xl border p-4", cls.card)}>
+    <div className={cn("rounded-xl border p-4", cls.card, sell && "ring-1 ring-im-200")}>
       <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5">
-            <h3 className="text-[14px] font-bold text-slate-900">{src.label}</h3>
-          </div>
-          <div className="mt-1 flex items-center gap-1.5">
-            <SourceChip code={src.code} />
-            <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", cls.badge)}>{st.label}</span>
-          </div>
+        <h3 className="text-[14px] font-bold text-slate-900">{src.label}</h3>
+        <div className="flex flex-shrink-0 items-center gap-1">
+          {sell && <span className="rounded bg-im-600 px-1.5 py-0.5 text-[10px] font-bold text-white">권유</span>}
+          <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", cls.badge)}>{st.label}</span>
         </div>
       </div>
+      <div className="mt-1">
+        <SourceChip code={src.code} />
+      </div>
 
-      <p className="mt-2 text-[12.5px] font-semibold text-slate-700">{product.headline}</p>
-
-      <dl className="mt-2 space-y-1">
-        {product.metrics.map((m, i) => (
-          <div key={i} className="flex items-center justify-between gap-2 text-[12px]">
-            <dt className="text-slate-500">{m.label}</dt>
-            <dd className="tabular-nums font-semibold text-slate-800">{m.value}</dd>
+      {hero && (
+        <div className="mt-3">
+          <div className="text-[11px] text-slate-500">{hero.label}</div>
+          <div className={cn("text-[20px] font-bold leading-tight tabular-nums", sell ? "text-im-700" : "text-slate-900")}>
+            {hero.value}
           </div>
-        ))}
-      </dl>
+        </div>
+      )}
+
+      {rest.length > 0 && (
+        <dl className="mt-2 space-y-1">
+          {rest.map((m, i) => (
+            <div key={i} className="flex items-center justify-between gap-2 text-[12px]">
+              <dt className="text-slate-500">{m.label}</dt>
+              <dd className="tabular-nums font-semibold text-slate-800">{m.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
 
       {product.note && (
         <p className="mt-2 border-t border-slate-200/70 pt-2 text-[11.5px] leading-relaxed text-slate-500">
@@ -207,6 +222,7 @@ const STRATEGY_KIND = {
   action: { wrap: "border-slate-200 bg-white", icon: ArrowRight, iconColor: "text-im-600", tag: "bg-im-100 text-im-700" },
   sell: { wrap: "border-im-300 bg-im-50/70 ring-1 ring-inset ring-im-100", icon: BadgePercent, iconColor: "text-im-600", tag: "bg-im-600 text-white" },
   ok: { wrap: "border-im-200 bg-im-50/50", icon: Check, iconColor: "text-im-600", tag: "bg-im-100 text-im-700" },
+  prompt: { wrap: "border-dashed border-slate-300 bg-slate-50/60", icon: Info, iconColor: "text-slate-400", tag: "bg-slate-100 text-slate-500" },
 };
 
 const StrategyItem = ({ item }) => {
@@ -261,11 +277,15 @@ const ManualField = ({ label, children }) => (
   </div>
 );
 
-/* 상담 시 조정하는 값 — 소득 유형·무주택 세대주·비과세종합저축 자격 */
+/* 상담 시 확인하는 값 — 소득 유형·무주택 세대주·비과세종합저축 자격 */
 const ManualPanel = ({ manual, onChange }) => {
   const set = (k, v) => onChange({ ...manual, [k]: v });
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-3.5">
+      <div className="mb-2.5 flex items-center gap-1.5 text-[12px] font-bold text-slate-500">
+        <MessageSquareText className="h-3.5 w-3.5" />
+        고객에게 확인
+      </div>
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
         <ManualField label="소득 유형">
           <div className="flex flex-wrap gap-1">
@@ -280,7 +300,18 @@ const ManualPanel = ({ manual, onChange }) => {
           <YesNo value={manual.homeless} onChange={(v) => set("homeless", v)} />
         </ManualField>
         <ManualField label="비과세종합저축 자격">
-          <YesNo value={manual.nontaxEligible} onChange={(v) => set("nontaxEligible", v)} />
+          <select
+            value={manual.nontaxQual ?? ""}
+            onChange={(e) => set("nontaxQual", e.target.value || null)}
+            className="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 focus:border-im-500 focus:outline-none"
+          >
+            <option value="">선택</option>
+            {NONTAX_QUALS.map((q) => (
+              <option key={q} value={q}>
+                {q}
+              </option>
+            ))}
+          </select>
         </ManualField>
       </div>
     </div>
@@ -382,19 +413,16 @@ const ReferenceGuide = () => {
 /* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
 function ResultView({ data }) {
   const j = data.jonghap;
-  const [manual, setManual] = useState({
-    incomeType: data.incomeType,
-    homeless: data.homeless,
-    nontaxEligible: data.nontaxEligible,
-  });
-  /* 다른 고객을 조회하면 그 고객의 기록값으로 초기화 */
-  useEffect(
-    () => setManual({ incomeType: data.incomeType, homeless: data.homeless, nontaxEligible: data.nontaxEligible }),
-    [data.customerNo, data.incomeType, data.homeless, data.nontaxEligible]
-  );
+  /* 값을 미리 고정하지 않고 미확인으로 시작 — 상담하며 채운다 */
+  const [manual, setManual] = useState({ incomeType: null, homeless: null, nontaxQual: null });
+  useEffect(() => setManual({ incomeType: null, homeless: null, nontaxQual: null }), [data.customerNo]);
 
   const restricted = j.isTarget || j.restrictedByHistory;
   const products = data.products.map((p) => viewProduct(p, manual, restricted));
+  /* 권유 대상(판매 기회)을 앞쪽에 모아 상담 시 먼저 보이게 */
+  const sortedProducts = [...products].sort(
+    (a, b) => (PRODUCT_STATE[b.state].sell ? 1 : 0) - (PRODUCT_STATE[a.state].sell ? 1 : 0)
+  );
   const strategy = deriveStrategy(data, manual);
 
   useEffect(() => {
@@ -432,7 +460,7 @@ function ResultView({ data }) {
           절세 상품 활용 현황
         </SectionTitle>
         <div className="grid gap-3 sm:grid-cols-2">
-          {products.map((p) => (
+          {sortedProducts.map((p) => (
             <ProductCard key={p.key} product={p} />
           ))}
         </div>
@@ -458,14 +486,14 @@ function ResultView({ data }) {
       {createPortal(
         <PrintReport
           title={`금융소득 종합과세 진단 · ${data.name}`}
-          subtitle={`${data.customerNo} · ${data.age} · ${manual.incomeType} · ${j.taxYear}년 기준`}
+          subtitle={`${data.customerNo} · ${data.age} · ${manual.incomeType || "소득유형 미확인"} · ${j.taxYear}년 기준`}
           disclaimer="본 자료는 당행 보유 기준 내부 조회를 통합한 상담 참고용입니다(데모 — 표시 데이터는 예시). 타행 가입분은 조회되지 않으며, 실제 과세 여부·한도·세액은 소득 전체와 세법 개정에 따라 달라집니다. 신고·납부는 관할세무서·홈택스 기준으로 확인해야 하며, 특정 상품의 투자권유가 아닙니다."
           inputs={[
             { label: "고객번호", value: data.customerNo },
             { label: "연령", value: data.age },
-            { label: "소득 유형", value: manual.incomeType },
-            { label: "무주택 세대주", value: manual.homeless ? "예" : "아니오" },
-            { label: "비과세종합저축 자격", value: manual.nontaxEligible ? "예" : "아니오" },
+            { label: "소득 유형", value: manual.incomeType || "미확인" },
+            { label: "무주택 세대주", value: manual.homeless == null ? "미확인" : manual.homeless ? "예" : "아니오" },
+            { label: "비과세종합저축 자격", value: manual.nontaxQual || "미확인" },
             { label: "기준 연도", value: `${j.taxYear}년` },
             {
               label: "직전 3년 이력",

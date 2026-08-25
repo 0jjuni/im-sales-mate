@@ -24,11 +24,12 @@ export const SOURCES = {
    active=활용 중 · available=추가 납입 여력(추가 판매) · recommend=미보유·가입 권유(신규 판매)
    restricted=가입/연장 제한 · none=해당 없음 */
 export const PRODUCT_STATE = {
-  active: { label: "활용 중", tone: "im" },
-  available: { label: "추가 납입 여력", tone: "amber" },
-  recommend: { label: "미보유 · 가입 권유", tone: "im" },
-  restricted: { label: "가입/연장 제한", tone: "rose" },
-  none: { label: "해당 없음", tone: "slate" },
+  recommend: { label: "가입 권유", tone: "im", sell: true },
+  available: { label: "추가 납입 여력", tone: "im", sell: true },
+  active: { label: "활용 중", tone: "slate", sell: false },
+  restricted: { label: "가입/연장 제한", tone: "rose", sell: false },
+  none: { label: "해당 없음", tone: "slate", sell: false },
+  unknown: { label: "상담 확인 필요", tone: "prompt", sell: false },
 };
 
 /* ── 대표 고객 3인(리치 목업) ─────────────────────────────────────────
@@ -39,10 +40,6 @@ const CUSTOMERS = {
     customerNo: "841023391",
     name: "김○호",
     age: "52세",
-    /* 상담 시 조정하는 값(자동 조회로는 최신 여부를 보장 못 하거나 조회 불가) */
-    incomeType: "개인사업자",
-    homeless: false,
-    nontaxEligible: false,
     jonghap: {
       taxYear: 2025,
       isTarget: true,
@@ -62,20 +59,17 @@ const CUSTOMERS = {
         key: "insMonthly",
         state: "available",
         remaining: "월 70만원",
-        headline: "당행(방카) 월적립식 가입 · 납입 여력",
         metrics: [
-          { label: "당행 월 납입", value: "80만원" },
-          { label: "월 한도", value: "150만원" },
-          { label: "남은 여력", value: "월 70만원" },
+          { label: "남은 납입 여력", value: "월 70만원", strong: true },
+          { label: "월 납입 / 한도", value: "80 / 150만원" },
         ],
         note: "계약 10년 이상·월 150만원 이내 유지 시 보험차익 비과세.",
       },
       {
         key: "isa",
         state: "restricted",
-        headline: "당행 ISA 보유 · 재가입/연장 제한",
-        metrics: [{ label: "당행 가입", value: "보유(일반형)" }],
-        note: "직전 3년 종합과세 대상 이력 → 만기 후 재가입·연장 제한. 현 계좌 유지 위주로 안내.",
+        metrics: [{ label: "당행 ISA", value: "보유(일반형)" }],
+        note: "직전 3년 종합과세 이력 → 재가입·연장 제한. 현 계좌 유지 위주.",
       },
       /* 소득 유형에 따라 자격·소득공제가 달라지는 상품은 held/monthly만 두고 viewProduct로 파생 */
       { key: "housing", held: true, monthly: "10만원" },
@@ -87,9 +81,6 @@ const CUSTOMERS = {
     customerNo: "772501180",
     name: "이○희",
     age: "48세",
-    incomeType: "근로소득자",
-    homeless: true,
-    nontaxEligible: false,
     jonghap: {
       taxYear: 2025,
       isTarget: false,
@@ -109,24 +100,18 @@ const CUSTOMERS = {
         key: "insOther",
         state: "available",
         remaining: "2,000만원",
-        headline: "당행(방카) 일시납 보유 · 납입 여력",
         metrics: [
-          { label: "당행 일시납", value: "8,000만원" },
-          { label: "일시납 한도", value: "1억원" },
-          { label: "남은 여력", value: "2,000만원" },
+          { label: "남은 납입 여력", value: "2,000만원", strong: true },
+          { label: "일시납 / 한도", value: "8,000만원 / 1억원" },
         ],
-        note: "계약 10년 이상 유지 시 보험차익 비과세. 한도까지 2,000만원 추가 여력.",
+        note: "계약 10년 이상 유지 시 보험차익 비과세.",
       },
       {
         key: "isa",
         state: "recommend",
         cta: { to: "/isa", label: "ISA 상담 시작" },
-        headline: "당행 ISA 미보유 · 가입 권유",
-        metrics: [
-          { label: "당행 가입", value: "없음" },
-          { label: "권유 유형", value: "서민형(비과세 400만원)" },
-        ],
-        note: "비대상·가입 제한 없음 → 서민형 ISA로 순이익 비과세. 지금 화면에서 바로 잡을 대표 판매 기회.",
+        metrics: [{ label: "비과세 한도(서민형)", value: "400만원", strong: true }],
+        note: "비대상·가입 제한 없음 → 서민형 ISA로 순이익 비과세. 대표 판매 기회.",
       },
       { key: "housing", held: true, monthly: "10만원" },
       { key: "noran", held: false },
@@ -137,9 +122,6 @@ const CUSTOMERS = {
     customerNo: "904176624",
     name: "박○수",
     age: "59세",
-    incomeType: "개인사업자",
-    homeless: false,
-    nontaxEligible: false,
     jonghap: {
       taxYear: 2025,
       isTarget: false,
@@ -158,8 +140,7 @@ const CUSTOMERS = {
       {
         key: "isa",
         state: "restricted",
-        headline: "당행 ISA 보유 · 재가입/연장 제한",
-        metrics: [{ label: "당행 가입", value: "보유(일반형)" }],
+        metrics: [{ label: "당행 ISA", value: "보유(일반형)" }],
         note: "직전 3년 대상 이력(2023) → 재가입·연장 및 신규 비과세상품 가입 제한.",
       },
       { key: "housing", held: true, monthly: "10만원" },
@@ -170,101 +151,94 @@ const CUSTOMERS = {
 
 export const INCOME_TYPES = ["근로소득자", "개인사업자", "기타"];
 
+/* 비과세종합저축 가입 자격(조특법 §88의2). '해당 없음'이면 대상 아님 */
+export const NONTAX_QUALS = [
+  "해당 없음",
+  "만 65세 이상",
+  "장애인",
+  "기초생활수급자",
+  "독립유공자·유족",
+  "국가유공자 상이자",
+];
+
 /* 상담 시 조정하는 값(소득 유형·무주택 세대주·비과세종합저축 자격)에 따라
    자격·소득공제가 달라지는 상품을 파생한다. 조회는 「가입 여부(held)」만, 자격 판단은 이 값으로. */
 export function viewProduct(product, manual, restricted = false) {
-  const { incomeType, homeless, nontaxEligible } = manual;
+  const { incomeType, homeless, nontaxQual } = manual;
 
   if (product.key === "nontaxSavings") {
-    const limitMetric = { label: "비과세 한도", value: "5,000만원(전금융기관 합산)" };
-    if (nontaxEligible) {
-      if (product.held) {
-        return {
-          ...product,
-          state: "active",
-          headline: "당행 가입 중",
-          metrics: [limitMetric, { label: "당행 가입", value: "보유" }],
-          note: "기초연금 수급자·장애인·만 65세 이상 등 비과세 대상. 타행 가입분은 합산 한도에서 별도 확인.",
-        };
-      }
-      /* 자격은 있으나 종합과세 대상/이력이면 신규 가입 제한 상품 */
-      if (restricted) {
-        return {
-          ...product,
-          state: "restricted",
-          headline: "자격 있음 · 가입 제한",
-          metrics: [limitMetric, { label: "당행 가입", value: "없음" }],
-          note: "비과세 자격은 있으나 종합과세 대상/직전 이력으로 신규 가입 제한.",
-        };
-      }
+    const remain = { label: "남은 비과세 한도", value: "5,000만원", strong: true };
+    if (nontaxQual == null) {
+      return { ...product, state: "unknown", metrics: [remain], note: "비과세종합저축 자격을 확인하세요." };
+    }
+    if (nontaxQual === "해당 없음") {
       return {
         ...product,
-        state: "recommend",
-        headline: "당행 미가입 · 가입 권유",
-        metrics: [limitMetric, { label: "당행 가입", value: "없음" }],
-        note: "기초연금 수급자·장애인·만 65세 이상 등 → 비과세 예적금 가입 권유. 타행 가입분은 별도 확인.",
+        state: "none",
+        metrics: [{ label: "비과세 한도", value: "5,000만원" }],
+        note: "만 65세 이상·장애인·기초생활수급자·독립유공자 등만 가입 가능.",
       };
     }
-    return {
-      ...product,
-      state: "none",
-      headline: "가입 대상 아님",
-      metrics: [limitMetric, { label: "당행 가입", value: "없음" }],
-      note: "만 65세 이상 기초연금 수급자·장애인·독립유공자 등만 가입 가능.",
-    };
+    if (product.held) {
+      return { ...product, state: "active", metrics: [remain], note: `${nontaxQual} · 가입 중 (전금융기관 합산 — 타행 별도 확인).` };
+    }
+    if (restricted) {
+      return {
+        ...product,
+        state: "restricted",
+        metrics: [{ label: "비과세 한도", value: "5,000만원" }],
+        note: `${nontaxQual} 자격은 있으나 종합과세 대상/이력으로 신규 가입 제한.`,
+      };
+    }
+    return { ...product, state: "recommend", metrics: [remain], note: `${nontaxQual} → 남은 한도까지 비과세 예적금 권유 (전금융기관 합산 — 타행 별도 확인).` };
   }
 
   if (product.key === "noran") {
+    if (incomeType == null) {
+      return { ...product, state: "unknown", metrics: [{ label: "소득공제", value: "소득 유형 확인" }], note: "소득 유형을 확인하세요." };
+    }
     const eligible = incomeType === "개인사업자";
     if (product.held) {
       return {
         ...product,
         state: "active",
-        headline: eligible ? "당행 가입 중 · 소득공제 적용" : "당행 가입 중",
         metrics: [
-          { label: "당행 월 부금", value: product.monthly || "—" },
-          { label: "소득공제", value: eligible ? "사업소득 규모별 한도" : "소득유형 변경 — 자격 재확인" },
+          { label: "월 부금", value: product.monthly || "—" },
+          { label: "소득공제", value: eligible ? "사업소득 규모별" : "자격 재확인" },
         ],
-        note: eligible
-          ? "폐업·퇴임 시 공제금 수령. 사업소득자 소득공제 핵심 — 부금 증액 여력 점검."
-          : "현재 소득유형 기준 신규 가입 대상은 아니나 기존 계좌는 유지. 사업 지속 여부 확인.",
+        note: eligible ? "소득공제 적용 · 부금 증액 여력 점검." : "가입 중(소득유형 변경 시 자격 재확인).",
       };
     }
     if (eligible) {
       return {
         ...product,
         state: "recommend",
-        cta: { to: "/noran", label: "노란우산 상담 시작" },
-        headline: "당행 미가입 · 가입 권유",
-        metrics: [
-          { label: "가입 자격", value: "소기업·소상공인" },
-          { label: "혜택", value: "소득공제 + 폐업 대비" },
-        ],
-        note: "사업소득자 소득공제 핵심 수단 — 미보유, 가입 권유.",
+        cta: { to: "/noran", label: "노란우산 상담" },
+        metrics: [{ label: "혜택", value: "소득공제 + 폐업 대비", strong: true }],
+        note: "사업소득자 소득공제 핵심 — 미보유, 가입 권유.",
       };
     }
-    return {
-      ...product,
-      state: "none",
-      headline: "가입 대상 아님",
-      metrics: [{ label: "가입 자격", value: "소기업·소상공인" }],
-      note: "근로소득자는 가입 대상 아님(사업소득 발생 시 재검토).",
-    };
+    return { ...product, state: "none", metrics: [{ label: "가입 자격", value: "소기업·소상공인" }], note: "근로소득자는 가입 대상 아님." };
   }
 
   if (product.key === "housing") {
+    if (incomeType == null || homeless == null) {
+      return {
+        ...product,
+        state: "active",
+        metrics: [{ label: "월 납입", value: product.monthly || "10만원" }, { label: "소득공제", value: "확인 필요" }],
+        note: "무주택 세대주·소득 유형을 확인하세요.",
+      };
+    }
     const deductible = incomeType === "근로소득자" && homeless;
     return {
       ...product,
       state: "active",
-      headline: "당행 가입 중",
       metrics: [
-        { label: "당행 월 납입", value: product.monthly || "10만원" },
-        { label: "소득공제", value: deductible ? "무주택 세대주 근로자 — 대상" : "대상 아님" },
+        { label: "월 납입", value: product.monthly || "10만원" },
+        { label: "소득공제", value: deductible ? "대상(무주택 근로자)" : "대상 아님" },
       ],
-      note: deductible
-        ? "무주택 세대주 근로소득자 소득공제 대상(총급여 7천 이하). 납입 유지 권장."
-        : "청약 자격 유지 목적. 소득공제는 무주택 세대주 근로소득자 한정.",
+      note: deductible ? "무주택 세대주 근로자 소득공제 대상. 유지 권장." : "청약 자격 유지 목적.",
     };
   }
 
@@ -373,7 +347,14 @@ export function deriveStrategy(data, manual) {
 
   /* 5) 세액공제·소득공제 — 소득 유형에 맞춰 제안 (가입 제한과 무관) */
   const noranActive = products.some((p) => p.key === "noran" && p.state === "active");
-  if (incomeType === "근로소득자") {
+  if (!incomeType) {
+    items.push({
+      tag: "확인",
+      kind: "prompt",
+      title: "소득 유형을 확인하면 제안이 완성됩니다",
+      detail: "근로/사업 여부에 따라 노란우산·주택청약·세액공제 제안이 달라집니다. 위에서 확인해 주세요.",
+    });
+  } else if (incomeType === "근로소득자") {
     const housingDeduct = manual.homeless;
     items.push({
       tag: "세액공제",
