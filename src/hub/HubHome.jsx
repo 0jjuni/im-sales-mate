@@ -185,7 +185,7 @@ export function HubHome() {
           <SectionPanel>
             <SectionHeader
               icon={meta.icon}
-              title="고객 후속 관리"
+              title="일정 관리"
               sub="가까운 후속 연락과 빠른 기록 · 달력과 검색은 전체 관리에서"
             />
             <FollowupBoard />

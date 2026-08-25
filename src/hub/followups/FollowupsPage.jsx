@@ -45,7 +45,7 @@ export default function FollowupsPage() {
 
   useEffect(() => {
     const prev = document.title;
-    document.title = "고객 후속 관리 · iM 세일즈메이트";
+    document.title = "일정 관리 · iM 세일즈메이트";
     return () => {
       document.title = prev;
     };
@@ -87,7 +87,7 @@ export default function FollowupsPage() {
               <CalendarDays className="h-[18px] w-[18px]" />
             </div>
             <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
-              고객 후속 관리
+              일정 관리
             </h1>
           </div>
           <p className="mt-1.5 max-w-2xl text-[12px] text-slate-500">

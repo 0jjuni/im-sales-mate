@@ -18,7 +18,7 @@ export const HUB_SECTIONS = [
   { id: "products", label: "상품 상담", icon: MessagesSquare, desc: "상품별 상담 화면 진입" },
   { id: "grosstax", label: "종합과세 관리", icon: ReceiptText, desc: "고객번호로 종합과세·절세상품 조회" },
   { id: "utility", label: "보조 도구", icon: Wrench, desc: "영문 이름·주소 변환 등" },
-  { id: "followups", label: "고객 후속 관리", icon: CalendarClock, desc: "후속 연락 약속과 고객 메모" },
+  { id: "followups", label: "일정 관리", icon: CalendarClock, desc: "후속 연락 약속과 고객 메모" },
   { id: "news", label: "모닝 브리핑", icon: Newspaper, desc: "오늘 창구에 영향을 줄 뉴스" },
   { id: "knowledge", label: "지식 라이브러리", icon: Library, desc: "세무·규제·용어 참고 자료" },
 ];
