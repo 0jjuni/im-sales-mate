@@ -28,6 +28,14 @@ const migrate = (raw) => {
   return raw;
 };
 
+/* 고객번호는 하이픈 없는 9자리로 통일한다. 과거 저장분(#####-#### 형식)을
+   불러올 때 하이픈·문자를 제거해 자동 정리한다. 순수 함수라 load()에서 안전하게 쓴다. */
+const normalizeItems = (items) =>
+  (items ?? []).map((it) => {
+    const cleaned = (it.customerNo || "").replace(/\D/g, "");
+    return cleaned === it.customerNo ? it : { ...it, customerNo: cleaned };
+  });
+
 export const followupStore = {
   load() {
     try {
@@ -44,7 +52,7 @@ export const followupStore = {
       if (state.items.length === 0) {
         return { ...state, items: buildSeedItems() };
       }
-      return state;
+      return { ...state, items: normalizeItems(state.items) };
     } catch {
       return { ...DEFAULT_STATE };
     }
