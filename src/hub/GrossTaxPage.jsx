@@ -1,0 +1,460 @@
+import { useEffect, useState } from "react";
+import {
+  Search,
+  UserRound,
+  Building2,
+  AlertTriangle,
+  Check,
+  ArrowRight,
+  ChevronDown,
+  ChevronUp,
+  ShieldCheck,
+  Layers,
+  Info,
+} from "lucide-react";
+import { HubShell } from "./HubShell";
+import { CARD } from "@shared/lib/surface";
+import { cn } from "@shared/lib/format";
+import {
+  queryGrossTax,
+  SOURCES,
+  PRODUCT_STATE,
+  SAMPLE_CUSTOMERS,
+  EXCLUDED_PRODUCTS,
+  DISADVANTAGES,
+  STRATEGY_FRAME,
+} from "./data/grossTax";
+
+/* 금융소득 종합과세 관리 — 고객번호 하나로 통합 조회 + 맞춤 절세 전략.
+   지금은 0192-1·0192-8·노란우산 등 여러 화면에서 따로 봐야 하는 정보를 여기로 통합한다. */
+
+const STATE_CLASS = {
+  im: { card: "border-im-200 bg-im-50/40", badge: "bg-im-100 text-im-700" },
+  amber: { card: "border-amber-200 bg-amber-50/50", badge: "bg-amber-100 text-amber-800" },
+  rose: { card: "border-rose-200 bg-rose-50/50", badge: "bg-rose-100 text-rose-700" },
+  slate: { card: "border-slate-200 bg-white", badge: "bg-slate-100 text-slate-600" },
+};
+
+const SourceChip = ({ code }) => (
+  <span className="inline-flex items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-tight text-slate-500">
+    {code}
+  </span>
+);
+
+/* 통합 조회 소스 띠 — "흩어진 조회를 여기로 모은다"는 의도 표현 */
+const IntegrationStrip = () => (
+  <div className="flex flex-wrap items-center gap-1.5">
+    {Object.values(SOURCES).map((s) => (
+      <span key={s.code} className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-1 text-[11px] text-slate-500">
+        <SourceChip code={s.code} />
+        <span className="text-slate-600">{s.label}</span>
+      </span>
+    ))}
+  </div>
+);
+
+/* 종합과세 대상 판정 배너 — 0192-8 */
+const VerdictBanner = ({ data }) => {
+  const j = data.jonghap;
+  const pct = Math.min(100, Math.round((j.financialIncome / j.threshold) * 100));
+  return (
+    <div className={cn(CARD, "overflow-hidden")}>
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white">
+            <UserRound className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[16px] font-bold text-slate-900">{data.name}</span>
+              <span className="text-[12px] text-slate-500">{data.profile}</span>
+            </div>
+            <div className="mt-0.5 font-mono text-[12px] tabular-nums text-slate-400">{data.customerNo}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <SourceChip code={SOURCES.jonghap.code} />
+          <span
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-bold",
+              j.isTarget ? "bg-rose-100 text-rose-700" : "bg-im-100 text-im-700"
+            )}
+          >
+            {j.isTarget ? <AlertTriangle className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
+            {j.taxYear}년 {j.isTarget ? "종합과세 대상" : "비대상"}
+          </span>
+        </div>
+      </div>
+
+      <div className="grid gap-4 px-5 py-4 sm:grid-cols-3">
+        {/* 금융소득 vs 기준 */}
+        <div className="sm:col-span-2">
+          <div className="flex items-baseline justify-between text-[12px]">
+            <span className="text-slate-500">당해 금융소득 (이자·배당 합산)</span>
+            <span className="tabular-nums text-slate-400">기준 {j.threshold.toLocaleString()}만원</span>
+          </div>
+          <div className="mt-1 flex items-baseline gap-1">
+            <span className={cn("text-[24px] font-bold tabular-nums", j.isTarget ? "text-rose-600" : "text-slate-900")}>
+              {j.financialIncome.toLocaleString()}
+            </span>
+            <span className="text-[13px] text-slate-500">만원</span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+            <div
+              className={cn("h-full rounded-full", j.isTarget ? "bg-rose-500" : pct > 80 ? "bg-amber-400" : "bg-im-500")}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <div className="mt-1 text-[11px] text-slate-400">
+            기준 대비 {pct}%{!j.isTarget && pct > 80 && " · 기준 근접 — 시기 분산으로 관리 필요"}
+          </div>
+        </div>
+
+        {/* 관할 세무서 */}
+        <div className="rounded-lg bg-slate-50 px-3 py-2.5">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
+            <Building2 className="h-3.5 w-3.5" />
+            소득 관할 세무서
+          </div>
+          <div className="mt-1 text-[15px] font-bold text-slate-900">{j.taxOffice}</div>
+          <div className="mt-0.5 text-[11px] text-slate-500">종합소득세 신고 시 관할</div>
+        </div>
+      </div>
+
+      {/* 직전 3년 이력 + 가입 제한 */}
+      <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 px-5 py-3">
+        <span className="text-[11px] font-semibold text-slate-400">직전 3년 이력</span>
+        {j.history.map((h) => (
+          <span
+            key={h.year}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold tabular-nums",
+              h.isTarget ? "bg-rose-100 text-rose-700" : "bg-slate-100 text-slate-500"
+            )}
+          >
+            {h.year} {h.isTarget ? "대상" : "비대상"}
+          </span>
+        ))}
+        {j.restrictedByHistory && (
+          <span className="ml-auto inline-flex items-center gap-1 rounded-md bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-700 ring-1 ring-inset ring-rose-100">
+            <AlertTriangle className="h-3 w-3" />
+            비과세종합저축·ISA 가입/연장 제한
+          </span>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const ProductCard = ({ product }) => {
+  const src = SOURCES[product.key];
+  const st = PRODUCT_STATE[product.state];
+  const cls = STATE_CLASS[st.tone];
+  return (
+    <div className={cn("rounded-xl border p-4", cls.card)}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <h3 className="text-[14px] font-bold text-slate-900">{src.label}</h3>
+          </div>
+          <div className="mt-1 flex items-center gap-1.5">
+            <SourceChip code={src.code} />
+            <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", cls.badge)}>{st.label}</span>
+          </div>
+        </div>
+      </div>
+
+      <p className="mt-2 text-[12.5px] font-semibold text-slate-700">{product.headline}</p>
+
+      <dl className="mt-2 space-y-1">
+        {product.metrics.map((m, i) => (
+          <div key={i} className="flex items-center justify-between gap-2 text-[12px]">
+            <dt className="text-slate-500">{m.label}</dt>
+            <dd className="tabular-nums font-semibold text-slate-800">{m.value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {product.note && (
+        <p className="mt-2 border-t border-slate-200/70 pt-2 text-[11.5px] leading-relaxed text-slate-500">
+          {product.note}
+        </p>
+      )}
+    </div>
+  );
+};
+
+const STRATEGY_KIND = {
+  warn: { wrap: "border-amber-200 bg-amber-50/60", icon: AlertTriangle, iconColor: "text-amber-600", tag: "bg-amber-100 text-amber-800" },
+  action: { wrap: "border-slate-200 bg-white", icon: ArrowRight, iconColor: "text-im-600", tag: "bg-im-100 text-im-700" },
+  ok: { wrap: "border-im-200 bg-im-50/50", icon: Check, iconColor: "text-im-600", tag: "bg-im-100 text-im-700" },
+};
+
+const StrategyItem = ({ item }) => {
+  const k = STRATEGY_KIND[item.kind] || STRATEGY_KIND.action;
+  const Icon = k.icon;
+  return (
+    <li className={cn("flex gap-3 rounded-xl border p-3.5", k.wrap)}>
+      <Icon className={cn("mt-0.5 h-4 w-4 flex-shrink-0", k.iconColor)} />
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", k.tag)}>{item.tag}</span>
+          <h4 className="text-[13.5px] font-bold text-slate-900">{item.title}</h4>
+        </div>
+        <p className="mt-1 text-[12.5px] leading-relaxed text-slate-600">{item.detail}</p>
+      </div>
+    </li>
+  );
+};
+
+const SectionTitle = ({ icon: Icon, children, sub }) => (
+  <div className="mb-3 flex items-center gap-2.5">
+    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-im-50 text-im-600">
+      <Icon className="h-[17px] w-[17px]" />
+    </div>
+    <div>
+      <h2 className="text-[16px] font-bold tracking-tight text-slate-900">{children}</h2>
+      {sub && <p className="text-[11.5px] text-slate-500">{sub}</p>}
+    </div>
+  </div>
+);
+
+/* 참고 자료 — 접이식 */
+const ReferenceGuide = () => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={cn(CARD, "overflow-hidden")}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-2 px-5 py-3.5 text-left hover:bg-slate-50"
+      >
+        <span className="flex items-center gap-2.5">
+          <Info className="h-4 w-4 text-slate-400" />
+          <span className="text-[14px] font-bold text-slate-900">참고 — 종합과세 제외 상품 · 불이익 · 절세 전략 프레임</span>
+        </span>
+        {open ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
+      </button>
+
+      {open && (
+        <div className="space-y-6 border-t border-slate-100 px-5 py-5">
+          {/* 제외 상품 */}
+          <section>
+            <h3 className="mb-2 text-[13px] font-bold text-slate-800">종합과세에서 제외되는 비과세·분리과세 상품</h3>
+            <ul className="space-y-1.5">
+              {EXCLUDED_PRODUCTS.map((p, i) => (
+                <li key={i} className="flex gap-2 text-[12.5px]">
+                  <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-im-100 text-[9px] font-bold text-im-700">
+                    {i + 1}
+                  </span>
+                  <span>
+                    <span className="font-semibold text-slate-800">{p.name}</span>
+                    <span className="text-slate-500"> — {p.detail}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* 불이익 */}
+          <section>
+            <h3 className="mb-2 text-[13px] font-bold text-slate-800">금융소득 종합과세 시 불이익</h3>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {DISADVANTAGES.map((d, i) => (
+                <div key={i} className="rounded-lg border border-slate-200 bg-slate-50/60 p-2.5">
+                  <div className="text-[12.5px] font-bold text-slate-800">{d.title}</div>
+                  <div className="mt-0.5 text-[11.5px] leading-relaxed text-slate-500">{d.detail}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* 절세 전략 프레임 */}
+          <section>
+            <h3 className="mb-2 text-[13px] font-bold text-slate-800">절세 전략 프레임</h3>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {STRATEGY_FRAME.products.map((p) => (
+                <div key={p.type} className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2">
+                  <span className="w-16 flex-shrink-0 rounded bg-slate-200 px-1.5 py-0.5 text-center text-[11px] font-bold text-slate-600">
+                    {p.type}
+                  </span>
+                  <span className="text-[12.5px] font-semibold text-im-700">{p.items}</span>
+                </div>
+              ))}
+            </div>
+            <ul className="mt-3 space-y-1.5">
+              {STRATEGY_FRAME.dispersion.map((d, i) => (
+                <li key={i} className="flex gap-2 text-[12.5px]">
+                  <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-im-500" />
+                  <span>
+                    <span className="font-semibold text-slate-800">{d.title}</span>
+                    <span className="text-slate-500"> : {d.detail}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default function GrossTaxPage() {
+  const [input, setInput] = useState("");
+  const [result, setResult] = useState(undefined); // undefined=미조회, null=결과없음, obj=조회됨
+  const [queriedNo, setQueriedNo] = useState("");
+
+  useEffect(() => {
+    const prev = document.title;
+    document.title = "금융소득 종합과세 관리 · iM 세일즈메이트";
+    return () => {
+      document.title = prev;
+    };
+  }, []);
+
+  const runQuery = (no) => {
+    const clean = (no ?? input).replace(/\D/g, "");
+    setQueriedNo(clean);
+    setResult(queryGrossTax(clean));
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    runQuery();
+  };
+
+  return (
+    <HubShell>
+      {/* 헤더 + 통합 의도 */}
+      <div className="mb-5">
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">금융소득 종합과세 관리</h1>
+        </div>
+        <p className="mt-1 max-w-3xl text-[13px] leading-relaxed text-slate-600">
+          지금은 계정계·보험·노란우산 등 <span className="font-semibold text-slate-800">여러 화면에서 따로 조회</span>해야 하는
+          비과세·분리과세 상품 현황과 종합과세 대상 여부를,{" "}
+          <span className="font-semibold text-im-700">고객번호 하나로 이 화면에서 통합 조회</span>하고 맞춤 절세 전략까지 제시합니다.
+        </p>
+        <div className="mt-3">
+          <IntegrationStrip />
+        </div>
+      </div>
+
+      {/* 조회 입력 */}
+      <form onSubmit={onSubmit} className={cn(CARD, "mb-5 flex flex-wrap items-center gap-2 p-3")}>
+        <div className="relative min-w-0 flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value.replace(/\D/g, "").slice(0, 9))}
+            inputMode="numeric"
+            maxLength={9}
+            placeholder="고객번호 9자리 입력"
+            className="w-full rounded-md border border-slate-300 py-2 pl-9 pr-3 text-[14px] tabular-nums focus:border-im-500 focus:outline-none"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={input.length !== 9}
+          className="flex-shrink-0 rounded-md bg-im-600 px-5 py-2 text-[13px] font-bold text-white transition-colors hover:bg-im-700 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          통합 조회
+        </button>
+      </form>
+
+      {/* 결과 */}
+      {result === undefined ? (
+        <IdleState onPick={(no) => { setInput(no); runQuery(no); }} />
+      ) : result === null ? (
+        <NotFound no={queriedNo} onPick={(no) => { setInput(no); runQuery(no); }} />
+      ) : (
+        <div className="space-y-6">
+          <VerdictBanner data={result} />
+
+          <section>
+            <SectionTitle icon={Layers} sub="종합과세에서 제외되는 비과세·분리과세 상품 — 계정계·보험·노란우산 통합">
+              제외 상품 현황
+            </SectionTitle>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {result.products.map((p) => (
+                <ProductCard key={p.key} product={p} />
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <SectionTitle icon={ShieldCheck} sub="대상 여부 · 보유 상품 · 남은 한도를 반영한 실행 우선순위">
+              맞춤 절세 전략
+            </SectionTitle>
+            <ol className="space-y-2">
+              {result.strategy.map((s, i) => (
+                <StrategyItem key={i} item={s} />
+              ))}
+            </ol>
+          </section>
+
+          <ReferenceGuide />
+
+          <p className="text-[11px] leading-relaxed text-slate-400">
+            본 화면은 내부 조회 데이터를 통합해 상담을 돕는 참고 자료입니다(데모 — 표시 데이터는 예시). 실제 과세 여부·한도·세액은
+            소득 전체와 세법 개정에 따라 달라지며, 신고·납부는 관할세무서·홈택스 기준으로 확인해야 합니다. 특정 상품의 투자권유가 아닙니다.
+          </p>
+        </div>
+      )}
+    </HubShell>
+  );
+}
+
+/* 미조회 상태 — 통합 취지 + 대표 고객번호로 바로 체험 */
+const IdleState = ({ onPick }) => (
+  <div className="space-y-5">
+    <div className={cn(CARD, "flex flex-col items-center gap-3 px-5 py-10 text-center")}>
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-im-50 text-im-600">
+        <Layers className="h-6 w-6" />
+      </div>
+      <p className="text-[14px] font-semibold text-slate-700">고객번호 9자리를 입력하면 통합 결과가 나옵니다</p>
+      <p className="max-w-md text-[12.5px] leading-relaxed text-slate-400">
+        종합과세 대상 여부(관할 세무서 포함) · 비과세·분리과세 상품 현황 · 이 고객 맞춤 절세 전략을 한 번에 확인합니다.
+      </p>
+      <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
+        <span className="text-[11px] text-slate-400">예시 고객:</span>
+        {SAMPLE_CUSTOMERS.map((c) => (
+          <button
+            key={c.customerNo}
+            onClick={() => onPick(c.customerNo)}
+            className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 transition-colors hover:border-im-300 hover:text-im-700"
+          >
+            <span className="font-mono tabular-nums">{c.customerNo}</span>
+            <span className="text-[10px] font-medium text-slate-400">{c.tag}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <ReferenceGuide />
+  </div>
+);
+
+const NotFound = ({ no, onPick }) => (
+  <div className={cn(CARD, "flex flex-col items-center gap-2 px-5 py-12 text-center")}>
+    <Search className="h-7 w-7 text-slate-300" />
+    <p className="text-[13px] font-semibold text-slate-600">
+      <span className="font-mono tabular-nums">{no}</span> — 조회 결과가 없습니다
+    </p>
+    <p className="max-w-sm text-[12px] leading-relaxed text-slate-400">
+      데모에는 대표 고객만 등록돼 있습니다. 아래 예시 번호로 확인해 보세요.
+    </p>
+    <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+      {SAMPLE_CUSTOMERS.map((c) => (
+        <button
+          key={c.customerNo}
+          onClick={() => onPick(c.customerNo)}
+          className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 hover:border-im-300 hover:text-im-700"
+        >
+          <span className="font-mono tabular-nums">{c.customerNo}</span>
+          <span className="text-[10px] font-medium text-slate-400">{c.tag}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+);
