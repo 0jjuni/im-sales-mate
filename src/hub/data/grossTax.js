@@ -38,7 +38,9 @@ const CUSTOMERS = {
   "841023391": {
     customerNo: "841023391",
     name: "김○호",
-    profile: "개인사업자 · 52세",
+    age: "52세",
+    /* 은행 기록상 마지막 소득 유형(수기 확인 대상 — 상담 시 바뀌었을 수 있어 조정 가능) */
+    incomeType: "개인사업자",
     jonghap: {
       taxYear: 2025,
       isTarget: true,
@@ -82,33 +84,17 @@ const CUSTOMERS = {
         metrics: [{ label: "당행 가입", value: "보유(일반형)" }],
         note: "직전 3년 종합과세 대상 이력 → 만기 후 재가입·연장 제한. 현 계좌 유지 위주로 안내.",
       },
-      {
-        key: "housing",
-        state: "active",
-        headline: "당행 가입 중",
-        metrics: [
-          { label: "당행 월 납입", value: "10만원" },
-          { label: "소득공제", value: "사업소득자 — 대상 아님" },
-        ],
-        note: "무주택 세대주 근로소득자만 소득공제. 청약 자격 유지 목적.",
-      },
-      {
-        key: "noran",
-        state: "active",
-        headline: "당행 가입 중 · 소득공제 적용",
-        metrics: [
-          { label: "당행 월 부금", value: "20만원" },
-          { label: "소득공제", value: "사업소득 규모별 한도" },
-        ],
-        note: "폐업·퇴임 시 공제금 수령. 사업소득자 소득공제 핵심 — 부금 증액 여력 점검.",
-      },
+      /* 소득 유형에 따라 자격·소득공제가 달라지는 상품은 held/monthly만 두고 viewProduct로 파생 */
+      { key: "housing", held: true, monthly: "10만원" },
+      { key: "noran", held: true, monthly: "20만원" },
     ],
   },
 
   "772501180": {
     customerNo: "772501180",
     name: "이○희",
-    profile: "근로소득자 · 48세",
+    age: "48세",
+    incomeType: "근로소득자",
     jonghap: {
       taxYear: 2025,
       isTarget: false,
@@ -156,30 +142,16 @@ const CUSTOMERS = {
         ],
         note: "비대상·가입 제한 없음 → 서민형 ISA로 순이익 비과세. 지금 화면에서 바로 잡을 대표 판매 기회.",
       },
-      {
-        key: "housing",
-        state: "active",
-        headline: "당행 가입 중 · 소득공제 대상",
-        metrics: [
-          { label: "당행 월 납입", value: "10만원" },
-          { label: "소득공제", value: "총급여 7천 이하 — 대상" },
-        ],
-        note: "무주택 세대주 근로소득자 소득공제 대상. 납입 유지 권장.",
-      },
-      {
-        key: "noran",
-        state: "none",
-        headline: "가입 대상 아님",
-        metrics: [{ label: "가입 자격", value: "소기업·소상공인" }],
-        note: "근로소득자는 대상 아님(사업소득 발생 시 재검토).",
-      },
+      { key: "housing", held: true, monthly: "10만원" },
+      { key: "noran", held: false },
     ],
   },
 
   "904176624": {
     customerNo: "904176624",
     name: "박○수",
-    profile: "개인사업자 · 59세",
+    age: "59세",
+    incomeType: "개인사업자",
     jonghap: {
       taxYear: 2025,
       isTarget: false,
@@ -211,29 +183,74 @@ const CUSTOMERS = {
         metrics: [{ label: "당행 가입", value: "보유(일반형)" }],
         note: "직전 3년 대상 이력(2023) → 재가입·연장 및 신규 비과세상품 가입 제한.",
       },
-      {
-        key: "housing",
-        state: "active",
-        headline: "당행 가입 중",
-        metrics: [
-          { label: "당행 월 납입", value: "10만원" },
-          { label: "소득공제", value: "사업소득자 — 대상 아님" },
-        ],
-        note: "청약 자격 유지 목적.",
-      },
-      {
-        key: "noran",
-        state: "active",
-        headline: "당행 가입 중 · 소득공제 적용",
-        metrics: [
-          { label: "당행 월 부금", value: "10만원" },
-          { label: "소득공제", value: "사업소득 규모별 한도" },
-        ],
-        note: "부금 증액 시 소득공제 확대 여지 — 사업소득 규모 확인 후 안내.",
-      },
+      { key: "housing", held: true, monthly: "10만원" },
+      { key: "noran", held: true, monthly: "10만원" },
     ],
   },
 };
+
+/* 수기 확인 대상 — 소득 유형(자동 조회로는 최신 여부를 보장 못 함). PB가 상담 시 조정한다. */
+export const INCOME_TYPES = ["근로소득자", "개인사업자", "기타"];
+
+/* 소득 유형에 따라 자격·소득공제가 달라지는 상품(노란우산·주택청약)을 파생한다.
+   나머지 상품은 그대로 반환. 조회는 「가입 여부(held)」만, 자격 판단은 수기 소득유형으로. */
+export function viewProduct(product, incomeType) {
+  if (product.key === "noran") {
+    const eligible = incomeType === "개인사업자";
+    if (product.held) {
+      return {
+        ...product,
+        state: "active",
+        headline: eligible ? "당행 가입 중 · 소득공제 적용" : "당행 가입 중",
+        metrics: [
+          { label: "당행 월 부금", value: product.monthly || "—" },
+          { label: "소득공제", value: eligible ? "사업소득 규모별 한도" : "소득유형 변경 — 자격 재확인" },
+        ],
+        note: eligible
+          ? "폐업·퇴임 시 공제금 수령. 사업소득자 소득공제 핵심 — 부금 증액 여력 점검."
+          : "현재 소득유형 기준 신규 가입 대상은 아니나 기존 계좌는 유지. 사업 지속 여부 확인.",
+      };
+    }
+    if (eligible) {
+      return {
+        ...product,
+        state: "recommend",
+        cta: { to: "/noran", label: "노란우산 상담 시작" },
+        headline: "당행 미가입 · 가입 권유",
+        metrics: [
+          { label: "가입 자격", value: "소기업·소상공인" },
+          { label: "혜택", value: "소득공제 + 폐업 대비" },
+        ],
+        note: "사업소득자 소득공제 핵심 수단 — 미보유, 가입 권유.",
+      };
+    }
+    return {
+      ...product,
+      state: "none",
+      headline: "가입 대상 아님",
+      metrics: [{ label: "가입 자격", value: "소기업·소상공인" }],
+      note: "근로소득자는 가입 대상 아님(사업소득 발생 시 재검토).",
+    };
+  }
+
+  if (product.key === "housing") {
+    const deductible = incomeType === "근로소득자";
+    return {
+      ...product,
+      state: "active",
+      headline: "당행 가입 중",
+      metrics: [
+        { label: "당행 월 납입", value: product.monthly || "10만원" },
+        { label: "소득공제", value: deductible ? "총급여 7천 이하 — 대상" : "근로소득자만 대상 — 해당 없음" },
+      ],
+      note: deductible
+        ? "무주택 세대주 근로소득자 소득공제 대상. 납입 유지 권장."
+        : "청약 자격 유지 목적. 소득공제는 근로소득자 한정.",
+    };
+  }
+
+  return product;
+}
 
 /* 고객번호로 통합 조회. 없으면 null. */
 export function queryGrossTax(customerNo) {
@@ -257,11 +274,13 @@ const cleanLabel = (label) => label.replace(" 가입 여부", "");
    이 고객이 지금 어떻게 절세하는지 + 어떻게 더 유도하고 무슨 상품을 팔지를 우선순위로 만든다.
    실서비스에서도 이 함수 하나가 모든 고객의 제안을 결정론적으로 생성 — 근거가 규칙으로 추적된다.
    입력: jonghap(대상여부·기준근접·이력제한) + products(상태·남은한도·미보유). */
-export function deriveStrategy(data) {
+export function deriveStrategy(data, incomeType) {
   const j = data.jonghap;
   const ratio = j.threshold ? j.financialIncome / j.threshold : 0;
   const near = !j.isTarget && ratio >= 0.8;
   const won = (v) => v.toLocaleString();
+  /* 소득 유형(수기)에 따라 자격이 달라지는 상품을 반영해 전략을 도출 */
+  const products = data.products.map((p) => viewProduct(p, incomeType));
   const items = [];
 
   /* 1) 진단 헤드라인 */
@@ -305,8 +324,8 @@ export function deriveStrategy(data) {
     });
   }
 
-  /* 3) 미보유·가입 권유(신규 판매) — 제한이 없을 때 최우선 판매 기회 */
-  data.products.forEach((p) => {
+  /* 3) 미보유·가입 권유(신규 판매) — 제한이 없을 때 최우선 판매 기회 (소득유형 반영) */
+  products.forEach((p) => {
     if (p.state === "recommend") {
       items.push({
         tag: "판매 기회",
@@ -319,7 +338,7 @@ export function deriveStrategy(data) {
   });
 
   /* 4) 보유 상품 추가 납입 여력(추가 판매) */
-  data.products.forEach((p) => {
+  products.forEach((p) => {
     if (p.state === "available" && p.remaining) {
       const label = cleanLabel(SOURCES[p.key]?.label ?? p.key);
       items.push({
@@ -331,19 +350,28 @@ export function deriveStrategy(data) {
     }
   });
 
-  /* 5) 세액공제·소득공제 — 가입 제한과 무관하므로 항상 제안. 노란우산 보유 시 증액 우선 */
-  const noranActive = data.products.some((p) => p.key === "noran" && p.state === "active");
-  items.push({
-    tag: "세액공제",
-    kind: "action",
-    title: noranActive
-      ? "노란우산 부금 증액 + 개인형 IRP·연금저축 제안"
-      : "개인형 IRP·연금저축 세액공제 제안",
-    detail: noranActive
-      ? "가입 제한이 없는 소득공제(노란우산)·세액공제(IRP·연금저축)로 절세를 확보하게 하세요. 사업소득 규모에 맞춰 부금 증액을 제안합니다."
-      : "연금계좌 세액공제(합산 900만원 한도)로 연말정산·종합소득세 부담을 줄이도록 IRP·연금저축을 제안하세요.",
-    cta: { to: "/pension", label: "연금 세액공제 계산" },
-  });
+  /* 5) 세액공제·소득공제 — 소득 유형에 맞춰 제안 (가입 제한과 무관) */
+  const noranActive = products.some((p) => p.key === "noran" && p.state === "active");
+  if (incomeType === "근로소득자") {
+    items.push({
+      tag: "세액공제",
+      kind: "action",
+      title: "IRP·연금저축 세액공제 + 주택청약 소득공제",
+      detail:
+        "연말정산에서 연금계좌 세액공제(IRP·연금저축 합산 900만원)와 무주택 세대주 주택청약 소득공제를 함께 챙기도록 제안하세요.",
+      cta: { to: "/pension", label: "연금 세액공제 계산" },
+    });
+  } else {
+    items.push({
+      tag: "세액공제",
+      kind: "action",
+      title: noranActive ? "노란우산 부금 증액 + 개인형 IRP·연금저축" : "개인형 IRP·연금저축 세액공제 제안",
+      detail: noranActive
+        ? "가입 제한이 없는 소득공제(노란우산)·세액공제(IRP·연금저축)로 절세를 확보하게 하세요. 사업소득 규모에 맞춰 부금 증액을 제안합니다."
+        : "IRP·연금저축 세액공제(합산 900만원 한도)로 종합소득세 부담을 줄이도록 제안하세요.",
+      cta: { to: "/pension", label: "연금 세액공제 계산" },
+    });
+  }
 
   /* 6) 소득 분산 — 대상자·기준근접·이력제한일 때 */
   if (j.isTarget || near || j.restrictedByHistory) {
