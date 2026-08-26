@@ -454,6 +454,8 @@ function ResultView({ data }) {
 
   return (
     <div className="space-y-6">
+      <ManualPanel manual={manual} onChange={setManual} />
+
       <div className="flex justify-end">
         <button
           onClick={handlePrint}
@@ -463,8 +465,6 @@ function ResultView({ data }) {
           A4 상담자료 인쇄
         </button>
       </div>
-
-      <ManualPanel manual={manual} onChange={setManual} />
 
       <VerdictBanner data={data} />
 
