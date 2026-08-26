@@ -66,6 +66,12 @@ const CUSTOMERS = {
         note: "계약 10년 이상·월 150만원 이내 유지 시 보험차익 비과세.",
       },
       {
+        key: "insOther",
+        state: "recommend",
+        metrics: [{ label: "일시납 비과세 한도", value: "1억원", strong: true }],
+        note: "일시납 저축성보험(계약 10년 이상)은 종합과세 제한 없음 — 과세 예금을 비과세로 이전 권유.",
+      },
+      {
         key: "isa",
         state: "restricted",
         metrics: [{ label: "당행 ISA", value: "보유(일반형)" }],
@@ -138,6 +144,12 @@ const CUSTOMERS = {
     products: [
       { key: "nontaxSavings", held: false },
       {
+        key: "insOther",
+        state: "recommend",
+        metrics: [{ label: "일시납 비과세 한도", value: "1억원", strong: true }],
+        note: "일시납 저축성보험(계약 10년 이상)은 종합과세 제한 없음 — 과세 예금을 비과세로 이전 권유.",
+      },
+      {
         key: "isa",
         state: "restricted",
         metrics: [{ label: "당행 ISA", value: "보유(일반형)" }],
@@ -164,7 +176,7 @@ export const NONTAX_QUALS = [
 /* 상담 시 조정하는 값(소득 유형·무주택 세대주·비과세종합저축 자격)에 따라
    자격·소득공제가 달라지는 상품을 파생한다. 조회는 「가입 여부(held)」만, 자격 판단은 이 값으로. */
 export function viewProduct(product, manual, restricted = false) {
-  const { incomeType, homeless, nontaxQual } = manual;
+  const { incomeType, homeless, nontaxQual, salaryUnder7000 } = manual;
 
   if (product.key === "nontaxSavings") {
     const remain = { label: "남은 비과세 한도", value: "5,000만원", strong: true };
@@ -222,23 +234,25 @@ export function viewProduct(product, manual, restricted = false) {
   }
 
   if (product.key === "housing") {
-    if (incomeType == null || homeless == null) {
+    if (incomeType == null || homeless == null || salaryUnder7000 == null) {
       return {
         ...product,
         state: "active",
         metrics: [{ label: "월 납입", value: product.monthly || "10만원" }, { label: "소득공제", value: "확인 필요" }],
-        note: "무주택 세대주·소득 유형을 확인하세요.",
+        note: "소득 유형·무주택 세대주·총급여(7천만원 이하)를 확인하세요.",
       };
     }
-    const deductible = incomeType === "근로소득자" && homeless;
+    const deductible = incomeType === "근로소득자" && homeless && salaryUnder7000;
     return {
       ...product,
       state: "active",
       metrics: [
         { label: "월 납입", value: product.monthly || "10만원" },
-        { label: "소득공제", value: deductible ? "대상(무주택 근로자)" : "대상 아님" },
+        { label: "소득공제", value: deductible ? "대상(무주택·총급여 7천↓)" : "대상 아님" },
       ],
-      note: deductible ? "무주택 세대주 근로자 소득공제 대상. 유지 권장." : "청약 자격 유지 목적.",
+      note: deductible
+        ? "무주택 세대주 근로자(총급여 7천만원 이하) 소득공제 대상. 유지 권장."
+        : "청약 자격 유지 목적. 소득공제는 무주택·근로·총급여 7천만원 이하만.",
     };
   }
 
@@ -278,9 +292,10 @@ export function deriveStrategy(data, manual) {
   const products = data.products.map((p) => viewProduct(p, manual, restricted));
   const items = [];
 
-  /* 1) 진단 헤드라인 */
+  /* ── 진단 ── */
   if (j.isTarget) {
     items.push({
+      group: "진단",
       tag: "우선",
       kind: "warn",
       title: "종합과세 대상 — 신규 비과세·ISA 가입/연장 제한",
@@ -290,6 +305,7 @@ export function deriveStrategy(data, manual) {
     });
   } else if (near) {
     items.push({
+      group: "진단",
       tag: "우선",
       kind: "warn",
       title: `금융소득 ${won(j.financialIncome)}만원 — 기준에 근접`,
@@ -299,6 +315,7 @@ export function deriveStrategy(data, manual) {
     });
   } else {
     items.push({
+      group: "진단",
       tag: "양호",
       kind: "ok",
       title: "비대상 · 절세상품을 더 채울 여지",
@@ -308,9 +325,9 @@ export function deriveStrategy(data, manual) {
     });
   }
 
-  /* 2) 직전 3년 이력 제한(현재 비대상이라도) */
   if (!j.isTarget && j.restrictedByHistory) {
     items.push({
+      group: "진단",
       tag: "제한 유의",
       kind: "warn",
       title: "직전 3년 대상 이력 → 비과세·ISA 가입/연장 제한",
@@ -319,10 +336,21 @@ export function deriveStrategy(data, manual) {
     });
   }
 
-  /* 3) 미보유·가입 권유(신규 판매) — 제한이 없을 때 최우선 판매 기회 (소득유형 반영) */
+  if (!incomeType) {
+    items.push({
+      group: "진단",
+      tag: "확인",
+      kind: "prompt",
+      title: "소득 유형을 확인하면 제안이 완성됩니다",
+      detail: "근로/사업 여부에 따라 노란우산·주택청약·세액공제 제안이 달라집니다. 위 「고객에게 확인」에서 선택하세요.",
+    });
+  }
+
+  /* ── 상품 제안 (판매) ── */
   products.forEach((p) => {
     if (p.state === "recommend") {
       items.push({
+        group: "제안",
         tag: "판매 기회",
         kind: "sell",
         title: `${cleanLabel(SOURCES[p.key]?.label ?? p.key)} 신규 가입 권유`,
@@ -332,11 +360,11 @@ export function deriveStrategy(data, manual) {
     }
   });
 
-  /* 4) 보유 상품 추가 납입 여력(추가 판매) */
   products.forEach((p) => {
     if (p.state === "available" && p.remaining) {
       const label = cleanLabel(SOURCES[p.key]?.label ?? p.key);
       items.push({
+        group: "제안",
         tag: "추가 판매",
         kind: "action",
         title: `${label} 납입 여력(${p.remaining}) 활용`,
@@ -345,28 +373,22 @@ export function deriveStrategy(data, manual) {
     }
   });
 
-  /* 5) 세액공제·소득공제 — 소득 유형에 맞춰 제안 (가입 제한과 무관) */
   const noranActive = products.some((p) => p.key === "noran" && p.state === "active");
-  if (!incomeType) {
+  if (incomeType === "근로소득자") {
+    const housingDeduct = manual.homeless && manual.salaryUnder7000;
     items.push({
-      tag: "확인",
-      kind: "prompt",
-      title: "소득 유형을 확인하면 제안이 완성됩니다",
-      detail: "근로/사업 여부에 따라 노란우산·주택청약·세액공제 제안이 달라집니다. 위에서 확인해 주세요.",
-    });
-  } else if (incomeType === "근로소득자") {
-    const housingDeduct = manual.homeless;
-    items.push({
+      group: "제안",
       tag: "세액공제",
       kind: "action",
       title: housingDeduct ? "IRP·연금저축 세액공제 + 주택청약 소득공제" : "IRP·연금저축 세액공제 제안",
       detail: housingDeduct
-        ? "연말정산에서 연금계좌 세액공제(IRP·연금저축 합산 900만원)와 무주택 세대주 주택청약 소득공제를 함께 챙기도록 제안하세요."
+        ? "연말정산에서 연금계좌 세액공제(IRP·연금저축 합산 900만원)와 무주택 세대주 주택청약 소득공제(총급여 7천만원 이하)를 함께 챙기도록 제안하세요."
         : "연말정산 연금계좌 세액공제(IRP·연금저축 합산 900만원)로 환급을 늘리도록 제안하세요.",
       cta: { to: "/pension", label: "연금 세액공제 계산" },
     });
-  } else {
+  } else if (incomeType) {
     items.push({
+      group: "제안",
       tag: "세액공제",
       kind: "action",
       title: noranActive ? "노란우산 부금 증액 + 개인형 IRP·연금저축" : "개인형 IRP·연금저축 세액공제 제안",
@@ -377,20 +399,37 @@ export function deriveStrategy(data, manual) {
     });
   }
 
-  /* 6) 소득 분산 — 대상자·기준근접·이력제한일 때 */
+  /* ── 소득 분산·이연 (대상·근접·이력 시) ── */
   if (j.isTarget || near || j.restrictedByHistory) {
     items.push({
+      group: "분산",
       tag: "소득 분산",
       kind: "action",
       title: "배우자·자녀 사전 증여로 금융자산 명의 분산",
       detail:
         "배우자 6억, 자녀 5천만원(미성년 2천만원)까지 10년 단위 비과세 증여. 이자·배당 자산을 나눠 1인당 금융소득 기준을 낮춥니다.",
     });
+    items.push({
+      group: "분산",
+      tag: "비과세 전환",
+      kind: "action",
+      title: "국내주식형 펀드·ETF로 이자·배당 → 매매차익(비과세) 전환",
+      detail:
+        "국내 상장주식·주식형 펀드·ETF의 매매차익은 비과세입니다(분배금·배당은 과세). 과세되는 이자·배당 자산 일부를 매매차익 중심으로 옮겨 금융소득을 낮출 수 있습니다.",
+    });
+    items.push({
+      group: "분산",
+      tag: "비과세 전환",
+      kind: "action",
+      title: "외화예금·해외채권 환차익 비과세 활용",
+      detail:
+        "외화예금·외화채권의 환차익은 비과세입니다(예금이자는 과세). 브라질 국채 등은 이자·환차익 모두 비과세 — 과세 이자자산의 대체 수단으로 검토하세요.",
+    });
   }
 
-  /* 7) 시기 분산·과세 이연 — 이미 대상인 경우 강조 */
   if (j.isTarget) {
     items.push({
+      group: "분산",
       tag: "시기 분산",
       kind: "action",
       title: "이자 수령 시기 분산 — 특정 연도 집중 회피",
@@ -398,6 +437,7 @@ export function deriveStrategy(data, manual) {
         "3년 만기 일시수령보다 매년 이자 수령·월이자지급식으로 옮겨, 특정 과세연도에 기준을 넘기는 것을 피하세요.",
     });
     items.push({
+      group: "분산",
       tag: "과세 이연",
       kind: "action",
       title: "만기 도래 상품 해지 시점을 다음 해로 연기",
@@ -407,6 +447,18 @@ export function deriveStrategy(data, manual) {
   }
 
   return items;
+}
+
+/* 종합과세 대상 고객에게 상담 시 반드시 안내할 사항 (사진 「종합과세 시 불이익」 반영) */
+export function targetGuidance(data) {
+  const j = data.jonghap;
+  return [
+    { title: "5월 종합소득세 신고 의무", detail: `매년 5월 말까지 ${j.taxOffice}·홈택스에서 신고·납부(전년 1.1~12.31 소득).` },
+    { title: "합산 누진과세로 세부담 증가", detail: "금융소득이 다른 소득과 합산돼 높은 누진세율 구간이 적용됩니다." },
+    { title: "세제혜택 상품 가입 제한", detail: "비과세종합저축·ISA 등 신규가입·연장이 제한됩니다(직전 3개 과세기간 중 1회 이상 대상)." },
+    { title: "인적·기본공제 배제 가능", detail: "부양가족의 소득금액 100만원(근로만 있으면 총급여 500만원) 초과 시 인적공제 대상에서 빠집니다." },
+    { title: "건강보험료 부담 증가", detail: "지역가입자 보험료 인상 또는 피부양자 자격상실·지역가입자 전환이 생길 수 있습니다." },
+  ];
 }
 
 /* ── 참고 자료(사진 반영) — 접이식 가이드 ─────────────────────────── */

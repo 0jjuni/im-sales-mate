@@ -16,6 +16,7 @@ import {
   Printer,
   BadgePercent,
   MessageSquareText,
+  Megaphone,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { PrintReport } from "@shared/components/PrintReport";
@@ -25,6 +26,7 @@ import {
   queryGrossTax,
   deriveStrategy,
   viewProduct,
+  targetGuidance,
   SOURCES,
   PRODUCT_STATE,
   INCOME_TYPES,
@@ -46,25 +48,7 @@ const STATE_CLASS = {
   prompt: { card: "border-dashed border-slate-300 bg-slate-50/60", badge: "bg-slate-100 text-slate-500" },
 };
 
-const SourceChip = ({ code }) => (
-  <span className="inline-flex items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-tight text-slate-500">
-    {code}
-  </span>
-);
-
-/* 통합 조회 소스 띠 — "흩어진 조회를 여기로 모은다"는 의도 표현 */
-const IntegrationStrip = () => (
-  <div className="flex flex-wrap items-center gap-1.5">
-    {Object.values(SOURCES).map((s) => (
-      <span key={s.label} className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-1 text-[11px] text-slate-500">
-        <SourceChip code={s.code} />
-        <span className="text-slate-600">{s.label}</span>
-      </span>
-    ))}
-  </div>
-);
-
-/* 종합과세 대상 판정 배너 — 0192-8 */
+/* 종합과세 대상 판정 배너 */
 const VerdictBanner = ({ data }) => {
   const j = data.jonghap;
   const pct = Math.min(100, Math.round((j.financialIncome / j.threshold) * 100));
@@ -83,18 +67,15 @@ const VerdictBanner = ({ data }) => {
             <div className="mt-0.5 font-mono text-[12px] tabular-nums text-slate-400">{data.customerNo}</div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <SourceChip code={SOURCES.jonghap.code} />
-          <span
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-bold",
-              j.isTarget ? "bg-rose-100 text-rose-700" : "bg-im-100 text-im-700"
-            )}
-          >
-            {j.isTarget ? <AlertTriangle className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
-            {j.taxYear}년 {j.isTarget ? "종합과세 대상" : "비대상"}
-          </span>
-        </div>
+        <span
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-bold",
+            j.isTarget ? "bg-rose-100 text-rose-700" : "bg-im-100 text-im-700"
+          )}
+        >
+          {j.isTarget ? <AlertTriangle className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
+          {j.taxYear}년 {j.isTarget ? "종합과세 대상" : "비대상"}
+        </span>
       </div>
 
       <div className="grid gap-4 px-5 py-4 sm:grid-cols-3">
@@ -173,9 +154,6 @@ const ProductCard = ({ product }) => {
           {sell && <span className="rounded bg-im-600 px-1.5 py-0.5 text-[10px] font-bold text-white">권유</span>}
           <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", cls.badge)}>{st.label}</span>
         </div>
-      </div>
-      <div className="mt-1">
-        <SourceChip code={src.code} />
       </div>
 
       {hero && (
@@ -299,6 +277,9 @@ const ManualPanel = ({ manual, onChange }) => {
         <ManualField label="무주택 세대주">
           <YesNo value={manual.homeless} onChange={(v) => set("homeless", v)} />
         </ManualField>
+        <ManualField label="총급여 7천만원 이하">
+          <YesNo value={manual.salaryUnder7000} onChange={(v) => set("salaryUnder7000", v)} />
+        </ManualField>
         <ManualField label="비과세종합저축 자격">
           <select
             value={manual.nontaxQual ?? ""}
@@ -410,12 +391,44 @@ const ReferenceGuide = () => {
   );
 };
 
+/* 종합과세 대상 고객에게 상담 시 반드시 안내할 사항 */
+const GuidanceForTarget = ({ data }) => (
+  <div className="overflow-hidden rounded-xl border border-rose-200 bg-rose-50/40">
+    <div className="flex items-center gap-2 border-b border-rose-100 px-5 py-3">
+      <Megaphone className="h-4 w-4 flex-shrink-0 text-rose-600" />
+      <h2 className="text-[14px] font-bold text-rose-800">고객에게 안내할 사항</h2>
+      <span className="rounded bg-rose-100 px-1.5 py-0.5 text-[10px] font-bold text-rose-700">종합과세 대상</span>
+    </div>
+    <ul className="divide-y divide-rose-100/70">
+      {targetGuidance(data).map((g, i) => (
+        <li key={i} className="flex gap-2.5 px-5 py-2.5">
+          <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-rose-100 text-[9px] font-bold text-rose-700">
+            {i + 1}
+          </span>
+          <div className="min-w-0">
+            <div className="text-[12.5px] font-bold text-slate-800">{g.title}</div>
+            <div className="mt-0.5 text-[11.5px] leading-relaxed text-slate-600">{g.detail}</div>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
+/* 전략 그룹 — 가독성을 위해 소제목으로 묶는다 */
+const STRATEGY_GROUPS = [
+  { key: "진단", label: "진단 · 유의" },
+  { key: "제안", label: "상품 제안 (판매)" },
+  { key: "분산", label: "소득 분산 · 이연" },
+];
+
 /* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
 function ResultView({ data }) {
   const j = data.jonghap;
   /* 값을 미리 고정하지 않고 미확인으로 시작 — 상담하며 채운다 */
-  const [manual, setManual] = useState({ incomeType: null, homeless: null, nontaxQual: null });
-  useEffect(() => setManual({ incomeType: null, homeless: null, nontaxQual: null }), [data.customerNo]);
+  const blankManual = { incomeType: null, homeless: null, salaryUnder7000: null, nontaxQual: null };
+  const [manual, setManual] = useState(blankManual);
+  useEffect(() => setManual(blankManual), [data.customerNo]);
 
   const restricted = j.isTarget || j.restrictedByHistory;
   const products = data.products.map((p) => viewProduct(p, manual, restricted));
@@ -451,9 +464,11 @@ function ResultView({ data }) {
         </button>
       </div>
 
+      <ManualPanel manual={manual} onChange={setManual} />
+
       <VerdictBanner data={data} />
 
-      <ManualPanel manual={manual} onChange={setManual} />
+      {j.isTarget && <GuidanceForTarget data={data} />}
 
       <section>
         <SectionTitle icon={Layers} sub="당행 보유 기준">
@@ -468,11 +483,24 @@ function ResultView({ data }) {
 
       <section>
         <SectionTitle icon={ShieldCheck}>맞춤 절세 전략 · 상품 제안</SectionTitle>
-        <ol className="space-y-2">
-          {strategy.map((s, i) => (
-            <StrategyItem key={i} item={s} />
-          ))}
-        </ol>
+        <div className="space-y-4">
+          {STRATEGY_GROUPS.map((g) => {
+            const rows = strategy.filter((s) => s.group === g.key);
+            if (rows.length === 0) return null;
+            return (
+              <div key={g.key}>
+                <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  {g.label}
+                </div>
+                <ol className="space-y-2">
+                  {rows.map((s, i) => (
+                    <StrategyItem key={i} item={s} />
+                  ))}
+                </ol>
+              </div>
+            );
+          })}
+        </div>
       </section>
 
       <ReferenceGuide />
@@ -493,6 +521,7 @@ function ResultView({ data }) {
             { label: "연령", value: data.age },
             { label: "소득 유형", value: manual.incomeType || "미확인" },
             { label: "무주택 세대주", value: manual.homeless == null ? "미확인" : manual.homeless ? "예" : "아니오" },
+            { label: "총급여 7천만원 이하", value: manual.salaryUnder7000 == null ? "미확인" : manual.salaryUnder7000 ? "예" : "아니오" },
             { label: "비과세종합저축 자격", value: manual.nontaxQual || "미확인" },
             { label: "기준 연도", value: `${j.taxYear}년` },
             {
@@ -510,10 +539,13 @@ function ResultView({ data }) {
             ...(j.restrictedByHistory
               ? [{ label: "가입 제한", value: "비과세종합저축·ISA 신규가입·연장 제한" }]
               : []),
-            ...products.map((p) => ({
-              label: SOURCES[p.key]?.label ?? p.key,
-              value: `${PRODUCT_STATE[p.state].label} · ${p.headline}`,
-            })),
+            ...products.map((p) => {
+              const hero = (p.metrics || []).find((m) => m.strong) || (p.metrics || [])[0];
+              return {
+                label: SOURCES[p.key]?.label ?? p.key,
+                value: `${PRODUCT_STATE[p.state].label}${hero ? ` · ${hero.label} ${hero.value}` : ""}`,
+              };
+            }),
           ]}
           notes={strategy.map((s) => `[${s.tag}] ${s.title} — ${s.detail}`)}
           legalBasis="소득세법 제14조·제62조(금융소득 종합과세) · 조세특례제한법(비과세종합저축·ISA)"
@@ -571,11 +603,8 @@ export default function GrossTaxPage() {
         </div>
         <p className="mt-1 text-[13px] text-slate-500">
           고객번호로 종합과세 대상 여부와 당행 절세상품을 조회합니다.
+          <span className="text-slate-400"> · 당행 보유 기준(타행 조회 불가)</span>
         </p>
-        <div className="mt-3">
-          <IntegrationStrip />
-          <p className="mt-1.5 text-[11px] text-slate-400">당행 보유 기준 · 타행 조회 불가</p>
-        </div>
       </div>
 
       {/* 조회 입력 */}
