@@ -449,8 +449,8 @@ export const FollowupForm = ({ onAdd, defaultDate = "", fixedType }) => {
         rows={2}
         placeholder={
           isNoteEntry
-            ? "이 고객에 대해 기억해 둘 내용 (예: 부부가 함께 방문하는 단골 / 매장 확장 준비 중)"
-            : "메모 (예: 방카 만기자금 12/3 나오면 재예치 상담 원함)"
+            ? "기억할 고객 특징 (예: 매장 확장 준비 중)"
+            : "메모 (예: 방카 만기자금 재예치 상담)"
         }
         className="w-full resize-y rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] leading-relaxed focus:border-im-500 focus:outline-none"
       />

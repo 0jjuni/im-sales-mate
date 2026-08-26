@@ -1,14 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Printer, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { MarketChart } from "./MarketChart";
+import { PERIODS, fetchSeries } from "../data/marketQuotes";
 import { PrintReport } from "@shared/components/PrintReport";
 import { cn } from "@shared/lib/format";
 
-/* 마켓 지표 상세 — 셀 클릭 시 열린다. 큰 추이 차트 + 요약 통계 + PB 관점 메모.
-   「인쇄」는 고객 상담자료(A4)로 출력. 대시보드 전체가 함께 인쇄되지 않도록
-   PrintReport를 body로 포탈하고, 인쇄 동안 html.printing-market으로 #root를 숨긴다
-   (규칙: src/index.css @media print). */
+/* 마켓 지표 상세 — 셀 클릭 시 열린다. 기간(10일/1년/5년/10년) 선택 가능한 추이 차트 +
+   요약 통계 + PB 관점 메모. 적립식 추천 시 장기 추이를 함께 보여줄 수 있다.
+   「인쇄」는 선택 기간 그대로 A4 상담자료로 출력. 대시보드가 함께 인쇄되지 않도록
+   PrintReport를 body로 포탈하고 인쇄 동안 html.printing-market으로 #root를 숨긴다. */
 
 const num = (v) => (typeof v === "number" ? v.toLocaleString("ko-KR", { maximumFractionDigits: 2 }) : v);
 const fmtAsOf = (d) => {
@@ -31,17 +32,19 @@ const pbNote = (label, change) => {
     if (dir === "down") return "시장금리가 하락했습니다. 예금 금리 인하 가능성에 대비해 만기 고객에게 조기 재예치 여지를 안내할 수 있습니다.";
     return "금리가 보합권입니다. 예금·채권형 상품 안내 시 방향성 단정은 피하세요.";
   }
-  // 주가지수(KOSPI·KOSDAQ·S&P 500·나스닥)
   if (dir === "up") return "증시가 상승했습니다. 위험 선호가 개선되는 국면에서 ISA·펀드 등 투자형 상담 여지가 있으나, 추격매수 권유로 읽히지 않게 주의하세요.";
   if (dir === "down") return "증시가 조정받았습니다. 변동성에 민감한 고객에게는 예적금·ISA 등 안정형 대안을 함께 제시하세요.";
   return "증시가 보합권입니다. 지표 방향보다 고객 성향에 맞춘 자산 배분 관점으로 접근하세요.";
 };
 
 export function MarketDetailModal({ market, asOf, onClose }) {
+  const [period, setPeriod] = useState("10d");
+  const [series, setSeries] = useState(market?.series || []);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
-    /* 인쇄가 끝나면(또는 취소) 대시보드를 다시 보이게 한다 */
     const cleanup = () => document.documentElement.classList.remove("printing-market");
     window.addEventListener("afterprint", cleanup);
     return () => {
@@ -51,21 +54,56 @@ export function MarketDetailModal({ market, asOf, onClose }) {
     };
   }, [onClose]);
 
+  /* 고객·지표가 바뀌면 기본(10일)로 리셋 */
+  useEffect(() => {
+    setPeriod("10d");
+    setSeries(market?.series || []);
+  }, [market?.symbol]);
+
+  /* 기간 전환 — 10일은 이미 받아둔 시리즈, 그 외는 온디맨드 조회 */
+  useEffect(() => {
+    if (!market?.symbol) return;
+    let alive = true;
+    if (period === "10d") {
+      setSeries(market.series || []);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    fetchSeries(market.symbol, period)
+      .then((s) => {
+        if (alive) {
+          setSeries(s);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (alive) setLoading(false); // 실패 시 직전 시리즈 유지
+      });
+    return () => {
+      alive = false;
+    };
+  }, [period, market?.symbol, market?.series]);
+
   if (!market) return null;
 
-  const { label, value, change, series } = market;
+  const { label, value, change } = market;
   const flat = change === 0;
   const up = change > 0;
   const vals = Array.isArray(series) ? series.map((d) => d.c) : [];
   const hi = vals.length ? Math.max(...vals) : null;
   const lo = vals.length ? Math.min(...vals) : null;
+  const periodReturn =
+    series.length >= 2 ? ((series[series.length - 1].c - series[0].c) / series[0].c) * 100 : null;
   const asOfText = fmtAsOf(asOf);
   const note = pbNote(label, change);
   const changeText = `${up ? "+" : ""}${change.toFixed(2)}%`;
+  const periodLabel = PERIODS.find((p) => p.key === period)?.label ?? "10일";
+  const rangeText = period === "10d" ? "최근 10거래일" : `최근 ${periodLabel}`;
+  const canSelect = !!market.symbol;
 
   const handlePrint = () => {
     document.documentElement.classList.add("printing-market");
-    /* 렌더 반영 후 인쇄 (일부 브라우저에서 클래스 적용 타이밍 보정) */
     setTimeout(() => window.print(), 30);
   };
 
@@ -98,7 +136,7 @@ export function MarketDetailModal({ market, asOf, onClose }) {
                   {changeText}
                 </span>
               </div>
-              {asOfText && <div className="mt-0.5 text-[11px] text-slate-400">{asOfText} 종가 기준 · 최근 10거래일</div>}
+              {asOfText && <div className="mt-0.5 text-[11px] text-slate-400">{asOfText} 종가 기준 · {rangeText}</div>}
             </div>
             <button
               onClick={onClose}
@@ -109,16 +147,40 @@ export function MarketDetailModal({ market, asOf, onClose }) {
             </button>
           </div>
 
+          {/* 기간 선택 */}
+          <div className="flex items-center gap-1 border-b border-slate-100 px-5 py-2.5">
+            {PERIODS.map((p) => (
+              <button
+                key={p.key}
+                onClick={() => canSelect && setPeriod(p.key)}
+                disabled={!canSelect}
+                className={cn(
+                  "rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors disabled:opacity-40",
+                  period === p.key
+                    ? "bg-slate-900 text-white"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                )}
+              >
+                {p.label}
+              </button>
+            ))}
+            <span className="ml-auto text-[11px] text-slate-400">적립식 추천용 장기 추이</span>
+          </div>
+
           {/* 차트 */}
           <div className="px-5 py-4">
-            <div className="w-full overflow-x-auto">
-              <MarketChart series={series} label={label} width={480} height={160} />
+            <div className={cn("w-full overflow-x-auto transition-opacity", loading && "opacity-40")}>
+              <MarketChart series={series} label={label} width={480} height={170} interactive />
             </div>
 
-            {/* 요약 통계 */}
+            {/* 요약 통계 — 기간 기준 */}
             {hi != null && (
               <div className="mt-3 grid grid-cols-3 gap-2">
-                <Stat title="전일 대비" value={changeText} tone={flat ? "flat" : up ? "up" : "down"} />
+                <Stat
+                  title={`${periodLabel} 수익률`}
+                  value={periodReturn == null ? "—" : `${periodReturn > 0 ? "+" : ""}${periodReturn.toFixed(1)}%`}
+                  tone={periodReturn == null ? "flat" : periodReturn > 0 ? "up" : periodReturn < 0 ? "down" : "flat"}
+                />
                 <Stat title="기간 최고" value={num(hi)} />
                 <Stat title="기간 최저" value={num(lo)} />
               </div>
@@ -153,25 +215,28 @@ export function MarketDetailModal({ market, asOf, onClose }) {
         </div>
       </div>
 
-      {/* 인쇄 전용 A4 상담자료 — body로 포탈해 대시보드(#root)와 분리 */}
+      {/* 인쇄 전용 A4 — 선택 기간 그대로 출력. body로 포탈해 대시보드와 분리 */}
       {createPortal(
         <PrintReport
           title={`${label} 시황 브리핑`}
-          subtitle={`${asOfText ? `${asOfText} 종가 기준 · ` : ""}최근 10거래일 추이`}
+          subtitle={`${asOfText ? `${asOfText} 종가 기준 · ` : ""}${rangeText} 추이`}
           disclaimer={
             "본 자료는 공개된 시장 지표를 요약한 내부 참고용입니다. 지수·환율·금리는 실시간 변동하며, 특정 종목·상품의 투자권유가 아닙니다. 상담 시 최신 시세를 다시 확인해 주세요."
           }
           inputs={[
             { label: "지표", value: label },
             { label: "기준일시", value: asOfText || "-" },
-            { label: "데이터 구간", value: "최근 10거래일 (일별 종가)" },
+            { label: "데이터 구간", value: rangeText },
           ]}
           results={[
             { label: "종가", value: value, emphasis: true },
             { label: "전일 대비", value: changeText },
+            ...(periodReturn != null
+              ? [{ label: `${periodLabel} 수익률`, value: `${periodReturn > 0 ? "+" : ""}${periodReturn.toFixed(1)}%` }]
+              : []),
             ...(hi != null ? [{ label: "기간 최고 / 최저", value: `${num(hi)} / ${num(lo)}` }] : []),
           ]}
-          chart={<MarketChart series={series} label={label} width={500} height={170} />}
+          chart={<MarketChart series={series} label={label} width={500} height={180} />}
           notes={[note]}
           sourceLine="Yahoo Finance (비공식 시세) · 실서비스 전환 시 정식 시세 소스로 대체"
           brandLabel="iM 세일즈메이트 · 시황 참고자료 · iM뱅크"

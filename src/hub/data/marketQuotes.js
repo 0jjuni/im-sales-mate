@@ -13,14 +13,23 @@
      금리 방향 지표로 미국 10년물을 넣었다. */
 
 const DEV_PROXY = "https://corsproxy.io/?url=";
-const CHART = (symbol) =>
-  `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=10d`;
+const CHART = (symbol, interval, range) =>
+  `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&range=${range}`;
 
-/* 심볼을 바꾸면 api/quote.js의 허용 목록도 함께 고칠 것 */
-const quoteUrl = (symbol) =>
+/* 심볼·기간을 바꾸면 api/quote.js의 허용 목록도 함께 고칠 것 */
+const quoteUrl = (symbol, interval = "1d", range = "10d") =>
   import.meta.env.DEV
-    ? DEV_PROXY + encodeURIComponent(CHART(symbol))
-    : `/api/quote?symbol=${encodeURIComponent(symbol)}`;
+    ? DEV_PROXY + encodeURIComponent(CHART(symbol, interval, range))
+    : `/api/quote?symbol=${encodeURIComponent(symbol)}&interval=${interval}&range=${range}`;
+
+/* 상담용 기간 선택 — 적립식 추천 시 장기 추이를 함께 보여줄 수 있게.
+   장기는 간격을 넓혀(주/월봉) 포인트 수를 적정 유지한다. */
+export const PERIODS = [
+  { key: "10d", label: "10일", range: "10d", interval: "1d" },
+  { key: "1y", label: "1년", range: "1y", interval: "1d" },
+  { key: "5y", label: "5년", range: "5y", interval: "1wk" },
+  { key: "10y", label: "10년", range: "10y", interval: "1mo" },
+];
 
 /* 표시 순서대로. format은 값 표기 방식 */
 const SYMBOLS = [
@@ -83,6 +92,31 @@ const fetchOne = async ({ label, symbol, format }) => {
       asOf: parsed.asOf,
       series: parsed.series,
     };
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+/* 특정 지표의 특정 기간 시계열만 조회(상세 모달의 기간 전환용).
+   실패 시 throw — 호출부에서 기존 시리즈 유지 등으로 처리. */
+export const fetchSeries = async (symbol, periodKey) => {
+  const p = PERIODS.find((x) => x.key === periodKey) || PERIODS[0];
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    const res = await fetch(quoteUrl(symbol, p.interval, p.range), { signal: ctrl.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const r = json?.chart?.result?.[0];
+    const ts = r?.timestamp;
+    const closes = r?.indicators?.quote?.[0]?.close;
+    if (!ts || !closes) throw new Error("파싱 실패");
+    const series = ts
+      .map((t, i) => [t, closes[i]])
+      .filter(([, c]) => c != null)
+      .map(([t, c]) => ({ t: t * 1000, c }));
+    if (series.length < 2) throw new Error("시계열 부족");
+    return series;
   } finally {
     clearTimeout(timer);
   }

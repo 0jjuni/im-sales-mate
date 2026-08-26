@@ -18,6 +18,7 @@ const NAV = [
   { to: "/isa", label: "ISA" },
   { to: "/pension", label: "연금" },
   { to: "/tools", label: "보조도구" },
+  { to: "/news", label: "뉴스" },
   { to: "/followups", label: "일정 관리" },
 ];
 

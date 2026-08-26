@@ -8,6 +8,7 @@ import UtilityApp from "@utility/UtilityApp";
 import FollowupsPage from "@hub/followups/FollowupsPage";
 import SearchPage from "@hub/SearchPage";
 import GrossTaxPage from "@hub/GrossTaxPage";
+import NewsPage from "@hub/NewsPage";
 
 /* iM 세일즈메이트 루트 라우터.
    "/"        → 허브(대시보드)
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/tools/*" element={<UtilityApp />} />
         <Route path="/followups" element={<FollowupsPage />} />
         <Route path="/tax" element={<GrossTaxPage />} />
+        <Route path="/news" element={<NewsPage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -8,6 +8,9 @@
    src/hub/data/marketQuotes.js의 SYMBOLS와 함께 고칠 것. */
 
 const ALLOWED_SYMBOLS = new Set(["^KS11", "^KQ11", "^GSPC", "^IXIC", "KRW=X", "^TNX"]);
+/* 기간/간격도 허용 목록으로 제한(열린 프록시 방지). marketQuotes.js의 PERIODS와 맞춘다. */
+const ALLOWED_RANGE = new Set(["10d", "1y", "5y", "10y"]);
+const ALLOWED_INTERVAL = new Set(["1d", "1wk", "1mo"]);
 
 export default async function handler(req, res) {
   const symbol = req.query.symbol;
@@ -15,12 +18,14 @@ export default async function handler(req, res) {
     res.status(400).json({ error: "unknown symbol" });
     return;
   }
+  const range = ALLOWED_RANGE.has(req.query.range) ? req.query.range : "10d";
+  const interval = ALLOWED_INTERVAL.has(req.query.interval) ? req.query.interval : "1d";
 
   try {
     const upstream = await fetch(
       `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(
         symbol
-      )}?interval=1d&range=10d`,
+      )}?interval=${interval}&range=${range}`,
       { headers: { "User-Agent": "Mozilla/5.0" } }
     );
     if (!upstream.ok) {

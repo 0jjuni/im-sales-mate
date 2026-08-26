@@ -1,8 +1,10 @@
-/* 마켓 지표 라인 차트 — 마켓 보드의 스파크라인·호버 팝오버·상세 모달·인쇄에서 공유한다.
-   데이터는 이미 받아 둔 10일치 일별 종가(series: {t, c}[]).
+/* 마켓 지표 라인 차트 — 마켓 보드의 스파크라인·상세 모달·인쇄에서 공유한다.
+   데이터는 일별/주별/월별 종가(series: {t, c}[]) — 기간에 따라 간격이 다르다.
    등락 색은 국내 관례(상승=빨강, 하락=파랑)를 따른다.
 
    비공식 시세라 시리즈가 비면(목업 등) 조용히 아무것도 그리지 않는다. */
+
+import { useRef, useState } from "react";
 
 const UP = "#ef4444"; // red-500
 const DOWN = "#3b82f6"; // blue-500
@@ -49,9 +51,12 @@ export const Sparkline = ({ series, width = 60, height = 22, className }) => {
   );
 };
 
-/* 큰 차트 — 면적 채움 + 최저/최고 라벨 + 마지막 점. 팝오버·모달·인쇄 공용.
-   printSafe=true면 인쇄에서도 색이 유지되도록 인라인 스타일을 쓴다(색 자체가 인라인이라 무방). */
-export const MarketChart = ({ series, width = 460, height = 150, label }) => {
+/* 큰 차트 — 면적 채움 + 최저/최고 라벨 + 마지막 점. 모달·인쇄 공용.
+   interactive=true면 마우스 호버 시 세로 가이드선·점·툴팁(날짜·값)을 표시한다. */
+export const MarketChart = ({ series, width = 460, height = 150, label, interactive = false }) => {
+  const svgRef = useRef(null);
+  const [hover, setHover] = useState(null);
+
   if (!series || series.length < 2) {
     return (
       <div
@@ -75,9 +80,41 @@ export const MarketChart = ({ series, width = 460, height = 150, label }) => {
     const d = new Date(t);
     return `${d.getMonth() + 1}.${d.getDate()}`;
   };
+  const fullDate = (t) => {
+    const d = new Date(t);
+    return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
+  };
+
+  const onMove = (e) => {
+    const el = svgRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const rx = ((e.clientX - rect.left) / rect.width) * width;
+    let idx = Math.round(((rx - pad) / (width - pad * 2)) * (series.length - 1));
+    idx = Math.max(0, Math.min(series.length - 1, idx));
+    setHover(idx);
+  };
+
+  const hi = interactive ? hover : null;
+  const hx = hi != null ? x(hi) : 0;
+  const hy = hi != null ? y(series[hi].c) : 0;
+  const tw = 100;
+  const th = 32;
+  let tx = hx - tw / 2;
+  tx = Math.max(2, Math.min(width - tw - 2, tx));
 
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${label} 추이`}>
+    <svg
+      ref={svgRef}
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      role="img"
+      aria-label={`${label} 추이`}
+      onMouseMove={interactive ? onMove : undefined}
+      onMouseLeave={interactive ? () => setHover(null) : undefined}
+      style={interactive ? { cursor: "crosshair" } : undefined}
+    >
       <defs>
         <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.16" />
@@ -118,6 +155,21 @@ export const MarketChart = ({ series, width = 460, height = 150, label }) => {
       <text x={x(lastI)} y={height - 4} fontSize="9" fill="#cbd5e1" textAnchor="end">
         {fmtDate(series[lastI].t)}
       </text>
+
+      {/* 호버 — 세로 가이드선 + 점 + 툴팁 */}
+      {hi != null && (
+        <g pointerEvents="none">
+          <line x1={hx} y1={pad} x2={hx} y2={height - pad} stroke={color} strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
+          <circle cx={hx} cy={hy} r="3.5" fill={color} stroke="#fff" strokeWidth="1.5" />
+          <rect x={tx} y={2} width={tw} height={th} rx="4" fill="#0f172a" opacity="0.92" />
+          <text x={tx + tw / 2} y={15} fontSize="10" fill="#cbd5e1" textAnchor="middle">
+            {fullDate(series[hi].t)}
+          </text>
+          <text x={tx + tw / 2} y={28} fontSize="12" fontWeight="bold" fill="#fff" textAnchor="middle">
+            {fmt(series[hi].c)}
+          </text>
+        </g>
+      )}
 
       {/* 접근성용 추세 표기(시각적으론 색으로 표현) */}
       <desc>{up === null ? "보합" : up ? "상승" : "하락"}</desc>

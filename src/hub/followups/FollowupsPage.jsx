@@ -91,8 +91,7 @@ export default function FollowupsPage() {
             </h1>
           </div>
           <p className="mt-1.5 max-w-2xl text-[12px] text-slate-500">
-            상담 중 나온 약속과 고객 메모를 고객번호로 기록하고 다시 찾습니다. 지점이 함께 챙길 건은
-            공유로 올립니다.
+            후속 연락 약속과 고객 메모를 고객번호로 기록·검색합니다.
           </p>
         </div>
 
@@ -119,7 +118,7 @@ export default function FollowupsPage() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="고객번호로 검색 — 이 고객에게 남긴 후속 연락·고객 메모 전부"
+          placeholder="고객번호로 검색"
           className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-9 text-[13px] focus:border-im-500 focus:outline-none"
         />
         {q && (
@@ -280,8 +279,6 @@ export default function FollowupsPage() {
                   {visibleNotes.length === 0 ? (
                     <p className="px-3 py-8 text-center text-[12.5px] leading-relaxed text-slate-400">
                       기록해 둔 고객 메모가 없습니다.
-                      <br />
-                      얼굴은 아는데 기억이 가물가물한 고객, 다음에 알아볼 수 있게 남겨 두세요.
                     </p>
                   ) : (
                     <ul className="divide-y divide-slate-100 py-1">
