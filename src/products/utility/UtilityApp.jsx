@@ -1,18 +1,16 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import { UserRound, MapPin, QrCode, Menu, X, Wrench, Home, ArrowRight } from "lucide-react";
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { UserRound, MapPin, QrCode, Wrench, Home, ArrowRight } from "lucide-react";
 import { usePersonalization } from "@hub/personalization/PersonalizationContext";
 import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
-import { GlobalNav } from "@shared/components/GlobalNav";
-import { cn } from "@shared/lib/format";
+import { HubShell } from "@hub/HubShell";
+import { ModuleTabs } from "@shared/components/ModuleTabs";
 import { NameRomanizer } from "./pages/NameRomanizer";
 import { AddressConverter } from "./pages/AddressConverter";
 import { QrConverter } from "./pages/QrConverter";
 
-/* 보조 도구 셸 — 상품 모듈과 같은 셸 패턴에 sky 아이덴티티.
-   특정 상품에 속하지 않고 창구 업무 전반에서 쓰는 도구를 모은다.
-   상위 라우터의 "/tools/*"에 마운트. */
+/* 보조 도구 모듈 — 상단 네비 + 본문 탭(사이드바 제거). sky 아이덴티티. "/tools/*" 마운트. */
 
 const NAV_ITEMS = [
   { id: "home", label: "홈", icon: Home },
@@ -21,7 +19,6 @@ const NAV_ITEMS = [
   { id: "qr", label: "링크 QR 변환기", icon: QrCode },
 ];
 
-/* 홈(개요) 런처에 쓰는 도구 카드 — 설명 포함 */
 const TOOL_CARDS = [
   { id: "name", label: "영문 이름 변환기", desc: "한글 이름을 여권식 영문 표기로 변환", icon: UserRound },
   { id: "address", label: "영문 주소 변환기", desc: "도로명주소를 영문 표기로 변환", icon: MapPin },
@@ -29,36 +26,15 @@ const TOOL_CARDS = [
 ];
 
 const VALID_PAGES = NAV_ITEMS.map((i) => i.id);
-
 const parseSplat = (splat) => {
   const raw = (splat || "").replace(/^\/+|\/+$/g, "");
-  if (!raw) return "home";
-  return raw.split("/")[0];
+  return raw ? raw.split("/")[0] : "home";
 };
-
 const buildPath = (page) => `/tools/${page}`;
 
-const Brand = () => (
-  <div className="flex items-center gap-2.5">
-    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
-      <Wrench className="w-5 h-5" />
-    </div>
-    <div className="min-w-0">
-      <div className="text-[13px] font-black text-slate-900 leading-tight">보조 도구</div>
-      <div className="text-[10px] text-slate-500 leading-tight mt-0.5">창구 업무 도우미</div>
-    </div>
-  </div>
-);
-
-/* 보조 도구 홈 — 상품 모듈과 같은 '홈(개요)' 역할. 도구를 카드 런처로 보여 준다. */
 const UtilityHome = ({ onNavigate }) => (
-  <div className="space-y-6">
-    <div>
-      <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">보조 도구</h1>
-      <p className="mt-1 text-sm text-slate-600">
-        특정 상품에 매이지 않고 창구 업무 전반에서 쓰는 도구입니다. 결과는 전표로 인쇄할 수 있습니다.
-      </p>
-    </div>
+  <div>
+    <p className="mb-3 text-[13px] text-slate-500">특정 상품에 매이지 않고 창구 업무 전반에서 쓰는 도구입니다. 결과는 전표로 인쇄할 수 있습니다.</p>
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {TOOL_CARDS.map((t) => {
         const Icon = t.icon;
@@ -88,7 +64,6 @@ export default function UtilityApp() {
   const params = useParams();
   const raw = parseSplat(params["*"]);
   const page = VALID_PAGES.includes(raw) ? raw : "home";
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const { recordToolVisit } = usePersonalization();
   const currentTool = findToolByPath(buildPath(page));
@@ -106,129 +81,38 @@ export default function UtilityApp() {
     };
   }, []);
 
-  const navigate = (p) => {
-    routerNavigate(buildPath(p));
-    setDrawerOpen(false);
-  };
-
-  useEffect(() => {
-    if (!drawerOpen) return;
-    const onKey = (e) => e.key === "Escape" && setDrawerOpen(false);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [drawerOpen]);
-
-  const sidebarContent = (
-    <>
-      <div className="p-4 border-b border-slate-200 space-y-3">
-        <div className="flex items-center justify-between gap-2">
-          <Brand />
-          <button
-            onClick={() => setDrawerOpen(false)}
-            className="md:hidden p-1.5 hover:bg-slate-100 rounded-sm flex-shrink-0"
-            aria-label="메뉴 닫기"
-          >
-            <X className="w-5 h-5 text-slate-600" />
-          </button>
-        </div>
-      </div>
-      <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const isActive = page === item.id;
-          return (
-            <a
-              key={item.id}
-              href={buildPath(item.id)}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate(item.id);
-              }}
-              className={cn(
-                "w-full flex items-center gap-2.5 px-3 py-2 text-sm rounded-sm transition-colors",
-                isActive
-                  ? "bg-slate-900 text-white font-semibold"
-                  : "text-slate-700 hover:bg-slate-100"
-              )}
-            >
-              <Icon className="w-4 h-4" />
-              <span className="flex-1 text-left">{item.label}</span>
-            </a>
-          );
-        })}
-      </nav>
-      <div className="p-3 border-t border-slate-200">
-        <div className="bg-amber-50/60 border border-amber-200 rounded-sm p-3">
-          <div className="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1">
-            확인 필수
-          </div>
-          <p className="text-[10.5px] text-slate-600 leading-relaxed">
-            영문 이름은 여권 표기가, 영문 주소는 도로명주소 안내시스템 조회 결과가 기준입니다. 이
-            도구의 결과는 후보로만 사용하세요.
-          </p>
-        </div>
-      </div>
-    </>
-  );
+  const navigate = (p) => routerNavigate(buildPath(p));
 
   return (
-    <div
-      className="min-h-screen bg-slate-50 text-slate-900 print:min-h-0 print:bg-white"
-      style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
-    >
-      <GlobalNav />
-      <header className="md:hidden bg-white border-b border-slate-200 flex items-center gap-3 px-3 py-2 print:hidden">
-        <button
-          onClick={() => setDrawerOpen(true)}
-          className="p-1.5 hover:bg-slate-100 rounded-sm"
-          aria-label="메뉴 열기"
-        >
-          <Menu className="w-5 h-5 text-slate-700" />
-        </button>
-        <div className="flex-1 min-w-0">
-          <Brand />
-        </div>
-      </header>
-
-      <div className="md:flex">
-        {drawerOpen && (
-          <div
-            className="md:hidden fixed inset-0 z-40 bg-black/40"
-            onClick={() => setDrawerOpen(false)}
-            aria-hidden="true"
-          />
-        )}
-
-        <aside
-          className={cn(
-            "bg-white border-r border-slate-200 flex flex-col print:hidden",
-            "md:w-60 md:min-h-screen md:static md:translate-x-0",
-            "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] transform transition-transform duration-200 ease-out",
-            drawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          )}
-        >
-          {sidebarContent}
-        </aside>
-
-        <main className="flex-1 min-h-screen min-w-0 print:min-h-0">
-          <div className="p-4 md:p-8 max-w-4xl print:p-0 print:max-w-none">
-            {currentTool && (
-              <div className="flex justify-end mb-3 print:hidden">
-                <PinToolButton toolId={currentTool.id} />
-              </div>
-            )}
-            {page === "home" ? (
-              <UtilityHome onNavigate={navigate} />
-            ) : page === "qr" ? (
-              <QrConverter />
-            ) : page === "address" ? (
-              <AddressConverter />
-            ) : (
-              <NameRomanizer />
-            )}
+    <HubShell>
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
+            <Wrench className="h-5 w-5" />
           </div>
-        </main>
+          <div>
+            <h1 className="text-[17px] font-black leading-tight text-slate-900 md:text-xl">보조 도구</h1>
+            <p className="text-[11px] text-slate-500">창구 업무 도우미</p>
+          </div>
+        </div>
+        {currentTool && (
+          <div className="print:hidden">
+            <PinToolButton toolId={currentTool.id} />
+          </div>
+        )}
       </div>
-    </div>
+
+      <ModuleTabs items={NAV_ITEMS} activeId={page} onSelect={navigate} accent="sky" />
+
+      {page === "home" ? (
+        <UtilityHome onNavigate={navigate} />
+      ) : page === "qr" ? (
+        <QrConverter />
+      ) : page === "address" ? (
+        <AddressConverter />
+      ) : (
+        <NameRomanizer />
+      )}
+    </HubShell>
   );
 }

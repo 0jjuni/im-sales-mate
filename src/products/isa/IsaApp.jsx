@@ -1,16 +1,16 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import { Home, Percent, HelpCircle, Menu, X, PiggyBank } from "lucide-react";
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Home, Percent, HelpCircle, PiggyBank } from "lucide-react";
 import { usePersonalization } from "@hub/personalization/PersonalizationContext";
 import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
-import { GlobalNav } from "@shared/components/GlobalNav";
-import { cn } from "@shared/lib/format";
+import { HubShell } from "@hub/HubShell";
+import { ModuleTabs } from "@shared/components/ModuleTabs";
 import { Overview } from "./pages/Overview";
 import { CalculatorPage } from "./pages/CalculatorPage";
 import { FaqPage } from "./pages/FaqPage";
 
-/* ISA 모듈 셸 — 노란과 동일한 셸 패턴(사이드바 + 경로 라우팅)에 fuchsia 아이덴티티.
+/* ISA 모듈 — 상단 네비 + 본문 탭(사이드바 제거)로 앱 전체와 통일. fuchsia 아이덴티티.
    상위 라우터의 "/isa/*"에 마운트. */
 
 const NAV_ITEMS = [
@@ -29,32 +29,12 @@ const parseSplat = (splat) => {
 };
 
 const buildPath = (page) => `/isa/${page}`;
-
-const Brand = () => (
-  <div className="flex items-center gap-2.5">
-    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-fuchsia-50 text-fuchsia-700">
-      <PiggyBank className="w-5 h-5" />
-    </div>
-    <div className="min-w-0">
-      <div className="text-[13px] font-black text-slate-900 leading-tight">
-        ISA 상담 가이드
-      </div>
-      <div className="text-[10px] text-slate-500 leading-tight mt-0.5">
-        개인종합자산관리계좌 · 데모
-      </div>
-    </div>
-  </div>
-);
-
-const normalizeRoute = (r) =>
-  VALID_PAGES.includes(r.page) ? r : { page: "overview", sub: null };
+const normalizeRoute = (r) => (VALID_PAGES.includes(r.page) ? r : { page: "overview", sub: null });
 
 export default function IsaApp() {
   const routerNavigate = useNavigate();
   const params = useParams();
   const route = normalizeRoute(parseSplat(params["*"]));
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
   const { page } = route;
 
   const { recordToolVisit } = usePersonalization();
@@ -73,22 +53,10 @@ export default function IsaApp() {
     };
   }, []);
 
-  const navigate = (p) => {
-    routerNavigate(buildPath(p));
-    setDrawerOpen(false);
-  };
-
-  useEffect(() => {
-    if (!drawerOpen) return;
-    const onKey = (e) => e.key === "Escape" && setDrawerOpen(false);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [drawerOpen]);
+  const navigate = (p) => routerNavigate(buildPath(p));
 
   const renderPage = () => {
     switch (page) {
-      case "overview":
-        return <Overview onNavigate={navigate} />;
       case "calculator":
         return <CalculatorPage />;
       case "faq":
@@ -98,115 +66,29 @@ export default function IsaApp() {
     }
   };
 
-  const sidebarContent = (
-    <>
-      <div className="p-4 border-b border-slate-200 space-y-3">
-        <div className="flex items-center justify-between gap-2">
-          <Brand />
-          <button
-            onClick={() => setDrawerOpen(false)}
-            className="md:hidden p-1.5 hover:bg-slate-100 rounded-sm flex-shrink-0"
-            aria-label="메뉴 닫기"
-          >
-            <X className="w-5 h-5 text-slate-600" />
-          </button>
-        </div>
-      </div>
-      <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const isActive = page === item.id;
-          return (
-            <a
-              key={item.id}
-              href={buildPath(item.id)}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate(item.id);
-              }}
-              className={cn(
-                "w-full flex items-center gap-2.5 px-3 py-2 text-sm rounded-sm transition-colors relative",
-                isActive
-                  ? "bg-slate-900 text-white font-semibold"
-                  : item.highlight
-                  ? "text-slate-800 hover:bg-fuchsia-50 border border-fuchsia-200 bg-fuchsia-50/30"
-                  : "text-slate-700 hover:bg-slate-100"
-              )}
-            >
-              <Icon className="w-4 h-4" />
-              <span className="flex-1 text-left">{item.label}</span>
-              {item.highlight && !isActive && (
-                <span className="text-[9px] font-bold uppercase tracking-wider text-fuchsia-700 bg-fuchsia-200 px-1.5 py-0.5 rounded-sm">
-                  세일즈
-                </span>
-              )}
-            </a>
-          );
-        })}
-      </nav>
-      <div className="p-3 border-t border-slate-200">
-        <div className="bg-amber-50/60 border border-amber-200 rounded-sm p-3">
-          <div className="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1">
-            데모 모듈
-          </div>
-          <p className="text-[10.5px] text-slate-600 leading-relaxed">
-            조특법 제91조의18 근거로 구성. 자사 상품 조건·최신 개정은 별도 검증·반영 필요.
-          </p>
-        </div>
-      </div>
-    </>
-  );
-
   return (
-    <div
-      className="min-h-screen bg-slate-50 text-slate-900 print:min-h-0 print:bg-white"
-      style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
-    >
-      <GlobalNav />
-      <header className="md:hidden bg-white border-b border-slate-200 flex items-center gap-3 px-3 py-2 print:hidden">
-        <button
-          onClick={() => setDrawerOpen(true)}
-          className="p-1.5 hover:bg-slate-100 rounded-sm"
-          aria-label="메뉴 열기"
-        >
-          <Menu className="w-5 h-5 text-slate-700" />
-        </button>
-        <div className="flex-1 min-w-0">
-          <Brand />
-        </div>
-      </header>
-
-      <div className="md:flex">
-        {drawerOpen && (
-          <div
-            className="md:hidden fixed inset-0 z-40 bg-black/40"
-            onClick={() => setDrawerOpen(false)}
-            aria-hidden="true"
-          />
-        )}
-
-        <aside
-          className={cn(
-            "bg-white border-r border-slate-200 flex flex-col print:hidden",
-            "md:w-60 md:min-h-screen md:static md:translate-x-0",
-            "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] transform transition-transform duration-200 ease-out",
-            drawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          )}
-        >
-          {sidebarContent}
-        </aside>
-
-        <main className="flex-1 min-h-screen min-w-0 print:min-h-0">
-          <div className="p-4 md:p-8 max-w-6xl print:p-0 print:max-w-none">
-            {currentTool && (
-              <div className="flex justify-end mb-3 print:hidden">
-                <PinToolButton toolId={currentTool.id} />
-              </div>
-            )}
-            {renderPage()}
+    <HubShell>
+      {/* 모듈 헤더 */}
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-fuchsia-50 text-fuchsia-700">
+            <PiggyBank className="h-5 w-5" />
           </div>
-        </main>
+          <div>
+            <h1 className="text-[17px] font-black leading-tight text-slate-900 md:text-xl">ISA 상담 가이드</h1>
+            <p className="text-[11px] text-slate-500">개인종합자산관리계좌 · 데모</p>
+          </div>
+        </div>
+        {currentTool && (
+          <div className="print:hidden">
+            <PinToolButton toolId={currentTool.id} />
+          </div>
+        )}
       </div>
-    </div>
+
+      <ModuleTabs items={NAV_ITEMS} activeId={page} onSelect={navigate} accent="fuchsia" />
+
+      {renderPage()}
+    </HubShell>
   );
 }

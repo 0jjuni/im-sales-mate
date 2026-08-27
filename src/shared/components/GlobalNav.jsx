@@ -1,24 +1,65 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CalendarDays, Search } from "lucide-react";
+import { CalendarDays, Search, ChevronDown } from "lucide-react";
 import { IMSymbol } from "@hub/components/IMSymbol";
 import { cn } from "@shared/lib/format";
 
 /* 글로벌 상단 네비게이션 — 모든 화면 공통 뼈대.
-   "지금 어디 있고, 어디로 갈 수 있나"를 항상 보여 주고, 모듈 간 직접 이동을 연다.
-   홈(대시보드)은 커스텀 유지, 이 바는 그 위의 고정 길잡이 역할.
-
-   taste-skill 네비 규율: 데스크톱 한 줄 · 높이 ≤72px · 민트 단일 강조 · 현재 위치 하이라이트.
-   좁은 화면에서는 메뉴가 가로 스크롤된다. right 슬롯에 페이지별 액션(예: 대시보드 편집)을 넣는다. */
+   모듈 항목은 호버 시 하위 메뉴(드롭다운)로 각 화면에 바로 진입한다.
+   taste-skill 네비 규율: 데스크톱 한 줄 · 높이 ≤72px · 민트 단일 강조 · 현재 위치 하이라이트. */
 
 const NAV = [
   { to: "/", label: "홈" },
   { to: "/tax", label: "종합과세 관리" },
-  { to: "/wealth", label: "투자상품" },
-  { to: "/noran", label: "노란우산" },
-  { to: "/isa", label: "ISA" },
-  { to: "/pension", label: "연금" },
-  { to: "/tools", label: "보조도구" },
+  {
+    to: "/wealth",
+    label: "투자상품",
+    children: [
+      { to: "/wealth", label: "상품 탐색" },
+      { to: "/wealth?tab=customers", label: "내 가입 고객" },
+    ],
+  },
+  {
+    to: "/noran",
+    label: "노란우산",
+    children: [
+      { to: "/noran", label: "대시보드" },
+      { to: "/noran/intro", label: "5분 입문" },
+      { to: "/noran/simulator", label: "상담 시뮬레이터" },
+      { to: "/noran/calculator", label: "계산기" },
+      { to: "/noran/guide", label: "업무별 가이드" },
+      { to: "/noran/checklist", label: "구비서류 체크리스트" },
+      { to: "/noran/faq", label: "FAQ 검색" },
+    ],
+  },
+  {
+    to: "/isa",
+    label: "ISA",
+    children: [
+      { to: "/isa", label: "세제 한눈에" },
+      { to: "/isa/calculator", label: "세제 절세 계산기" },
+      { to: "/isa/faq", label: "FAQ" },
+    ],
+  },
+  {
+    to: "/pension",
+    label: "연금",
+    children: [
+      { to: "/pension", label: "세제 한눈에" },
+      { to: "/pension/calculator", label: "세액공제 계산기" },
+      { to: "/pension/faq", label: "FAQ" },
+    ],
+  },
+  {
+    to: "/tools",
+    label: "보조도구",
+    children: [
+      { to: "/tools", label: "홈" },
+      { to: "/tools/name", label: "영문 이름 변환기" },
+      { to: "/tools/address", label: "영문 주소 변환기" },
+      { to: "/tools/qr", label: "링크 QR 변환기" },
+    ],
+  },
   { to: "/news", label: "뉴스" },
   { to: "/followups", label: "일정 관리" },
 ];
@@ -33,6 +74,51 @@ const TodayBadge = () => {
       <CalendarDays className="h-3.5 w-3.5" />
       {now.getMonth() + 1}. {now.getDate()} ({day})
     </span>
+  );
+};
+
+const NavItem = ({ item, pathname }) => {
+  const active = isActive(pathname, item.to);
+  const base = cn(
+    "whitespace-nowrap rounded-md px-3 py-1.5 text-[13px] font-semibold transition-colors",
+    active ? "bg-im-50 text-im-700" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+  );
+
+  if (!item.children) {
+    return (
+      <Link to={item.to} className={base}>
+        {item.label}
+      </Link>
+    );
+  }
+
+  return (
+    <div className="group relative">
+      <Link to={item.to} className={cn(base, "inline-flex items-center gap-0.5")}>
+        {item.label}
+        <ChevronDown className="h-3 w-3 opacity-50 transition-transform group-hover:rotate-180" />
+      </Link>
+      {/* 드롭다운 — 호버/포커스 시. pt-2가 항목-패널 사이 마우스 다리 역할 */}
+      <div className="pointer-events-none absolute left-0 top-full z-40 pt-2 opacity-0 transition duration-150 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100 motion-reduce:transition-none">
+        <div className="min-w-[11rem] rounded-lg border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-900/5">
+          {item.children.map((c) => {
+            const cActive = pathname + (typeof window !== "undefined" ? window.location.search : "") === c.to || pathname === c.to;
+            return (
+              <Link
+                key={c.to}
+                to={c.to}
+                className={cn(
+                  "block rounded-md px-3 py-2 text-[13px] transition-colors",
+                  cActive ? "bg-im-50 font-semibold text-im-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                )}
+              >
+                {c.label}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -63,25 +149,11 @@ export function GlobalNav({ right = null }) {
           </span>
         </Link>
 
-        {/* 주 메뉴 — 좁으면 가로 스크롤 */}
-        <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
-          {NAV.map((item) => {
-            const active = isActive(pathname, item.to);
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={cn(
-                  "whitespace-nowrap rounded-md px-3 py-1.5 text-[13px] font-semibold transition-colors",
-                  active
-                    ? "bg-im-50 text-im-700"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                )}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
+        {/* 주 메뉴 — 좁으면 가로 스크롤, lg↑에서는 드롭다운이 잘리지 않도록 overflow-visible */}
+        <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto lg:overflow-visible">
+          {NAV.map((item) => (
+            <NavItem key={item.to} item={item} pathname={pathname} />
+          ))}
         </nav>
 
         {/* 전역 검색 — 데스크톱은 입력창, 모바일은 아이콘 */}
