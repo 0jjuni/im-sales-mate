@@ -43,7 +43,7 @@ export const ScopeBadge = ({ item }) =>
   !isShared(item) ? null : (
     <span
       title="지점 공유 — 같은 지점 직원이 함께 봅니다"
-      className="inline-flex items-center gap-0.5 rounded-sm bg-teal-100 px-1.5 py-0.5 text-[10px] font-bold text-teal-700"
+      className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-slate-500"
     >
       <Users className="h-2.5 w-2.5" />
       지점 공유
@@ -77,22 +77,15 @@ export const DdayBadge = ({ date }) => {
   let cls;
   if (d < 0) {
     label = `지남 ${Math.abs(d)}일`;
-    cls = "bg-rose-100 text-rose-700";
+    cls = "text-rose-600";
   } else if (d === 0) {
     label = "오늘";
-    cls = "bg-amber-100 text-amber-800";
-  } else if (d <= 7) {
-    label = `D-${d}`;
-    cls = "bg-im-100 text-im-700";
+    cls = "text-amber-600";
   } else {
     label = `D-${d}`;
-    cls = "bg-slate-100 text-slate-600";
+    cls = "text-slate-400";
   }
-  return (
-    <span className={cn("inline-flex items-center rounded-sm px-1.5 py-0.5 text-[10px] font-bold tabular-nums", cls)}>
-      {label}
-    </span>
-  );
+  return <span className={cn("text-[10px] font-bold tabular-nums", cls)}>{label}</span>;
 };
 
 export const ProductChips = ({ ids }) =>
@@ -102,7 +95,10 @@ export const ProductChips = ({ ids }) =>
         const p = PRODUCT_BY_ID[id];
         if (!p) return null;
         return (
-          <span key={id} className={cn("rounded-sm px-1.5 py-0.5 text-[9px] font-bold", p.chip)}>
+          <span
+            key={id}
+            className="rounded-sm border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[9px] font-semibold text-slate-500"
+          >
             {p.label}
           </span>
         );
@@ -497,8 +493,6 @@ export const FollowupForm = ({ onAdd, defaultDate = "", fixedType }) => {
 
 export const PrivacyNotice = () => (
   <p className="text-[10.5px] leading-relaxed text-slate-600">
-    고객번호와 메모만 기록하세요. <strong>이름·주민번호·연락처 등 개인정보 입력 금지.</strong>{" "}
-    현재는 이 브라우저에만 저장되는 데모 기능으로, 지점 공유도 표시만 됩니다. 실서비스에서는 직원
-    계정 인증·서버 저장·지점 단위 접근통제가 적용됩니다.
+    고객번호·메모만 기록 · <strong>이름·주민번호·연락처 등 개인정보 입력 금지.</strong>
   </p>
 );
