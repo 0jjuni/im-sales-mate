@@ -2,8 +2,17 @@ import { Link } from "react-router-dom";
 import { Star, TrendingUp, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useWealth } from "../wealth/useWealth";
 import { PRODUCTS, PRODUCT_BY_ID } from "../data/wealthProducts";
+import { genSeries } from "../data/wealthDetail";
+import { Sparkline } from "./MarketChart";
 import { pct, retColor } from "../wealth/ProductDetail";
 import { cn } from "@shared/lib/format";
+
+/* 관심/추천 상품의 최근 1주 변동 + 스파크라인용 시계열(생성 데이터) */
+const recent = (product) => {
+  const s = genSeries(product, "1m");
+  const week = s.length >= 6 ? (s[s.length - 1].c / s[s.length - 6].c - 1) * 100 : null;
+  return { series: s, week };
+};
 
 /* 홈 투자상품 위젯 — 카운트(허영 지표) 대신 「지금 챙길 고객」과 「제안할 상품」 중심.
    목표 도달 = 수익실현·재투자 상담 기회 / 손실 = 케어 연락. */
@@ -62,15 +71,21 @@ export function WealthCard() {
           {watched.length ? "관심 상품" : "이번 주 인기 상품"}
         </div>
         <ul className="divide-y divide-slate-100 overflow-hidden rounded-lg border border-slate-200">
-          {list.map((p) => (
-            <li key={p.id}>
-              <Link to={`/wealth/${p.id}`} className="flex items-center gap-2 px-3 py-2 transition-colors hover:bg-slate-50">
-                <span className="min-w-0 flex-1 truncate text-[12.5px] font-semibold text-slate-800">{p.name}</span>
-                <span className="flex-shrink-0 text-[10px] text-slate-400">1년</span>
-                <span className={cn("w-14 flex-shrink-0 text-right text-[12px] font-bold tabular-nums", retColor(p.return1y))}>{pct(p.return1y)}</span>
-              </Link>
-            </li>
-          ))}
+          {list.map((p) => {
+            const r = recent(p);
+            return (
+              <li key={p.id}>
+                <Link to={`/wealth/${p.id}`} className="flex items-center gap-2 px-3 py-2 transition-colors hover:bg-slate-50">
+                  <span className="min-w-0 flex-1 truncate text-[12.5px] font-semibold text-slate-800">{p.name}</span>
+                  <Sparkline series={r.series} width={48} height={20} className="flex-shrink-0" />
+                  <span className="w-14 flex-shrink-0 text-right">
+                    <span className={cn("text-[12px] font-bold tabular-nums", retColor(r.week))}>{pct(r.week)}</span>
+                    <span className="block text-[9px] text-slate-400">1주</span>
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
 
