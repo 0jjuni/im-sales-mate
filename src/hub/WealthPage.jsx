@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, LineChart, Users, X, ArrowUpDown } from "lucide-react";
+import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, LineChart, Users, ArrowUpDown, PieChart, Calculator } from "lucide-react";
 import { HubShell } from "./HubShell";
+import { MarketChart } from "./components/MarketChart";
 import { useWealth } from "./wealth/useWealth";
-import { PRODUCTS, PRODUCT_TYPES, PRODUCT_BY_ID, SOLD_RANK, riskMeta } from "./data/wealthProducts";
+import { PRODUCTS, PRODUCT_TYPES, SOLD_RANK, riskMeta } from "./data/wealthProducts";
+import { DETAIL_PERIODS, genSeries, seriesMetrics, holdingsFor, annualizedReturn, simulateSaving } from "./data/wealthDetail";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 
@@ -94,24 +96,45 @@ const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll }) => 
   );
 };
 
-/* ── 상품 상세 모달 ── */
+/* ── 상품 상세 모달 — 차트·지표·구성·수수료·적립식 시뮬레이터 ── */
+const MetricCell = ({ label, value, tone }) => (
+  <div className="rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-center">
+    <div className="text-[9.5px] text-slate-400">{label}</div>
+    <div className={cn("mt-0.5 text-[14px] font-bold tabular-nums", tone || "text-slate-900")}>{value}</div>
+  </div>
+);
+
 const ProductDetailModal = ({ product, watched, onWatch, onEnroll, onClose }) => {
+  const [cp, setCp] = useState("1y");
+  const [monthly, setMonthly] = useState("50");
+  const [years, setYears] = useState(5);
+
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
   if (!product) return null;
+
   const rk = riskMeta(product.risk);
   const rank = SOLD_RANK[product.id];
+  const series = genSeries(product, cp);
+  const periodRet = series.length >= 2 ? (series[series.length - 1].c / series[0].c - 1) * 100 : null;
+  const m3 = seriesMetrics(genSeries(product, "3y"));
+  const holdings = holdingsFor(product);
+  const maxW = holdings.length ? holdings[0][1] : 1;
+  const annual = annualizedReturn(product);
+  const sim = simulateSaving(monthly, years, annual);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
-        className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+        className="flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* 헤더 */}
         <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5">
@@ -120,7 +143,7 @@ const ProductDetailModal = ({ product, watched, onWatch, onEnroll, onClose }) =>
               <span className="rounded bg-im-50 px-1.5 py-0.5 text-[10px] font-bold text-im-700">당행 판매 {rank}위</span>
             </div>
             <h3 className="mt-1 text-[16px] font-bold text-slate-900">{product.name}</h3>
-            <div className="mt-0.5 text-[11px] text-slate-400">{product.company} · 설정 {product.since}</div>
+            <div className="mt-0.5 text-[11px] text-slate-400">{product.company} · 설정 {product.since} · 순자산 {eok(product.aum)}</div>
           </div>
           <button
             onClick={() => onWatch(product.id)}
@@ -131,43 +154,129 @@ const ProductDetailModal = ({ product, watched, onWatch, onEnroll, onClose }) =>
           </button>
         </div>
 
-        <div className="px-5 py-4">
-          {/* 수익률 */}
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              ["1년", product.return1y],
-              ["3년", product.return3y],
-              ["5년", product.return5y],
-            ].map(([k, v]) => (
-              <div key={k} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-center">
-                <div className="text-[10px] text-slate-400">{k} 수익률</div>
-                <div className={cn("mt-0.5 text-[15px] font-bold tabular-nums", retColor(v))}>{pct(v)}</div>
+        <div className="space-y-5 overflow-y-auto px-5 py-4">
+          {/* 수익률 차트 */}
+          <section>
+            <div className="mb-2 flex items-center justify-between">
+              <div className="flex items-center gap-1">
+                {DETAIL_PERIODS.map((p) => (
+                  <button
+                    key={p.key}
+                    onClick={() => setCp(p.key)}
+                    className={cn(
+                      "rounded-md px-2 py-1 text-[11.5px] font-semibold transition-colors",
+                      cp === p.key ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"
+                    )}
+                  >
+                    {p.label}
+                  </button>
+                ))}
               </div>
-            ))}
-          </div>
+              <span className={cn("text-[13px] font-bold tabular-nums", retColor(periodRet))}>기간 {pct(periodRet)}</span>
+            </div>
+            <div className="w-full overflow-x-auto">
+              <MarketChart series={series} label={product.name} width={560} height={180} interactive />
+            </div>
+          </section>
 
-          {/* 상세 지표 */}
-          <dl className="mt-3 divide-y divide-slate-100 rounded-lg border border-slate-200">
-            {[
-              ["위험등급", rk.full],
-              ["총보수(연)", `${product.fee}%`],
-              ["순자산(설정액)", eok(product.aum)],
-              ["운용·발행", product.company],
-              ["당행 누적 판매", `${product.sold.toLocaleString()}건 (${rank}위)`],
-            ].map(([k, v]) => (
-              <div key={k} className="flex items-center justify-between gap-2 px-3 py-2 text-[12.5px]">
-                <dt className="text-slate-500">{k}</dt>
-                <dd className="font-semibold text-slate-800">{v}</dd>
+          {/* 핵심 지표 */}
+          <section>
+            <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">핵심 지표</div>
+            <div className="grid grid-cols-3 gap-2">
+              <MetricCell label="1년 수익률" value={pct(product.return1y)} tone={retColor(product.return1y)} />
+              <MetricCell label="3년 수익률" value={pct(product.return3y)} tone={retColor(product.return3y)} />
+              <MetricCell label="5년 수익률" value={pct(product.return5y)} tone={retColor(product.return5y)} />
+              <MetricCell label="위험등급" value={rk.label} />
+              <MetricCell label="연 변동성" value={m3.vol == null ? "—" : `${m3.vol}%`} />
+              <MetricCell label="최대낙폭" value={m3.mdd == null ? "—" : `${m3.mdd}%`} tone="text-blue-600" />
+            </div>
+          </section>
+
+          {/* 구성 TOP5 */}
+          {holdings.length > 0 && (
+            <section>
+              <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                <PieChart className="h-3.5 w-3.5" />
+                주요 구성 (상위 {holdings.length})
               </div>
-            ))}
-          </dl>
+              <div className="space-y-1.5">
+                {holdings.map(([name, w]) => (
+                  <div key={name} className="flex items-center gap-2">
+                    <span className="w-28 flex-shrink-0 truncate text-[12px] text-slate-700">{name}</span>
+                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full rounded-full bg-im-400" style={{ width: `${Math.min(100, (w / maxW) * 100)}%` }} />
+                    </div>
+                    <span className="w-12 flex-shrink-0 text-right text-[11.5px] font-semibold tabular-nums text-slate-600">{w}%</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
-          <p className="mt-3 text-[12.5px] leading-relaxed text-slate-600">{product.desc}</p>
-          <p className="mt-2 text-[10.5px] leading-relaxed text-slate-400">
-            데모 데이터 — 실제 수익률·보수·조건은 (간이)투자설명서·집합투자규약을 확인하세요. 과거 수익률은 미래를 보장하지 않습니다.
-          </p>
+          {/* 수수료 */}
+          <section>
+            <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">수수료</div>
+            <div className="grid grid-cols-3 gap-2">
+              <MetricCell label="판매보수(연)" value={`${(product.fee * 0.4).toFixed(2)}%`} />
+              <MetricCell label="운용보수(연)" value={`${(product.fee * 0.5).toFixed(2)}%`} />
+              <MetricCell label="총보수(연)" value={`${product.fee}%`} tone="text-slate-900" />
+            </div>
+            <p className="mt-1.5 text-[10.5px] text-slate-400">보수 구성은 데모 추정치입니다. 환매수수료·기타비용은 상품설명서 확인.</p>
+          </section>
+
+          {/* 적립식 시뮬레이터 */}
+          <section className="rounded-xl border border-im-200 bg-im-50/40 p-4">
+            <div className="mb-2.5 flex items-center gap-1.5 text-[12.5px] font-bold text-im-800">
+              <Calculator className="h-4 w-4" />
+              적립식 시뮬레이션
+            </div>
+            <div className="flex flex-wrap items-end gap-3">
+              <label className="flex flex-col gap-1">
+                <span className="text-[10px] font-semibold text-slate-500">월 납입(만원)</span>
+                <input
+                  value={monthly}
+                  onChange={(e) => setMonthly(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                  inputMode="numeric"
+                  className="w-24 rounded-md border border-slate-300 px-2.5 py-1.5 text-right text-[13px] tabular-nums focus:border-im-500 focus:outline-none"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-[10px] font-semibold text-slate-500">기간</span>
+                <select
+                  value={years}
+                  onChange={(e) => setYears(Number(e.target.value))}
+                  className="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[13px] focus:border-im-500 focus:outline-none"
+                >
+                  {[3, 5, 10, 20].map((y) => (
+                    <option key={y} value={y}>{y}년</option>
+                  ))}
+                </select>
+              </label>
+              <span className="text-[11px] text-slate-500">가정 수익률 <span className="font-bold text-im-700">연 {annual.toFixed(1)}%</span></span>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              <div className="rounded-lg bg-white px-3 py-2 text-center ring-1 ring-inset ring-slate-100">
+                <div className="text-[10px] text-slate-400">원금</div>
+                <div className="mt-0.5 text-[14px] font-bold tabular-nums text-slate-800">{won(sim.principal)}</div>
+              </div>
+              <div className="rounded-lg bg-white px-3 py-2 text-center ring-1 ring-inset ring-im-100">
+                <div className="text-[10px] text-slate-400">예상 평가액</div>
+                <div className="mt-0.5 text-[15px] font-bold tabular-nums text-im-700">{won(sim.futureValue)}</div>
+              </div>
+              <div className="rounded-lg bg-white px-3 py-2 text-center ring-1 ring-inset ring-slate-100">
+                <div className="text-[10px] text-slate-400">예상 수익</div>
+                <div className="mt-0.5 text-[14px] font-bold tabular-nums text-red-500">+{won(sim.gain)}</div>
+              </div>
+            </div>
+            <p className="mt-2 text-[10.5px] leading-relaxed text-slate-400">
+              과거 3년 연환산 수익률({annual.toFixed(1)}%)이 유지된다고 가정한 단순 추정입니다. 실제 수익은 변동하며 원금손실이 발생할 수 있습니다.
+            </p>
+          </section>
+
+          <p className="text-[12.5px] leading-relaxed text-slate-600">{product.desc}</p>
         </div>
 
+        {/* 푸터 */}
         <div className="flex items-center justify-end gap-2 border-t border-slate-100 bg-slate-50/60 px-5 py-3">
           <button onClick={onClose} className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-600 hover:border-slate-400">
             닫기
