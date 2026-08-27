@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, StickyNote, Search, X, ShieldAlert, Lock, Users, PlusCircle, CalendarClock } from "lucide-react";
 import { HubShell } from "../HubShell";
-import { HubLink } from "@shared/components/HubLink";
 import { useFollowups } from "./useFollowups";
 import { MonthCalendar } from "./MonthCalendar";
 import { FollowupRow, FollowupForm, PrivacyNotice, fmtDate, toISO, isShared } from "./parts";
@@ -81,7 +80,6 @@ export default function FollowupsPage() {
     <HubShell wide>
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <HubLink compact className="mb-2" />
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-im-50 text-im-600">
               <CalendarDays className="h-[18px] w-[18px]" />
