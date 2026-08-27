@@ -1,28 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, LineChart, Users, ArrowUpDown, PieChart, Calculator } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, LineChart, Users, ArrowUpDown, GitCompare, X, Sparkles } from "lucide-react";
 import { HubShell } from "./HubShell";
-import { MarketChart } from "./components/MarketChart";
+import { Sparkline } from "./components/MarketChart";
 import { useWealth } from "./wealth/useWealth";
 import { PRODUCTS, PRODUCT_TYPES, SOLD_RANK, riskMeta } from "./data/wealthProducts";
-import { DETAIL_PERIODS, genSeries, seriesMetrics, holdingsFor, annualizedReturn, simulateSaving } from "./data/wealthDetail";
+import { genSeries, seriesMetrics } from "./data/wealthDetail";
+import { pct, retColor, won, eok, TYPE_CLASS, RISK_CLASS } from "./wealth/ProductDetail";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
-
-const RISK_CLASS = {
-  rose: "bg-rose-50 text-rose-600",
-  amber: "bg-amber-50 text-amber-700",
-  slate: "bg-slate-100 text-slate-500",
-};
-const TYPE_CLASS = {
-  펀드: "bg-violet-50 text-violet-700",
-  ETF: "bg-sky-50 text-sky-700",
-  신탁: "bg-amber-50 text-amber-700",
-};
-
-const pct = (v) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(1)}%`);
-const retColor = (v) => (v == null ? "text-slate-400" : v > 0 ? "text-red-500" : v < 0 ? "text-blue-600" : "text-slate-500");
-const won = (m) => `${m.toLocaleString()}만원`;
-const eok = (m) => (m >= 10000 ? `${(m / 10000).toLocaleString(undefined, { maximumFractionDigits: 1 })}조원` : `${m.toLocaleString()}억원`);
 
 const SORTS = [
   { key: "sold", label: "인기순" },
@@ -32,30 +18,42 @@ const SORTS = [
   { key: "risk", label: "위험 낮은순" },
 ];
 
+/* 발견 테마 — 클릭 시 조건에 맞는 상품만 큐레이션 */
+const THEMES = [
+  { key: "us", label: "미국주식", match: (p) => p.category.includes("해외주식") && !p.category.includes("신흥") },
+  { key: "dividend", label: "고배당·월지급", match: (p) => p.category.includes("배당") },
+  { key: "stable", label: "안정형", match: (p) => p.risk >= 4 },
+  { key: "growth", label: "성장·테마", match: (p) => p.risk <= 2 || p.category.includes("테마") || p.category.includes("신흥") },
+  { key: "domestic", label: "국내주식", match: (p) => p.category.includes("국내주식") },
+  { key: "bond", label: "채권·안전자산", match: (p) => p.category.includes("채권") || p.category.includes("원자재") },
+];
+
 const sortProducts = (list, key) => {
   const arr = [...list];
   if (key === "sold") arr.sort((a, b) => b.sold - a.sold);
   else if (key === "fee") arr.sort((a, b) => a.fee - b.fee);
-  else if (key === "risk") arr.sort((a, b) => b.risk - a.risk); // 6=낮은위험 먼저
+  else if (key === "risk") arr.sort((a, b) => b.risk - a.risk);
   else arr.sort((a, b) => (b[key] ?? -999) - (a[key] ?? -999));
   return arr;
 };
 
-/* ── 상품 리스트 행(밀집) ── */
-const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll }) => {
+const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll, inCompare, onCompare, compareFull }) => {
   const rk = riskMeta(product.risk);
   return (
     <div className="flex items-center gap-2 border-b border-slate-100 px-3 py-2.5 last:border-b-0 hover:bg-slate-50">
-      <span
-        className={cn(
-          "w-6 flex-shrink-0 text-center text-[12px] font-bold tabular-nums",
-          rank <= 3 ? "text-im-600" : "text-slate-400"
-        )}
-      >
+      <input
+        type="checkbox"
+        checked={inCompare}
+        disabled={!inCompare && compareFull}
+        onChange={() => onCompare(product.id)}
+        title="비교 담기"
+        className="h-3.5 w-3.5 flex-shrink-0 accent-im-600 disabled:opacity-30"
+      />
+      <span className={cn("w-6 flex-shrink-0 text-center text-[12px] font-bold tabular-nums", rank <= 3 ? "text-im-600" : "text-slate-400")}>
         {rank}
       </span>
 
-      <button onClick={() => onDetail(product)} className="min-w-0 flex-1 text-left">
+      <button onClick={() => onDetail(product.id)} className="min-w-0 flex-1 text-left">
         <div className="flex items-center gap-1.5">
           <span className={cn("rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[product.type])}>{product.type}</span>
           <span className="truncate text-[13px] font-bold text-slate-900">{product.name}</span>
@@ -96,199 +94,71 @@ const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll }) => 
   );
 };
 
-/* ── 상품 상세 모달 — 차트·지표·구성·수수료·적립식 시뮬레이터 ── */
-const MetricCell = ({ label, value, tone }) => (
-  <div className="rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-center">
-    <div className="text-[9.5px] text-slate-400">{label}</div>
-    <div className={cn("mt-0.5 text-[14px] font-bold tabular-nums", tone || "text-slate-900")}>{value}</div>
-  </div>
-);
-
-const ProductDetailModal = ({ product, watched, onWatch, onEnroll, onClose }) => {
-  const [cp, setCp] = useState("1y");
-  const [monthly, setMonthly] = useState("50");
-  const [years, setYears] = useState(5);
-
+/* ── 비교 모달 ── */
+const CompareModal = ({ products, onClose, onDetail }) => {
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
-  if (!product) return null;
-
-  const rk = riskMeta(product.risk);
-  const rank = SOLD_RANK[product.id];
-  const series = genSeries(product, cp);
-  const periodRet = series.length >= 2 ? (series[series.length - 1].c / series[0].c - 1) * 100 : null;
-  const m3 = seriesMetrics(genSeries(product, "3y"));
-  const holdings = holdingsFor(product);
-  const maxW = holdings.length ? holdings[0][1] : 1;
-  const annual = annualizedReturn(product);
-  const sim = simulateSaving(monthly, years, annual);
-
+  const cols = products.map((p) => ({ p, m: seriesMetrics(genSeries(p, "3y")) }));
+  const rows = [
+    ["1년 수익률", ({ p }) => pct(p.return1y), ({ p }) => retColor(p.return1y)],
+    ["3년 수익률", ({ p }) => pct(p.return3y), ({ p }) => retColor(p.return3y)],
+    ["5년 수익률", ({ p }) => pct(p.return5y), ({ p }) => retColor(p.return5y)],
+    ["위험등급", ({ p }) => riskMeta(p.risk).label],
+    ["연 변동성", ({ m }) => (m.vol == null ? "—" : `${m.vol}%`)],
+    ["최대낙폭", ({ m }) => (m.mdd == null ? "—" : `${m.mdd}%`), () => "text-blue-600"],
+    ["총보수(연)", ({ p }) => `${p.fee}%`],
+    ["순자산", ({ p }) => eok(p.aum)],
+    ["당행 판매", ({ p }) => `${SOLD_RANK[p.id]}위`],
+  ];
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div
-        role="dialog"
-        aria-modal="true"
-        className="flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* 헤더 */}
-        <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", TYPE_CLASS[product.type])}>{product.type}</span>
-              <span className="text-[11px] text-slate-400">{product.category}</span>
-              <span className="rounded bg-im-50 px-1.5 py-0.5 text-[10px] font-bold text-im-700">당행 판매 {rank}위</span>
-            </div>
-            <h3 className="mt-1 text-[16px] font-bold text-slate-900">{product.name}</h3>
-            <div className="mt-0.5 text-[11px] text-slate-400">{product.company} · 설정 {product.since} · 순자산 {eok(product.aum)}</div>
-          </div>
-          <button
-            onClick={() => onWatch(product.id)}
-            aria-label="관심"
-            className={cn("flex-shrink-0 rounded-md p-1.5", watched ? "text-amber-400 hover:bg-amber-50" : "text-slate-300 hover:bg-slate-100")}
-          >
-            <Star className={cn("h-5 w-5", watched && "fill-amber-400")} />
+      <div className="flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5">
+          <span className="flex items-center gap-1.5 text-[15px] font-bold text-slate-900">
+            <GitCompare className="h-4 w-4 text-im-600" />
+            상품 비교 ({products.length})
+          </span>
+          <button onClick={onClose} aria-label="닫기" className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+            <X className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="space-y-5 overflow-y-auto px-5 py-4">
-          {/* 수익률 차트 */}
-          <section>
-            <div className="mb-2 flex items-center justify-between">
-              <div className="flex items-center gap-1">
-                {DETAIL_PERIODS.map((p) => (
-                  <button
-                    key={p.key}
-                    onClick={() => setCp(p.key)}
-                    className={cn(
-                      "rounded-md px-2 py-1 text-[11.5px] font-semibold transition-colors",
-                      cp === p.key ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"
-                    )}
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-              <span className={cn("text-[13px] font-bold tabular-nums", retColor(periodRet))}>기간 {pct(periodRet)}</span>
-            </div>
-            <div className="w-full overflow-x-auto">
-              <MarketChart series={series} label={product.name} width={560} height={180} interactive />
-            </div>
-          </section>
-
-          {/* 핵심 지표 */}
-          <section>
-            <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">핵심 지표</div>
-            <div className="grid grid-cols-3 gap-2">
-              <MetricCell label="1년 수익률" value={pct(product.return1y)} tone={retColor(product.return1y)} />
-              <MetricCell label="3년 수익률" value={pct(product.return3y)} tone={retColor(product.return3y)} />
-              <MetricCell label="5년 수익률" value={pct(product.return5y)} tone={retColor(product.return5y)} />
-              <MetricCell label="위험등급" value={rk.label} />
-              <MetricCell label="연 변동성" value={m3.vol == null ? "—" : `${m3.vol}%`} />
-              <MetricCell label="최대낙폭" value={m3.mdd == null ? "—" : `${m3.mdd}%`} tone="text-blue-600" />
-            </div>
-          </section>
-
-          {/* 구성 TOP5 */}
-          {holdings.length > 0 && (
-            <section>
-              <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                <PieChart className="h-3.5 w-3.5" />
-                주요 구성 (상위 {holdings.length})
-              </div>
-              <div className="space-y-1.5">
-                {holdings.map(([name, w]) => (
-                  <div key={name} className="flex items-center gap-2">
-                    <span className="w-28 flex-shrink-0 truncate text-[12px] text-slate-700">{name}</span>
-                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
-                      <div className="h-full rounded-full bg-im-400" style={{ width: `${Math.min(100, (w / maxW) * 100)}%` }} />
+        <div className="overflow-auto">
+          <table className="w-full border-collapse text-[12px]">
+            <thead>
+              <tr className="border-b border-slate-100">
+                <th className="sticky left-0 z-10 bg-white p-2 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">항목</th>
+                {cols.map(({ p }) => (
+                  <th key={p.id} className="min-w-[9rem] p-2 align-top">
+                    <button onClick={() => onDetail(p.id)} className="text-left">
+                      <span className={cn("rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[p.type])}>{p.type}</span>
+                      <div className="mt-1 text-[12px] font-bold leading-snug text-slate-900 hover:text-im-700">{p.name}</div>
+                    </button>
+                    <div className="mt-1.5">
+                      <Sparkline series={genSeries(p, "1y")} width={110} height={30} />
                     </div>
-                    <span className="w-12 flex-shrink-0 text-right text-[11.5px] font-semibold tabular-nums text-slate-600">{w}%</span>
-                  </div>
+                  </th>
                 ))}
-              </div>
-            </section>
-          )}
-
-          {/* 수수료 */}
-          <section>
-            <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">수수료</div>
-            <div className="grid grid-cols-3 gap-2">
-              <MetricCell label="판매보수(연)" value={`${(product.fee * 0.4).toFixed(2)}%`} />
-              <MetricCell label="운용보수(연)" value={`${(product.fee * 0.5).toFixed(2)}%`} />
-              <MetricCell label="총보수(연)" value={`${product.fee}%`} tone="text-slate-900" />
-            </div>
-            <p className="mt-1.5 text-[10.5px] text-slate-400">보수 구성은 데모 추정치입니다. 환매수수료·기타비용은 상품설명서 확인.</p>
-          </section>
-
-          {/* 적립식 시뮬레이터 */}
-          <section className="rounded-xl border border-im-200 bg-im-50/40 p-4">
-            <div className="mb-2.5 flex items-center gap-1.5 text-[12.5px] font-bold text-im-800">
-              <Calculator className="h-4 w-4" />
-              적립식 시뮬레이션
-            </div>
-            <div className="flex flex-wrap items-end gap-3">
-              <label className="flex flex-col gap-1">
-                <span className="text-[10px] font-semibold text-slate-500">월 납입(만원)</span>
-                <input
-                  value={monthly}
-                  onChange={(e) => setMonthly(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                  inputMode="numeric"
-                  className="w-24 rounded-md border border-slate-300 px-2.5 py-1.5 text-right text-[13px] tabular-nums focus:border-im-500 focus:outline-none"
-                />
-              </label>
-              <label className="flex flex-col gap-1">
-                <span className="text-[10px] font-semibold text-slate-500">기간</span>
-                <select
-                  value={years}
-                  onChange={(e) => setYears(Number(e.target.value))}
-                  className="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[13px] focus:border-im-500 focus:outline-none"
-                >
-                  {[3, 5, 10, 20].map((y) => (
-                    <option key={y} value={y}>{y}년</option>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(([label, get, toneFn]) => (
+                <tr key={label} className="border-b border-slate-50">
+                  <td className="sticky left-0 z-10 bg-white p-2 text-[11px] font-semibold text-slate-500">{label}</td>
+                  {cols.map((c) => (
+                    <td key={c.p.id} className={cn("p-2 text-center font-bold tabular-nums", toneFn ? toneFn(c) : "text-slate-800")}>
+                      {get(c)}
+                    </td>
                   ))}
-                </select>
-              </label>
-              <span className="text-[11px] text-slate-500">가정 수익률 <span className="font-bold text-im-700">연 {annual.toFixed(1)}%</span></span>
-            </div>
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              <div className="rounded-lg bg-white px-3 py-2 text-center ring-1 ring-inset ring-slate-100">
-                <div className="text-[10px] text-slate-400">원금</div>
-                <div className="mt-0.5 text-[14px] font-bold tabular-nums text-slate-800">{won(sim.principal)}</div>
-              </div>
-              <div className="rounded-lg bg-white px-3 py-2 text-center ring-1 ring-inset ring-im-100">
-                <div className="text-[10px] text-slate-400">예상 평가액</div>
-                <div className="mt-0.5 text-[15px] font-bold tabular-nums text-im-700">{won(sim.futureValue)}</div>
-              </div>
-              <div className="rounded-lg bg-white px-3 py-2 text-center ring-1 ring-inset ring-slate-100">
-                <div className="text-[10px] text-slate-400">예상 수익</div>
-                <div className="mt-0.5 text-[14px] font-bold tabular-nums text-red-500">+{won(sim.gain)}</div>
-              </div>
-            </div>
-            <p className="mt-2 text-[10.5px] leading-relaxed text-slate-400">
-              과거 3년 연환산 수익률({annual.toFixed(1)}%)이 유지된다고 가정한 단순 추정입니다. 실제 수익은 변동하며 원금손실이 발생할 수 있습니다.
-            </p>
-          </section>
-
-          <p className="text-[12.5px] leading-relaxed text-slate-600">{product.desc}</p>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-
-        {/* 푸터 */}
-        <div className="flex items-center justify-end gap-2 border-t border-slate-100 bg-slate-50/60 px-5 py-3">
-          <button onClick={onClose} className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-600 hover:border-slate-400">
-            닫기
-          </button>
-          <button
-            onClick={() => onEnroll(product.id)}
-            className="inline-flex items-center gap-1 rounded-md bg-im-600 px-3.5 py-1.5 text-[12px] font-bold text-white hover:bg-im-700"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            고객 가입
-          </button>
-        </div>
+        <p className="border-t border-slate-100 px-5 py-2 text-[10.5px] text-slate-400">변동성·최대낙폭은 생성 시계열 기준 데모 지표입니다.</p>
       </div>
     </div>
   );
@@ -323,12 +193,7 @@ const EnrollmentRow = ({ e, onTarget, onRemove }) => {
       <label className="flex items-center gap-1 text-[11px] text-slate-500">
         <Target className="h-3 w-3" />
         목표
-        <input
-          type="number"
-          value={e.targetReturn}
-          onChange={(ev) => onTarget(e.id, ev.target.value)}
-          className="w-14 rounded border border-slate-300 px-1.5 py-1 text-right text-[12px] tabular-nums focus:border-im-500 focus:outline-none"
-        />
+        <input type="number" value={e.targetReturn} onChange={(ev) => onTarget(e.id, ev.target.value)} className="w-14 rounded border border-slate-300 px-1.5 py-1 text-right text-[12px] tabular-nums focus:border-im-500 focus:outline-none" />
         %
       </label>
       <button onClick={() => onRemove(e.id)} aria-label="삭제" className="rounded p-1 text-slate-300 hover:bg-rose-50 hover:text-rose-500">
@@ -395,13 +260,17 @@ const SummaryStat = ({ label, value, sub, icon: Icon, tone }) => (
 );
 
 export default function WealthPage() {
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
   const { isWatched, toggleWatch, watchlist, enrollments, enroll, removeEnroll, setTarget } = useWealth();
   const [tab, setTab] = useState("catalog");
   const [typeFilter, setTypeFilter] = useState("전체");
+  const [theme, setTheme] = useState(null);
   const [watchOnly, setWatchOnly] = useState(false);
   const [sort, setSort] = useState("sold");
   const [query, setQuery] = useState("");
-  const [detail, setDetail] = useState(null);
+  const [compare, setCompare] = useState([]);
+  const [showCompare, setShowCompare] = useState(false);
   const [presetProduct, setPresetProduct] = useState(null);
 
   useEffect(() => {
@@ -412,16 +281,25 @@ export default function WealthPage() {
     };
   }, []);
 
+  /* 상세에서 '고객 가입' 등으로 넘어오면 고객 탭 + 상품 프리셋 */
+  useEffect(() => {
+    if (params.get("tab") === "customers") setTab("customers");
+    const en = params.get("enroll");
+    if (en) setPresetProduct(en);
+  }, [params]);
+
+  const themeObj = THEMES.find((t) => t.key === theme);
   const products = useMemo(() => {
     const q = query.trim().toLowerCase();
     const filtered = PRODUCTS.filter(
       (p) =>
         (typeFilter === "전체" || p.type === typeFilter) &&
+        (!themeObj || themeObj.match(p)) &&
         (!watchOnly || watchlist.includes(p.id)) &&
         (!q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.company.toLowerCase().includes(q))
     );
     return sortProducts(filtered, sort);
-  }, [typeFilter, watchOnly, watchlist, sort, query]);
+  }, [typeFilter, themeObj, watchOnly, watchlist, sort, query]);
 
   const totals = useMemo(() => {
     const value = enrollments.reduce((s, e) => s + e.currentValue, 0);
@@ -430,9 +308,12 @@ export default function WealthPage() {
     return { value, principal, alerts };
   }, [enrollments]);
 
-  const goEnroll = (productId) => {
-    setPresetProduct(productId);
-    setDetail(null);
+  const toggleCompare = (id) =>
+    setCompare((c) => (c.includes(id) ? c.filter((x) => x !== id) : c.length >= 3 ? c : [...c, id]));
+
+  const goDetail = (id) => navigate(`/wealth/${id}`);
+  const goEnroll = (id) => {
+    setPresetProduct(id);
     setTab("customers");
   };
 
@@ -477,15 +358,30 @@ export default function WealthPage() {
 
       {tab === "catalog" ? (
         <section>
+          {/* 테마 큐레이션 */}
+          <div className="mb-3 flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400">
+              <Sparkles className="h-3 w-3" />
+              테마
+            </span>
+            {THEMES.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTheme((cur) => (cur === t.key ? null : t.key))}
+                className={cn(
+                  "rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-colors",
+                  theme === t.key ? "bg-im-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                )}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
           {/* 검색 */}
           <div className="relative mb-2">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="상품명·카테고리·운용사 검색"
-              className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-3 text-[13px] focus:border-im-500 focus:outline-none"
-            />
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="상품명·카테고리·운용사 검색" className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-3 text-[13px] focus:border-im-500 focus:outline-none" />
           </div>
 
           {/* 필터 + 정렬 */}
@@ -494,25 +390,18 @@ export default function WealthPage() {
               <button
                 key={t}
                 onClick={() => setTypeFilter(t)}
-                className={cn(
-                  "rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors",
-                  typeFilter === t ? "bg-im-600 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900"
-                )}
+                className={cn("rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors", typeFilter === t ? "bg-slate-800 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
               >
                 {t}
               </button>
             ))}
             <button
               onClick={() => setWatchOnly((v) => !v)}
-              className={cn(
-                "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors",
-                watchOnly ? "bg-amber-400 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900"
-              )}
+              className={cn("inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors", watchOnly ? "bg-amber-400 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
             >
               <Star className={cn("h-3 w-3", watchOnly && "fill-white")} />
               관심만
             </button>
-
             <label className="ml-auto inline-flex items-center gap-1.5 text-[12px] text-slate-500">
               <ArrowUpDown className="h-3.5 w-3.5" />
               <select value={sort} onChange={(e) => setSort(e.target.value)} className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[12px] font-semibold text-slate-700 focus:border-im-500 focus:outline-none">
@@ -526,6 +415,7 @@ export default function WealthPage() {
           {/* 리스트 */}
           <div className={cn(CARD, "overflow-hidden")}>
             <div className="flex items-center gap-2 border-b border-slate-100 bg-slate-50/60 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <span className="w-3.5" />
               <span className="w-6 text-center">{sort === "sold" ? "순위" : "#"}</span>
               <span className="flex-1">상품</span>
               <span className="w-16 text-right">1년</span>
@@ -534,9 +424,7 @@ export default function WealthPage() {
               <span className="w-[3.9rem]" />
             </div>
             {products.length === 0 ? (
-              <p className="px-3 py-12 text-center text-[13px] text-slate-400">
-                {watchOnly ? "관심 등록한 상품이 없습니다." : "검색 결과가 없습니다."}
-              </p>
+              <p className="px-3 py-12 text-center text-[13px] text-slate-400">{watchOnly ? "관심 등록한 상품이 없습니다." : "검색 결과가 없습니다."}</p>
             ) : (
               products.map((p) => (
                 <ProductRow
@@ -545,15 +433,16 @@ export default function WealthPage() {
                   rank={SOLD_RANK[p.id]}
                   watched={isWatched(p.id)}
                   onWatch={toggleWatch}
-                  onDetail={setDetail}
+                  onDetail={goDetail}
                   onEnroll={goEnroll}
+                  inCompare={compare.includes(p.id)}
+                  onCompare={toggleCompare}
+                  compareFull={compare.length >= 3}
                 />
               ))
             )}
           </div>
-          <p className="mt-2 text-[11px] text-slate-400">
-            순위는 당행 누적 판매건수 기준(데모). 수익률·보수는 예시이며 과거 성과는 미래를 보장하지 않습니다.
-          </p>
+          <p className="mt-2 text-[11px] text-slate-400">순위는 당행 누적 판매건수 기준(데모). 왼쪽 체크로 최대 3개까지 비교할 수 있습니다.</p>
         </section>
       ) : (
         <section className="space-y-4">
@@ -562,7 +451,6 @@ export default function WealthPage() {
             <SummaryStat label="총 평가금액" value={won(totals.value)} icon={TrendingUp} sub={`원금 ${won(totals.principal)}`} />
             <SummaryStat label="알림" value={`${totals.alerts}건`} icon={Bell} tone={totals.alerts > 0 ? "alert" : "none"} />
           </div>
-
           <div className={cn(CARD, "p-4")}>
             <div className="mb-3 flex items-center gap-1.5 text-[12.5px] font-bold text-slate-700">
               <Plus className="h-4 w-4 text-im-600" />
@@ -570,7 +458,6 @@ export default function WealthPage() {
             </div>
             <EnrollForm presetProductId={presetProduct} onAdd={enroll} />
           </div>
-
           <div className={cn(CARD, "overflow-hidden")}>
             <div className="border-b border-slate-100 px-3 py-2.5 text-[13px] font-bold text-slate-900">
               가입 고객 <span className="ml-1 text-[11px] font-medium text-slate-400">{enrollments.length}건</span>
@@ -585,13 +472,45 @@ export default function WealthPage() {
         </section>
       )}
 
-      {detail && (
-        <ProductDetailModal
-          product={detail}
-          watched={isWatched(detail.id)}
-          onWatch={toggleWatch}
-          onEnroll={goEnroll}
-          onClose={() => setDetail(null)}
+      {/* 비교 담기 스티키 바 */}
+      {tab === "catalog" && compare.length > 0 && (
+        <div className="sticky bottom-4 mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-4 py-2.5 shadow-lg backdrop-blur">
+          <span className="text-[12px] font-bold text-slate-700">비교 담기 {compare.length}/3</span>
+          <div className="flex flex-wrap gap-1">
+            {compare.map((id) => {
+              const p = PRODUCTS.find((x) => x.id === id);
+              return (
+                <span key={id} className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+                  {p.name}
+                  <button onClick={() => toggleCompare(id)} aria-label="빼기" className="text-slate-400 hover:text-slate-600">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              );
+            })}
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <button onClick={() => setCompare([])} className="text-[11px] font-semibold text-slate-400 hover:text-slate-600">전체 해제</button>
+            <button
+              onClick={() => setShowCompare(true)}
+              disabled={compare.length < 2}
+              className="inline-flex items-center gap-1 rounded-md bg-im-600 px-3.5 py-1.5 text-[12px] font-bold text-white hover:bg-im-700 disabled:opacity-40"
+            >
+              <GitCompare className="h-3.5 w-3.5" />
+              비교하기
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showCompare && (
+        <CompareModal
+          products={compare.map((id) => PRODUCTS.find((p) => p.id === id)).filter(Boolean)}
+          onClose={() => setShowCompare(false)}
+          onDetail={(id) => {
+            setShowCompare(false);
+            goDetail(id);
+          }}
         />
       )}
     </HubShell>
