@@ -7,6 +7,7 @@ import {
   CalendarClock,
   Wrench,
   ReceiptText,
+  LineChart,
 } from "lucide-react";
 
 /* 허브 대시보드 섹션 정의 — 개인화(순서·숨김)의 기준 목록.
@@ -17,6 +18,7 @@ export const HUB_SECTIONS = [
   { id: "mytools", label: "내 도구", icon: Star, desc: "자주 쓰는 계산기·도구 바로가기" },
   { id: "products", label: "상품 상담", icon: MessagesSquare, desc: "상품별 상담 화면 진입" },
   { id: "grosstax", label: "종합과세 관리", icon: ReceiptText, desc: "고객번호로 종합과세·절세상품 조회" },
+  { id: "wealth", label: "투자상품", icon: LineChart, desc: "관심·가입 상품과 목표수익률 알림" },
   { id: "utility", label: "보조 도구", icon: Wrench, desc: "영문 이름·주소 변환 등" },
   { id: "followups", label: "일정 관리", icon: CalendarClock, desc: "후속 연락 약속과 고객 메모" },
   { id: "news", label: "모닝 브리핑", icon: Newspaper, desc: "오늘 창구에 영향을 줄 뉴스" },

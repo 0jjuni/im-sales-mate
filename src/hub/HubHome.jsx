@@ -22,6 +22,7 @@ import { MyTools } from "./components/MyTools";
 import { FollowupBoard } from "./components/FollowupBoard";
 import { ProductGrid } from "./components/ProductGrid";
 import { GrossTaxCard } from "./components/GrossTaxCard";
+import { WealthCard } from "./components/WealthCard";
 import { UtilityGrid } from "./components/UtilityGrid";
 import { KnowledgeLibrary } from "./components/KnowledgeLibrary";
 import { EditGuide, hasSeenEditGuide, markEditGuideSeen } from "./components/EditGuide";
@@ -207,6 +208,15 @@ export function HubHome() {
           <SectionPanel>
             <SectionHeader icon={meta.icon} title="종합과세 관리" sub="고객번호로 종합과세 대상·절세상품 조회" />
             <GrossTaxCard />
+          </SectionPanel>
+        );
+      }
+      case "wealth": {
+        const meta = getSection("wealth");
+        return (
+          <SectionPanel>
+            <SectionHeader icon={meta.icon} title="투자상품" sub="관심·가입 상품과 목표수익률 알림" />
+            <WealthCard />
           </SectionPanel>
         );
       }
