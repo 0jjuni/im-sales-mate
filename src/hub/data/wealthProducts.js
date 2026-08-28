@@ -2,13 +2,19 @@
    ⚠ 데모 목업 데이터다. 수익률·보수·위험등급·판매건수는 예시이며 실제와 다르다.
    실서비스에서는 상품시스템(기준가·시세·판매실적)에서 조회해 대체한다. */
 
+import { FUNDS_HIGH } from "./wealthFundsHighRisk";
+
 export const PRODUCT_TYPES = ["펀드", "ETF", "신탁"];
 
 /* 위험등급: 1(매우 높은 위험) ~ 6(매우 낮은 위험) — 금융투자협회 표준 */
+const RISK_FULL = {
+  1: "매우높은위험", 2: "높은위험", 3: "다소높은위험", 4: "보통위험", 5: "낮은위험", 6: "매우낮은위험",
+};
 export const riskMeta = (r) => {
-  if (r <= 2) return { label: `${r}등급`, full: `${r}등급 높은위험`, tone: "rose" };
-  if (r <= 4) return { label: `${r}등급`, full: `${r}등급 중위험`, tone: "amber" };
-  return { label: `${r}등급`, full: `${r}등급 낮은위험`, tone: "slate" };
+  const full = `${r}등급 ${RISK_FULL[r] ?? "위험"}`;
+  if (r <= 2) return { label: `${r}등급`, full, tone: "rose" };
+  if (r <= 4) return { label: `${r}등급`, full, tone: "amber" };
+  return { label: `${r}등급`, full, tone: "slate" };
 };
 
 /* ── 실제 iM뱅크 판매 펀드(매우높은위험, 1등급) ──
@@ -63,8 +69,9 @@ export const PRODUCTS = [
   { id: "etf-bond10", name: "KODEX 국고채10년", type: "ETF", category: "국내채권", risk: 5, return1y: 3.1, return3y: 6.8, return5y: 9.2, fee: 0.07, aum: 12000, company: "삼성자산운용", since: "2011.10", sold: 300, desc: "국고채 10년물에 투자. 금리 하락기 자본이득을 기대하는 안정형 자산." },
   { id: "etf-battery", name: "TIGER 2차전지테마", type: "ETF", category: "국내주식·테마", risk: 1, return1y: -12.4, return3y: 5.2, return5y: 62.0, fee: 0.49, aum: 9000, company: "미래에셋자산운용", since: "2018.09", sold: 280, desc: "2차전지 밸류체인 테마. 성장 기대가 크지만 변동성이 매우 높아 분할·장기 접근 필요." },
 
-  // ── 펀드 (실제 iM뱅크 판매 상품, 위 FUNDS) ──
-  ...FUNDS,
+  // ── 펀드 (실제 iM뱅크 판매 상품) ──
+  ...FUNDS,        // 매우높은위험(1등급) 28종
+  ...FUNDS_HIGH,   // 높은위험(2등급) 108종
 
   // ── 신탁 ──
   { id: "trust-bond", name: "특정금전신탁 (국공채)", type: "신탁", category: "채권", risk: 5, return1y: 3.8, return3y: 8.2, return5y: null, fee: 0.3, aum: 15000, company: "iM뱅크", since: "수시", sold: 720, desc: "국공채를 편입하는 맞춤형 금전신탁. 안정적인 이자수취가 목적." },
