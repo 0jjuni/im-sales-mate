@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, LineChart, Users, ArrowUpDown, GitCompare, X, Sparkles } from "lucide-react";
+import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, LineChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { Sparkline } from "./components/MarketChart";
 import { useWealth } from "./wealth/useWealth";
-import { PRODUCTS, PRODUCT_TYPES, SOLD_RANK, riskMeta } from "./data/wealthProducts";
+import { PRODUCTS, PRODUCT_TYPES, SOLD_RANK, riskMeta, pricingOf } from "./data/wealthProducts";
 import { genSeries, seriesMetrics } from "./data/wealthDetail";
 import { pct, retColor, won, eok, TYPE_CLASS, RISK_CLASS } from "./wealth/ProductDetail";
 import { CARD } from "@shared/lib/surface";
@@ -168,34 +168,64 @@ const ALERT_META = {
   target: { label: "목표 도달", cls: "bg-im-100 text-im-700" },
   loss: { label: "손실 경고", cls: "bg-rose-100 text-rose-700" },
   progress: { label: "진행 중", cls: "bg-slate-100 text-slate-500" },
+  pending: { label: "기준가 대기", cls: "bg-amber-100 text-amber-700" },
 };
+
+const nav = (v) => (v == null ? "—" : v.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+const mdShort = (d) => {
+  const dt = d instanceof Date ? d : new Date(d);
+  return `${dt.getMonth() + 1}.${dt.getDate()}`;
+};
+const dDays = (d) => Math.max(0, Math.ceil(((d instanceof Date ? d : new Date(d)).getTime() - Date.now()) / 86400000));
 
 const EnrollmentRow = ({ e, onTarget, onRemove }) => {
   const a = ALERT_META[e.alert];
+  const pending = e.status === "대기";
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-slate-100 px-3 py-3 last:border-b-0">
-      <div className="min-w-[8rem] flex-1">
+      <div className="min-w-[9rem] flex-1">
         <div className="flex items-center gap-1.5">
           <span className="font-mono text-[12px] font-bold tabular-nums text-slate-800">{e.customerNo}</span>
           <span className={cn("rounded px-1 py-0.5 text-[9px] font-bold", a.cls)}>{a.label}</span>
         </div>
-        <div className="mt-0.5 text-[12px] text-slate-600">{e.product?.name ?? "(상품 없음)"}</div>
-        <div className="text-[10px] text-slate-400">가입 {e.joinedAt} · {won(e.principal)}</div>
+        <div className="mt-0.5 flex items-center gap-1 text-[12px] text-slate-600">
+          {e.product?.name ?? "(상품 없음)"}
+          {e.pricing && <span className="rounded bg-slate-100 px-1 py-0.5 text-[9px] font-semibold text-slate-500">{e.pricing.chip}</span>}
+        </div>
+        <div className="text-[10px] text-slate-400">
+          신청 {e.joinedAt} · {won(e.principal)}
+          {!pending && e.entryNav != null && (
+            <> · {e.pricing?.priceLabel ?? "매입가"} {nav(e.entryNav)}{e.units != null && ` · ${e.units.toLocaleString()}좌`}</>
+          )}
+        </div>
       </div>
-      <div className="text-right">
-        <div className="text-[10px] text-slate-400">평가금액</div>
-        <div className="text-[13px] font-bold tabular-nums text-slate-900">{won(e.currentValue)}</div>
-      </div>
-      <div className="text-right">
-        <div className="text-[10px] text-slate-400">수익률</div>
-        <div className={cn("text-[13px] font-bold tabular-nums", retColor(e.currentReturn))}>{pct(e.currentReturn)}</div>
-      </div>
-      <label className="flex items-center gap-1 text-[11px] text-slate-500">
-        <Target className="h-3 w-3" />
-        목표
-        <input type="number" value={e.targetReturn} onChange={(ev) => onTarget(e.id, ev.target.value)} className="w-14 rounded border border-slate-300 px-1.5 py-1 text-right text-[12px] tabular-nums focus:border-im-500 focus:outline-none" />
-        %
-      </label>
+      {pending ? (
+        <div className="flex items-center gap-1.5 rounded-md bg-amber-50 px-2.5 py-1.5 text-[11px] font-semibold text-amber-700">
+          <Clock className="h-3.5 w-3.5" />
+          매입가 확정 {mdShort(e.confirmAt)} (D-{dDays(e.confirmAt)})
+        </div>
+      ) : (
+        <>
+          <div className="text-right">
+            <div className="text-[10px] text-slate-400">현재 기준가</div>
+            <div className="text-[13px] font-bold tabular-nums text-slate-900">{nav(e.nowNav)}</div>
+          </div>
+          <div className="text-right">
+            <div className="text-[10px] text-slate-400">평가금액</div>
+            <div className="text-[13px] font-bold tabular-nums text-slate-900">{won(e.currentValue)}</div>
+          </div>
+          <div className="text-right">
+            <div className="text-[10px] text-slate-400">수익률</div>
+            <div className={cn("text-[13px] font-bold tabular-nums", retColor(e.currentReturn))}>{pct(e.currentReturn)}</div>
+          </div>
+          <label className="flex items-center gap-1 text-[11px] text-slate-500">
+            <Target className="h-3 w-3" />
+            목표
+            <input type="number" value={e.targetReturn} onChange={(ev) => onTarget(e.id, ev.target.value)} className="w-14 rounded border border-slate-300 px-1.5 py-1 text-right text-[12px] tabular-nums focus:border-im-500 focus:outline-none" />
+            %
+          </label>
+        </>
+      )}
       <button onClick={() => onRemove(e.id)} aria-label="삭제" className="rounded p-1 text-slate-300 hover:bg-rose-50 hover:text-rose-500">
         <Trash2 className="h-3.5 w-3.5" />
       </button>
@@ -211,6 +241,8 @@ const EnrollForm = ({ presetProductId, onAdd }) => {
   useEffect(() => {
     if (presetProductId) setProductId(presetProductId);
   }, [presetProductId]);
+  const selected = PRODUCTS.find((p) => p.id === productId);
+  const pricing = pricingOf(selected);
   const canSubmit = customerNo.length === 9 && Number(principal) > 0;
   const submit = (e) => {
     e.preventDefault();
@@ -244,6 +276,12 @@ const EnrollForm = ({ presetProductId, onAdd }) => {
       <button type="submit" disabled={!canSubmit} className="rounded-md bg-im-600 px-4 py-2 text-[13px] font-bold text-white transition-colors hover:bg-im-700 disabled:cursor-not-allowed disabled:opacity-40">
         가입 추가
       </button>
+      {pricing.note && (
+        <p className="flex w-full items-center gap-1.5 text-[11px] text-slate-500">
+          <span className={cn("rounded px-1.5 py-0.5 text-[9.5px] font-bold", TYPE_CLASS[selected?.type] ?? "bg-slate-100 text-slate-500")}>{pricing.chip}</span>
+          {pricing.note}
+        </p>
+      )}
     </form>
   );
 };
@@ -304,8 +342,9 @@ export default function WealthPage() {
   const totals = useMemo(() => {
     const value = enrollments.reduce((s, e) => s + e.currentValue, 0);
     const principal = enrollments.reduce((s, e) => s + e.principal, 0);
-    const alerts = enrollments.filter((e) => e.alert !== "progress").length;
-    return { value, principal, alerts };
+    const alerts = enrollments.filter((e) => e.alert === "target" || e.alert === "loss").length;
+    const pending = enrollments.filter((e) => e.status === "대기").length;
+    return { value, principal, alerts, pending };
   }, [enrollments]);
 
   const toggleCompare = (id) =>
@@ -449,7 +488,7 @@ export default function WealthPage() {
           <div className="grid grid-cols-3 gap-3">
             <SummaryStat label="가입 건수" value={`${enrollments.length}건`} icon={Users} />
             <SummaryStat label="총 평가금액" value={won(totals.value)} icon={TrendingUp} sub={`원금 ${won(totals.principal)}`} />
-            <SummaryStat label="알림" value={`${totals.alerts}건`} icon={Bell} tone={totals.alerts > 0 ? "alert" : "none"} />
+            <SummaryStat label="알림" value={`${totals.alerts}건`} icon={Bell} tone={totals.alerts > 0 ? "alert" : "none"} sub={totals.pending > 0 ? `기준가 대기 ${totals.pending}건` : null} />
           </div>
           <div className={cn(CARD, "p-4")}>
             <div className="mb-3 flex items-center gap-1.5 text-[12.5px] font-bold text-slate-700">
@@ -468,7 +507,7 @@ export default function WealthPage() {
               enrollments.map((e) => <EnrollmentRow key={e.id} e={e} onTarget={setTarget} onRemove={removeEnroll} />)
             )}
           </div>
-          <p className="text-[11px] text-slate-400">평가금액·수익률은 데모 추정치입니다. 목표 도달·손실(-10% 이하) 시 알림으로 표시됩니다.</p>
+          <p className="text-[11px] text-slate-400">매입가는 상품 유형별 기준가 확정 방식(ETF 실시간 체결 · 펀드 T+1~2 · 신탁 설정일)을 반영합니다. 확정 전에는 「기준가 대기」로, 확정 후에는 매입 기준가 대비 보유기간 수익률로 계산합니다. 기준가·평가금액은 데모 추정치입니다.</p>
         </section>
       )}
 

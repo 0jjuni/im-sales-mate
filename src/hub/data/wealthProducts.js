@@ -37,6 +37,28 @@ export const PRODUCTS = [
 
 export const PRODUCT_BY_ID = Object.fromEntries(PRODUCTS.map((p) => [p.id, p]));
 
+/* 매입가(기준가) 확정 방식 — 상품 유형별로 다르다.
+   ETF : 거래소 실시간 체결 → 체결가로 즉시 확정(lag 0)
+   펀드: 기준가(NAV) 적용에 시차 — 국내형 익영업일(T+1), 해외형 2영업일(T+2)
+   신탁: 설정일에 편입·매입 확정 — ELT는 회차 청약 마감 후 설정(T+3 근사)
+   lagDays = 신청일로부터 매입가가 확정되는 데 걸리는 영업일 수(데모 근사). */
+export const pricingOf = (p) => {
+  if (!p) return { mode: "실시간", lagDays: 0, chip: "실시간", priceLabel: "매입 단가", note: "" };
+  if (p.type === "ETF")
+    return { mode: "실시간", lagDays: 0, chip: "실시간 체결", priceLabel: "매입 단가", note: "거래소에서 실시간 체결 · 매입단가가 즉시 확정됩니다." };
+  if (p.type === "펀드") {
+    const overseas = /해외|신흥|글로벌|리츠/.test(p.category);
+    return overseas
+      ? { mode: "기준가", lagDays: 2, chip: "기준가 T+2", priceLabel: "매입 기준가", note: "해외형 펀드 · 신청 2영업일 뒤 기준가로 매입가가 확정됩니다." }
+      : { mode: "기준가", lagDays: 1, chip: "기준가 T+1", priceLabel: "매입 기준가", note: "국내형 펀드 · 신청 익영업일 기준가로 매입가가 확정됩니다." };
+  }
+  /* 신탁 */
+  const elt = p.category.includes("주가연계");
+  return elt
+    ? { mode: "설정일", lagDays: 3, chip: "설정일", priceLabel: "매입 기준가", note: "회차 청약 마감 후 설정일에 편입·매입이 확정됩니다." }
+    : { mode: "설정일", lagDays: 1, chip: "설정일", priceLabel: "매입 기준가", note: "신탁 설정일에 자산 편입·매입이 확정됩니다." };
+};
+
 /* 판매 순위(인기순) — sold 내림차순. rank 부여 */
 export const SOLD_RANK = Object.fromEntries(
   [...PRODUCTS].sort((a, b) => b.sold - a.sold).map((p, i) => [p.id, i + 1])

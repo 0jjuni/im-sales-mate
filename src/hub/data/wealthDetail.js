@@ -47,6 +47,44 @@ export const genSeries = (product, periodKey) => {
   return pts;
 };
 
+/* 영업일 n일 뒤(주말 건너뜀) — 매입 기준가 확정일 계산용(데모 근사, 공휴일 미반영) */
+export const addBusinessDays = (date, n) => {
+  const d = new Date(date instanceof Date ? date.getTime() : new Date(date).getTime());
+  let added = 0;
+  while (added < n) {
+    d.setDate(d.getDate() + 1);
+    const day = d.getDay();
+    if (day !== 0 && day !== 6) added += 1;
+  }
+  return d;
+};
+
+/* 상품의 현재 기준가(5년 시계열의 마지막 값) — 매입가·평가 계산의 기준 */
+export const currentNav = (product) => {
+  const s = genSeries(product, "5y");
+  return s[s.length - 1].c;
+};
+
+/* 특정 날짜의 기준가(NAV) 근사 — 5년 시계열에서 선형 보간.
+   가입 시점 '매입가'와 보유기간 기준 실제 수익률을 구하기 위한 것.
+   상품·날짜별로 결정론적이라 새로고침해도 같은 값. 5년보다 이전이면 시작값. */
+export const navAt = (product, date) => {
+  const series = genSeries(product, "5y");
+  const t = (date instanceof Date ? date : new Date(date)).getTime();
+  if (t <= series[0].t) return series[0].c;
+  const last = series[series.length - 1];
+  if (t >= last.t) return last.c;
+  for (let i = 1; i < series.length; i++) {
+    if (t <= series[i].t) {
+      const a = series[i - 1];
+      const b = series[i];
+      const f = (t - a.t) / (b.t - a.t);
+      return Math.round((a.c + (b.c - a.c) * f) * 100) / 100;
+    }
+  }
+  return last.c;
+};
+
 /* 시계열 → 변동성(연환산 근사)·최대낙폭(MDD) */
 export const seriesMetrics = (series) => {
   if (!series || series.length < 3) return { vol: null, mdd: null };

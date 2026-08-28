@@ -23,7 +23,7 @@ const ALERT = {
 
 export function WealthCard() {
   const { watchlist, enrollments } = useWealth();
-  const alerts = enrollments.filter((e) => e.alert !== "progress");
+  const alerts = enrollments.filter((e) => e.alert === "target" || e.alert === "loss");
   const watched = watchlist.map((id) => PRODUCT_BY_ID[id]).filter(Boolean);
   const list = (watched.length ? watched : [...PRODUCTS].sort((a, b) => b.sold - a.sold)).slice(0, 3);
 
