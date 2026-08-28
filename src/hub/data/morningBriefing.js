@@ -154,5 +154,6 @@ export async function fetchMorningBriefing() {
     markets: quotes.markets,
     marketsLive: true,
     marketsAsOf: quotes.asOf,
+    marketsStale: quotes.stale ?? false,
   };
 }

@@ -12,15 +12,47 @@
    ⚠ 국고채 3년 금리는 브라우저에서 받을 수 있는 무료 소스가 없어 제외하고,
      금리 방향 지표로 미국 10년물을 넣었다. */
 
-const DEV_PROXY = "https://corsproxy.io/?url=";
-const CHART = (symbol, interval, range) =>
-  `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&range=${range}`;
-
-/* 심볼·기간을 바꾸면 api/quote.js의 허용 목록도 함께 고칠 것 */
+/* dev는 Vite 프록시(/yahoo)로 Yahoo 직결(불안정한 corsproxy 제거), 배포는 api/quote.js 서버리스.
+   심볼·기간을 바꾸면 api/quote.js의 허용 목록도 함께 고칠 것 */
 const quoteUrl = (symbol, interval = "1d", range = "10d") =>
   import.meta.env.DEV
-    ? DEV_PROXY + encodeURIComponent(CHART(symbol, interval, range))
+    ? `/yahoo/v8/finance/chart/${encodeURIComponent(symbol)}?interval=${interval}&range=${range}`
     : `/api/quote?symbol=${encodeURIComponent(symbol)}&interval=${interval}&range=${range}`;
+
+/* 시세는 네트워크가 순간 튀는 일이 잦아 짧게 재시도한다(시연 안정성) */
+const withRetry = async (fn, tries = 3) => {
+  let lastErr;
+  for (let i = 0; i < tries; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      lastErr = e;
+      if (i < tries - 1) await new Promise((r) => setTimeout(r, 350));
+    }
+  }
+  throw lastErr;
+};
+
+/* 마지막으로 성공한 마켓 시세를 저장 — 조회 실패 시 대시(—) 대신 직전 종가를 보여 준다 */
+const CACHE_KEY = "salesbridge.marketQuotes";
+const saveCache = (data) => {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ ...data, cachedAt: Date.now() }));
+  } catch {
+    /* noop */
+  }
+};
+const loadCache = () => {
+  try {
+    const r = JSON.parse(localStorage.getItem(CACHE_KEY) ?? "null");
+    if (r && Array.isArray(r.markets) && r.markets.length) {
+      return { markets: r.markets, asOf: r.asOf ? new Date(r.asOf) : null };
+    }
+  } catch {
+    /* noop */
+  }
+  return null;
+};
 
 /* 상담용 기간 선택 — 적립식 추천 시 장기 추이를 함께 보여줄 수 있게.
    장기는 간격을 넓혀(주/월봉) 포인트 수를 적정 유지한다. */
@@ -99,50 +131,61 @@ const fetchOne = async ({ label, symbol, format }) => {
 
 /* 특정 지표의 특정 기간 시계열만 조회(상세 모달의 기간 전환용).
    실패 시 throw — 호출부에서 기존 시리즈 유지 등으로 처리. */
-export const fetchSeries = async (symbol, periodKey) => {
+export const fetchSeries = (symbol, periodKey) => {
   const p = PERIODS.find((x) => x.key === periodKey) || PERIODS[0];
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
-  try {
-    const res = await fetch(quoteUrl(symbol, p.interval, p.range), { signal: ctrl.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    const r = json?.chart?.result?.[0];
-    const ts = r?.timestamp;
-    const closes = r?.indicators?.quote?.[0]?.close;
-    if (!ts || !closes) throw new Error("파싱 실패");
-    const series = ts
-      .map((t, i) => [t, closes[i]])
-      .filter(([, c]) => c != null)
-      .map(([t, c]) => ({ t: t * 1000, c }));
-    if (series.length < 2) throw new Error("시계열 부족");
-    return series;
-  } finally {
-    clearTimeout(timer);
-  }
+  return withRetry(async () => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      const res = await fetch(quoteUrl(symbol, p.interval, p.range), { signal: ctrl.signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const r = json?.chart?.result?.[0];
+      const ts = r?.timestamp;
+      const closes = r?.indicators?.quote?.[0]?.close;
+      if (!ts || !closes) throw new Error("파싱 실패");
+      const series = ts
+        .map((t, i) => [t, closes[i]])
+        .filter(([, c]) => c != null)
+        .map(([t, c]) => ({ t: t * 1000, c }));
+      if (series.length < 2) throw new Error("시계열 부족");
+      return series;
+    } finally {
+      clearTimeout(timer);
+    }
+  });
 };
 
 /* 6개 지표를 동시에 조회한다. 하나라도 실패하면 부분 결과를 쓰지 않고
    전체를 실패로 보고 호출부가 예시 데이터로 물러나게 한다 —
    일부만 실시간이면 어느 숫자가 진짜인지 알 수 없어 오히려 위험하다. */
 export const fetchMarketQuotes = async () => {
-  const results = await Promise.all(SYMBOLS.map(fetchOne));
-  const latest = results
-    .map((r) => r.asOf)
-    .filter(Boolean)
-    .sort((a, b) => b - a)[0];
+  try {
+    const results = await Promise.all(SYMBOLS.map((s) => withRetry(() => fetchOne(s))));
+    const latest = results
+      .map((r) => r.asOf)
+      .filter(Boolean)
+      .sort((a, b) => b - a)[0];
 
-  return {
-    markets: results.map(({ label, symbol, format, value, change, close, prevClose, series }) => ({
-      label,
-      symbol,
-      format,
-      value,
-      change,
-      close,
-      prevClose,
-      series,
-    })),
-    asOf: latest ?? null,
-  };
+    const out = {
+      markets: results.map(({ label, symbol, format, value, change, close, prevClose, series }) => ({
+        label,
+        symbol,
+        format,
+        value,
+        change,
+        close,
+        prevClose,
+        series,
+      })),
+      asOf: latest ?? null,
+    };
+    saveCache(out);
+    return out;
+  } catch (e) {
+    /* 재시도까지 실패하면 직전 성공 시세(캐시)로 대체 — 시연 중 빈 화면 방지 */
+    const cached = loadCache();
+    if (cached) return { ...cached, stale: true };
+    throw e;
+  }
 };

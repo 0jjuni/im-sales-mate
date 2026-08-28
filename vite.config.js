@@ -20,6 +20,15 @@ export default defineConfig({
         followRedirects: true,
         rewrite: () => new URL(BRIEFING_EXEC).pathname,
       },
+      /* dev 마켓 시세 — 불안정한 corsproxy.io 대신 Yahoo 차트 API를 직접 프록시.
+         배포는 api/quote.js 서버리스가 담당(같은 경로 아님). */
+      '/yahoo': {
+        target: 'https://query1.finance.yahoo.com',
+        changeOrigin: true,
+        secure: true,
+        headers: { 'User-Agent': 'Mozilla/5.0' },
+        rewrite: (path) => path.replace(/^\/yahoo/, ''),
+      },
     },
   },
   resolve: {

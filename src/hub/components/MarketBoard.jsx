@@ -48,7 +48,7 @@ const fmtAsOf = (d) => {
   return `${dt.getMonth() + 1}. ${dt.getDate()}`;
 };
 
-export function MarketBoard({ markets, status, live, asOf }) {
+export function MarketBoard({ markets, status, live, asOf, stale }) {
   const asOfText = fmtAsOf(asOf);
   const [selected, setSelected] = useState(null);
   /* 클릭 상세·인쇄는 실시간 시리즈가 있을 때만 의미가 있다(목업엔 series 없음) */
@@ -62,7 +62,7 @@ export function MarketBoard({ markets, status, live, asOf }) {
         </span>
         <span className="text-[10px] text-slate-400">
           {live
-            ? `${asOfText ? `${asOfText} ` : ""}종가 기준 · Yahoo Finance · 클릭 시 추이·인쇄`
+            ? `${asOfText ? `${asOfText} ` : ""}종가 기준 · Yahoo Finance${stale ? " · 직전 시세(재조회 중)" : " · 클릭 시 추이·인쇄"}`
             : "예시 데이터 (시세 조회 실패)"}
         </span>
       </div>

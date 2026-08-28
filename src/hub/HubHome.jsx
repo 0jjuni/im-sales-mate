@@ -167,6 +167,7 @@ export function HubHome() {
             status={status}
             live={data?.marketsLive}
             asOf={data?.marketsAsOf}
+            stale={data?.marketsStale}
           />
         );
       case "news":
