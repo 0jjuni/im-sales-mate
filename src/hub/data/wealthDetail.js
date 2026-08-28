@@ -126,10 +126,13 @@ export const holdingsFor = (product) => {
   return HOLDINGS[key] || [];
 };
 
-/* 연환산 수익률(3년 우선) — 시뮬레이션 가정 수익률 */
+/* 연환산 수익률(3년 우선) — 시뮬레이션 가정 수익률.
+   3년 데이터가 없으면(펀드) 최근 12개월 수익률을 그대로 쓰지 않는다 —
+   호황기 단기 수익률(예: +174%)을 장기 가정으로 쓰면 비현실적 추정이 되므로
+   보수적으로 연 3~10% 범위로 제한한다. */
 export const annualizedReturn = (product) => {
   if (product.return3y != null) return Math.pow(1 + product.return3y / 100, 1 / 3) * 100 - 100;
-  if (product.return1y != null) return product.return1y;
+  if (product.return1y != null) return Math.max(3, Math.min(product.return1y, 10));
   return 5;
 };
 

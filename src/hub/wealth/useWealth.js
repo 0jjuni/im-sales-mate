@@ -6,16 +6,16 @@ import { navAt, currentNav, addBusinessDays } from "../data/wealthDetail";
    데모는 localStorage. 실서비스에서는 직원 계정별 서버 저장으로 이 어댑터만 교체한다. */
 
 const STORAGE_KEY = "salesbridge.wealth";
-const VERSION = 2; // v2: 매입 기준가·보유기간 수익률·기준가 대기 상태 반영
+const VERSION = 3; // v3: 실제 iM뱅크 펀드 카탈로그로 시드 상품 ID 교체
 
 /* 첫 진입 시 화면이 비지 않도록 예시 가입 몇 건.
    e5는 오늘 신청한 해외펀드 — 기준가(T+2) 확정 전 '대기' 상태를 보여 준다. */
 const SEED_ENROLLMENTS = [
   { id: "e1", customerNo: "841023391", productId: "etf-nasdaq", principal: 2000, joinedAt: "2025-03-14", targetReturn: 20 },
-  { id: "e2", customerNo: "772501180", productId: "fund-value", principal: 1000, joinedAt: "2025-06-02", targetReturn: 15 },
+  { id: "e2", customerNo: "772501180", productId: "f-semi-ae", principal: 1000, joinedAt: "2025-06-02", targetReturn: 15 },
   { id: "e3", customerNo: "904176624", productId: "etf-battery", principal: 500, joinedAt: "2025-01-20", targetReturn: 10 },
   { id: "e4", customerNo: "881642093", productId: "trust-elt", principal: 3000, joinedAt: "2025-08-01", targetReturn: 6 },
-  { id: "e5", customerNo: "830511042", productId: "fund-india", principal: 800, joinedAt: "2026-08-28", targetReturn: 20 },
+  { id: "e5", customerNo: "830511042", productId: "f-china-ae", principal: 800, joinedAt: "2026-08-28", targetReturn: 20 },
 ];
 
 const load = () => {

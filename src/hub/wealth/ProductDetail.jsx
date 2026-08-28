@@ -27,6 +27,9 @@ export function ProductDetailBody({ product }) {
   const [years, setYears] = useState(5);
 
   const rk = riskMeta(product.risk);
+  const hasLongReturns = product.return3y != null || product.return5y != null;
+  /* 3·5년 실데이터가 없는 펀드는 해당 기간 차트를 만들지 않는다(허위 추정 방지) */
+  const periods = hasLongReturns ? DETAIL_PERIODS : DETAIL_PERIODS.filter((p) => p.key !== "3y" && p.key !== "5y");
   const series = genSeries(product, cp);
   const periodRet = series.length >= 2 ? (series[series.length - 1].c / series[0].c - 1) * 100 : null;
   const m3 = seriesMetrics(genSeries(product, "3y"));
@@ -41,7 +44,7 @@ export function ProductDetailBody({ product }) {
       <section>
         <div className="mb-2 flex items-center justify-between">
           <div className="flex items-center gap-1">
-            {DETAIL_PERIODS.map((p) => (
+            {periods.map((p) => (
               <button
                 key={p.key}
                 onClick={() => setCp(p.key)}
@@ -61,13 +64,23 @@ export function ProductDetailBody({ product }) {
         </div>
       </section>
 
-      {/* 핵심 지표 */}
+      {/* 핵심 지표 — 3년·5년 데이터가 있으면(ETF·신탁) 장기, 없으면(펀드) 3·6·12개월 */}
       <section>
         <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">핵심 지표</div>
         <div className="grid grid-cols-3 gap-2">
-          <MetricCell label="1년 수익률" value={pct(product.return1y)} tone={retColor(product.return1y)} />
-          <MetricCell label="3년 수익률" value={pct(product.return3y)} tone={retColor(product.return3y)} />
-          <MetricCell label="5년 수익률" value={pct(product.return5y)} tone={retColor(product.return5y)} />
+          {hasLongReturns ? (
+            <>
+              <MetricCell label="1년 수익률" value={pct(product.return1y)} tone={retColor(product.return1y)} />
+              <MetricCell label="3년 수익률" value={pct(product.return3y)} tone={retColor(product.return3y)} />
+              <MetricCell label="5년 수익률" value={pct(product.return5y)} tone={retColor(product.return5y)} />
+            </>
+          ) : (
+            <>
+              <MetricCell label="3개월 수익률" value={pct(product.return3m)} tone={retColor(product.return3m)} />
+              <MetricCell label="6개월 수익률" value={pct(product.return6m)} tone={retColor(product.return6m)} />
+              <MetricCell label="12개월 수익률" value={pct(product.return1y)} tone={retColor(product.return1y)} />
+            </>
+          )}
           <MetricCell label="위험등급" value={rk.label} />
           <MetricCell label="연 변동성" value={m3.vol == null ? "—" : `${m3.vol}%`} />
           <MetricCell label="최대낙폭" value={m3.mdd == null ? "—" : `${m3.mdd}%`} tone="text-blue-600" />
@@ -151,7 +164,7 @@ export function ProductDetailBody({ product }) {
           </div>
         </div>
         <p className="mt-2 text-[10.5px] leading-relaxed text-slate-400">
-          과거 3년 연환산 수익률({annual.toFixed(1)}%)이 유지된다고 가정한 단순 추정입니다. 실제 수익은 변동하며 원금손실이 발생할 수 있습니다.
+          가정 수익률(연 {annual.toFixed(1)}%)이 유지된다고 가정한 단순 추정입니다. 실제 수익은 변동하며 원금손실이 발생할 수 있습니다.
         </p>
       </section>
 

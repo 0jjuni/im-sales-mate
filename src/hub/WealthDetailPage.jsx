@@ -57,7 +57,23 @@ export default function WealthDetailPage() {
             </div>
             <h1 className="mt-1 text-[18px] font-bold tracking-tight text-slate-900">{product.name}</h1>
             <div className="mt-0.5 text-[11px] text-slate-400">
-              {product.company} · 설정 {product.since} · 순자산 {eok(product.aum)} · 누적 판매 {product.sold.toLocaleString()}건
+              {[
+                product.company || null,
+                product.assetType
+                  ? `${product.assetType}${product.feeClass ? ` · 수수료${product.feeClass}` : ""}`
+                  : null,
+                product.nav != null
+                  ? `기준가 ${product.nav.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${
+                      product.navChg != null ? ` (${product.navChg > 0 ? "+" : ""}${product.navChg})` : ""
+                    }`
+                  : null,
+                product.since ? `설정 ${product.since}` : null,
+                product.aum != null ? `순자산 ${eok(product.aum)}` : null,
+                `총보수 연 ${product.fee}%`,
+                `누적 판매 ${product.sold.toLocaleString()}건`,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
             </div>
           </div>
           <button

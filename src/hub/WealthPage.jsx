@@ -103,14 +103,15 @@ const CompareModal = ({ products, onClose, onDetail }) => {
   }, [onClose]);
   const cols = products.map((p) => ({ p, m: seriesMetrics(genSeries(p, "3y")) }));
   const rows = [
+    ["기준가", ({ p }) => (p.nav == null ? "—" : p.nav.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }))],
+    ["6개월 수익률", ({ p }) => pct(p.return6m), ({ p }) => retColor(p.return6m)],
     ["1년 수익률", ({ p }) => pct(p.return1y), ({ p }) => retColor(p.return1y)],
     ["3년 수익률", ({ p }) => pct(p.return3y), ({ p }) => retColor(p.return3y)],
-    ["5년 수익률", ({ p }) => pct(p.return5y), ({ p }) => retColor(p.return5y)],
     ["위험등급", ({ p }) => riskMeta(p.risk).label],
     ["연 변동성", ({ m }) => (m.vol == null ? "—" : `${m.vol}%`)],
     ["최대낙폭", ({ m }) => (m.mdd == null ? "—" : `${m.mdd}%`), () => "text-blue-600"],
     ["총보수(연)", ({ p }) => `${p.fee}%`],
-    ["순자산", ({ p }) => eok(p.aum)],
+    ["순자산", ({ p }) => (p.aum == null ? "—" : eok(p.aum))],
     ["당행 판매", ({ p }) => `${SOLD_RANK[p.id]}위`],
   ];
   return (
