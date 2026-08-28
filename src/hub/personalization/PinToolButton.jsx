@@ -1,10 +1,9 @@
-import { Pin, PinOff } from "lucide-react";
+import { Star } from "lucide-react";
 import { usePersonalization } from "./PersonalizationContext";
 import { cn } from "@shared/lib/format";
 
-/* 상품 모듈 화면에서 현재 도구를 허브 대시보드에 고정/해제하는 버튼.
-   모듈은 toolId만 넘기면 되고, 상태·저장은 개인화 컨텍스트가 처리한다.
-   중립(stone) 톤이라 어떤 모듈 테마 위에서도 어울린다. */
+/* 현재 도구를 홈 「내 도구」에 추가/제거하는 즐겨찾기 버튼.
+   모듈은 toolId만 넘기면 되고, 상태·저장은 개인화 컨텍스트가 처리한다. */
 export function PinToolButton({ toolId, className }) {
   const { isPinned, togglePin } = usePersonalization();
   const pinned = isPinned(toolId);
@@ -12,17 +11,17 @@ export function PinToolButton({ toolId, className }) {
   return (
     <button
       onClick={() => togglePin(toolId)}
-      title={pinned ? "허브 대시보드에서 해제" : "허브 대시보드에 고정"}
+      title={pinned ? "홈 「내 도구」에서 빼기" : "이 도구를 홈 「내 도구」에 추가"}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors print:hidden",
+        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors print:hidden",
         pinned
-          ? "border-slate-800 bg-slate-900 text-white hover:bg-slate-700"
+          ? "border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100"
           : "border-slate-300 bg-white text-slate-600 hover:border-slate-400 hover:text-slate-900",
         className
       )}
     >
-      {pinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
-      {pinned ? "대시보드에 고정됨" : "대시보드에 고정"}
+      <Star className={cn("h-3.5 w-3.5", pinned && "fill-amber-400 text-amber-400")} />
+      {pinned ? "내 도구에 추가됨" : "내 도구에 추가"}
     </button>
   );
 }

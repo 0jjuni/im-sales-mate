@@ -10,7 +10,7 @@ import { cn } from "@shared/lib/format";
 
 const NAV = [
   { to: "/", label: "홈" },
-  { to: "/tax", label: "종합과세 관리" },
+  { to: "/tax", label: "종합과세" },
   {
     to: "/wealth",
     label: "투자상품",
@@ -156,8 +156,8 @@ export function GlobalNav({ right = null }) {
           ))}
         </nav>
 
-        {/* 전역 검색 — 데스크톱은 입력창, 모바일은 아이콘 */}
-        <form onSubmit={submitSearch} className="hidden flex-shrink-0 md:block">
+        {/* 전역 검색 — 넓은 화면(xl)만 입력창, 그 아래는 우측 아이콘. 탭 공간 확보 */}
+        <form onSubmit={submitSearch} className="hidden flex-shrink-0 xl:block">
           <div className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
             <input
@@ -175,7 +175,7 @@ export function GlobalNav({ right = null }) {
           <Link
             to="/search"
             aria-label="검색"
-            className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 md:hidden"
+            className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 xl:hidden"
           >
             <Search className="h-4 w-4" />
           </Link>
