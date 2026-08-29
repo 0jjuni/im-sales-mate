@@ -484,6 +484,7 @@ export default function WealthPage() {
             {riskGrades.map((g) => {
               const rk = riskMeta(g);
               const on = riskFilter === g;
+              const name = rk.full.replace(/^\d+등급\s*/, "");
               return (
                 <button
                   key={g}
@@ -495,7 +496,7 @@ export default function WealthPage() {
                   )}
                 >
                   <span className={cn("h-1.5 w-1.5 rounded-full", on ? "bg-white/80" : RISK_DOT[rk.tone])} />
-                  {g}등급
+                  {name}
                 </button>
               );
             })}
