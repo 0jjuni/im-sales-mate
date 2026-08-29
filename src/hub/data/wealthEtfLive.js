@@ -127,97 +127,24 @@ export async function fetchEtfQuotes(etfs) {
   return { live: false, quotes: mockQuotes(etfs) };
 }
 
-/* ── 세일즈 포인트 규칙엔진 (PB·비이자이익 관점) ──
-   ETF는 저보수·위탁수수료 중심이라 '직접판매' 자체는 은행 수익이 얇다.
-   그래서 세일즈 포인트는 '고객 혜택'이 아니라 '어떻게 팔면 비이자이익이 남는가'
-   — 연계판매(신탁/랩 래핑·액티브 펀드), 연금·ISA 계좌 유치, 자산 리텐션 — 로 짠다.
-   저비용·분산 같은 고객 혜택은 '고객 설득용'으로 명확히 구분 표기한다.
-   상품 사실 + 실시간 흐름 기반 생성(하드코딩 아님, 추적 가능). */
-const AVG_FUND_FEE = 1.3;
-
+/* ── 고객 설명 포인트 ──
+   PB가 고객에게 설명하는 '사실'만 간결하게. 마케팅·권유 문구는 넣지 않는다.
+   편입 종목은 상세의 '편입 종목' 섹션에서 별도로 보여준다. */
 const focusLine = (product) => {
   const c = product.category || "";
-  if (c.includes("반도체")) return "반도체 밸류체인에 집중 — 업황 반등 국면에서 탄력적";
-  if (c.includes("미국") || c.includes("해외주식")) return "미국 대형주에 폭넓게 분산 — 장기 핵심 자산";
-  if (c.includes("배당")) return "배당주 중심 — 현금흐름을 원하는 고객에게 적합";
-  if (c.includes("테마")) return "성장 테마 집중 — 기대수익과 변동성이 함께 큼";
-  if (c.includes("원자재") || c.includes("금")) return "금 등 실물자산 — 인플레이션·안전자산 분산 목적";
-  if (c.includes("채권")) return "채권형 — 안정적 이자수취 중심, 변동성 낮음";
-  if (c.includes("국내주식")) return "국내 대표주 분산 — 코어 포지션에 적합";
-  return "지수·바스켓 분산 상품";
+  if (c.includes("반도체")) return "반도체 기업에 집중 투자";
+  if (c.includes("미국") || c.includes("해외주식")) return "미국 대형주에 분산 투자";
+  if (c.includes("배당")) return "배당주 중심 — 분배금 지급";
+  if (c.includes("테마")) return "성장 테마 집중 — 변동성 큼";
+  if (c.includes("원자재") || c.includes("금")) return "금 등 실물자산에 투자";
+  if (c.includes("채권")) return "채권에 투자 — 변동성 낮음";
+  if (c.includes("국내주식")) return "국내 대표주에 분산 투자";
+  return "지수·바스켓에 분산 투자";
 };
 
-/* 유형별 연계판매(비이자이익) 제안 — 은행이 실제로 수익을 남기는 경로.
-   국내상장 ETF(원화)라 환전은 없고, 은행 수익은 신탁·일임보수·펀드 판매보수에서 나온다. */
-const crossSell = (product) => {
-  const c = product.category || "";
-  if (c.includes("해외") || c.includes("미국") || c.includes("글로벌") || c.includes("반도체") || c.includes("헬스") || c.includes("테크")) {
-    return "ETF를 특정금전신탁·랩에 편입해 팔면 신탁·일임보수가 남습니다. 동일 테마 해외 액티브 펀드(판매보수)로 업셀하는 것도 대안입니다.";
-  }
-  if (c.includes("배당") || c.includes("인컴")) {
-    return "월현금흐름 니즈 고객 → 인컴형 신탁·배당 펀드로 연계하면 신탁·판매보수를 확보할 수 있습니다.";
-  }
-  if (c.includes("채권") || c.includes("금") || c.includes("원자재")) {
-    return "안정형 성향 → 채권형 펀드·ELB·특정금전신탁으로 연계해 비이자이익을 보완하세요.";
-  }
-  return "국내 액티브 펀드·랩으로 연계하거나 ETF 편입 신탁으로 감싸 신탁보수를 확보하세요.";
-};
-
-export const deriveEtfPitch = (product, quote) => {
-  const points = [];
-  const chg = quote?.changePct;
-
-  /* 1) 수익 관점 — 은행이 ETF로 버는 건 얇다(솔직하게) */
-  points.push({
-    tone: "warn",
-    title: "수익 관점 — 은행이 ETF로 버는 건 얇음",
-    detail: `ETF 총보수 ${product.fee}%는 대부분 운용사 몫입니다. 은행은 보통 ETF를 신탁에 편입해 파는데(신탁보수 정도), 판매보수가 붙는 펀드보다 건당 비이자이익이 작습니다. 아래 연계·규모로 키우세요.`,
-  });
-
-  /* 2) 연계 판매(핵심 수익 경로) */
-  points.push({ tone: "im", title: "연계 판매로 비이자이익 확보", detail: crossSell(product) });
-
-  /* 3) 판매 구조·리텐션 — 은행 ETF는 신탁 편입(실시간 매매 아님) */
-  points.push({
-    tone: "im",
-    title: "은행 ETF는 '신탁 편입' — 실시간 매매는 증권 영역",
-    detail: "은행은 중개형 ISA·증권 IRP 같은 실시간 ETF 자유매매를 제공하지 않습니다. 신탁형 ISA·IRP 내 신탁 편입(지연 체결)으로만 담기죠. 실시간 매매를 원하는 고객은 타사(증권)로 이탈하기 쉬우니, 신탁·펀드로 니즈를 흡수해 자산을 은행에 붙잡아 두세요.",
-  });
-
-  /* 4) 오늘 흐름 — 상담 명분 */
-  if (chg != null) {
-    if (chg >= 1) points.push({ tone: "up", title: `오늘 +${chg.toFixed(2)}% — 연락 명분`, detail: "관심·보유 고객에게 '오늘 흐름' 안부로 접점을 만들어 연계 상담으로 잇기 좋습니다." });
-    else if (chg <= -1) points.push({ tone: "down", title: `오늘 ${chg.toFixed(2)}% 조정 — 상담 명분`, detail: "저가 분할매수·적립식 제안 명분. 신규 계좌·적립 약정으로 연결하세요." });
-    else points.push({ tone: "flat", title: `오늘 ${chg > 0 ? "+" : ""}${chg.toFixed(2)}% 보합`, detail: "변동이 크지 않아 신규 적립 약정을 부담 없이 권하기 좋은 국면입니다." });
-  }
-
-  /* 5) 고객 설득 포인트(고객에게 강조 — 은행 수익 근거 아님) */
-  const save = Math.max(0, AVG_FUND_FEE - product.fee);
-  points.push({
-    tone: "slate",
-    title: "고객 설득 포인트(고객에게 강조용)",
-    detail: `${focusLine(product)}. 저비용(펀드 평균 대비 약 ${save.toFixed(2)}%p↓)·실시간 환금성으로 고객을 설득하되, 이는 고객 혜택이지 은행 수익 근거는 아닙니다.`,
-  });
-
-  /* 6) 위험 고지(필수) */
-  points.push({
-    tone: "warn",
-    title: `${riskName(product.risk)}(${product.risk}등급) · 원금손실 가능`,
-    detail: "투자설명서 교부·상품 설명 의무를 반드시 이행하세요. 과거 수익률은 미래를 보장하지 않습니다.",
-  });
-
-  return points;
-};
-
-/* 고객 응대용 한 문단 스크립트(복사용) */
-export const buildEtfScript = (product, quote) => {
-  const chg = quote?.changePct;
-  const flow =
-    chg == null ? "" : chg >= 1 ? ` 오늘은 +${chg.toFixed(1)}% 흐름이라 관심 있으실 때 진입을 검토해 보셔도 좋습니다.` : chg <= -1 ? ` 오늘은 ${chg.toFixed(1)}% 조정이라 나눠서 담기 시작하기에도 부담이 적습니다.` : "";
-  const save = Math.max(0, AVG_FUND_FEE - product.fee);
-  return (
-    `고객님, ${product.name}는 ${focusLine(product).split(" — ")[0]}하는 ETF입니다. ` +
-    `총보수가 연 ${product.fee}%로 비슷한 펀드보다 약 ${save.toFixed(2)}%p 낮아 오래 보유하실수록 비용 면에서 유리합니다.${flow} ` +
-    `다만 ${riskName(product.risk)} 상품으로 원금손실 가능성이 있어 이 점은 함께 안내드립니다.`
-  );
-};
+export const etfCustomerPoints = (product) => [
+  focusLine(product),
+  `총보수 연 ${product.fee}%`,
+  `위험등급 ${product.risk}등급 · ${riskName(product.risk)} (원금손실 가능)`,
+  "거래소 상장 — 실시간 매매로 환금 쉬움",
+];

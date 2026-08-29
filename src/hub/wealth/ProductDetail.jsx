@@ -1,20 +1,10 @@
 import { useState } from "react";
-import { PieChart, Calculator, Activity, Megaphone } from "lucide-react";
+import { PieChart, Calculator, Activity } from "lucide-react";
 import { riskMeta, riskName } from "../data/wealthProducts";
 import { DETAIL_PERIODS, genSeries, seriesMetrics, holdingsFor, annualizedReturn, simulateSaving } from "../data/wealthDetail";
-import { deriveEtfPitch, buildEtfScript } from "../data/wealthEtfLive";
+import { etfCustomerPoints } from "../data/wealthEtfLive";
 import { MarketChart, Sparkline } from "../components/MarketChart";
 import { cn } from "@shared/lib/format";
-
-/* 세일즈 포인트 톤 */
-const PITCH_TONE = {
-  up: "border-red-100 bg-red-50/60",
-  down: "border-blue-100 bg-blue-50/60",
-  im: "border-im-200 bg-im-50/60",
-  warn: "border-amber-200 bg-amber-50/60",
-  flat: "border-slate-200 bg-slate-50",
-  slate: "border-slate-200 bg-slate-50",
-};
 
 /* 투자상품 표시 공용 헬퍼 — 리스트·상세·비교가 함께 쓴다 */
 export const pct = (v) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(1)}%`);
@@ -40,8 +30,7 @@ export function ProductDetailBody({ product, quote, live }) {
 
   const isEtf = product.type === "ETF";
   const chg = quote?.changePct;
-  const pitch = isEtf ? deriveEtfPitch(product, quote) : [];
-  const script = isEtf ? buildEtfScript(product, quote) : "";
+  const points = isEtf ? etfCustomerPoints(product) : [];
 
   const rk = riskMeta(product.risk);
   const hasLongReturns = product.return3y != null || product.return5y != null;
@@ -85,26 +74,18 @@ export function ProductDetailBody({ product, quote, live }) {
         </section>
       )}
 
-      {/* 세일즈 포인트 카드 (ETF) */}
+      {/* 고객 설명 포인트 (ETF) — 사실만 */}
       {isEtf && (
-        <section className="rounded-xl border border-im-200 bg-im-50/30 p-4">
-          <div className="mb-2.5 flex items-center gap-1.5 text-[12.5px] font-bold text-im-800">
-            <Megaphone className="h-4 w-4" />
-            세일즈 포인트
-            <span className="text-[10px] font-medium text-slate-400">· 비이자이익 관점 · 실시간 흐름 기반</span>
-          </div>
+        <section className="rounded-xl border border-slate-200 bg-white p-4">
+          <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">고객 설명 포인트</div>
           <ul className="space-y-1.5">
-            {pitch.map((p, i) => (
-              <li key={i} className={cn("rounded-lg border px-3 py-2", PITCH_TONE[p.tone] || PITCH_TONE.slate)}>
-                <div className="text-[12.5px] font-bold text-slate-800">{p.title}</div>
-                <div className="mt-0.5 text-[11.5px] leading-relaxed text-slate-600">{p.detail}</div>
+            {points.map((p, i) => (
+              <li key={i} className="flex items-start gap-2 text-[12.5px] text-slate-700">
+                <span className="mt-[7px] h-1 w-1 flex-shrink-0 rounded-full bg-slate-400" />
+                {p}
               </li>
             ))}
           </ul>
-          <div className="mt-3 rounded-lg border border-slate-200 bg-white p-3">
-            <div className="mb-1.5 text-[11px] font-bold text-slate-500">고객 응대 멘트</div>
-            <p className="text-[12.5px] leading-relaxed text-slate-700">{script}</p>
-          </div>
         </section>
       )}
 
@@ -160,7 +141,7 @@ export function ProductDetailBody({ product, quote, live }) {
         <section>
           <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
             <PieChart className="h-3.5 w-3.5" />
-            주요 구성 (상위 {holdings.length})
+            편입 종목 (상위 {holdings.length})
           </div>
           <div className="space-y-1.5">
             {holdings.map(([name, w]) => (
