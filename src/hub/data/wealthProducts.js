@@ -4,6 +4,7 @@
 
 import { FUNDS_HIGH } from "./wealthFundsHighRisk";
 import { FUNDS_MID } from "./wealthFundsMidRisk";
+import { FUNDS_LOW } from "./wealthFundsLowRisk";
 
 export const PRODUCT_TYPES = ["펀드", "ETF", "신탁"];
 
@@ -76,6 +77,7 @@ export const PRODUCTS = [
   ...FUNDS,        // 매우높은위험(1등급) 28종
   ...FUNDS_HIGH,   // 높은위험(2등급) 108종
   ...FUNDS_MID,    // 다소높은위험(3등급) 60종
+  ...FUNDS_LOW,    // 보통·낮은·매우낮은위험(4·5·6등급) 52종
 
   // ── 신탁 ──
   { id: "trust-bond", name: "특정금전신탁 (국공채)", type: "신탁", category: "채권", risk: 5, return1y: 3.8, return3y: 8.2, return5y: null, fee: 0.3, aum: 15000, company: "iM뱅크", since: "수시", sold: 720, desc: "국공채를 편입하는 맞춤형 금전신탁. 안정적인 이자수취가 목적." },
