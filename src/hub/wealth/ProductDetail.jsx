@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PieChart, Calculator, Activity } from "lucide-react";
 import { riskMeta, riskName } from "../data/wealthProducts";
 import { DETAIL_PERIODS, genSeries, seriesMetrics, holdingsFor, annualizedReturn, simulateSaving } from "../data/wealthDetail";
-import { etfCustomerPoints } from "../data/wealthEtfLive";
+import { etfCustomerPoints, ETF_HOLDINGS } from "../data/wealthEtfLive";
 import { MarketChart, Sparkline } from "../components/MarketChart";
 import { cn } from "@shared/lib/format";
 
@@ -39,7 +39,8 @@ export function ProductDetailBody({ product, quote, live }) {
   const series = genSeries(product, cp);
   const periodRet = series.length >= 2 ? (series[series.length - 1].c / series[0].c - 1) * 100 : null;
   const m3 = seriesMetrics(genSeries(product, "3y"));
-  const holdings = holdingsFor(product);
+  /* ETF는 실제 상위 편입 종목, 그 외(펀드·신탁)는 카테고리 기반 대표 구성 */
+  const holdings = (isEtf && ETF_HOLDINGS[product.id]) || holdingsFor(product);
   const maxW = holdings.length ? holdings[0][1] : 1;
   const annual = annualizedReturn(product);
   const sim = simulateSaving(monthly, years, annual);
@@ -154,6 +155,7 @@ export function ProductDetailBody({ product, quote, live }) {
               </div>
             ))}
           </div>
+          {isEtf && <p className="mt-1.5 text-[10px] text-slate-400">비중은 참고용 근사치이며 지수 리밸런싱에 따라 바뀝니다.</p>}
         </section>
       )}
 
