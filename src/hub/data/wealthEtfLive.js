@@ -127,9 +127,12 @@ export async function fetchEtfQuotes(etfs) {
   return { live: false, quotes: mockQuotes(etfs) };
 }
 
-/* ── 세일즈 포인트 규칙엔진 ──
-   상품 사실 + 실시간 흐름을 근거로 PB 상담 멘트를 '생성'한다(하드코딩 아님, 추적 가능).
-   동일 유형 펀드 평균 보수(데모 기준) 대비 ETF 저보수를 핵심 강점으로 잡는다. */
+/* ── 세일즈 포인트 규칙엔진 (PB·비이자이익 관점) ──
+   ETF는 저보수·위탁수수료 중심이라 '직접판매' 자체는 은행 수익이 얇다.
+   그래서 세일즈 포인트는 '고객 혜택'이 아니라 '어떻게 팔면 비이자이익이 남는가'
+   — 연계판매(신탁/랩 래핑·액티브 펀드), 연금·ISA 계좌 유치, 자산 리텐션 — 로 짠다.
+   저비용·분산 같은 고객 혜택은 '고객 설득용'으로 명확히 구분 표기한다.
+   상품 사실 + 실시간 흐름 기반 생성(하드코딩 아님, 추적 가능). */
 const AVG_FUND_FEE = 1.3;
 
 const focusLine = (product) => {
@@ -144,32 +147,58 @@ const focusLine = (product) => {
   return "지수·바스켓 분산 상품";
 };
 
+/* 유형별 연계판매(비이자이익) 제안 — 은행이 실제로 수익을 남기는 경로 */
+const crossSell = (product) => {
+  const c = product.category || "";
+  if (c.includes("해외") || c.includes("미국") || c.includes("글로벌") || c.includes("반도체") || c.includes("헬스") || c.includes("테크")) {
+    return "해외 ETF는 매매수수료+환전스프레드가 남습니다. ETF 편입 특정금전신탁·랩으로 감싸면 신탁·일임보수까지 확보되고, 동일 테마 해외 액티브 펀드(판매보수)도 대안입니다.";
+  }
+  if (c.includes("배당") || c.includes("인컴")) {
+    return "월현금흐름 니즈 고객 → 인컴형 신탁·배당 펀드로 연계하면 판매·신탁보수를 확보할 수 있습니다.";
+  }
+  if (c.includes("채권") || c.includes("금") || c.includes("원자재")) {
+    return "안정형 성향 → 채권형 펀드·ELB·특정금전신탁으로 연계해 비이자이익을 보완하세요.";
+  }
+  return "국내 액티브 펀드·랩으로 연계하거나, ISA·연금 계좌 내 편입으로 계좌 잔액을 키우세요.";
+};
+
 export const deriveEtfPitch = (product, quote) => {
   const points = [];
   const chg = quote?.changePct;
 
-  /* 1) 오늘 흐름 */
-  if (chg != null) {
-    if (chg >= 1) points.push({ tone: "up", title: `오늘 +${chg.toFixed(2)}% 상승 흐름`, detail: "관심 고객에게 진입 문의 타이밍으로 안내하기 좋습니다." });
-    else if (chg <= -1) points.push({ tone: "down", title: `오늘 ${chg.toFixed(2)}% 조정`, detail: "저가 분할매수·적립식 시작 관점으로 제안할 수 있습니다." });
-    else points.push({ tone: "flat", title: `오늘 ${chg > 0 ? "+" : ""}${chg.toFixed(2)}% 보합`, detail: "변동이 크지 않아 신규 적립 시작을 부담 없이 권할 수 있습니다." });
-  }
-
-  /* 2) 저보수(ETF 핵심 강점) */
-  const save = Math.max(0, AVG_FUND_FEE - product.fee);
+  /* 1) 수익 관점 — ETF 직접판매는 얇다(솔직하게) */
   points.push({
-    tone: "im",
-    title: `총보수 연 ${product.fee}% — 저비용`,
-    detail: `유사 유형 펀드 평균(약 ${AVG_FUND_FEE}%) 대비 연 ${save.toFixed(2)}%p 낮아, 장기·적립식일수록 유리합니다.`,
+    tone: "warn",
+    title: "수익 관점 — ETF 직접판매는 은행 수익이 얇음",
+    detail: `ETF는 위탁매매 수수료(해외는 환전 포함) 중심이라, 판매보수가 붙는 펀드보다 건당 비이자이익이 작습니다(총보수 ${product.fee}%는 대부분 운용사 몫). 아래 연계로 수익을 키우세요.`,
   });
 
-  /* 3) 투자 포커스 */
-  points.push({ tone: "slate", title: focusLine(product), detail: `분류: ${product.category}` });
+  /* 2) 연계 판매(핵심 수익 경로) */
+  points.push({ tone: "im", title: "연계 판매로 비이자이익 확보", detail: crossSell(product) });
 
-  /* 4) 적립식 제안 */
-  points.push({ tone: "slate", title: "적립식으로 변동성 분산", detail: "매월 정액 매수 시 진입가를 평준화 — 상세의 적립식 시뮬레이터로 예상 평가액을 함께 보여주세요." });
+  /* 3) 계좌 유치·리텐션 */
+  points.push({
+    tone: "im",
+    title: "계좌 유치·자산 리텐션",
+    detail: "저비용 ETF를 안 주면 고객이 타사(토스·키움)로 이탈합니다. IRP·연금저축·ISA 안에서 담게 유도하면 세제혜택으로 만족도↑ + 계좌 잔액·재예치 기반을 은행에 붙잡아 둡니다.",
+  });
 
-  /* 5) 위험 고지(필수) */
+  /* 4) 오늘 흐름 — 상담 명분 */
+  if (chg != null) {
+    if (chg >= 1) points.push({ tone: "up", title: `오늘 +${chg.toFixed(2)}% — 연락 명분`, detail: "관심·보유 고객에게 '오늘 흐름' 안부로 접점을 만들어 연계 상담으로 잇기 좋습니다." });
+    else if (chg <= -1) points.push({ tone: "down", title: `오늘 ${chg.toFixed(2)}% 조정 — 상담 명분`, detail: "저가 분할매수·적립식 제안 명분. 신규 계좌·적립 약정으로 연결하세요." });
+    else points.push({ tone: "flat", title: `오늘 ${chg > 0 ? "+" : ""}${chg.toFixed(2)}% 보합`, detail: "변동이 크지 않아 신규 적립 약정을 부담 없이 권하기 좋은 국면입니다." });
+  }
+
+  /* 5) 고객 설득 포인트(고객에게 강조 — 은행 수익 근거 아님) */
+  const save = Math.max(0, AVG_FUND_FEE - product.fee);
+  points.push({
+    tone: "slate",
+    title: "고객 설득 포인트(고객에게 강조용)",
+    detail: `${focusLine(product)}. 저비용(펀드 평균 대비 약 ${save.toFixed(2)}%p↓)·실시간 환금성으로 고객을 설득하되, 이는 고객 혜택이지 은행 수익 근거는 아닙니다.`,
+  });
+
+  /* 6) 위험 고지(필수) */
   points.push({
     tone: "warn",
     title: `${riskName(product.risk)}(${product.risk}등급) · 원금손실 가능`,

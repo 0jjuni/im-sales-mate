@@ -4,7 +4,6 @@ import { riskMeta, riskName } from "../data/wealthProducts";
 import { DETAIL_PERIODS, genSeries, seriesMetrics, holdingsFor, annualizedReturn, simulateSaving } from "../data/wealthDetail";
 import { deriveEtfPitch, buildEtfScript } from "../data/wealthEtfLive";
 import { MarketChart, Sparkline } from "../components/MarketChart";
-import { CopyButton } from "@shared/components/CopyButton";
 import { cn } from "@shared/lib/format";
 
 /* 세일즈 포인트 톤 */
@@ -92,7 +91,7 @@ export function ProductDetailBody({ product, quote, live }) {
           <div className="mb-2.5 flex items-center gap-1.5 text-[12.5px] font-bold text-im-800">
             <Megaphone className="h-4 w-4" />
             세일즈 포인트
-            <span className="text-[10px] font-medium text-slate-400">· 실시간 흐름 + 상품 사실 기반 자동 생성</span>
+            <span className="text-[10px] font-medium text-slate-400">· 비이자이익 관점 · 실시간 흐름 기반</span>
           </div>
           <ul className="space-y-1.5">
             {pitch.map((p, i) => (
@@ -103,10 +102,7 @@ export function ProductDetailBody({ product, quote, live }) {
             ))}
           </ul>
           <div className="mt-3 rounded-lg border border-slate-200 bg-white p-3">
-            <div className="mb-1.5 flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-500">고객 응대 멘트</span>
-              <CopyButton text={script} />
-            </div>
+            <div className="mb-1.5 text-[11px] font-bold text-slate-500">고객 응대 멘트</div>
             <p className="text-[12.5px] leading-relaxed text-slate-700">{script}</p>
           </div>
         </section>
