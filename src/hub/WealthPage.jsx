@@ -42,12 +42,15 @@ const THEMES = [
   { key: "bond", label: "채권·안전자산", match: (p) => p.category.includes("채권") || p.category.includes("원자재") },
 ];
 
-/* 투자성향 → 판매 가능 위험등급(적합성 원칙, 데모 단순화).
-   성향이 공격적일수록 더 높은위험(낮은 등급 숫자)까지 허용된다. */
+/* 투자성향 → 판매 가능 위험등급 (iM 금융투자상품 투자위험지도 기준).
+   성향 등급 이하(더 안전한) 상품은 모두 매수 가능 = 적합성 원칙.
+   공격투자형1 / 적극투자형2 / 위험중립형3 / 안정추구형4 / 안정형5 등급까지. */
 const INVESTOR_TYPES = [
+  { key: "공격투자형", risks: [1, 2, 3, 4, 5, 6] },
+  { key: "적극투자형", risks: [2, 3, 4, 5, 6] },
+  { key: "위험중립형", risks: [3, 4, 5, 6] },
+  { key: "안정추구형", risks: [4, 5, 6] },
   { key: "안정형", risks: [5, 6] },
-  { key: "중립형", risks: [3, 4, 5, 6] },
-  { key: "공격형", risks: [1, 2, 3, 4, 5, 6] },
 ];
 const investorRisksOf = (t) => INVESTOR_TYPES.find((x) => x.key === t)?.risks ?? null;
 
