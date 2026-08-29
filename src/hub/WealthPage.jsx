@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, Landmark, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert } from "lucide-react";
+import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert } from "lucide-react";
 import { HubShell } from "./HubShell";
-import { Sparkline } from "./components/MarketChart";
+import { Sparkline, MarketChart } from "./components/MarketChart";
 import { useWealth } from "./wealth/useWealth";
 import { useEtfLive } from "./wealth/useEtfLive";
 import { PRODUCTS, SOLD_RANK, riskMeta, riskName, pricingOf } from "./data/wealthProducts";
@@ -25,8 +25,9 @@ const RISK_DOT = {
 
 const SORTS = [
   { key: "sold", label: "인기순" },
-  { key: "return1y", label: "1년 수익률" },
-  { key: "return3y", label: "3년 수익률" },
+  { key: "return1y", label: "12개월 수익률" },
+  { key: "return6m", label: "6개월 수익률" },
+  { key: "return3m", label: "3개월 수익률" },
   { key: "fee", label: "보수 낮은순" },
   { key: "risk", label: "위험 낮은순" },
 ];
@@ -50,7 +51,7 @@ const sortProducts = (list, key) => {
   return arr;
 };
 
-const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll, inCompare, onCompare, compareFull }) => {
+const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll, onChart, inCompare, onCompare, compareFull }) => {
   const rk = riskMeta(product.risk);
   return (
     <div className="flex items-center gap-2 border-b border-slate-100 px-3 py-2.5 last:border-b-0 hover:bg-slate-50">
@@ -77,14 +78,25 @@ const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll, inCom
         </div>
       </button>
 
-      <div className="w-16 flex-shrink-0 text-right">
-        <div className={cn("text-[14px] font-bold tabular-nums", retColor(product.return1y))}>{pct(product.return1y)}</div>
-        <div className="text-[9px] text-slate-400">1년</div>
+      <div className="hidden w-14 flex-shrink-0 text-right lg:block">
+        <div className={cn("text-[12px] font-semibold tabular-nums", retColor(product.return3m))}>{pct(product.return3m)}</div>
+        <div className="text-[9px] text-slate-400">3개월</div>
       </div>
       <div className="hidden w-14 flex-shrink-0 text-right sm:block">
-        <div className={cn("text-[12px] font-semibold tabular-nums", retColor(product.return3y))}>{pct(product.return3y)}</div>
-        <div className="text-[9px] text-slate-400">3년</div>
+        <div className={cn("text-[12px] font-semibold tabular-nums", retColor(product.return6m))}>{pct(product.return6m)}</div>
+        <div className="text-[9px] text-slate-400">6개월</div>
       </div>
+      <div className="w-16 flex-shrink-0 text-right">
+        <div className={cn("text-[14px] font-bold tabular-nums", retColor(product.return1y))}>{pct(product.return1y)}</div>
+        <div className="text-[9px] text-slate-400">12개월</div>
+      </div>
+      <button
+        onClick={() => onChart(product)}
+        title="추이 그래프 보기"
+        className="hidden w-[52px] flex-shrink-0 rounded p-0.5 hover:bg-slate-100 sm:block"
+      >
+        <Sparkline series={genSeries(product, "6m")} width={52} height={22} />
+      </button>
       <div className="hidden w-12 flex-shrink-0 text-right md:block">
         <div className="text-[12px] font-semibold tabular-nums text-slate-600">{product.fee}%</div>
         <div className="text-[9px] text-slate-400">보수</div>
@@ -110,7 +122,7 @@ const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll, inCom
 const wonPrice = (v) => (v == null ? "—" : `${v.toLocaleString("ko-KR")}원`);
 
 /* ETF 행 — 실시간 현재가·등락·미니차트 중심(펀드 행과 성격이 다르다) */
-const EtfRow = ({ product, rank, quote, watched, onWatch, onDetail, onEnroll, inCompare, onCompare, compareFull }) => {
+const EtfRow = ({ product, rank, quote, watched, onWatch, onDetail, onEnroll, onChart, inCompare, onCompare, compareFull }) => {
   const rk = riskMeta(product.risk);
   const chg = quote?.changePct;
   return (
@@ -144,9 +156,13 @@ const EtfRow = ({ product, rank, quote, watched, onWatch, onDetail, onEnroll, in
         <div className={cn("text-[13px] font-bold tabular-nums", retColor(chg))}>{chg == null ? "—" : `${chg > 0 ? "+" : ""}${chg.toFixed(2)}%`}</div>
         <div className="text-[9px] text-slate-400">등락</div>
       </div>
-      <div className="hidden w-[52px] flex-shrink-0 sm:block">
+      <button
+        onClick={() => onChart(product)}
+        title="추이 그래프 보기"
+        className="hidden w-[52px] flex-shrink-0 rounded p-0.5 hover:bg-slate-100 sm:block"
+      >
         <Sparkline series={quote?.series} width={52} height={22} />
-      </div>
+      </button>
       <div className="hidden w-12 flex-shrink-0 text-right md:block">
         <div className="text-[12px] font-semibold tabular-nums text-slate-600">{product.fee}%</div>
         <div className="text-[9px] text-slate-400">보수</div>
@@ -228,6 +244,50 @@ const CompareModal = ({ products, onClose, onDetail }) => {
           </table>
         </div>
         <p className="border-t border-slate-100 px-5 py-2 text-[10.5px] text-slate-400">변동성·최대낙폭은 생성 시계열 기준 데모 지표입니다.</p>
+      </div>
+    </div>
+  );
+};
+
+/* ── 추이 그래프 모달 (리스트의 추이 클릭 시) ── */
+const CHART_PERIODS = [["1m", "1개월"], ["6m", "6개월"], ["1y", "1년"]];
+const ChartModal = ({ product, onClose }) => {
+  const [p, setP] = useState("1y");
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  const series = genSeries(product, p);
+  const ret = series.length >= 2 ? (series[series.length - 1].c / series[0].c - 1) * 100 : null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+      <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+          <div className="min-w-0">
+            <span className={cn("rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[product.type])}>{product.type}</span>
+            <span className="ml-1.5 text-[14px] font-bold text-slate-900">{product.name}</span>
+          </div>
+          <button onClick={onClose} aria-label="닫기" className="flex-shrink-0 rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="px-5 py-4">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="flex gap-1">
+              {CHART_PERIODS.map(([k, l]) => (
+                <button key={k} onClick={() => setP(k)} className={cn("rounded-md px-2 py-1 text-[11.5px] font-semibold transition-colors", p === k ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100")}>
+                  {l}
+                </button>
+              ))}
+            </div>
+            <span className={cn("text-[13px] font-bold tabular-nums", retColor(ret))}>기간 {pct(ret)}</span>
+          </div>
+          <div className="w-full overflow-x-auto">
+            <MarketChart series={series} label={product.name} width={480} height={180} interactive />
+          </div>
+          <p className="mt-2 text-[10.5px] text-slate-400">추이는 상품 특성 기반 생성 데모입니다.</p>
+        </div>
       </div>
     </div>
   );
@@ -379,6 +439,7 @@ export default function WealthPage() {
   const [compare, setCompare] = useState([]);
   const [showCompare, setShowCompare] = useState(false);
   const [presetProduct, setPresetProduct] = useState(null);
+  const [chartProduct, setChartProduct] = useState(null);
 
   useEffect(() => {
     const prev = document.title;
@@ -391,16 +452,15 @@ export default function WealthPage() {
   /* 상세에서 '고객 가입' 등으로 넘어오면 고객 탭 + 상품 프리셋. ?tab=fund/etf/trust도 지원 */
   useEffect(() => {
     const t = params.get("tab");
-    if (["customers", "fund", "etf", "trust"].includes(t)) setTab(t);
+    if (["customers", "fund", "etf"].includes(t)) setTab(t);
     const en = params.get("enroll");
     if (en) setPresetProduct(en);
   }, [params]);
 
-  /* 상품 유형별 탭 — ETF·펀드·신탁은 성격이 달라 아예 분리한다 */
+  /* 상품 유형별 탭 — 펀드·ETF는 성격이 달라 분리(신탁은 제외) */
   const PRODUCT_TABS = [
     { id: "fund", type: "펀드", label: "펀드", icon: Layers },
     { id: "etf", type: "ETF", label: "ETF", icon: CandlestickChart },
-    { id: "trust", type: "신탁", label: "신탁", icon: Landmark },
   ];
   const isCustomers = tab === "customers";
   const catalogType = (PRODUCT_TABS.find((t) => t.id === tab) || PRODUCT_TABS[0]).type;
@@ -453,7 +513,7 @@ export default function WealthPage() {
 
   const TABS = [
     ...PRODUCT_TABS.map((t) => ({ ...t, count: PRODUCTS.filter((p) => p.type === t.type).length })),
-    { id: "customers", label: "내 가입 고객", icon: Users, count: enrollments.length },
+    { id: "customers", label: "내 가입고객 관리", icon: Users, count: enrollments.length },
   ];
 
   return (
@@ -593,13 +653,15 @@ export default function WealthPage() {
                 <>
                   <span className="w-20 text-right">현재가</span>
                   <span className="w-16 text-right">등락</span>
-                  <span className="hidden w-[52px] sm:block" />
+                  <span className="hidden w-[52px] text-center sm:block">추이</span>
                   <span className="hidden w-12 text-right md:block">보수</span>
                 </>
               ) : (
                 <>
-                  <span className="w-16 text-right">1년</span>
-                  <span className="hidden w-14 text-right sm:block">3년</span>
+                  <span className="hidden w-14 text-right lg:block">3개월</span>
+                  <span className="hidden w-14 text-right sm:block">6개월</span>
+                  <span className="w-16 text-right">12개월</span>
+                  <span className="hidden w-[52px] text-center sm:block">추이</span>
                   <span className="hidden w-12 text-right md:block">보수</span>
                 </>
               )}
@@ -619,6 +681,7 @@ export default function WealthPage() {
                     onWatch={toggleWatch}
                     onDetail={goDetail}
                     onEnroll={goEnroll}
+                    onChart={setChartProduct}
                     inCompare={compare.includes(p.id)}
                     onCompare={toggleCompare}
                     compareFull={compare.length >= 3}
@@ -632,6 +695,7 @@ export default function WealthPage() {
                     onWatch={toggleWatch}
                     onDetail={goDetail}
                     onEnroll={goEnroll}
+                    onChart={setChartProduct}
                     inCompare={compare.includes(p.id)}
                     onCompare={toggleCompare}
                     compareFull={compare.length >= 3}
@@ -702,6 +766,8 @@ export default function WealthPage() {
           </div>
         </div>
       )}
+
+      {chartProduct && <ChartModal product={chartProduct} onClose={() => setChartProduct(null)} />}
 
       {showCompare && (
         <CompareModal
