@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert } from "lucide-react";
+import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert, UserCheck, Flame, Globe } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { Sparkline, MarketChart } from "./components/MarketChart";
 import { useWealth } from "./wealth/useWealth";
@@ -41,6 +41,31 @@ const THEMES = [
   { key: "domestic", label: "국내주식", match: (p) => p.category.includes("국내주식") },
   { key: "bond", label: "채권·안전자산", match: (p) => p.category.includes("채권") || p.category.includes("원자재") },
 ];
+
+/* 투자성향 → 판매 가능 위험등급(적합성 원칙, 데모 단순화).
+   성향이 공격적일수록 더 높은위험(낮은 등급 숫자)까지 허용된다. */
+const INVESTOR_TYPES = [
+  { key: "안정형", risks: [5, 6] },
+  { key: "중립형", risks: [3, 4, 5, 6] },
+  { key: "공격형", risks: [1, 2, 3, 4, 5, 6] },
+];
+const investorRisksOf = (t) => INVESTOR_TYPES.find((x) => x.key === t)?.risks ?? null;
+
+/* 지역·자산 필터 — 카테고리 문자열로 판정 */
+const REGIONS = [
+  { key: "미국", match: (p) => /미국/.test(p.category) },
+  { key: "중국", match: (p) => /중국/.test(p.category) },
+  { key: "국내", match: (p) => /국내/.test(p.category) },
+  { key: "유럽", match: (p) => /유럽/.test(p.category) },
+  { key: "일본", match: (p) => /일본/.test(p.category) },
+  { key: "신흥", match: (p) => /신흥/.test(p.category) },
+  { key: "채권", match: (p) => /채권|MMF/.test(p.category) },
+  { key: "금·원자재", match: (p) => /금|원자재/.test(p.category) },
+  { key: "리츠", match: (p) => /리츠/.test(p.category) },
+];
+
+/* 인기 태그(실제 iM 데이터) — 빠른 필터 */
+const POPULAR_TAGS = ["판매상위", "수익률상위", "신상품"];
 
 const sortProducts = (list, key) => {
   const arr = [...list];
@@ -432,6 +457,9 @@ export default function WealthPage() {
   const { isWatched, toggleWatch, watchlist, enrollments, enroll, removeEnroll, setTarget } = useWealth();
   const [tab, setTab] = useState("fund");
   const [riskFilter, setRiskFilter] = useState("전체");
+  const [investorType, setInvestorType] = useState("전체");
+  const [tagFilter, setTagFilter] = useState(null);
+  const [region, setRegion] = useState(null);
   const [theme, setTheme] = useState(null);
   const [watchOnly, setWatchOnly] = useState(false);
   const [sort, setSort] = useState("sold");
@@ -471,24 +499,37 @@ export default function WealthPage() {
     [catalogType]
   );
 
-  /* 탭(상품 유형)을 바꾸면 그 유형에 없는 위험등급 필터가 남아 빈 목록이 되지 않도록 초기화 */
+  /* 탭(상품 유형)을 바꾸면 그 유형에 없는 필터가 남아 빈 목록이 되지 않도록 초기화 */
   useEffect(() => {
     setRiskFilter("전체");
+    setTagFilter(null);
   }, [tab]);
 
+  const investorRisks = investorRisksOf(investorType);
+  /* 현재 유형에 실제 존재하는 인기 태그만 칩으로 노출(펀드에만 태그 있음) */
+  const availableTags = useMemo(() => {
+    const set = new Set();
+    for (const p of PRODUCTS) if (p.type === catalogType && Array.isArray(p.tags)) p.tags.forEach((t) => set.add(t));
+    return POPULAR_TAGS.filter((t) => set.has(t));
+  }, [catalogType]);
+
   const themeObj = THEMES.find((t) => t.key === theme);
+  const regionObj = REGIONS.find((r) => r.key === region);
   const products = useMemo(() => {
     const q = query.trim().toLowerCase();
     const filtered = PRODUCTS.filter(
       (p) =>
         p.type === catalogType &&
         (riskFilter === "전체" || p.risk === riskFilter) &&
+        (!investorRisks || investorRisks.includes(p.risk)) &&
+        (!tagFilter || (Array.isArray(p.tags) && p.tags.includes(tagFilter))) &&
+        (!regionObj || regionObj.match(p)) &&
         (!themeObj || themeObj.match(p)) &&
         (!watchOnly || watchlist.includes(p.id)) &&
         (!q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.company.toLowerCase().includes(q))
     );
     return sortProducts(filtered, sort);
-  }, [catalogType, riskFilter, themeObj, watchOnly, watchlist, sort, query]);
+  }, [catalogType, riskFilter, investorRisks, tagFilter, regionObj, themeObj, watchOnly, watchlist, sort, query]);
 
   /* ETF 탭에서만 실시간 시세 폴링(토스 프록시 → 실패 시 모의) */
   const isEtf = tab === "etf";
@@ -509,6 +550,17 @@ export default function WealthPage() {
   const goEnroll = (id) => {
     setPresetProduct(id);
     setTab("customers");
+  };
+
+  const anyFilter = theme || region || tagFilter || investorType !== "전체" || riskFilter !== "전체" || watchOnly || query.trim();
+  const resetFilters = () => {
+    setTheme(null);
+    setRegion(null);
+    setTagFilter(null);
+    setInvestorType("전체");
+    setRiskFilter("전체");
+    setWatchOnly(false);
+    setQuery("");
   };
 
   const TABS = [
@@ -558,8 +610,45 @@ export default function WealthPage() {
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="상품명·카테고리·운용사 검색" className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-3 text-[13px] focus:border-im-500 focus:outline-none" />
           </div>
 
-          {/* 검색 조건 — 테마 + 위험등급을 검색창 바로 아래 한 곳에 */}
+          {/* 검색 조건 — 검색창 바로 아래 한 곳에 모음 */}
           <div className="mb-3 space-y-2 rounded-lg border border-slate-200 bg-slate-50/60 p-2.5">
+            {/* 투자성향(적합성) */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex w-14 flex-shrink-0 items-center gap-1 text-[11px] font-bold text-slate-400">
+                <UserCheck className="h-3 w-3" />
+                투자성향
+              </span>
+              {["전체", ...INVESTOR_TYPES.map((t) => t.key)].map((k) => (
+                <button
+                  key={k}
+                  onClick={() => setInvestorType(k)}
+                  className={cn("rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors", investorType === k ? "bg-violet-600 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
+                >
+                  {k}
+                </button>
+              ))}
+              {investorType !== "전체" && <span className="text-[10.5px] text-slate-400">판매 가능 등급만 표시</span>}
+            </div>
+
+            {/* 인기 태그(펀드) */}
+            {availableTags.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex w-14 flex-shrink-0 items-center gap-1 text-[11px] font-bold text-slate-400">
+                  <Flame className="h-3 w-3" />
+                  인기
+                </span>
+                {availableTags.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTagFilter((cur) => (cur === t ? null : t))}
+                    className={cn("rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-colors", tagFilter === t ? "bg-rose-500 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="inline-flex w-14 flex-shrink-0 items-center gap-1 text-[11px] font-bold text-slate-400">
                 <Sparkles className="h-3 w-3" />
@@ -578,6 +667,24 @@ export default function WealthPage() {
                 </button>
               ))}
             </div>
+            {/* 지역·자산 */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex w-14 flex-shrink-0 items-center gap-1 text-[11px] font-bold text-slate-400">
+                <Globe className="h-3 w-3" />
+                지역·자산
+              </span>
+              {REGIONS.map((r) => (
+                <button
+                  key={r.key}
+                  onClick={() => setRegion((cur) => (cur === r.key ? null : r.key))}
+                  className={cn("rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-colors", region === r.key ? "bg-im-600 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
+                >
+                  {r.key}
+                </button>
+              ))}
+            </div>
+
+            {/* 위험등급 */}
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="inline-flex w-14 flex-shrink-0 items-center gap-1 text-[11px] font-bold text-slate-400">
                 <ShieldAlert className="h-3 w-3" />
@@ -593,17 +700,19 @@ export default function WealthPage() {
                 const rk = riskMeta(g);
                 const on = riskFilter === g;
                 const name = riskName(g);
+                const blocked = investorRisks && !investorRisks.includes(g);
                 return (
                   <button
                     key={g}
                     onClick={() => setRiskFilter(on ? "전체" : g)}
-                    title={rk.full}
+                    disabled={blocked}
+                    title={blocked ? `${rk.full} · 현재 투자성향으로는 판매 불가` : rk.full}
                     className={cn(
                       "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors",
-                      on ? RISK_ACTIVE[rk.tone] : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900"
+                      blocked ? "cursor-not-allowed bg-white text-slate-300 line-through ring-1 ring-inset ring-slate-100" : on ? RISK_ACTIVE[rk.tone] : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900"
                     )}
                   >
-                    <span className={cn("h-1.5 w-1.5 rounded-full", on ? "bg-white/80" : RISK_DOT[rk.tone])} />
+                    <span className={cn("h-1.5 w-1.5 rounded-full", blocked ? "bg-slate-200" : on ? "bg-white/80" : RISK_DOT[rk.tone])} />
                     {name}
                   </button>
                 );
@@ -620,6 +729,12 @@ export default function WealthPage() {
               <Star className={cn("h-3 w-3", watchOnly && "fill-white")} />
               관심만
             </button>
+            <span className="text-[11px] text-slate-400 tabular-nums">{products.length}개</span>
+            {anyFilter && (
+              <button onClick={resetFilters} className="text-[11.5px] font-semibold text-slate-400 hover:text-slate-700">
+                필터 초기화
+              </button>
+            )}
             <label className="ml-auto inline-flex items-center gap-1.5 text-[12px] text-slate-500">
               <ArrowUpDown className="h-3.5 w-3.5" />
               <select value={sort} onChange={(e) => setSort(e.target.value)} className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[12px] font-semibold text-slate-700 focus:border-im-500 focus:outline-none">
