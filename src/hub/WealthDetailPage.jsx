@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Star, ArrowLeft, Plus, SearchX } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { useWealth } from "./wealth/useWealth";
+import { useEtfLive } from "./wealth/useEtfLive";
 import { PRODUCT_BY_ID, SOLD_RANK } from "./data/wealthProducts";
 import { ProductDetailBody, TYPE_CLASS, eok } from "./wealth/ProductDetail";
 import { CARD } from "@shared/lib/surface";
@@ -21,6 +22,9 @@ export default function WealthDetailPage() {
       document.title = prev;
     };
   }, [product]);
+
+  /* ETF면 실시간 시세 폴링(훅은 항상 호출 — 조건은 인자로) */
+  const { quotes, live } = useEtfLive(product && product.type === "ETF" ? [product] : []);
 
   if (!product) {
     return (
@@ -87,7 +91,7 @@ export default function WealthDetailPage() {
 
         {/* 본문 */}
         <div className="px-5 py-5">
-          <ProductDetailBody product={product} />
+          <ProductDetailBody product={product} quote={quotes[product.id]} live={live} />
         </div>
 
         {/* 액션 */}

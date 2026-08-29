@@ -1,9 +1,21 @@
 import { useState } from "react";
-import { PieChart, Calculator } from "lucide-react";
+import { PieChart, Calculator, Activity, Megaphone } from "lucide-react";
 import { riskMeta, riskName } from "../data/wealthProducts";
 import { DETAIL_PERIODS, genSeries, seriesMetrics, holdingsFor, annualizedReturn, simulateSaving } from "../data/wealthDetail";
-import { MarketChart } from "../components/MarketChart";
+import { deriveEtfPitch, buildEtfScript } from "../data/wealthEtfLive";
+import { MarketChart, Sparkline } from "../components/MarketChart";
+import { CopyButton } from "@shared/components/CopyButton";
 import { cn } from "@shared/lib/format";
+
+/* 세일즈 포인트 톤 */
+const PITCH_TONE = {
+  up: "border-red-100 bg-red-50/60",
+  down: "border-blue-100 bg-blue-50/60",
+  im: "border-im-200 bg-im-50/60",
+  warn: "border-amber-200 bg-amber-50/60",
+  flat: "border-slate-200 bg-slate-50",
+  slate: "border-slate-200 bg-slate-50",
+};
 
 /* 투자상품 표시 공용 헬퍼 — 리스트·상세·비교가 함께 쓴다 */
 export const pct = (v) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(1)}%`);
@@ -20,11 +32,17 @@ const MetricCell = ({ label, value, tone }) => (
   </div>
 );
 
-/* 상세 본문(헤더·가입 버튼 제외) — 차트·지표·구성·수수료·적립식 시뮬레이터 */
-export function ProductDetailBody({ product }) {
+/* 상세 본문(헤더·가입 버튼 제외) — 차트·지표·구성·수수료·적립식 시뮬레이터.
+   ETF면 quote(실시간 시세)를 받아 실시간 헤더 + 세일즈 포인트 카드를 얹는다. */
+export function ProductDetailBody({ product, quote, live }) {
   const [cp, setCp] = useState("1y");
   const [monthly, setMonthly] = useState("50");
   const [years, setYears] = useState(5);
+
+  const isEtf = product.type === "ETF";
+  const chg = quote?.changePct;
+  const pitch = isEtf ? deriveEtfPitch(product, quote) : [];
+  const script = isEtf ? buildEtfScript(product, quote) : "";
 
   const rk = riskMeta(product.risk);
   const hasLongReturns = product.return3y != null || product.return5y != null;
@@ -40,6 +58,60 @@ export function ProductDetailBody({ product }) {
 
   return (
     <div className="space-y-5">
+      {/* ETF 실시간 시세 헤더 */}
+      {isEtf && (
+        <section className="rounded-xl border border-slate-200 bg-white p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <Activity className="h-3.5 w-3.5" />
+              실시간 시세
+            </span>
+            <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold", live ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500")}>
+              <span className={cn("h-1.5 w-1.5 rounded-full", live ? "animate-pulse bg-emerald-500" : "bg-slate-400")} />
+              {live ? "실시간" : "실시간(모의)"}
+            </span>
+          </div>
+          <div className="flex flex-wrap items-end gap-x-6 gap-y-2">
+            <div>
+              <div className="text-[24px] font-bold leading-none tabular-nums text-slate-900">{quote?.price != null ? `${quote.price.toLocaleString("ko-KR")}원` : "—"}</div>
+              <div className={cn("mt-1 text-[13px] font-bold tabular-nums", retColor(chg))}>{chg == null ? "—" : `${chg > 0 ? "+" : ""}${chg.toFixed(2)}%`}</div>
+            </div>
+            <div className="text-[11px] text-slate-500">
+              거래량 <span className="font-semibold tabular-nums text-slate-700">{quote?.volume != null ? quote.volume.toLocaleString("ko-KR") : "—"}</span>
+            </div>
+            <div className="ml-auto">
+              <Sparkline series={quote?.series} width={120} height={38} />
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 세일즈 포인트 카드 (ETF) */}
+      {isEtf && (
+        <section className="rounded-xl border border-im-200 bg-im-50/30 p-4">
+          <div className="mb-2.5 flex items-center gap-1.5 text-[12.5px] font-bold text-im-800">
+            <Megaphone className="h-4 w-4" />
+            세일즈 포인트
+            <span className="text-[10px] font-medium text-slate-400">· 실시간 흐름 + 상품 사실 기반 자동 생성</span>
+          </div>
+          <ul className="space-y-1.5">
+            {pitch.map((p, i) => (
+              <li key={i} className={cn("rounded-lg border px-3 py-2", PITCH_TONE[p.tone] || PITCH_TONE.slate)}>
+                <div className="text-[12.5px] font-bold text-slate-800">{p.title}</div>
+                <div className="mt-0.5 text-[11.5px] leading-relaxed text-slate-600">{p.detail}</div>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-3 rounded-lg border border-slate-200 bg-white p-3">
+            <div className="mb-1.5 flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-500">고객 응대 멘트</span>
+              <CopyButton text={script} />
+            </div>
+            <p className="text-[12.5px] leading-relaxed text-slate-700">{script}</p>
+          </div>
+        </section>
+      )}
+
       {/* 수익률 차트 */}
       <section>
         <div className="mb-2 flex items-center justify-between">

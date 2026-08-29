@@ -4,6 +4,7 @@ import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, Candlesti
 import { HubShell } from "./HubShell";
 import { Sparkline } from "./components/MarketChart";
 import { useWealth } from "./wealth/useWealth";
+import { useEtfLive } from "./wealth/useEtfLive";
 import { PRODUCTS, SOLD_RANK, riskMeta, riskName, pricingOf } from "./data/wealthProducts";
 import { genSeries, seriesMetrics } from "./data/wealthDetail";
 import { pct, retColor, won, eok, TYPE_CLASS, RISK_CLASS } from "./wealth/ProductDetail";
@@ -100,6 +101,61 @@ const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll, inCom
         onClick={() => onEnroll(product.id)}
         className="hidden flex-shrink-0 rounded-md bg-im-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-im-700 sm:block"
       >
+        가입
+      </button>
+    </div>
+  );
+};
+
+const wonPrice = (v) => (v == null ? "—" : `${v.toLocaleString("ko-KR")}원`);
+
+/* ETF 행 — 실시간 현재가·등락·미니차트 중심(펀드 행과 성격이 다르다) */
+const EtfRow = ({ product, rank, quote, watched, onWatch, onDetail, onEnroll, inCompare, onCompare, compareFull }) => {
+  const rk = riskMeta(product.risk);
+  const chg = quote?.changePct;
+  return (
+    <div className="flex items-center gap-2 border-b border-slate-100 px-3 py-2.5 last:border-b-0 hover:bg-slate-50">
+      <input
+        type="checkbox"
+        checked={inCompare}
+        disabled={!inCompare && compareFull}
+        onChange={() => onCompare(product.id)}
+        title="비교 담기"
+        className="h-3.5 w-3.5 flex-shrink-0 accent-im-600 disabled:opacity-30"
+      />
+      <span className={cn("w-6 flex-shrink-0 text-center text-[12px] font-bold tabular-nums", rank <= 3 ? "text-im-600" : "text-slate-400")}>{rank}</span>
+
+      <button onClick={() => onDetail(product.id)} className="min-w-0 flex-1 text-left">
+        <div className="flex items-center gap-1.5">
+          <span className={cn("rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[product.type])}>{product.type}</span>
+          <span className="truncate text-[13px] font-bold text-slate-900">{product.name}</span>
+        </div>
+        <div className="mt-0.5 flex items-center gap-1.5 text-[10.5px] text-slate-400">
+          <span>{product.category}</span>
+          <span className={cn("rounded px-1 py-0.5 font-semibold", RISK_CLASS[rk.tone])}>{riskName(product.risk)}</span>
+        </div>
+      </button>
+
+      <div className="w-20 flex-shrink-0 text-right">
+        <div className="text-[13px] font-bold tabular-nums text-slate-900">{wonPrice(quote?.price)}</div>
+        <div className="text-[9px] text-slate-400">현재가</div>
+      </div>
+      <div className="w-16 flex-shrink-0 text-right">
+        <div className={cn("text-[13px] font-bold tabular-nums", retColor(chg))}>{chg == null ? "—" : `${chg > 0 ? "+" : ""}${chg.toFixed(2)}%`}</div>
+        <div className="text-[9px] text-slate-400">등락</div>
+      </div>
+      <div className="hidden w-[52px] flex-shrink-0 sm:block">
+        <Sparkline series={quote?.series} width={52} height={22} />
+      </div>
+      <div className="hidden w-12 flex-shrink-0 text-right md:block">
+        <div className="text-[12px] font-semibold tabular-nums text-slate-600">{product.fee}%</div>
+        <div className="text-[9px] text-slate-400">보수</div>
+      </div>
+
+      <button onClick={() => onWatch(product.id)} aria-label="관심" className={cn("flex-shrink-0 rounded p-1.5 transition-colors", watched ? "text-amber-400" : "text-slate-300 hover:text-slate-400")}>
+        <Star className={cn("h-4 w-4", watched && "fill-amber-400")} />
+      </button>
+      <button onClick={() => onEnroll(product.id)} className="hidden flex-shrink-0 rounded-md bg-im-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-im-700 sm:block">
         가입
       </button>
     </div>
@@ -374,6 +430,10 @@ export default function WealthPage() {
     return sortProducts(filtered, sort);
   }, [catalogType, riskFilter, themeObj, watchOnly, watchlist, sort, query]);
 
+  /* ETF 탭에서만 실시간 시세 폴링(토스 프록시 → 실패 시 모의) */
+  const isEtf = tab === "etf";
+  const { quotes: etfQuotes, live: etfLive } = useEtfLive(isEtf ? products : []);
+
   const totals = useMemo(() => {
     const value = enrollments.reduce((s, e) => s + e.currentValue, 0);
     const principal = enrollments.reduce((s, e) => s + e.principal, 0);
@@ -510,37 +570,79 @@ export default function WealthPage() {
             })}
           </div>
 
+          {/* ETF 실시간 뱃지 */}
+          {isEtf && (
+            <div className="mb-2 flex items-center gap-1.5 text-[11px]">
+              <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-bold", etfLive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500")}>
+                <span className={cn("h-1.5 w-1.5 rounded-full", etfLive ? "animate-pulse bg-emerald-500" : "bg-slate-400")} />
+                {etfLive ? "실시간" : "실시간(모의)"}
+              </span>
+              <span className="text-slate-400">
+                {etfLive ? "토스증권 Open API 연동" : "API 키 미설정 — 모의 시세로 표시(배포 시 토스 키 연결하면 실시간)"}
+              </span>
+            </div>
+          )}
+
           {/* 리스트 */}
           <div className={cn(CARD, "overflow-hidden")}>
             <div className="flex items-center gap-2 border-b border-slate-100 bg-slate-50/60 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
               <span className="w-3.5" />
               <span className="w-6 text-center">{sort === "sold" ? "순위" : "#"}</span>
               <span className="flex-1">상품</span>
-              <span className="w-16 text-right">1년</span>
-              <span className="hidden w-14 text-right sm:block">3년</span>
-              <span className="hidden w-12 text-right md:block">보수</span>
+              {isEtf ? (
+                <>
+                  <span className="w-20 text-right">현재가</span>
+                  <span className="w-16 text-right">등락</span>
+                  <span className="hidden w-[52px] sm:block" />
+                  <span className="hidden w-12 text-right md:block">보수</span>
+                </>
+              ) : (
+                <>
+                  <span className="w-16 text-right">1년</span>
+                  <span className="hidden w-14 text-right sm:block">3년</span>
+                  <span className="hidden w-12 text-right md:block">보수</span>
+                </>
+              )}
               <span className="w-[3.9rem]" />
             </div>
             {products.length === 0 ? (
               <p className="px-3 py-12 text-center text-[13px] text-slate-400">{watchOnly ? "관심 등록한 상품이 없습니다." : "검색 결과가 없습니다."}</p>
             ) : (
-              products.map((p) => (
-                <ProductRow
-                  key={p.id}
-                  product={p}
-                  rank={SOLD_RANK[p.id]}
-                  watched={isWatched(p.id)}
-                  onWatch={toggleWatch}
-                  onDetail={goDetail}
-                  onEnroll={goEnroll}
-                  inCompare={compare.includes(p.id)}
-                  onCompare={toggleCompare}
-                  compareFull={compare.length >= 3}
-                />
-              ))
+              products.map((p) =>
+                isEtf ? (
+                  <EtfRow
+                    key={p.id}
+                    product={p}
+                    rank={SOLD_RANK[p.id]}
+                    quote={etfQuotes[p.id]}
+                    watched={isWatched(p.id)}
+                    onWatch={toggleWatch}
+                    onDetail={goDetail}
+                    onEnroll={goEnroll}
+                    inCompare={compare.includes(p.id)}
+                    onCompare={toggleCompare}
+                    compareFull={compare.length >= 3}
+                  />
+                ) : (
+                  <ProductRow
+                    key={p.id}
+                    product={p}
+                    rank={SOLD_RANK[p.id]}
+                    watched={isWatched(p.id)}
+                    onWatch={toggleWatch}
+                    onDetail={goDetail}
+                    onEnroll={goEnroll}
+                    inCompare={compare.includes(p.id)}
+                    onCompare={toggleCompare}
+                    compareFull={compare.length >= 3}
+                  />
+                )
+              )
             )}
           </div>
-          <p className="mt-2 text-[11px] text-slate-400">순위는 당행 누적 판매건수 기준(데모). 왼쪽 체크로 최대 3개까지 비교할 수 있습니다.</p>
+          <p className="mt-2 text-[11px] text-slate-400">
+            {isEtf ? "실시간 시세는 데모 표기입니다. 순위는 당행 누적 판매건수 기준. 왼쪽 체크로 최대 3개까지 비교." : "순위는 당행 누적 판매건수 기준(데모). 왼쪽 체크로 최대 3개까지 비교할 수 있습니다."}
+          </p>
         </section>
       ) : (
         <section className="space-y-4">
