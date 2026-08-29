@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, LineChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert } from "lucide-react";
+import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, Landmark, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { Sparkline } from "./components/MarketChart";
 import { useWealth } from "./wealth/useWealth";
-import { PRODUCTS, PRODUCT_TYPES, SOLD_RANK, riskMeta, riskName, pricingOf } from "./data/wealthProducts";
+import { PRODUCTS, SOLD_RANK, riskMeta, riskName, pricingOf } from "./data/wealthProducts";
 import { genSeries, seriesMetrics } from "./data/wealthDetail";
 import { pct, retColor, won, eok, TYPE_CLASS, RISK_CLASS } from "./wealth/ProductDetail";
 import { CARD } from "@shared/lib/surface";
@@ -314,8 +314,7 @@ export default function WealthPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { isWatched, toggleWatch, watchlist, enrollments, enroll, removeEnroll, setTarget } = useWealth();
-  const [tab, setTab] = useState("catalog");
-  const [typeFilter, setTypeFilter] = useState("전체");
+  const [tab, setTab] = useState("fund");
   const [riskFilter, setRiskFilter] = useState("전체");
   const [theme, setTheme] = useState(null);
   const [watchOnly, setWatchOnly] = useState(false);
@@ -333,29 +332,47 @@ export default function WealthPage() {
     };
   }, []);
 
-  /* 상세에서 '고객 가입' 등으로 넘어오면 고객 탭 + 상품 프리셋 */
+  /* 상세에서 '고객 가입' 등으로 넘어오면 고객 탭 + 상품 프리셋. ?tab=fund/etf/trust도 지원 */
   useEffect(() => {
-    if (params.get("tab") === "customers") setTab("customers");
+    const t = params.get("tab");
+    if (["customers", "fund", "etf", "trust"].includes(t)) setTab(t);
     const en = params.get("enroll");
     if (en) setPresetProduct(en);
   }, [params]);
 
-  /* 카탈로그에 실제 존재하는 위험등급만 필터로 노출(오름차순) */
-  const riskGrades = useMemo(() => [...new Set(PRODUCTS.map((p) => p.risk))].sort((a, b) => a - b), []);
+  /* 상품 유형별 탭 — ETF·펀드·신탁은 성격이 달라 아예 분리한다 */
+  const PRODUCT_TABS = [
+    { id: "fund", type: "펀드", label: "펀드", icon: Layers },
+    { id: "etf", type: "ETF", label: "ETF", icon: CandlestickChart },
+    { id: "trust", type: "신탁", label: "신탁", icon: Landmark },
+  ];
+  const isCustomers = tab === "customers";
+  const catalogType = (PRODUCT_TABS.find((t) => t.id === tab) || PRODUCT_TABS[0]).type;
+
+  /* 현재 탭(상품 유형)에 존재하는 위험등급만 필터로 노출(오름차순) */
+  const riskGrades = useMemo(
+    () => [...new Set(PRODUCTS.filter((p) => p.type === catalogType).map((p) => p.risk))].sort((a, b) => a - b),
+    [catalogType]
+  );
+
+  /* 탭(상품 유형)을 바꾸면 그 유형에 없는 위험등급 필터가 남아 빈 목록이 되지 않도록 초기화 */
+  useEffect(() => {
+    setRiskFilter("전체");
+  }, [tab]);
 
   const themeObj = THEMES.find((t) => t.key === theme);
   const products = useMemo(() => {
     const q = query.trim().toLowerCase();
     const filtered = PRODUCTS.filter(
       (p) =>
-        (typeFilter === "전체" || p.type === typeFilter) &&
+        p.type === catalogType &&
         (riskFilter === "전체" || p.risk === riskFilter) &&
         (!themeObj || themeObj.match(p)) &&
         (!watchOnly || watchlist.includes(p.id)) &&
         (!q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.company.toLowerCase().includes(q))
     );
     return sortProducts(filtered, sort);
-  }, [typeFilter, riskFilter, themeObj, watchOnly, watchlist, sort, query]);
+  }, [catalogType, riskFilter, themeObj, watchOnly, watchlist, sort, query]);
 
   const totals = useMemo(() => {
     const value = enrollments.reduce((s, e) => s + e.currentValue, 0);
@@ -375,7 +392,7 @@ export default function WealthPage() {
   };
 
   const TABS = [
-    { id: "catalog", label: "상품 탐색", icon: LineChart, count: null },
+    ...PRODUCT_TABS.map((t) => ({ ...t, count: PRODUCTS.filter((p) => p.type === t.type).length })),
     { id: "customers", label: "내 가입 고객", icon: Users, count: enrollments.length },
   ];
 
@@ -413,7 +430,7 @@ export default function WealthPage() {
         )}
       </div>
 
-      {tab === "catalog" ? (
+      {!isCustomers ? (
         <section>
           {/* 테마 큐레이션 */}
           <div className="mb-3 flex flex-wrap items-center gap-1.5">
@@ -441,17 +458,8 @@ export default function WealthPage() {
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="상품명·카테고리·운용사 검색" className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-3 text-[13px] focus:border-im-500 focus:outline-none" />
           </div>
 
-          {/* 필터 + 정렬 */}
+          {/* 필터 + 정렬 (유형은 상단 탭으로 분리) */}
           <div className="mb-3 flex flex-wrap items-center gap-1.5">
-            {["전체", ...PRODUCT_TYPES].map((t) => (
-              <button
-                key={t}
-                onClick={() => setTypeFilter(t)}
-                className={cn("rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors", typeFilter === t ? "bg-slate-800 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
-              >
-                {t}
-              </button>
-            ))}
             <button
               onClick={() => setWatchOnly((v) => !v)}
               className={cn("inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors", watchOnly ? "bg-amber-400 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
@@ -563,7 +571,7 @@ export default function WealthPage() {
       )}
 
       {/* 비교 담기 스티키 바 */}
-      {tab === "catalog" && compare.length > 0 && (
+      {!isCustomers && compare.length > 0 && (
         <div className="sticky bottom-4 mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-4 py-2.5 shadow-lg backdrop-blur">
           <span className="text-[12px] font-bold text-slate-700">비교 담기 {compare.length}/3</span>
           <div className="flex flex-wrap gap-1">
