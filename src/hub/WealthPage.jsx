@@ -552,33 +552,66 @@ export default function WealthPage() {
 
       {!isCustomers ? (
         <section>
-          {/* 테마 큐레이션 */}
-          <div className="mb-3 flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400">
-              <Sparkles className="h-3 w-3" />
-              테마
-            </span>
-            {THEMES.map((t) => (
-              <button
-                key={t.key}
-                onClick={() => setTheme((cur) => (cur === t.key ? null : t.key))}
-                className={cn(
-                  "rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-colors",
-                  theme === t.key ? "bg-im-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                )}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-
           {/* 검색 */}
           <div className="relative mb-2">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="상품명·카테고리·운용사 검색" className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-3 text-[13px] focus:border-im-500 focus:outline-none" />
           </div>
 
-          {/* 필터 + 정렬 (유형은 상단 탭으로 분리) */}
+          {/* 검색 조건 — 테마 + 위험등급을 검색창 바로 아래 한 곳에 */}
+          <div className="mb-3 space-y-2 rounded-lg border border-slate-200 bg-slate-50/60 p-2.5">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex w-14 flex-shrink-0 items-center gap-1 text-[11px] font-bold text-slate-400">
+                <Sparkles className="h-3 w-3" />
+                테마
+              </span>
+              {THEMES.map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => setTheme((cur) => (cur === t.key ? null : t.key))}
+                  className={cn(
+                    "rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-colors",
+                    theme === t.key ? "bg-im-600 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900"
+                  )}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex w-14 flex-shrink-0 items-center gap-1 text-[11px] font-bold text-slate-400">
+                <ShieldAlert className="h-3 w-3" />
+                위험등급
+              </span>
+              <button
+                onClick={() => setRiskFilter("전체")}
+                className={cn("rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors", riskFilter === "전체" ? "bg-slate-800 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
+              >
+                전체
+              </button>
+              {riskGrades.map((g) => {
+                const rk = riskMeta(g);
+                const on = riskFilter === g;
+                const name = riskName(g);
+                return (
+                  <button
+                    key={g}
+                    onClick={() => setRiskFilter(on ? "전체" : g)}
+                    title={rk.full}
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors",
+                      on ? RISK_ACTIVE[rk.tone] : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900"
+                    )}
+                  >
+                    <span className={cn("h-1.5 w-1.5 rounded-full", on ? "bg-white/80" : RISK_DOT[rk.tone])} />
+                    {name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 관심만 + 정렬 */}
           <div className="mb-3 flex flex-wrap items-center gap-1.5">
             <button
               onClick={() => setWatchOnly((v) => !v)}
@@ -595,39 +628,6 @@ export default function WealthPage() {
                 ))}
               </select>
             </label>
-          </div>
-
-          {/* 위험등급 필터 */}
-          <div className="mb-3 flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400">
-              <ShieldAlert className="h-3 w-3" />
-              위험등급
-            </span>
-            <button
-              onClick={() => setRiskFilter("전체")}
-              className={cn("rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors", riskFilter === "전체" ? "bg-slate-800 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
-            >
-              전체
-            </button>
-            {riskGrades.map((g) => {
-              const rk = riskMeta(g);
-              const on = riskFilter === g;
-              const name = riskName(g);
-              return (
-                <button
-                  key={g}
-                  onClick={() => setRiskFilter(on ? "전체" : g)}
-                  title={rk.full}
-                  className={cn(
-                    "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors",
-                    on ? RISK_ACTIVE[rk.tone] : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900"
-                  )}
-                >
-                  <span className={cn("h-1.5 w-1.5 rounded-full", on ? "bg-white/80" : RISK_DOT[rk.tone])} />
-                  {name}
-                </button>
-              );
-            })}
           </div>
 
           {/* ETF 실시간 뱃지 */}
