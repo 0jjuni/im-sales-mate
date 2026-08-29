@@ -3,6 +3,7 @@
    실서비스에서는 상품시스템(기준가·시세·판매실적)에서 조회해 대체한다. */
 
 import { FUNDS_HIGH } from "./wealthFundsHighRisk";
+import { FUNDS_MID } from "./wealthFundsMidRisk";
 
 export const PRODUCT_TYPES = ["펀드", "ETF", "신탁"];
 
@@ -10,6 +11,8 @@ export const PRODUCT_TYPES = ["펀드", "ETF", "신탁"];
 const RISK_FULL = {
   1: "매우높은위험", 2: "높은위험", 3: "다소높은위험", 4: "보통위험", 5: "낮은위험", 6: "매우낮은위험",
 };
+/* 위험등급명(뱃지·필터용) */
+export const riskName = (r) => RISK_FULL[r] ?? "위험";
 export const riskMeta = (r) => {
   const full = `${r}등급 ${RISK_FULL[r] ?? "위험"}`;
   if (r <= 2) return { label: `${r}등급`, full, tone: "rose" };
@@ -72,6 +75,7 @@ export const PRODUCTS = [
   // ── 펀드 (실제 iM뱅크 판매 상품) ──
   ...FUNDS,        // 매우높은위험(1등급) 28종
   ...FUNDS_HIGH,   // 높은위험(2등급) 108종
+  ...FUNDS_MID,    // 다소높은위험(3등급) 60종
 
   // ── 신탁 ──
   { id: "trust-bond", name: "특정금전신탁 (국공채)", type: "신탁", category: "채권", risk: 5, return1y: 3.8, return3y: 8.2, return5y: null, fee: 0.3, aum: 15000, company: "iM뱅크", since: "수시", sold: 720, desc: "국공채를 편입하는 맞춤형 금전신탁. 안정적인 이자수취가 목적." },

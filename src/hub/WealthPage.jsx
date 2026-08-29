@@ -4,7 +4,7 @@ import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, LineChart, Users,
 import { HubShell } from "./HubShell";
 import { Sparkline } from "./components/MarketChart";
 import { useWealth } from "./wealth/useWealth";
-import { PRODUCTS, PRODUCT_TYPES, SOLD_RANK, riskMeta, pricingOf } from "./data/wealthProducts";
+import { PRODUCTS, PRODUCT_TYPES, SOLD_RANK, riskMeta, riskName, pricingOf } from "./data/wealthProducts";
 import { genSeries, seriesMetrics } from "./data/wealthDetail";
 import { pct, retColor, won, eok, TYPE_CLASS, RISK_CLASS } from "./wealth/ProductDetail";
 import { CARD } from "@shared/lib/surface";
@@ -72,7 +72,7 @@ const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll, inCom
         </div>
         <div className="mt-0.5 flex items-center gap-1.5 text-[10.5px] text-slate-400">
           <span>{product.category}</span>
-          <span className={cn("rounded px-1 py-0.5 font-semibold", RISK_CLASS[rk.tone])}>{rk.label}</span>
+          <span className={cn("rounded px-1 py-0.5 font-semibold", RISK_CLASS[rk.tone])}>{riskName(product.risk)}</span>
         </div>
       </button>
 
@@ -119,7 +119,7 @@ const CompareModal = ({ products, onClose, onDetail }) => {
     ["6개월 수익률", ({ p }) => pct(p.return6m), ({ p }) => retColor(p.return6m)],
     ["1년 수익률", ({ p }) => pct(p.return1y), ({ p }) => retColor(p.return1y)],
     ["3년 수익률", ({ p }) => pct(p.return3y), ({ p }) => retColor(p.return3y)],
-    ["위험등급", ({ p }) => riskMeta(p.risk).label],
+    ["위험등급", ({ p }) => riskName(p.risk)],
     ["연 변동성", ({ m }) => (m.vol == null ? "—" : `${m.vol}%`)],
     ["최대낙폭", ({ m }) => (m.mdd == null ? "—" : `${m.mdd}%`), () => "text-blue-600"],
     ["총보수(연)", ({ p }) => `${p.fee}%`],
@@ -484,7 +484,7 @@ export default function WealthPage() {
             {riskGrades.map((g) => {
               const rk = riskMeta(g);
               const on = riskFilter === g;
-              const name = rk.full.replace(/^\d+등급\s*/, "");
+              const name = riskName(g);
               return (
                 <button
                   key={g}

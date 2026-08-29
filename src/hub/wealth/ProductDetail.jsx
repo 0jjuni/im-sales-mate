@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { PieChart, Calculator } from "lucide-react";
-import { riskMeta } from "../data/wealthProducts";
+import { riskMeta, riskName } from "../data/wealthProducts";
 import { DETAIL_PERIODS, genSeries, seriesMetrics, holdingsFor, annualizedReturn, simulateSaving } from "../data/wealthDetail";
 import { MarketChart } from "../components/MarketChart";
 import { cn } from "@shared/lib/format";
@@ -81,7 +81,7 @@ export function ProductDetailBody({ product }) {
               <MetricCell label="12개월 수익률" value={pct(product.return1y)} tone={retColor(product.return1y)} />
             </>
           )}
-          <MetricCell label="위험등급" value={rk.label} />
+          <MetricCell label="위험등급" value={riskName(product.risk)} />
           <MetricCell label="연 변동성" value={m3.vol == null ? "—" : `${m3.vol}%`} />
           <MetricCell label="최대낙폭" value={m3.mdd == null ? "—" : `${m3.mdd}%`} tone="text-blue-600" />
         </div>
