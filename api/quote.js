@@ -8,13 +8,16 @@
    src/hub/data/marketQuotes.js의 SYMBOLS와 함께 고칠 것. */
 
 const ALLOWED_SYMBOLS = new Set(["^KS11", "^KQ11", "^GSPC", "^IXIC", "KRW=X", "^TNX"]);
-/* 기간/간격도 허용 목록으로 제한(열린 프록시 방지). marketQuotes.js의 PERIODS와 맞춘다. */
-const ALLOWED_RANGE = new Set(["10d", "1y", "5y", "10y"]);
-const ALLOWED_INTERVAL = new Set(["1d", "1wk", "1mo"]);
+/* KRX 상장 종목(ETF 포함)은 6자리코드.KS/.KQ 형태만 허용(열린 프록시 방지) */
+const KRX_TICKER = /^\d{6}\.(KS|KQ)$/;
+const isAllowedSymbol = (s) => ALLOWED_SYMBOLS.has(s) || KRX_TICKER.test(s);
+/* 기간/간격도 허용 목록으로 제한(열린 프록시 방지). marketQuotes.js의 PERIODS + ETF 실시간용 추가 */
+const ALLOWED_RANGE = new Set(["1d", "5d", "10d", "1mo", "1y", "5y", "10y"]);
+const ALLOWED_INTERVAL = new Set(["2m", "5m", "15m", "1d", "1wk", "1mo"]);
 
 export default async function handler(req, res) {
   const symbol = req.query.symbol;
-  if (!ALLOWED_SYMBOLS.has(symbol)) {
+  if (!isAllowedSymbol(symbol)) {
     res.status(400).json({ error: "unknown symbol" });
     return;
   }

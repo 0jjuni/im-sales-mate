@@ -575,10 +575,10 @@ export default function WealthPage() {
             <div className="mb-2 flex items-center gap-1.5 text-[11px]">
               <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-bold", etfLive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500")}>
                 <span className={cn("h-1.5 w-1.5 rounded-full", etfLive ? "animate-pulse bg-emerald-500" : "bg-slate-400")} />
-                {etfLive ? "실시간" : "실시간(모의)"}
+                {etfLive ? "시세 조회" : "모의 시세"}
               </span>
               <span className="text-slate-400">
-                {etfLive ? "토스증권 Open API 연동" : "API 키 미설정 — 모의 시세로 표시(배포 시 토스 키 연결하면 실시간)"}
+                {etfLive ? "Yahoo Finance · 약 15분 지연 · 조회 전용" : "시세 조회 실패 — 모의로 표시"}
               </span>
             </div>
           )}

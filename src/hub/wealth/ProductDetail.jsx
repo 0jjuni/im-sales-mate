@@ -53,11 +53,11 @@ export function ProductDetailBody({ product, quote, live }) {
           <div className="mb-2 flex items-center justify-between">
             <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
               <Activity className="h-3.5 w-3.5" />
-              실시간 시세
+              시세
             </span>
             <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold", live ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500")}>
               <span className={cn("h-1.5 w-1.5 rounded-full", live ? "animate-pulse bg-emerald-500" : "bg-slate-400")} />
-              {live ? "실시간" : "실시간(모의)"}
+              {live ? "Yahoo · 약 15분 지연" : "모의 시세"}
             </span>
           </div>
           <div className="flex flex-wrap items-end gap-x-6 gap-y-2">
@@ -66,7 +66,7 @@ export function ProductDetailBody({ product, quote, live }) {
               <div className={cn("mt-1 text-[13px] font-bold tabular-nums", retColor(chg))}>{chg == null ? "—" : `${chg > 0 ? "+" : ""}${chg.toFixed(2)}%`}</div>
             </div>
             <div className="text-[11px] text-slate-500">
-              거래량 <span className="font-semibold tabular-nums text-slate-700">{quote?.volume != null ? quote.volume.toLocaleString("ko-KR") : "—"}</span>
+거래량 <span className="font-semibold tabular-nums text-slate-700">{quote?.volume ? quote.volume.toLocaleString("ko-KR") : "—"}</span>
             </div>
             <div className="ml-auto">
               <Sparkline series={quote?.series} width={120} height={38} />

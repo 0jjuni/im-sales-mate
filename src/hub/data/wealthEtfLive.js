@@ -1,13 +1,13 @@
-/* ETF 실시간 시세 계층.
-   ETF는 거래소 실시간 상품이므로 시세를 API로 당겨 온다.
-   - 배포에서 토스증권 Open API 서버리스 프록시(/api/toss)가 있으면 그걸 쓰고(live:true),
-     없거나 실패하면 '모의 실시간'으로 폴백한다(live:false, 화면엔 「실시간(모의)」 표기).
-   - 공모전 데모는 키 없이도 항상 돌아가야 하므로 모의 폴백이 기본, 키를 넣으면 진짜 실시간이 된다.
+/* ETF 시세 조회 계층(조회 전용 — 매매/주문 없음).
+   ETF는 거래소 상품이라 시세를 API로 당겨 온다.
+   - Yahoo Finance 차트 API를 조회한다(키·계좌·IP 허용목록 불필요, 배포에서도 동작).
+     dev는 Vite /yahoo 프록시, 배포는 /api/quote 서버리스가 대신 부른다(둘 다 같은 Yahoo API).
+   - KRX는 약 15분 지연 시세. 실패하면 '모의'로 폴백(화면엔 「모의 시세」 표기).
    ⚠ 실서비스에서는 사내 실시간 ETF 소스를 이 어댑터로 연결하면 화면은 그대로 동작한다. */
 
 import { riskName } from "./wealthProducts";
 
-/* 카탈로그 ETF ↔ KRX 종목코드(실제) — 토스/사내 API 조회 키 */
+/* 카탈로그 ETF ↔ KRX 종목코드(실제) — Yahoo 심볼 <code>.KS 조회 키 */
 export const ETF_KRX = {
   "etf-nasdaq": "133690", // TIGER 미국나스닥100
   "etf-sp500": "379800", // KODEX 미국S&P500
@@ -93,36 +93,61 @@ const mockQuote = (product) => {
 
 const mockQuotes = (etfs) => Object.fromEntries(etfs.map((p) => [p.id, mockQuote(p)]));
 
-/* 토스 프록시 응답 → 화면 형태로 정규화(스키마는 api/toss.js에서 맞춘다) */
-const normalize = (data, etfs) => {
-  const byCode = data.quotes || {};
-  const out = {};
-  for (const p of etfs) {
-    const q = byCode[ETF_KRX[p.id]];
-    if (!q) continue;
-    out[p.id] = {
-      price: q.price,
-      changePct: q.changePct,
-      volume: q.volume ?? null,
-      series: Array.isArray(q.series) ? q.series : [],
-    };
-  }
-  return out;
+/* dev는 Vite /yahoo 프록시, 배포는 /api/quote 서버리스 (둘 다 Yahoo 차트 API) */
+const chartUrl = (code, interval, range) =>
+  import.meta.env.DEV
+    ? `/yahoo/v8/finance/chart/${code}.KS?interval=${interval}&range=${range}`
+    : `/api/quote?symbol=${code}.KS&interval=${interval}&range=${range}`;
+
+/* Yahoo 차트 JSON → {price, changePct, volume, series}.
+   intraday(분봉)면 등락은 전일종가(meta.chartPreviousClose) 대비, 일봉이면 직전 종가 대비 */
+const parseYahoo = (json, useMetaPrev) => {
+  const r = json?.chart?.result?.[0];
+  const ts = r?.timestamp;
+  const q = r?.indicators?.quote?.[0];
+  const closes = q?.close;
+  if (!ts || !closes) return null;
+  const rows = ts.map((t, i) => [t, closes[i], q?.volume?.[i]]).filter(([, c]) => c != null);
+  if (rows.length < 1) return null;
+  const price = rows[rows.length - 1][1];
+  const secondLast = rows.length >= 2 ? rows[rows.length - 2][1] : null;
+  const metaPrev = r?.meta?.chartPreviousClose ?? null;
+  const prev = useMetaPrev ? metaPrev ?? secondLast ?? price : secondLast ?? metaPrev ?? price;
+  const lastVol = [...rows].reverse().find(([, , v]) => v != null)?.[2] ?? null;
+  return {
+    price: Math.round(price),
+    changePct: prev ? Math.round(((price - prev) / prev) * 10000) / 100 : 0,
+    volume: lastVol,
+    series: rows.map(([t, c]) => ({ t: t * 1000, c })),
+  };
 };
 
-/* ETF 시세 조회 — 프록시 우선, 실패 시 모의. 항상 {live, quotes} 반환 */
+/* 한 종목 조회 — 장중이면 분봉(1d/5m), 장외·주말이면 일봉(1mo/1d)으로 폴백 */
+const fetchOne = async (product) => {
+  const code = ETF_KRX[product.id];
+  if (!code) return null;
+  for (const [interval, range] of [["5m", "1d"], ["1d", "1mo"]]) {
+    try {
+      const res = await fetch(chartUrl(code, interval, range), { cache: "no-store" });
+      if (!res.ok) continue;
+      const parsed = parseYahoo(await res.json(), interval === "5m");
+      if (parsed && parsed.series.length >= 2) return parsed;
+    } catch {
+      /* 다음 폴백 */
+    }
+  }
+  return null;
+};
+
+/* ETF 시세 조회(조회 전용) — Yahoo(약 15분 지연). 실패 시 모의. 항상 {live, quotes} 반환 */
 export async function fetchEtfQuotes(etfs) {
   if (!etfs || etfs.length === 0) return { live: false, quotes: {} };
   try {
-    const codes = etfs.map((p) => ETF_KRX[p.id]).filter(Boolean).join(",");
-    const res = await fetch(`/api/toss?symbols=${codes}`, { cache: "no-store" });
-    if (res.ok) {
-      const data = await res.json();
-      const quotes = normalize(data, etfs);
-      if (Object.keys(quotes).length) return { live: true, quotes };
-    }
+    const entries = await Promise.all(etfs.map(async (p) => [p.id, await fetchOne(p)]));
+    const quotes = Object.fromEntries(entries.filter(([, v]) => v));
+    if (Object.keys(quotes).length) return { live: true, quotes };
   } catch {
-    /* 프록시 없음/실패 → 모의 */
+    /* 조회 실패 → 모의 */
   }
   return { live: false, quotes: mockQuotes(etfs) };
 }
