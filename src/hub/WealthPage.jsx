@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, LineChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock } from "lucide-react";
+import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, LineChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { Sparkline } from "./components/MarketChart";
 import { useWealth } from "./wealth/useWealth";
@@ -9,6 +9,18 @@ import { genSeries, seriesMetrics } from "./data/wealthDetail";
 import { pct, retColor, won, eok, TYPE_CLASS, RISK_CLASS } from "./wealth/ProductDetail";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
+
+/* 위험등급 필터 버튼 색 — riskMeta tone(rose/amber/slate)에 맞춤 */
+const RISK_ACTIVE = {
+  rose: "bg-rose-500 text-white",
+  amber: "bg-amber-500 text-white",
+  slate: "bg-slate-600 text-white",
+};
+const RISK_DOT = {
+  rose: "bg-rose-400",
+  amber: "bg-amber-400",
+  slate: "bg-slate-400",
+};
 
 const SORTS = [
   { key: "sold", label: "인기순" },
@@ -304,6 +316,7 @@ export default function WealthPage() {
   const { isWatched, toggleWatch, watchlist, enrollments, enroll, removeEnroll, setTarget } = useWealth();
   const [tab, setTab] = useState("catalog");
   const [typeFilter, setTypeFilter] = useState("전체");
+  const [riskFilter, setRiskFilter] = useState("전체");
   const [theme, setTheme] = useState(null);
   const [watchOnly, setWatchOnly] = useState(false);
   const [sort, setSort] = useState("sold");
@@ -327,18 +340,22 @@ export default function WealthPage() {
     if (en) setPresetProduct(en);
   }, [params]);
 
+  /* 카탈로그에 실제 존재하는 위험등급만 필터로 노출(오름차순) */
+  const riskGrades = useMemo(() => [...new Set(PRODUCTS.map((p) => p.risk))].sort((a, b) => a - b), []);
+
   const themeObj = THEMES.find((t) => t.key === theme);
   const products = useMemo(() => {
     const q = query.trim().toLowerCase();
     const filtered = PRODUCTS.filter(
       (p) =>
         (typeFilter === "전체" || p.type === typeFilter) &&
+        (riskFilter === "전체" || p.risk === riskFilter) &&
         (!themeObj || themeObj.match(p)) &&
         (!watchOnly || watchlist.includes(p.id)) &&
         (!q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.company.toLowerCase().includes(q))
     );
     return sortProducts(filtered, sort);
-  }, [typeFilter, themeObj, watchOnly, watchlist, sort, query]);
+  }, [typeFilter, riskFilter, themeObj, watchOnly, watchlist, sort, query]);
 
   const totals = useMemo(() => {
     const value = enrollments.reduce((s, e) => s + e.currentValue, 0);
@@ -450,6 +467,38 @@ export default function WealthPage() {
                 ))}
               </select>
             </label>
+          </div>
+
+          {/* 위험등급 필터 */}
+          <div className="mb-3 flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400">
+              <ShieldAlert className="h-3 w-3" />
+              위험등급
+            </span>
+            <button
+              onClick={() => setRiskFilter("전체")}
+              className={cn("rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors", riskFilter === "전체" ? "bg-slate-800 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
+            >
+              전체
+            </button>
+            {riskGrades.map((g) => {
+              const rk = riskMeta(g);
+              const on = riskFilter === g;
+              return (
+                <button
+                  key={g}
+                  onClick={() => setRiskFilter(on ? "전체" : g)}
+                  title={rk.full}
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors",
+                    on ? RISK_ACTIVE[rk.tone] : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900"
+                  )}
+                >
+                  <span className={cn("h-1.5 w-1.5 rounded-full", on ? "bg-white/80" : RISK_DOT[rk.tone])} />
+                  {g}등급
+                </button>
+              );
+            })}
           </div>
 
           {/* 리스트 */}
