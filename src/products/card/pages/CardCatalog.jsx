@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { CreditCard, FileText, QrCode, Search, X, Heart } from "lucide-react";
-import { CARDS, CARD_TYPES, ALL_TAGS } from "../data/cards";
+import { CARDS, CARD_TYPES, SEGMENTS, ALL_TAGS } from "../data/cards";
 import { cn } from "@shared/lib/format";
 
 /* 관심 카드 — 뷰어별 로컬 저장(직원 개인 브라우저) */
@@ -120,6 +120,7 @@ const CardRow = ({ card, fav, onFav }) => {
 };
 
 export const CardCatalog = () => {
+  const [segment, setSegment] = useState("personal");
   const [type, setType] = useState("credit");
   const [query, setQuery] = useState("");
   const [activeTags, setActiveTags] = useState([]);
@@ -140,7 +141,10 @@ export const CardCatalog = () => {
       return next;
     });
 
-  const byType = useMemo(() => CARDS.filter((c) => c.type === type), [type]);
+  const byType = useMemo(
+    () => CARDS.filter((c) => c.segment === segment && c.type === type),
+    [segment, type]
+  );
 
   /* 현재 탭 카드들이 실제로 가진 태그만, 마스터 순서대로 노출 */
   const availableTags = useMemo(() => {
@@ -173,23 +177,42 @@ export const CardCatalog = () => {
         </p>
       </div>
 
-      {/* 신용/체크 탭 */}
-      <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1">
-        {CARD_TYPES.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => {
-              setType(t.id);
-              setActiveTags([]);
-            }}
-            className={cn(
-              "rounded-md px-4 py-1.5 text-[13px] font-bold transition-colors",
-              type === t.id ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
-            )}
-          >
-            {t.label}
-          </button>
-        ))}
+      {/* 개인/기업 · 신용/체크 */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1">
+          {SEGMENTS.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => {
+                setSegment(s.id);
+                setActiveTags([]);
+              }}
+              className={cn(
+                "rounded-md px-4 py-1.5 text-[13px] font-bold transition-colors",
+                segment === s.id ? "bg-slate-900 text-white shadow-sm" : "text-slate-500 hover:text-slate-700"
+              )}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+        <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1">
+          {CARD_TYPES.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => {
+                setType(t.id);
+                setActiveTags([]);
+              }}
+              className={cn(
+                "rounded-md px-4 py-1.5 text-[13px] font-bold transition-colors",
+                type === t.id ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 검색 */}

@@ -19,6 +19,12 @@
 
 export const CARD_MODULE = { id: "card", name: "카드", accent: "rose" };
 
+/* 대상 구분 — 개인 / 기업(개인사업자·법인) */
+export const SEGMENTS = [
+  { id: "personal", label: "개인" },
+  { id: "biz", label: "기업" },
+];
+
 export const CARD_TYPES = [
   { id: "credit", label: "신용카드" },
   { id: "check", label: "체크카드" },
@@ -56,6 +62,7 @@ const SEVEN = {
   name: "iM 세븐 캐쉬백 카드",
   issuer: "iM뱅크",
   type: "credit",
+  segment: "personal",
   image: IMG("im-seven-cashback.webp"),
   blurb: "3만원 이상 일시불 이용 시 7% 할인",
   tags: ["어디서나 할인"],
@@ -156,6 +163,20 @@ const INFO = {
   "imc-dandi": { blurb: "아웃백·VIPS 10% 할인", tags: ["외식", "주유"] },
   "imc-happy-check": { blurb: "다양한 국가 바우처를 국민행복카드 하나로", tags: ["온라인쇼핑", "외식"] },
   "imc-young": { blurb: "스타벅스 20% 할인", tags: ["편의점", "커피", "외식", "영화"] },
+
+  // 기업(개인사업자·법인) 신용
+  "im-biz-soho": { blurb: "개인사업자를 위한 전월 실적 조건 없는 사업지원 서비스", tags: [] },
+  "im-biz-plus": { blurb: "법인/개인사업자에 최적화된 혜택", tags: [] },
+  "im-giup": { blurb: "중소기업의 든든한 동반자", tags: ["편의점", "이동통신"] },
+  "im-special-ev": { blurb: "안전한 충전도 특별한 적립도 한번에", tags: ["전기차/수소차"] },
+  "im-special-point": { blurb: "심플한 사용도 특별한 적립도 한번에", tags: ["어디서나 적립"] },
+  "im-pharmco-cashback": { blurb: "의약품 구입대금 결제 시 1% 캐쉬백", tags: [] },
+  "im-biz-skypass": { blurb: "비즈니스 성공도, 마일리지 적립도 한번에", tags: ["항공 마일리지"] },
+  "im-special-oil": { blurb: "안전한 주유도 특별한 적립도 한번에", tags: ["주유"] },
+  "im-autobill": { blurb: "스마트한 경비관리는 오토빌카드", tags: [] },
+  "im-pharmco-point": { blurb: "의약품 구입대금 결제 시 1% 포인트", tags: [] },
+  "im-biz-skypass-corp": { blurb: "비즈니스 성공도, 마일리지 적립도 한번에 (법인크레딧)", tags: ["항공 마일리지"] },
+  "im-soho": { blurb: "1% 캐시백·부가세 환급·주유·쇼핑 할인까지", tags: ["어디서나 할인", "대중교통", "백화점", "항공 마일리지"] },
 };
 
 /* 대표 혜택 컬럼 — 목록 중앙에 [라벨 / 값] 2~3개로 노출(카드고릴라식).
@@ -220,7 +241,23 @@ const HAS_PDF = new Set([
   "imc-young", "imc-happypoint", "imc-dandi", "imc-happy-check",
 ]);
 
-const toCard = ([file, name, type]) => {
+/* 기업(개인사업자·법인) 카드 — 신용. [이미지파일, 카드명, 신용/체크] */
+const BIZ_CATALOG = [
+  ["im-biz-soho.png", "iM biz 소호(SOHO)카드", "credit"],
+  ["im-biz-plus.png", "iM BIZ+카드", "credit"],
+  ["im-giup.png", "iM 氣UP!카드", "credit"],
+  ["im-special-ev.png", "iM Special EV카드", "credit"],
+  ["im-special-point.png", "iM Special POINT카드", "credit"],
+  ["im-pharmco-cashback.png", "의약품결제전용 팜코카드(캐쉬백형)", "credit"],
+  ["im-biz-skypass.png", "biz SKYPASS카드", "credit"],
+  ["im-special-oil.png", "iM Special OIL카드", "credit"],
+  ["im-autobill.png", "iM AUTOBILL카드", "credit"],
+  ["im-pharmco-point.png", "의약품결제전용 팜코카드(포인트형)", "credit"],
+  ["im-biz-skypass-corp.png", "biz SKYPASS카드(법인크레딧)", "credit"],
+  ["im-soho.png", "iM SOHO 카드", "credit"],
+];
+
+const toCard = (segment) => ([file, name, type]) => {
   const id = file.replace(/\.(webp|png|jpg|jpeg)$/i, "");
   if (id === "im-seven-cashback") return SEVEN;
   const info = INFO[id] || {};
@@ -228,6 +265,7 @@ const toCard = ([file, name, type]) => {
     id,
     name,
     issuer: "iM뱅크",
+    segment,
     type,
     image: IMG(file),
     blurb: info.blurb || "",
@@ -243,7 +281,10 @@ const toCard = ([file, name, type]) => {
   };
 };
 
-export const CARDS = CATALOG.map(toCard);
+export const CARDS = [
+  ...CATALOG.map(toCard("personal")),
+  ...BIZ_CATALOG.map(toCard("biz")),
+];
 
 export const findCard = (id) => CARDS.find((c) => c.id === id) ?? null;
 
