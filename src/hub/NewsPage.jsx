@@ -18,7 +18,7 @@ export default function NewsPage() {
 
   return (
     <HubShell>
-      <MorningNews data={data} status={status} onReload={reload} />
+      <MorningNews data={data} status={status} onReload={reload} full />
     </HubShell>
   );
 }

@@ -9,6 +9,7 @@ import {
   ChevronUp,
   LineChart,
   CalendarClock,
+  Search,
 } from "lucide-react";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
@@ -183,14 +184,26 @@ const SkeletonItem = () => (
   </li>
 );
 
-export function MorningNews({ data, status, onReload }) {
+export function MorningNews({ data, status, onReload, full = false }) {
   const [showOlder, setShowOlder] = useState(false);
   const [showAllRecent, setShowAllRecent] = useState(false);
+  /* 전체(뉴스 탭) 모드 필터 — 누적되어도 기간·카테고리·검색으로 좁힌다 */
+  const [cat, setCat] = useState("전체");
+  const [period, setPeriod] = useState("전체");
+  const [q, setQ] = useState("");
 
   const items = status === "ready" ? data?.news ?? [] : [];
   const recent = items.filter((n) => daysAgo(n.date) <= WEEK);
   const older = items.filter((n) => daysAgo(n.date) > WEEK);
   const mustCount = recent.filter((n) => n.importance === "high").length;
+
+  const categories = ["전체", ...Array.from(new Set(items.map((n) => n.category)))];
+  const q2 = q.trim().toLowerCase();
+  const fullList = items
+    .filter((n) => period === "전체" || (period === "recent" ? daysAgo(n.date) <= WEEK : daysAgo(n.date) > WEEK))
+    .filter((n) => cat === "전체" || n.category === cat)
+    .filter((n) => !q2 || [n.headline, n.summary, n.pbNote].some((t) => (t || "").toLowerCase().includes(q2)))
+    .sort((a, b) => (b.date || "").localeCompare(a.date || ""));
 
   /* 접힌 상태 노출 규칙 — 정확히 RECENT_PREVIEW건만.
      「필수」를 먼저 채우고(놓치면 안 되니), 남는 자리만 최신순 일반 뉴스로 채운다.
@@ -229,7 +242,9 @@ export function MorningNews({ data, status, onReload }) {
             </div>
             <p className="mt-0.5 text-[12px] text-slate-500">
               {status === "ready" && data
-                ? `${fmtDate(data.date)} · 최근 7일 · 필수 ${mustCount}건`
+                ? full
+                  ? `${fmtDate(data.date)} 기준 · 전체 ${items.length}건`
+                  : `${fmtDate(data.date)} · 최근 7일 · 필수 ${mustCount}건`
                 : "불러오는 중…"}
             </p>
           </div>
@@ -288,6 +303,43 @@ export function MorningNews({ data, status, onReload }) {
         </div>
       )}
 
+      {/* 필터 (뉴스 탭 전용) — 기간·카테고리·검색으로 누적 뉴스를 좁힌다 */}
+      {full && status !== "error" && (
+        <div className="space-y-2 border-b border-slate-100 bg-white px-5 py-3">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="뉴스 검색 (헤드라인·요약·상담포인트)"
+              className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-3 text-[13px] focus:border-im-500 focus:outline-none"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {[["전체", "전체"], ["recent", "최근 7일"], ["past", "지난"]].map(([k, l]) => (
+              <button
+                key={k}
+                onClick={() => setPeriod(k)}
+                className={cn("rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors", period === k ? "bg-slate-800 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
+              >
+                {l}
+              </button>
+            ))}
+            <span className="mx-1 h-4 w-px bg-slate-200" />
+            {categories.map((c) => (
+              <button
+                key={c}
+                onClick={() => setCat(c)}
+                className={cn("rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-colors", cat === c ? "bg-im-600 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
+              >
+                {c}
+              </button>
+            ))}
+            <span className="ml-auto text-[11px] tabular-nums text-slate-400">{fullList.length}건</span>
+          </div>
+        </div>
+      )}
+
       {/* 본문 */}
       {status === "error" ? (
         <div className="flex items-center gap-2 px-5 py-8 text-sm text-slate-600">
@@ -298,6 +350,12 @@ export function MorningNews({ data, status, onReload }) {
         <ul className="divide-y divide-slate-100">
           {status === "loading" ? (
             Array.from({ length: 3 }).map((_, i) => <SkeletonItem key={i} />)
+          ) : full ? (
+            fullList.length ? (
+              fullList.map((item) => <NewsItem key={item.id} item={item} />)
+            ) : (
+              <li className="px-5 py-10 text-center text-[12.5px] text-slate-400">조건에 맞는 뉴스가 없습니다.</li>
+            )
           ) : (
             <>
               {shownRecent.map((item) => (
