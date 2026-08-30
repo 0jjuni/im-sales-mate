@@ -32,9 +32,13 @@ export const buildQrPath = (text) => {
    gradient id는 QR별로 유일해야 한다. */
 const CenterLogo = ({ modules, uid }) => {
   const c = modules / 2;
-  const w = modules * 0.62; // 심볼 가로 폭(코드의 60% 안팎)
-  const scale = w / 120; // IMSymbol 원본 viewBox 120×76
-  const h = 76 * scale;
+  /* 심볼 도안은 viewBox(120×76) 안에서 실제 내용이 x 0~96, y 28~72에 있다.
+     내용 실제 중심(48,50)을 QR 중앙에 맞춰야 시각적으로 가운데로 온다. */
+  const CX = 48;
+  const CY = 50;
+  const CW = 96; // 내용 실제 폭
+  const contentW = modules * 0.66; // 코드 폭 대비 로고 크기
+  const s = contentW / CW;
   const gid = `qr-im-${uid}`;
   return (
     <g opacity="0.22">
@@ -45,7 +49,7 @@ const CenterLogo = ({ modules, uid }) => {
           <stop offset="1" stopColor="#A5CE39" />
         </linearGradient>
       </defs>
-      <g transform={`translate(${c - w / 2} ${c - h / 2}) scale(${scale})`}>
+      <g transform={`translate(${c - CX * s} ${c - CY * s}) scale(${s})`}>
         <rect x="0" y="43" width="17" height="29" fill="#00C4A4" />
         <path d="M24 28 A44 44 0 0 1 68 72 L49 72 A25 25 0 0 0 24 47 Z" fill={`url(#${gid})`} />
         <path d="M96 28 A44 44 0 0 0 52 72 L71 72 A25 25 0 0 1 96 47 Z" fill="#00C4A4" />
