@@ -18,9 +18,9 @@ import { getEconomicCalendar } from "../data/economicCalendar";
 /* 오늘 아침 꼭 알아야 할 뉴스 — PB/VM 출근 브리핑.
    금융 리서치 노트 톤: 채도 높은 배너 대신 흰 마스트헤드 + 타이포 위계.
    구성: ① 오늘의 시황 한 줄(마켓 데이터 → PB 관점 해석) ② 뉴스(사실+상담포인트+관련상품).
-   최근 7일치를 기본 노출하고, 그보다 오래된 것은 「지난 뉴스」로 접는다. */
+   최근 1달치를 기본 노출하고, 그보다 오래된 것은 「지난 뉴스」로 접는다. */
 
-const WEEK = 7;
+const RECENT_DAYS = 30;
 /* 최근 뉴스도 길어지므로 기본은 미리보기 몇 건만 펼치고 나머지는 접는다.
    단, 「필수」로 표시된 건은 접힌 상태에서도 항상 노출한다(출근 브리핑 성격상 놓치면 안 됨). */
 const RECENT_PREVIEW = 3;
@@ -193,14 +193,14 @@ export function MorningNews({ data, status, onReload, full = false }) {
   const [q, setQ] = useState("");
 
   const items = status === "ready" ? data?.news ?? [] : [];
-  const recent = items.filter((n) => daysAgo(n.date) <= WEEK);
-  const older = items.filter((n) => daysAgo(n.date) > WEEK);
+  const recent = items.filter((n) => daysAgo(n.date) <= RECENT_DAYS);
+  const older = items.filter((n) => daysAgo(n.date) > RECENT_DAYS);
   const mustCount = recent.filter((n) => n.importance === "high").length;
 
   const categories = ["전체", ...Array.from(new Set(items.map((n) => n.category)))];
   const q2 = q.trim().toLowerCase();
   const fullList = items
-    .filter((n) => period === "전체" || (period === "recent" ? daysAgo(n.date) <= WEEK : daysAgo(n.date) > WEEK))
+    .filter((n) => period === "전체" || (period === "recent" ? daysAgo(n.date) <= RECENT_DAYS : daysAgo(n.date) > RECENT_DAYS))
     .filter((n) => cat === "전체" || n.category === cat)
     .filter((n) => !q2 || [n.headline, n.summary, n.pbNote].some((t) => (t || "").toLowerCase().includes(q2)))
     .sort((a, b) => (b.date || "").localeCompare(a.date || ""));
@@ -244,7 +244,7 @@ export function MorningNews({ data, status, onReload, full = false }) {
               {status === "ready" && data
                 ? full
                   ? `${fmtDate(data.date)} 기준 · 전체 ${items.length}건`
-                  : `${fmtDate(data.date)} · 최근 7일 · 필수 ${mustCount}건`
+                  : `${fmtDate(data.date)} · 최근 1달 · 필수 ${mustCount}건`
                 : "불러오는 중…"}
             </p>
           </div>
@@ -316,7 +316,7 @@ export function MorningNews({ data, status, onReload, full = false }) {
             />
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
-            {[["전체", "전체"], ["recent", "최근 7일"], ["past", "지난"]].map(([k, l]) => (
+            {[["전체", "전체"], ["recent", "최근 1달"], ["past", "지난"]].map(([k, l]) => (
               <button
                 key={k}
                 onClick={() => setPeriod(k)}
@@ -365,7 +365,7 @@ export function MorningNews({ data, status, onReload, full = false }) {
               {recent.length === 0 && (
                 <li className="px-5 py-6 text-center text-[12.5px] text-slate-400">
                   {older.length > 0
-                    ? "최근 7일 새 브리핑이 없습니다."
+                    ? "최근 1달 새 브리핑이 없습니다."
                     : "표시할 브리핑이 없습니다."}
                 </li>
               )}

@@ -164,6 +164,19 @@ const BRIEFING = {
   ],
 };
 
+/* 중복 뉴스 제거 — 헤드라인을 정규화(공백·문장부호 제거)해 같은 내용이면 최신 날짜 1건만 남긴다.
+   시트가 사람 손으로 갱신되다 보니 같은 이슈가 며칠에 걸쳐 중복 입력될 수 있어 방어적으로 처리한다. */
+const normHeadline = (s) => (s || "").replace(/\s+/g, "").replace(/[·.,()[\]"'‘’“”\-–—]/g, "").toLowerCase();
+function dedupeNews(news) {
+  const byKey = new Map();
+  for (const n of news) {
+    const k = normHeadline(n.headline);
+    const prev = byKey.get(k);
+    if (!prev || (n.date || "") > (prev.date || "")) byKey.set(k, n);
+  }
+  return [...byKey.values()];
+}
+
 /* 엔드포인트에서 발행된 뉴스를 가져온다. 없거나 형태가 어긋나면 null → 목업으로 후퇴.
    창구에 쓰이는 정보라, 형태 검증에 실패하면 조용히 목업을 쓰는 편이 안전하다. */
 async function fetchLiveNews() {
@@ -179,7 +192,7 @@ async function fetchLiveNews() {
     return {
       date: normalizeDate(data.date),
       session: data.session ?? BRIEFING.session,
-      news,
+      news: dedupeNews(news),
     };
   } catch {
     return null;
