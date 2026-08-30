@@ -183,21 +183,15 @@ const FEE = {
 
 /* 상품설명서 PDF를 로컬에 저장해 둔 카드 — public/promo/cards/<id>.pdf */
 const HAS_PDF = new Set([
-  "im-travel",
-  "im-kpass",
-  "im-anygreen",
-  "im-skypass-silver",
-  "im-skypass-gold",
-  "im-i",
-  "im-untact",
-  "im-one",
-  "imc-kpass",
-  "imc-a",
-  "imc-z",
-  "imc-kakaopay",
-  "tictoc-pass",
-  "tictoc-allday",
-  "happy-credit",
+  // 신용
+  "im-travel", "im-kpass", "im-anygreen", "im-skypass-silver", "im-skypass-gold",
+  "im-i", "im-untact", "im-one", "im-living", "im-green-v2", "im-greit",
+  "im-shopping", "im-petlove", "im-daebaek-black", "im-daebaek-purple",
+  "im-dandi-credit", "im-hipass", "tictoc-pass", "tictoc-allday", "happy-credit",
+  // 체크
+  "imc-kpass", "imc-a", "imc-z", "imc-kakaopay", "imc-bujamile", "imc-ddokdi",
+  "imc-new-hyundai", "imc-daebaek-plus", "imc-master-young", "imc-hyundai-dept",
+  "imc-young", "imc-happypoint", "imc-dandi", "imc-happy-check",
 ]);
 
 const toCard = ([file, name, type]) => {
