@@ -1,6 +1,27 @@
+import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { CreditCard, Megaphone, FileText, ArrowLeft } from "lucide-react";
 import { findCard, typeLabel } from "../data/cards";
+
+/* 카드 이미지 — 파일이 없으면 플레이스홀더로 대체 */
+const CardArt = ({ card }) => {
+  const [err, setErr] = useState(false);
+  if (card.image && !err) {
+    return (
+      <img
+        src={card.image}
+        alt={card.name}
+        onError={() => setErr(true)}
+        className="h-[112px] w-[172px] flex-shrink-0 self-center rounded-xl object-contain sm:self-start"
+      />
+    );
+  }
+  return (
+    <div className="flex h-[112px] w-[172px] flex-shrink-0 items-center justify-center self-center rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-400 sm:self-start">
+      <CreditCard className="h-9 w-9" />
+    </div>
+  );
+};
 
 /* 카드 상세 — 대표 혜택·연회비 요약 + 「가입 안내문 만들기」로 바로 연결. */
 export const CardDetail = () => {
@@ -29,17 +50,7 @@ export const CardDetail = () => {
 
       <div className="rounded-2xl border border-slate-200 bg-white p-6">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-          {card.image ? (
-            <img
-              src={card.image}
-              alt={card.name}
-              className="h-[112px] w-[172px] flex-shrink-0 self-center rounded-xl object-contain sm:self-start"
-            />
-          ) : (
-            <div className="flex h-[112px] w-[172px] flex-shrink-0 items-center justify-center self-center rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-400 sm:self-start">
-              <CreditCard className="h-9 w-9" />
-            </div>
-          )}
+          <CardArt card={card} />
 
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">

@@ -9,11 +9,13 @@ import { cn } from "@shared/lib/format";
    가입 문구가 등록된 카드는 「가입 안내문」을 바로 출력, 미등록 카드는 등록 후 출력. */
 
 const CardThumb = ({ card }) => {
-  if (card.image) {
+  const [err, setErr] = useState(false);
+  if (card.image && !err) {
     return (
       <img
         src={card.image}
         alt={card.name}
+        onError={() => setErr(true)}
         className="h-[116px] w-[92px] flex-shrink-0 rounded-lg object-contain"
       />
     );
