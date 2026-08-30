@@ -110,15 +110,17 @@ export const CardDetail = () => {
         </dl>
 
         <div className="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
-          <a
-            href={`/card/promo?card=${card.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
-          >
-            <QrCode className="h-4 w-4" />
-            가입 QR 만들기
-          </a>
+          {card.segment !== "biz" && (
+            <a
+              href={`/card/promo?card=${card.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
+            >
+              <QrCode className="h-4 w-4" />
+              가입 QR 만들기
+            </a>
+          )}
           {card.prospectusUrl && (
             <a
               href={card.prospectusUrl}
@@ -134,7 +136,9 @@ export const CardDetail = () => {
       </div>
 
       <p className="text-[11.5px] leading-relaxed text-slate-500">
-        「가입 QR 만들기」를 누르면 eBiz에서 이 카드의 가입 링크를 불러와 QR 전표로 만듭니다. 인쇄해 고객에게 바로 건네실 수 있습니다.
+        {card.segment === "biz"
+          ? "기업카드는 영업점에서 가입하는 상품입니다. 상품설명서로 안내해 주세요."
+          : "「가입 QR 만들기」를 누르면 eBiz에서 이 카드의 가입 링크를 불러와 QR 전표로 만듭니다. 인쇄해 고객에게 바로 건네실 수 있습니다."}
       </p>
     </div>
   );

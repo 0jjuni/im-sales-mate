@@ -177,6 +177,13 @@ const INFO = {
   "im-pharmco-point": { blurb: "의약품 구입대금 결제 시 1% 포인트", tags: [] },
   "im-biz-skypass-corp": { blurb: "비즈니스 성공도, 마일리지 적립도 한번에 (법인크레딧)", tags: ["항공 마일리지"] },
   "im-soho": { blurb: "1% 캐시백·부가세 환급·주유·쇼핑 할인까지", tags: ["어디서나 할인", "대중교통", "백화점", "항공 마일리지"] },
+
+  // 기업 체크
+  "imc-goodluck-soho": { blurb: "사업 필수업종에서 포인트 적립을 한번에", tags: [] },
+  "imc-cashback-corp": { blurb: "심플한 사용, 간편한 캐시백을 한번에", tags: [] },
+  "imc-biz-point": { blurb: "비즈니스 성공을 위한 기업 체크카드", tags: ["편의점"] },
+  "imc-biz-autobill": { blurb: "스마트한 경비관리는 오토빌체크카드", tags: [] },
+  "imc-green-biz": { blurb: "당신의 녹색실천! 그린카드가 기억합니다", tags: ["편의점", "간편결제"] },
 };
 
 /* 대표 혜택 컬럼 — 목록 중앙에 [라벨 / 값] 2~3개로 노출(카드고릴라식).
@@ -239,6 +246,12 @@ const HAS_PDF = new Set([
   "imc-kpass", "imc-a", "imc-z", "imc-kakaopay", "imc-bujamile", "imc-ddokdi",
   "imc-new-hyundai", "imc-daebaek-plus", "imc-master-young", "imc-hyundai-dept",
   "imc-young", "imc-happypoint", "imc-dandi", "imc-happy-check",
+  // 기업 신용
+  "im-biz-soho", "im-biz-plus", "im-giup", "im-special-ev", "im-special-point",
+  "im-pharmco-cashback", "im-biz-skypass", "im-special-oil", "im-autobill",
+  "im-pharmco-point", "im-biz-skypass-corp", "im-soho",
+  // 기업 체크
+  "imc-goodluck-soho", "imc-cashback-corp", "imc-biz-point", "imc-biz-autobill", "imc-green-biz",
 ]);
 
 /* 기업(개인사업자·법인) 카드 — 신용. [이미지파일, 카드명, 신용/체크] */
@@ -255,6 +268,12 @@ const BIZ_CATALOG = [
   ["im-pharmco-point.png", "의약품결제전용 팜코카드(포인트형)", "credit"],
   ["im-biz-skypass-corp.png", "biz SKYPASS카드(법인크레딧)", "credit"],
   ["im-soho.png", "iM SOHO 카드", "credit"],
+  // 기업 체크
+  ["imc-goodluck-soho.png", "GOODLUCK SOHO 체크카드", "check"],
+  ["imc-cashback-corp.png", "iM CASHBACK CORPORATE 체크카드", "check"],
+  ["imc-biz-point.png", "iM biz POINT 카드", "check"],
+  ["imc-biz-autobill.png", "iM AUTOBILL 체크카드", "check"],
+  ["imc-green-biz.png", "그린기업체크카드", "check"],
 ];
 
 const toCard = (segment) => ([file, name, type]) => {
