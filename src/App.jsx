@@ -5,6 +5,7 @@ import NoranApp from "@noran/NoranApp";
 import IsaApp from "@isa/IsaApp";
 import PensionApp from "@pension/PensionApp";
 import CardApp from "@card/CardApp";
+import CardQrPrint from "@card/pages/CardQrPrint";
 import UtilityApp from "@utility/UtilityApp";
 import FollowupsPage from "@hub/followups/FollowupsPage";
 import SearchPage from "@hub/SearchPage";
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/noran/*" element={<NoranApp />} />
         <Route path="/isa/*" element={<IsaApp />} />
         <Route path="/pension/*" element={<PensionApp />} />
+        <Route path="/card/qr/:id" element={<CardQrPrint />} />
         <Route path="/card/*" element={<CardApp />} />
         <Route path="/tools/*" element={<UtilityApp />} />
         <Route path="/followups" element={<FollowupsPage />} />

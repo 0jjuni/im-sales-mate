@@ -96,7 +96,7 @@ const CardRow = ({ card, fav, onFav }) => {
         {/* 기업카드는 영업점 가입이라 eBiz QR 없음 — 상품설명서만 노출 */}
         {card.segment !== "biz" && (
           <a
-            href={`/card/promo?card=${card.id}`}
+            href={`/card/qr/${card.id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"

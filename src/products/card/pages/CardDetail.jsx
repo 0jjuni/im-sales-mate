@@ -112,13 +112,13 @@ export const CardDetail = () => {
         <div className="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
           {card.segment !== "biz" && (
             <a
-              href={`/card/promo?card=${card.id}`}
+              href={`/card/qr/${card.id}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
             >
               <QrCode className="h-4 w-4" />
-              가입 QR 만들기
+              가입 QR
             </a>
           )}
           {card.prospectusUrl && (

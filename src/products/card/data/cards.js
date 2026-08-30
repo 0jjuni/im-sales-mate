@@ -210,6 +210,25 @@ const BENEFITS = {
   "tictoc-pass": [{ label: "시간대별", value: "10% 할인" }, { label: "대중교통", value: "할인" }],
   "tictoc-allday": [{ label: "시간대별", value: "10% 할인" }, { label: "대중교통", value: "할인" }],
   "happy-credit": [{ label: "정부 바우처", value: "통합 지원" }],
+  // 기업 신용
+  "im-biz-soho": [{ label: "사업 영역", value: "1.5% 청구할인" }, { label: "렌터카", value: "35% 할인" }],
+  "im-biz-plus": [{ label: "특정 업종", value: "0.7~2.0% 적립" }, { label: "전월실적", value: "조건 없음" }],
+  "im-giup": [{ label: "전 가맹점", value: "0.2% 적립" }, { label: "연회비", value: "면제" }],
+  "im-special-ev": [{ label: "충전·보험", value: "0.5% 적립" }],
+  "im-special-point": [{ label: "국내외 가맹점", value: "0.1~0.5% 적립" }],
+  "im-pharmco-cashback": [{ label: "의약품 결제", value: "1% 캐시백" }],
+  "im-biz-skypass": [{ label: "대한항공", value: "마일리지 적립" }, { label: "여행자보험", value: "제공" }],
+  "im-special-oil": [{ label: "주유", value: "0.5% 적립" }],
+  "im-autobill": [{ label: "경비관리", value: "자동결제" }, { label: "이용금액", value: "포인트 적립" }],
+  "im-pharmco-point": [{ label: "의약품 결제", value: "1% 포인트" }],
+  "im-biz-skypass-corp": [{ label: "대한항공", value: "마일리지 적립" }, { label: "여행자보험", value: "제공" }],
+  "im-soho": [{ label: "매출금액", value: "0.2% 캐시백" }, { label: "주유·쇼핑·통신", value: "할인" }],
+  // 기업 체크
+  "imc-goodluck-soho": [{ label: "사업 필수업종", value: "0.5% 적립" }],
+  "imc-cashback-corp": [{ label: "국내 가맹점", value: "최대 0.5% 캐시백" }],
+  "imc-biz-point": [{ label: "업종별", value: "0.3~0.7% 적립" }],
+  "imc-biz-autobill": [{ label: "이용금액", value: "0.2% 적립" }, { label: "경비관리", value: "오토빌" }],
+  "imc-green-biz": [{ label: "에코머니", value: "0.1~0.2% 적립" }, { label: "세무지원", value: "제공" }],
 };
 
 /* 연회비 — iM뱅크 상품설명서(마크다운) 기준. 행에 "연회비 "가 앞에 붙는다. */
@@ -233,6 +252,21 @@ const FEE = {
   "tictoc-pass": "국내전용 2,000원 / 겸용 5,000원",
   "tictoc-allday": "국내전용 2,000원 / 겸용 5,000원",
   "happy-credit": "면제",
+  // 기업 신용
+  "im-biz-plus": "면제",
+  "im-giup": "면제",
+  "im-special-ev": "1,000원",
+  "im-special-point": "2,000원",
+  "im-pharmco-cashback": "면제",
+  "im-biz-skypass": "10,000원",
+  "im-special-oil": "1,000원",
+  "im-pharmco-point": "면제",
+  "im-biz-skypass-corp": "10,000원",
+  "im-soho": "국내전용 5,000원 / 겸용 10,000원",
+  // 기업 체크
+  "imc-cashback-corp": "면제",
+  "imc-biz-autobill": "면제",
+  "imc-green-biz": "면제",
 };
 
 /* 상품설명서 PDF를 로컬에 저장해 둔 카드 — public/promo/cards/<id>.pdf */
