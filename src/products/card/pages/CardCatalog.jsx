@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { CreditCard, FileText, Megaphone, Plus, Search, X, Heart } from "lucide-react";
+import { CreditCard, FileText, QrCode, Search, X, Heart } from "lucide-react";
 import { CARDS, CARD_TYPES, ALL_TAGS } from "../data/cards";
 import { cn } from "@shared/lib/format";
 
@@ -38,7 +38,6 @@ const CardThumb = ({ card }) => {
 };
 
 const CardRow = ({ card, fav, onFav }) => {
-  const ready = !!card.adCopy;
   return (
     <div className="relative flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 transition-shadow hover:shadow-[0_10px_30px_-16px_rgba(15,23,42,0.25)] sm:flex-row sm:items-center sm:p-5">
       <button
@@ -85,24 +84,10 @@ const CardRow = ({ card, fav, onFav }) => {
       <div className="flex flex-shrink-0 items-center gap-2 sm:w-[168px] sm:flex-col sm:items-stretch">
         <Link
           to={`/card/promo?card=${card.id}`}
-          className={cn(
-            "inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-[13px] font-bold transition-colors",
-            ready
-              ? "bg-slate-900 text-white hover:bg-slate-700"
-              : "border border-dashed border-slate-300 text-slate-500 hover:border-rose-400 hover:text-rose-700"
-          )}
+          className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
         >
-          {ready ? (
-            <>
-              <Megaphone className="h-4 w-4" />
-              가입 안내문
-            </>
-          ) : (
-            <>
-              <Plus className="h-4 w-4" />
-              가입 안내문 추가
-            </>
-          )}
+          <QrCode className="h-4 w-4" />
+          가입 QR
         </Link>
 
         {card.prospectusUrl && (
@@ -171,7 +156,7 @@ export const CardCatalog = () => {
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">카드 탐색</h1>
         <p className="mt-1 text-sm text-slate-600">
-          고객에게 권유할 카드를 고르면, 가입 링크 QR과 심의필 문구가 담긴 안내문을 바로 인쇄할 수 있습니다.
+          고객에게 권유할 카드를 고르면, eBiz 가입 링크를 QR 전표로 바로 인쇄할 수 있습니다.
         </p>
       </div>
 

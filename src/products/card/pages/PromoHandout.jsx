@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
-import { Printer, FileText, AlertTriangle, Sparkles } from "lucide-react";
+import { Printer, FileText, AlertTriangle, Sparkles, DownloadCloud, Check } from "lucide-react";
 import { QrSvg, buildQrPath } from "@utility/components/QrCode";
 import { CARDS, findCard } from "../data/cards";
 import { cn } from "@shared/lib/format";
@@ -68,16 +68,30 @@ export const PromoHandout = () => {
   const [searchParams] = useSearchParams();
   /* 카드 상세/카탈로그에서 넘어오면 ?card=<id>로 선택된 채로 진입 */
   const [cardId, setCardId] = useState(() => searchParams.get("card") || "");
-  /* 아직 문구가 등록되지 않은 카드는 이 자리에서 붙여넣어(임시) 안내문을 만든다 */
+  /* eBiz에서 링크를 아직 못 받은 카드는 「불러오기」 화면에서 붙여넣어(임시) 만든다 */
   const [manualText, setManualText] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [showImport, setShowImport] = useState(false); // 불러오기(붙여넣기) 화면 노출
 
   const card = findCard(cardId);
-  /* 등록된 카드는 심의필 문구(adCopy)를 그대로 사용, 미등록 카드는 붙여넣은 문구 사용 */
+  /* 등록된 카드는 eBiz 링크(adCopy)를 그대로 사용, 아니면 불러온(붙여넣은) 문구 사용 */
   const rawText = card?.adCopy || manualText;
 
   const selectCard = (id) => {
     setCardId(id);
     setManualText("");
+    setImporting(false);
+    setShowImport(false);
+  };
+
+  /* eBiz 링크 불러오기 — 실서비스에선 eBiz API 호출. 데모에선 잠깐 로딩 후
+     붙여넣기 입력을 띄운다(직접 링크/문구 입력). */
+  const handleImport = () => {
+    setImporting(true);
+    setTimeout(() => {
+      setImporting(false);
+      setShowImport(true);
+    }, 600);
   };
 
   const parsed = useMemo(() => parseAd(rawText), [rawText]);
@@ -115,20 +129,19 @@ export const PromoHandout = () => {
       <div className="space-y-5 print:hidden">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-            상품 가입 안내문
+            가입 QR 발급
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            eBiz 가입 링크와 심의필 광고 문구로, 고객에게 바로 인쇄해 드릴 안내문을 만듭니다.
+            eBiz에서 카드 가입 링크를 불러와 QR 전표로 바로 인쇄합니다.
           </p>
         </div>
 
         <div className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50/50 px-4 py-3">
           <Sparkles className="mt-0.5 h-4 w-4 flex-shrink-0 text-rose-500" />
           <p className="text-[12.5px] leading-relaxed text-slate-700">
-            카드를 선택하면 그 카드에 등록된 <strong className="font-semibold text-slate-900">eBiz 가입 링크</strong>와{" "}
-            <strong className="font-semibold text-slate-900">심의필 광고 문구</strong>로 안내문이 만들어집니다. 링크는 QR로 바뀌고 문구는 원문 그대로 인쇄됩니다.
+            카드를 선택하면 <strong className="font-semibold text-slate-900">eBiz에서 가입 링크</strong>를 불러와 QR로 만들어 전표로 인쇄합니다.
             <span className="mt-1 block text-[11.5px] text-slate-500">
-              가입 링크는 고객이 타고 들어가 가입하면 담당 직원 실적으로 잡힙니다. 실서비스에서는 eBiz와 연동됩니다.
+              가입 링크는 고객이 타고 들어가 가입하면 담당 직원 실적으로 잡힙니다.
             </span>
           </p>
         </div>
@@ -144,7 +157,6 @@ export const PromoHandout = () => {
             {CARDS.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
-                {c.adCopy ? "" : " (문구 미등록)"}
               </option>
             ))}
           </select>
@@ -152,27 +164,56 @@ export const PromoHandout = () => {
 
         {!card && (
           <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 px-4 py-8 text-center text-[13px] text-slate-500">
-            위에서 카드를 선택하면 가입 안내문 미리보기가 나타납니다.
+            위에서 카드를 선택하면 eBiz에서 가입 링크를 불러옵니다.
           </div>
         )}
 
-        {/* 미등록 카드 — eBiz 광고 문구를 붙여넣어 그 자리에서 안내문 생성 */}
+        {/* eBiz 링크 불러오기 — 저장된 링크가 없으면 불러오기 버튼 → (데모)붙여넣기 */}
         {card && !card.adCopy && (
           <div className="rounded-xl border border-slate-200 bg-white p-5">
-            <label className="mb-1.5 block text-xs font-bold text-slate-700">
-              eBiz 광고 문구 붙여넣기{" "}
-              <span className="font-medium text-slate-400">(이 카드는 가입 문구가 아직 등록되지 않았습니다)</span>
-            </label>
-            <textarea
-              value={manualText}
-              onChange={(e) => setManualText(e.target.value)}
-              rows={9}
-              placeholder={"eBiz에서 복사한 광고 문구 전체를 붙여넣으세요.\n(상품명 · 가입 링크 · 확인사항 · 심의필 번호 포함)"}
-              className="w-full resize-y rounded-sm border border-slate-300 px-3 py-2.5 text-[13px] leading-relaxed focus:border-rose-500 focus:outline-none"
-            />
-            <p className="mt-1.5 text-[11.5px] text-slate-400">
-              여기 붙여넣은 문구는 이번 출력에만 쓰이며 저장되지 않습니다. 자주 쓰는 카드는 카드 데이터(adCopy)에 등록해 두면 매번 붙여넣지 않아도 됩니다.
-            </p>
+            {!showImport ? (
+              <div className="py-4 text-center">
+                <div className="mx-auto mb-2.5 flex h-11 w-11 items-center justify-center rounded-full bg-rose-50 text-rose-600">
+                  <DownloadCloud className="h-5 w-5" />
+                </div>
+                <div className="text-[14px] font-bold text-slate-900">eBiz에서 가입 링크 불러오기</div>
+                <p className="mx-auto mt-1 max-w-md text-[12px] leading-relaxed text-slate-500">
+                  「{card.name}」의 가입 링크를 eBiz에서 불러옵니다. 고객이 이 링크로 가입하면 담당 직원 실적으로 잡힙니다.
+                </p>
+                <button
+                  onClick={handleImport}
+                  disabled={importing}
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700 disabled:opacity-60"
+                >
+                  <DownloadCloud className={cn("h-4 w-4", importing && "animate-pulse")} />
+                  {importing ? "불러오는 중…" : "eBiz에서 불러오기"}
+                </button>
+              </div>
+            ) : (
+              <div>
+                <label className="mb-1.5 block text-xs font-bold text-slate-700">
+                  가입 링크 / 광고 문구 붙여넣기
+                </label>
+                <textarea
+                  value={manualText}
+                  onChange={(e) => setManualText(e.target.value)}
+                  rows={8}
+                  placeholder={"eBiz에서 복사한 가입 링크(또는 광고 문구)를 붙여넣으세요."}
+                  className="w-full resize-y rounded-sm border border-slate-300 px-3 py-2.5 text-[13px] leading-relaxed focus:border-rose-500 focus:outline-none"
+                />
+                <p className="mt-1.5 text-[11.5px] text-slate-400">
+                  실서비스에서는 eBiz에서 자동으로 불러옵니다. 지금은 eBiz에서 복사한 링크(또는 문구)를 붙여넣어 주세요. 입력값은 이번 출력에만 쓰이며 저장되지 않습니다.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 저장된 링크가 있는 카드 — 불러온 것으로 표시 */}
+        {card && card.adCopy && url && (
+          <div className="flex items-center gap-1.5 text-[12.5px] font-semibold text-emerald-700">
+            <Check className="h-4 w-4" />
+            eBiz에서 「{card.name}」 가입 링크를 불러왔습니다.
           </div>
         )}
 

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { CreditCard, Search, Megaphone } from "lucide-react";
+import { CreditCard, Search, QrCode } from "lucide-react";
 import { HubShell } from "@hub/HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
 import { CardCatalog } from "./pages/CardCatalog";
@@ -12,7 +12,7 @@ import { PromoHandout } from "./pages/PromoHandout";
 
 const NAV_ITEMS = [
   { id: "catalog", label: "카드 탐색", icon: Search },
-  { id: "promo", label: "가입 안내문", icon: Megaphone },
+  { id: "promo", label: "가입 QR", icon: QrCode },
 ];
 
 export default function CardApp() {
@@ -38,7 +38,7 @@ export default function CardApp() {
         </div>
         <div>
           <h1 className="text-[17px] font-black leading-tight text-slate-900 md:text-xl">카드</h1>
-          <p className="text-[11px] text-slate-500">카드 탐색 · 가입 안내문</p>
+          <p className="text-[11px] text-slate-500">카드 탐색 · 가입 QR</p>
         </div>
       </div>
 

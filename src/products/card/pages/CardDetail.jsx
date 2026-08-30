@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { CreditCard, Megaphone, FileText, ArrowLeft } from "lucide-react";
+import { CreditCard, QrCode, FileText, ArrowLeft } from "lucide-react";
 import { findCard, typeLabel } from "../data/cards";
 
 /* 카드 이미지 — 파일이 없으면 플레이스홀더로 대체 */
@@ -115,8 +115,8 @@ export const CardDetail = () => {
             onClick={() => navigate(`/card/promo?card=${card.id}`)}
             className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
           >
-            <Megaphone className="h-4 w-4" />
-            가입 안내문 만들기
+            <QrCode className="h-4 w-4" />
+            가입 QR 만들기
           </button>
           {card.prospectusUrl && (
             <a
@@ -133,8 +133,7 @@ export const CardDetail = () => {
       </div>
 
       <p className="text-[11.5px] leading-relaxed text-slate-500">
-        「가입 안내문 만들기」를 누르면 이 카드의 eBiz 가입 링크(QR)와 심의필 광고 문구로 안내문이 만들어집니다.
-        인쇄해 고객에게 바로 건네실 수 있습니다.
+        「가입 QR 만들기」를 누르면 eBiz에서 이 카드의 가입 링크를 불러와 QR 전표로 만듭니다. 인쇄해 고객에게 바로 건네실 수 있습니다.
       </p>
     </div>
   );
