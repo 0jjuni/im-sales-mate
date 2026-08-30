@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { ISA_TYPES, ISA_RULES, ISA_DEPOSIT_DEFAULTS } from "../data/isa";
 import { SectionTitle } from "@shared/components/SectionTitle";
+import { NumberSync } from "@shared/components/NumberSync";
 import { PrintReport } from "@shared/components/PrintReport";
 import { SalesScript } from "@shared/components/SalesScript";
 import { ISA_PRINT_META } from "../printMeta";
@@ -221,6 +222,7 @@ export const TaxCalculator = () => {
                     onChange={(e) => setPrincipal(Number(e.target.value))}
                     className="w-full accent-fuchsia-600"
                   />
+                  <NumberSync value={principal} onChange={setPrincipal} min={1000000} max={100000000} step={1000000} accent="fuchsia" suffix="원" />
                   <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                     <span>100만원</span>
                     <span>5천만원</span>
@@ -241,6 +243,7 @@ export const TaxCalculator = () => {
                     onChange={(e) => setRate(Number(e.target.value))}
                     className="w-full accent-fuchsia-600"
                   />
+                  <NumberSync value={rate} onChange={setRate} min={ISA_DEPOSIT_DEFAULTS.rateMin} max={ISA_DEPOSIT_DEFAULTS.rateMax} step={ISA_DEPOSIT_DEFAULTS.rateStep} accent="fuchsia" suffix="%" />
                   <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                     <span>{ISA_DEPOSIT_DEFAULTS.rateMin.toFixed(1)}%</span>
                     <span>{ISA_DEPOSIT_DEFAULTS.rateMax.toFixed(1)}%</span>

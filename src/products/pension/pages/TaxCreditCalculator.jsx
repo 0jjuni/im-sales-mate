@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { CREDIT_RULES } from "../data/pension";
 import { SectionTitle } from "@shared/components/SectionTitle";
+import { NumberSync } from "@shared/components/NumberSync";
 import { PrintReport } from "@shared/components/PrintReport";
 import { SalesScript } from "@shared/components/SalesScript";
 import { PENSION_PRINT_META } from "../printMeta";
@@ -230,6 +231,7 @@ export const TaxCreditCalculator = () => {
                 onChange={(e) => setIncome(Number(e.target.value))}
                 className="w-full accent-violet-600"
               />
+              <NumberSync value={income} onChange={setIncome} min={10000000} max={150000000} step={1000000} accent="violet" suffix="원" />
               <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                 <span>1천만원</span>
                 <span>1억원</span>
@@ -266,6 +268,7 @@ export const TaxCreditCalculator = () => {
                 onChange={(e) => setPensionSaving(Number(e.target.value))}
                 className="w-full accent-slate-500"
               />
+              <NumberSync value={pensionSaving} onChange={setPensionSaving} min={0} max={SLIDER_MAX} step={SLIDER_STEP} accent="violet" suffix="원" />
               <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                 <span>0</span>
                 <span className="font-semibold text-slate-600">공제한도 600만원</span>
@@ -292,6 +295,7 @@ export const TaxCreditCalculator = () => {
                 onChange={(e) => setIrp(Number(e.target.value))}
                 className="w-full accent-violet-600"
               />
+              <NumberSync value={irp} onChange={setIrp} min={0} max={SLIDER_MAX} step={SLIDER_STEP} accent="violet" suffix="원" />
               <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                 <span>0</span>
                 <span className="font-semibold text-violet-700">

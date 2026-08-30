@@ -23,6 +23,7 @@ import {
 } from "recharts";
 import { INCOME_BRACKETS } from "../../data/tax";
 import { SectionTitle } from "@shared/components/SectionTitle";
+import { NumberSync } from "@shared/components/NumberSync";
 import { SalesScript } from "@shared/components/SalesScript";
 import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
 
@@ -270,6 +271,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
                 onChange={(e) => setMonthlyAmount(Number(e.target.value))}
                 className="w-full accent-amber-600"
               />
+              <NumberSync value={monthlyAmount} onChange={setMonthlyAmount} min={50000} max={1500000} step={10000} accent="amber" suffix="원" />
             </div>
 
             <div>
@@ -285,6 +287,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
                 onChange={(e) => setYears(Number(e.target.value))}
                 className="w-full accent-amber-600"
               />
+              <NumberSync value={years} onChange={setYears} min={1} max={20} step={1} accent="amber" suffix="년" />
               {!result.isNorengEligible && (
                 <div className="mt-2 flex items-start gap-1.5 text-[11px] text-amber-700 bg-amber-50/60 border border-amber-200 rounded-sm p-2">
                   <AlertTriangle className="w-3 h-3 mt-0.5 flex-shrink-0" />
@@ -330,6 +333,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
                   onChange={(e) => setYumamRate(Number(e.target.value))}
                   className="w-full accent-amber-600"
                 />
+                <NumberSync value={yumamRate} onChange={setYumamRate} min={1.0} max={5.0} step={0.1} accent="amber" suffix="%" />
               </div>
               <div>
                 <label className="block text-xs text-slate-700 mb-1">
@@ -344,6 +348,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
                   onChange={(e) => setSavingsRate(Number(e.target.value))}
                   className="w-full accent-slate-500"
                 />
+                <NumberSync value={savingsRate} onChange={setSavingsRate} min={1.0} max={6.0} step={0.1} accent="amber" suffix="%" />
               </div>
               <div>
                 <label className="block text-xs text-slate-700 mb-1">
@@ -358,6 +363,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
                   onChange={(e) => setPensionRate(Number(e.target.value))}
                   className="w-full accent-blue-500"
                 />
+                <NumberSync value={pensionRate} onChange={setPensionRate} min={1.0} max={6.0} step={0.1} accent="amber" suffix="%" />
               </div>
             </div>
 
@@ -376,6 +382,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
                   월 {formatKRW(incentiveMonthly)} × 1년 적립 후 연복리. 임의해약 시 미지급/감액 위험.
                 </div>
                 {withIncentive && (
+                  <>
                   <input
                     type="range"
                     min="10000"
@@ -389,6 +396,8 @@ export const ProductCompare = ({ onOpenArticle }) => {
                     onClick={(e) => e.stopPropagation()}
                     className="w-full mt-2 accent-amber-600"
                   />
+                  <NumberSync value={incentiveMonthly} onChange={setIncentiveMonthly} min={10000} max={30000} step={10000} accent="amber" suffix="원" />
+                  </>
                 )}
               </div>
             </label>

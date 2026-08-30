@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { REFUND_TABLE_GENERAL, REFUND_TABLE_DEEMED } from "../../data/tax";
 import { SectionTitle } from "@shared/components/SectionTitle";
+import { NumberSync } from "@shared/components/NumberSync";
 import { PrintReport } from "@shared/components/PrintReport";
 import { SalesScript } from "@shared/components/SalesScript";
 import { NORAN_PRINT_META } from "../../printMeta";
@@ -230,6 +231,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
                 onChange={(e) => setMonthlyAmount(Number(e.target.value))}
                 className="w-full accent-amber-600"
               />
+              <NumberSync value={monthlyAmount} onChange={setMonthlyAmount} min={50000} max={1500000} step={10000} accent="amber" suffix="원" />
               <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                 <span>5만원</span>
                 <span>75만원</span>
@@ -250,6 +252,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
                 onChange={(e) => setPaidMonths(Number(e.target.value))}
                 className="w-full accent-amber-600"
               />
+              <NumberSync value={paidMonths} onChange={setPaidMonths} min={1} max={240} step={1} accent="amber" suffix="회" />
               <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                 <span>1회</span>
                 <span>10년 (120회)</span>
@@ -270,6 +273,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
                 onChange={(e) => setAssumedRate(Number(e.target.value))}
                 className="w-full accent-amber-600"
               />
+              <NumberSync value={assumedRate} onChange={setAssumedRate} min={1.0} max={5.0} step={0.1} accent="amber" suffix="%" />
               <p className="text-[11px] text-slate-500 mt-1">
                 실제 기준이율은 매 분기 변동 — 노란우산 홈페이지 공시 확인
               </p>
