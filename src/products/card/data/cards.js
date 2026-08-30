@@ -76,7 +76,7 @@ const SEVEN = {
   note: "",
   ebizLink:
     "https://mbanking.imbank.co.kr/com_ebz_mbs_00001.act?svcId=com_ebz_sbs_30020_0001&sms_seqno=3030011781",
-  prospectusUrl: "/promo/im-seven-cashback.pdf#page=5",
+  prospectusUrl: "/promo/im-seven-cashback.pdf",
   adCopy: SEVEN_AD_COPY,
 };
 

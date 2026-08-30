@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, Printer, ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { X, Printer, ExternalLink, DownloadCloud } from "lucide-react";
 import { QrSvg } from "@utility/components/QrCode";
 import { loadStoredLinks, resolveAdCopy } from "../data/cards";
 
@@ -90,6 +91,7 @@ const Slip = ({ card, url }) => {
 
 /* 가입 QR — 전표를 화면 위에 띄우고, 인쇄 버튼으로 출력(전표만 인쇄). */
 export function QrSlipModal({ card, onClose }) {
+  const navigate = useNavigate();
   useEscClose(onClose);
   useEffect(() => {
     const cleanup = () => document.documentElement.classList.remove("printing-promo");
@@ -139,14 +141,23 @@ export function QrSlipModal({ card, onClose }) {
             <div className="py-6 text-center">
               <div className="text-[15px] font-bold text-slate-900">{card.name}</div>
               <p className="mx-auto mt-2 max-w-xs text-[13px] leading-relaxed text-slate-500">
-                이 카드의 가입 링크가 아직 없습니다. 「가입 QR」 탭에서 eBiz 링크를 불러와 저장해 주세요.
+                이 카드의 가입 링크가 아직 없습니다. eBiz에서 링크를 불러와 저장하면 QR 전표를 인쇄할 수 있습니다.
               </p>
-              <button
-                onClick={onClose}
-                className="mt-3 rounded-lg border border-slate-300 px-4 py-2 text-[13px] font-semibold text-slate-600 hover:border-slate-400"
-              >
-                닫기
-              </button>
+              <div className="mt-3 flex justify-center gap-2">
+                <button
+                  onClick={() => navigate(`/card/promo?card=${card.id}`)}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
+                >
+                  <DownloadCloud className="h-4 w-4" />
+                  불러오기
+                </button>
+                <button
+                  onClick={onClose}
+                  className="rounded-lg border border-slate-300 px-4 py-2 text-[13px] font-semibold text-slate-600 hover:border-slate-400"
+                >
+                  닫기
+                </button>
+              </div>
             </div>
           )}
         </div>
