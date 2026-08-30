@@ -117,7 +117,7 @@ export function MarketDetailModal({ market, asOf, onClose }) {
           role="dialog"
           aria-modal="true"
           aria-label={`${label} 상세`}
-          className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+          className="w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
           {/* 헤더 */}
@@ -170,7 +170,7 @@ export function MarketDetailModal({ market, asOf, onClose }) {
           {/* 차트 */}
           <div className="px-5 py-4">
             <div className={cn("w-full overflow-x-auto transition-opacity", loading && "opacity-40")}>
-              <MarketChart series={series} label={label} width={480} height={170} interactive />
+              <MarketChart series={series} label={label} width={600} height={200} interactive />
             </div>
 
             {/* 요약 통계 — 기간 기준 */}
