@@ -28,12 +28,12 @@ const CardThumb = ({ card }) => {
         src={card.image}
         alt={card.name}
         onError={() => setErr(true)}
-        className="h-[116px] w-[92px] flex-shrink-0 rounded-lg object-contain"
+        className="h-[116px] w-[92px] flex-shrink-0 rounded-lg object-contain transition-transform duration-200 ease-out group-hover:scale-[1.06]"
       />
     );
   }
   return (
-    <div className="flex h-[116px] w-[92px] flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 text-slate-400">
+    <div className="flex h-[116px] w-[92px] flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 text-slate-400 transition-transform duration-200 ease-out group-hover:scale-[1.06]">
       <CreditCard className="h-6 w-6" />
     </div>
   );
