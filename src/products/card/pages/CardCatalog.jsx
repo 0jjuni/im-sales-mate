@@ -45,9 +45,9 @@ const CardRow = ({ card, fav, onFav }) => {
         onClick={() => onFav(card.id)}
         aria-label={fav ? "관심 해제" : "관심 등록"}
         aria-pressed={fav}
-        className="absolute right-3 top-3 z-10 rounded-full p-1 text-slate-300 transition-colors hover:text-rose-400"
+        className="absolute left-2 top-2 z-10 rounded-full bg-white/80 p-1 text-slate-300 shadow-sm backdrop-blur-sm transition-colors hover:text-rose-400"
       >
-        <Heart className={cn("h-5 w-5", fav && "fill-rose-500 text-rose-500")} />
+        <Heart className={cn("h-[18px] w-[18px]", fav && "fill-rose-500 text-rose-500")} />
       </button>
 
       <Link to={`/card/${card.id}`} className="group flex min-w-0 flex-1 items-center gap-4 sm:gap-5">

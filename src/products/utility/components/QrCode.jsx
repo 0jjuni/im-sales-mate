@@ -27,25 +27,17 @@ export const buildQrPath = (text) => {
   return { size, d };
 };
 
-/* 중앙 iM 로고 — 오류정정 M(25%)이라 코드 폭의 약 30%까지는 가려도 인식된다.
-   흰 배경 위에 iM 심볼(민트→라임)을 얹는다. gradient id는 QR별로 유일해야 한다. */
+/* 워터마크 iM 로고 — 흰 배경 없이 코드 위에 크게, 반투명으로 은은하게 얹는다.
+   반투명이라 아래 모듈이 비쳐 스캔에 지장이 없고(오류정정 M), 로고는 연하게 보인다.
+   gradient id는 QR별로 유일해야 한다. */
 const CenterLogo = ({ modules, uid }) => {
   const c = modules / 2;
-  const bw = modules * 0.3; // 흰 배경 정사각형 한 변
-  const li = bw * 0.74; // 심볼 가로 폭(흰 여백 확보)
-  const scale = li / 120; // IMSymbol 원본 viewBox 120×76
-  const lh = 76 * scale;
+  const w = modules * 0.62; // 심볼 가로 폭(코드의 60% 안팎)
+  const scale = w / 120; // IMSymbol 원본 viewBox 120×76
+  const h = 76 * scale;
   const gid = `qr-im-${uid}`;
   return (
-    <g>
-      <rect
-        x={c - bw / 2}
-        y={c - bw / 2}
-        width={bw}
-        height={bw}
-        rx={bw * 0.16}
-        fill="#fff"
-      />
+    <g opacity="0.22">
       <defs>
         <linearGradient id={gid} gradientUnits="userSpaceOnUse" x1="30" y1="34" x2="64" y2="70">
           <stop offset="0" stopColor="#00C4A4" />
@@ -53,7 +45,7 @@ const CenterLogo = ({ modules, uid }) => {
           <stop offset="1" stopColor="#A5CE39" />
         </linearGradient>
       </defs>
-      <g transform={`translate(${c - li / 2} ${c - lh / 2}) scale(${scale})`}>
+      <g transform={`translate(${c - w / 2} ${c - h / 2}) scale(${scale})`}>
         <rect x="0" y="43" width="17" height="29" fill="#00C4A4" />
         <path d="M24 28 A44 44 0 0 1 68 72 L49 72 A25 25 0 0 0 24 47 Z" fill={`url(#${gid})`} />
         <path d="M96 28 A44 44 0 0 0 52 72 L71 72 A25 25 0 0 1 96 47 Z" fill="#00C4A4" />
