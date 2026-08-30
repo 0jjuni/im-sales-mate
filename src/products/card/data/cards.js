@@ -95,9 +95,9 @@ const CATALOG = [
   ["im-hipass.webp", "후불 하이패스카드", "credit"],
   ["im-dandi-credit.webp", "단디카드", "credit"],
   ["im-hd-mpoint.webp", "iM뱅크-현대카드M", "credit"],
-  ["tictoc-pass.webp", "TicToc카드(PASS형)", "credit"],
-  ["tictoc-allday.webp", "TicToc카드(ALL DAY형)", "credit"],
-  ["happy-credit.webp", "국민행복카드 신용카드", "credit"],
+  ["tictoc-pass.png", "TicToc카드(PASS형)", "credit"],
+  ["tictoc-allday.png", "TicToc카드(ALL DAY형)", "credit"],
+  ["happy-credit.png", "국민행복카드 신용카드", "credit"],
   ["imc-kpass.webp", "iM K-패스 체크카드", "check"],
   ["imc-a.webp", "iM A 체크카드", "check"],
   ["imc-z.webp", "iM Z 체크카드", "check"],
@@ -145,6 +145,40 @@ const INFO = {
   "tictoc-pass": { blurb: "대중교통 할인 혜택", tags: ["배달앱", "커피", "어디서나 할인", "외식", "주유", "백화점", "반려동물", "항공 마일리지"] },
   "tictoc-allday": { blurb: "시간대별 할인 혜택", tags: ["배달앱", "커피", "어디서나 할인", "외식", "주유", "백화점", "항공 마일리지", "공항라운지"] },
   "happy-credit": { blurb: "다양한 국가 바우처를 국민행복카드 하나로", tags: ["온라인쇼핑", "외식", "대중교통"] },
+
+  // 체크카드
+  "imc-kpass": { blurb: "K-패스 혜택에 대중교통 10% 추가할인까지", tags: ["편의점", "커피", "이동통신", "영화"] },
+  "imc-a": { blurb: "온라인쇼핑·배달앱·편의점 5% 할인", tags: ["온라인쇼핑", "배달앱", "편의점"] },
+  "imc-ddokdi": { blurb: "커피·영화·편의점·이동통신·잡화 5% 할인", tags: ["편의점", "커피", "이동통신", "영화"] },
+  "imc-master-young": { blurb: "해외가맹점 이용 가능한 Y+체크카드", tags: ["편의점", "커피", "외식", "영화"] },
+  "imc-z": { blurb: "조건없이 쓸 때마다 0.2% 할인", tags: ["어디서나 할인"] },
+  "imc-kakaopay": { blurb: "카카오페이 이용금액 15% 할인", tags: ["온라인쇼핑", "편의점", "간편결제"] },
+  "imc-dandi": { blurb: "아웃백·VIPS 10% 할인", tags: ["외식", "주유"] },
+  "imc-happy-check": { blurb: "다양한 국가 바우처를 국민행복카드 하나로", tags: ["온라인쇼핑", "외식"] },
+  "imc-young": { blurb: "스타벅스 20% 할인", tags: ["편의점", "커피", "외식", "영화"] },
+};
+
+/* 연회비 — iM뱅크 상품설명서(마크다운) 기준. 행에 "연회비 "가 앞에 붙는다. */
+const FEE = {
+  "im-travel": "국내전용 14,000원 / 겸용 15,000원",
+  "im-kpass": "5,000원",
+  "im-living": "10,000원",
+  "im-anygreen": "15,000원",
+  "im-skypass-silver": "19,000원",
+  "im-skypass-gold": "35,000원",
+  "im-i": "10,000원",
+  "im-untact": "10,000원",
+  "im-green-v2": "국내전용 10,000원 / 겸용 12,000원",
+  "im-greit": "국내전용 10,000원 / 겸용 15,000원",
+  "im-shopping": "국내전용 5,000원 / 겸용 8,000원",
+  "im-petlove": "국내전용 15,000원 / 겸용 17,000원",
+  "im-one": "국내전용 2,000원 / 겸용 5,000원",
+  "im-daebaek-black": "국내전용 2,000원 / 겸용 5,000원",
+  "im-daebaek-purple": "국내전용 2,000원 / 겸용 5,000원",
+  "im-hipass": "2,000원 (국내전용)",
+  "tictoc-pass": "국내전용 2,000원 / 겸용 5,000원",
+  "tictoc-allday": "국내전용 2,000원 / 겸용 5,000원",
+  "happy-credit": "면제",
 };
 
 /* 상품설명서 PDF를 로컬에 저장해 둔 카드 — public/promo/cards/<id>.pdf */
@@ -161,10 +195,13 @@ const HAS_PDF = new Set([
   "imc-a",
   "imc-z",
   "imc-kakaopay",
+  "tictoc-pass",
+  "tictoc-allday",
+  "happy-credit",
 ]);
 
 const toCard = ([file, name, type]) => {
-  const id = file.replace(/\.webp$/, "");
+  const id = file.replace(/\.(webp|png|jpg|jpeg)$/i, "");
   if (id === "im-seven-cashback") return SEVEN;
   const info = INFO[id] || {};
   return {
@@ -177,7 +214,7 @@ const toCard = ([file, name, type]) => {
     tags: info.tags || [],
     maxBenefit: "",
     benefits: [],
-    annualFee: "",
+    annualFee: FEE[id] || "",
     spendReq: "",
     note: "",
     ebizLink: "",
