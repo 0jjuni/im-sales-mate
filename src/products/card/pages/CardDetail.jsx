@@ -137,31 +137,35 @@ export const CardDetail = () => {
 
       {(() => {
         const b = CARD_BENEFIT[card.id];
-        if (!b || (!b.summary && !b.rows?.length)) return null;
+        /* 상품설명서의 법적·보일러플레이트 섹션은 제외하고 실제 혜택/서비스만 노출 */
+        const HIDE = /수수료\s*안내|이용\s*안내|유의|과세|반환|제공\s*조건|제공\s*기준|전월\s*이용금액|회원님|안내\s*사항|리볼빙|발급|가족카드|연회비|문의처|기본\s*정보|해외\s*이용\s*안내|부가서비스/;
+        const secs = (b?.sections || []).filter((s) => !HIDE.test(s.title));
+        if (!b || (!b.summary && !secs.length)) return null;
         return (
           <div className="rounded-2xl border border-slate-200 bg-white p-6">
             <h2 className="text-[15px] font-bold text-slate-900">카드 혜택</h2>
             {b.summary && (
               <p className="mt-1.5 text-[13.5px] leading-relaxed text-slate-600">{b.summary}</p>
             )}
-            {b.rows?.length > 0 && (
-              <div className="mt-4 border-t border-slate-100">
-                {b.rows.map((r, i) => (
-                  <div
-                    key={i}
-                    className="flex flex-col gap-0.5 border-b border-slate-100 py-2.5 sm:flex-row sm:items-baseline sm:gap-3"
-                  >
-                    <div className="flex items-baseline gap-2 sm:w-56 sm:flex-shrink-0">
-                      <span className="text-[13.5px] font-bold text-slate-900">{r.area}</span>
-                      <span className="text-[14px] font-bold text-rose-600">{r.rate}</span>
-                    </div>
-                    {r.target && (
-                      <div className="text-[12px] leading-relaxed text-slate-500 sm:flex-1">{r.target}</div>
-                    )}
-                  </div>
-                ))}
+            {secs.map((s, si) => (
+              <div key={si} className="mt-4 border-t border-slate-100 pt-3.5">
+                <h3 className="text-[13.5px] font-bold text-rose-700">{s.title}</h3>
+                <ul className="mt-1.5 space-y-1">
+                  {s.items.map((it, ii) =>
+                    it.sub ? (
+                      <li key={ii} className="mt-2 text-[13px] font-bold text-slate-900">
+                        {it.t}
+                      </li>
+                    ) : (
+                      <li key={ii} className="flex gap-1.5 text-[12.5px] leading-relaxed text-slate-600">
+                        <span className="mt-0.5 flex-shrink-0 text-slate-300">·</span>
+                        <span>{it.t}</span>
+                      </li>
+                    )
+                  )}
+                </ul>
               </div>
-            )}
+            ))}
           </div>
         );
       })()}
