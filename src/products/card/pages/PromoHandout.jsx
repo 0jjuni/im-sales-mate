@@ -63,29 +63,16 @@ const absoluteUrl = (u) => {
 
 export const PromoHandout = () => {
   const [searchParams] = useSearchParams();
-  const [cardId, setCardId] = useState("");
-  const [rawText, setRawText] = useState("");
-  const [prospectus, setProspectus] = useState("");
+  /* 카드 상세에서 「가입 안내문 만들기」로 넘어오면 ?card=<id>로 선택된 채로 진입 */
+  const [cardId, setCardId] = useState(() => searchParams.get("card") || "");
 
-  /* 카드 상세에서 「가입 안내문 만들기」로 넘어오면 ?card=<id>로 자동 채움 */
-  useEffect(() => {
-    const pid = searchParams.get("card");
-    if (pid) applyCard(pid);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const applyCard = (id) => {
-    const c = findCard(id);
-    setCardId(id);
-    if (c) {
-      setRawText(c.adCopy || "");
-      setProspectus(c.prospectusUrl || "");
-    }
-  };
+  /* 광고 문구는 붙여넣지 않고, 카드에 등록된 심의필 문구(adCopy)를 그대로 사용한다 */
+  const card = findCard(cardId);
+  const rawText = card?.adCopy || "";
 
   const parsed = useMemo(() => parseAd(rawText), [rawText]);
   const url = parsed?.url || "";
-  const prospectusUrl = absoluteUrl(prospectus);
+  const prospectusUrl = absoluteUrl(card?.prospectusUrl || "");
 
   const qrSize = useMemo(() => {
     if (!url) return null;
@@ -128,61 +115,37 @@ export const PromoHandout = () => {
         <div className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50/50 px-4 py-3">
           <Sparkles className="mt-0.5 h-4 w-4 flex-shrink-0 text-rose-500" />
           <p className="text-[12.5px] leading-relaxed text-slate-700">
-            eBiz에서 만든 <strong className="font-semibold text-slate-900">가입 링크</strong>는
-            고객이 타고 들어가 가입하면 담당 직원 실적으로 잡힙니다. 카드를 선택하거나 심의필 광고 문구를
-            붙여넣으면, 링크는 QR로 바꾸고 문구는 원문 그대로 실어 안내문으로 인쇄합니다.
+            카드를 선택하면 그 카드에 등록된 <strong className="font-semibold text-slate-900">eBiz 가입 링크</strong>와{" "}
+            <strong className="font-semibold text-slate-900">심의필 광고 문구</strong>로 안내문이 만들어집니다. 링크는 QR로 바뀌고 문구는 원문 그대로 인쇄됩니다.
             <span className="mt-1 block text-[11.5px] text-slate-500">
-              실서비스에서는 eBiz 링크 생성 화면과 연동해 「링크 가져오기」로 대체됩니다.
+              가입 링크는 고객이 타고 들어가 가입하면 담당 직원 실적으로 잡힙니다. 실서비스에서는 eBiz와 연동됩니다.
             </span>
           </p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
-          <div>
-            <label className="mb-1.5 block text-xs font-bold text-slate-700">카드 선택</label>
-            <select
-              value={cardId}
-              onChange={(e) => applyCard(e.target.value)}
-              className="w-full rounded-sm border border-slate-300 px-3 py-2.5 text-sm focus:border-rose-500 focus:outline-none"
-            >
-              <option value="">카드를 선택하면 문구가 자동으로 채워집니다</option>
-              {CARDS.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-xs font-bold text-slate-700">
-              eBiz 광고 문구{" "}
-              <span className="font-medium text-slate-400">(직접 붙여넣기 · 카드 선택 시 자동 입력)</span>
-            </label>
-            <textarea
-              value={rawText}
-              onChange={(e) => setRawText(e.target.value)}
-              rows={9}
-              placeholder={"eBiz에서 복사한 광고 문구 전체를 붙여넣으세요.\n(상품명 · 가입 링크 · 확인사항 · 심의필 번호 포함)"}
-              className="w-full resize-y rounded-sm border border-slate-300 px-3 py-2.5 text-[13px] leading-relaxed focus:border-rose-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-xs font-bold text-slate-700">
-              상품설명서 링크{" "}
-              <span className="font-medium text-slate-400">(선택 · 안내문에 QR로 함께 인쇄)</span>
-            </label>
-            <input
-              value={prospectus}
-              onChange={(e) => setProspectus(e.target.value)}
-              placeholder="예: 상품설명서 PDF 주소"
-              className="w-full rounded-sm border border-slate-300 px-3 py-2.5 text-sm focus:border-rose-500 focus:outline-none"
-            />
-          </div>
+        <div className="rounded-xl border border-slate-200 bg-white p-5">
+          <label className="mb-1.5 block text-xs font-bold text-slate-700">카드 선택</label>
+          <select
+            value={cardId}
+            onChange={(e) => setCardId(e.target.value)}
+            className="w-full rounded-sm border border-slate-300 px-3 py-2.5 text-sm focus:border-rose-500 focus:outline-none"
+          >
+            <option value="">카드를 선택하세요</option>
+            {CARDS.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {(tooLong || tooDense) && (
+        {!card && (
+          <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 px-4 py-8 text-center text-[13px] text-slate-500">
+            위에서 카드를 선택하면 가입 안내문 미리보기가 나타납니다.
+          </div>
+        )}
+
+        {card && (tooLong || tooDense) && (
           <div className="flex items-start gap-2 rounded-r-sm border-l-4 border-amber-500 bg-amber-50/60 px-4 py-2.5">
             <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
             <p className="text-xs leading-relaxed text-slate-800">
@@ -193,11 +156,11 @@ export const PromoHandout = () => {
           </div>
         )}
 
-        {rawText.trim() && !url && (
+        {card && !url && (
           <div className="flex items-start gap-2 rounded-r-sm border-l-4 border-amber-500 bg-amber-50/60 px-4 py-2.5">
             <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
             <p className="text-xs leading-relaxed text-slate-800">
-              붙여넣은 문구에서 가입 링크(http로 시작)를 찾지 못했습니다. 링크가 포함됐는지 확인해 주세요.
+              선택한 카드에 가입 링크가 등록되어 있지 않습니다. 카드 데이터(adCopy)를 확인해 주세요.
             </p>
           </div>
         )}

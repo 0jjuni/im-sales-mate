@@ -1,22 +1,29 @@
 /* 카드 상품 카탈로그 — 카드 탐색·상세·가입 안내문의 공통 소스.
-   항목만 추가하면 카탈로그·안내문 카드 선택에 자동 반영된다.
+   항목만 추가하면 카탈로그·상세·안내문 카드 선택에 자동 반영된다.
 
    필드
    - id: URL·저장소 식별자(배포 후 변경 금지)
    - name: 카드명
-   - brand: 발급 브랜드(BC / Master 등) 표기
-   - category: 분류(신용/체크 등) — 탐색 필터용
-   - tagline: 한 줄 홍보 문구(안내문 헤드라인)
-   - benefit: 핵심 혜택 한 줄
-   - benefitNote: 혜택 조건(전월실적 등)
+   - issuer: 발급사 표기(예: iM뱅크)
+   - type: "credit"(신용) | "check"(체크) — 카탈로그 상단 탭 필터
+   - image: 카드 이미지 경로(선택, 없으면 플레이스홀더)
+   - maxBenefit: "최대 OO만원 혜택" 배지(선택)
+   - benefits: [{ label, value }] 대표 혜택 2~3개(카탈로그 요약 컬럼)
    - annualFee: 연회비 안내
-   - highlights: 카드 요약 배지(3개 내외)
+   - spendReq: 전월실적 조건(예: 전월 30만원 이상)
+   - note: 부가 표기(예: 온라인발급 전용) — 선택
    - ebizLink: eBiz 가입 링크(고객이 타고 들어가면 담당 직원 실적)
    - prospectusUrl: 상품설명서 PDF 경로(선택)
-   - adCopy: 심의필 광고 문구 전문(안내문 자동 채우기용) — 원문 그대로 보존
+   - adCopy: 심의필 광고 문구 전문(안내문 인쇄용) — 원문 그대로 보존
 */
 
 export const CARD_MODULE = { id: "card", name: "카드", accent: "rose" };
+
+export const CARD_TYPES = [
+  { id: "credit", label: "신용카드" },
+  { id: "check", label: "체크카드" },
+];
+export const typeLabel = (t) => CARD_TYPES.find((x) => x.id === t)?.label ?? "카드";
 
 const SEVEN_AD_COPY = `심플한 카드를 찾는다면?
 국내 및 해외가맹점 7% 청구할인 (단, 전월실적 30만원 이상)
@@ -45,13 +52,17 @@ export const CARDS = [
   {
     id: "seven-cashback",
     name: "iM세븐캐쉬백카드",
-    brand: "BC · Master",
-    category: "신용카드",
-    tagline: "심플한 카드를 찾는다면?",
-    benefit: "국내·해외 가맹점 7% 청구할인",
-    benefitNote: "전월실적 30만원 이상",
-    annualFee: "BC(국내전용) 1만원 · Master(해외겸용) 1만 2천원",
-    highlights: ["국내·해외 7% 청구할인", "전월실적 30만원", "연회비 1만원~"],
+    issuer: "iM뱅크",
+    type: "credit",
+    image: "",
+    maxBenefit: "",
+    benefits: [
+      { label: "국내·해외 가맹점", value: "7% 청구할인" },
+      { label: "실적 조건", value: "전월 30만원↑" },
+    ],
+    annualFee: "BC(국내전용) 1만원 / Master(해외겸용) 1만 2천원",
+    spendReq: "전월 30만원 이상",
+    note: "",
     ebizLink:
       "https://mbanking.imbank.co.kr/com_ebz_mbs_00001.act?svcId=com_ebz_sbs_30020_0001&sms_seqno=3030011781",
     prospectusUrl: "/promo/im-seven-cashback.pdf#page=5",

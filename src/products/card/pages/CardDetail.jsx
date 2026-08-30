@@ -1,9 +1,8 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { CreditCard, Megaphone, FileText, ArrowLeft } from "lucide-react";
-import { findCard } from "../data/cards";
-import { cn } from "@shared/lib/format";
+import { findCard, typeLabel } from "../data/cards";
 
-/* 카드 상세 — 핵심 혜택·연회비 요약 + 「가입 안내문 만들기」로 바로 연결. */
+/* 카드 상세 — 대표 혜택·연회비 요약 + 「가입 안내문 만들기」로 바로 연결. */
 export const CardDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -29,23 +28,45 @@ export const CardDetail = () => {
       </Link>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-6">
-        <div className="flex items-start gap-4">
-          <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
-            <CreditCard className="h-7 w-7" />
-          </div>
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+          {card.image ? (
+            <img
+              src={card.image}
+              alt={card.name}
+              className="h-[112px] w-[172px] flex-shrink-0 self-center rounded-xl object-contain sm:self-start"
+            />
+          ) : (
+            <div className="flex h-[112px] w-[172px] flex-shrink-0 items-center justify-center self-center rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-400 sm:self-start">
+              <CreditCard className="h-9 w-9" />
+            </div>
+          )}
+
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-[22px] font-black tracking-tight text-slate-900">{card.name}</h1>
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-500">
-                {card.brand}
+                {card.issuer}
               </span>
               <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-bold text-rose-600">
-                {card.category}
+                {typeLabel(card.type)}
               </span>
             </div>
-            {card.tagline && <p className="mt-1 text-[13px] text-slate-500">{card.tagline}</p>}
-            <p className="mt-2 text-[16px] font-bold text-rose-600">{card.benefit}</p>
-            {card.benefitNote && <p className="text-[12px] text-slate-500">{card.benefitNote}</p>}
+            {card.maxBenefit && (
+              <span className="mt-2 inline-block rounded-full bg-amber-50 px-2.5 py-0.5 text-[12px] font-bold text-amber-700">
+                {card.maxBenefit}
+              </span>
+            )}
+
+            {card.benefits?.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-x-8 gap-y-2">
+                {card.benefits.map((b, i) => (
+                  <div key={i}>
+                    <div className="text-[11px] text-slate-400">{b.label}</div>
+                    <div className="text-[15px] font-bold text-slate-900">{b.value}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -56,19 +77,10 @@ export const CardDetail = () => {
               <dd className="mt-0.5 text-[13.5px] text-slate-800">{card.annualFee}</dd>
             </div>
           )}
-          {card.highlights?.length > 0 && (
+          {card.spendReq && (
             <div>
-              <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">요약</dt>
-              <dd className="mt-1 flex flex-wrap gap-1">
-                {card.highlights.map((h, i) => (
-                  <span
-                    key={i}
-                    className="rounded-md bg-slate-50 px-1.5 py-0.5 text-[11px] text-slate-600 ring-1 ring-inset ring-slate-100"
-                  >
-                    {h}
-                  </span>
-                ))}
-              </dd>
+              <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">전월실적</dt>
+              <dd className="mt-0.5 text-[13.5px] text-slate-800">{card.spendReq}</dd>
             </div>
           )}
         </dl>
@@ -95,9 +107,9 @@ export const CardDetail = () => {
         </div>
       </div>
 
-      <p className={cn("text-[11.5px] leading-relaxed text-slate-500")}>
-        「가입 안내문 만들기」를 누르면 이 카드의 eBiz 가입 링크(QR)와 심의필 광고 문구가 자동으로 채워집니다.
-        인쇄해 고객에게 바로 건네거나, 필요하면 문구를 수정할 수 있습니다.
+      <p className="text-[11.5px] leading-relaxed text-slate-500">
+        「가입 안내문 만들기」를 누르면 이 카드의 eBiz 가입 링크(QR)와 심의필 광고 문구로 안내문이 만들어집니다.
+        인쇄해 고객에게 바로 건네실 수 있습니다.
       </p>
     </div>
   );
