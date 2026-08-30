@@ -27,6 +27,8 @@ export function ProductDetailBody({ product, quote, live }) {
   const [cp, setCp] = useState("1y");
   const [monthly, setMonthly] = useState("50");
   const [years, setYears] = useState(5);
+  /* 가정 수익률 기본값 = 3년 연환산(ETF) 또는 12개월 수익률을 연 3~10%로 제한(펀드). PB가 직접 조정 가능 */
+  const [assumed, setAssumed] = useState(() => annualizedReturn(product).toFixed(1));
 
   const isEtf = product.type === "ETF";
   const chg = quote?.changePct;
@@ -45,7 +47,7 @@ export function ProductDetailBody({ product, quote, live }) {
   /* ETF는 실제 상위 편입 종목, 그 외(펀드·신탁)는 카테고리 기반 대표 구성 */
   const holdings = (isEtf && ETF_HOLDINGS[product.id]) || holdingsFor(product);
   const maxW = holdings.length ? holdings[0][1] : 1;
-  const annual = annualizedReturn(product);
+  const annual = Number(assumed) || 0;
   const sim = simulateSaving(monthly, years, annual);
 
   return (
@@ -269,7 +271,15 @@ export function ProductDetailBody({ product, quote, live }) {
               ))}
             </select>
           </label>
-          <span className="text-[11px] text-slate-500">가정 수익률 <span className="font-bold text-im-700">연 {annual.toFixed(1)}%</span></span>
+          <label className="flex flex-col gap-1">
+            <span className="text-[10px] font-semibold text-slate-500">가정 수익률(연,%)</span>
+            <input
+              value={assumed}
+              onChange={(e) => setAssumed(e.target.value.replace(/[^\d.]/g, "").slice(0, 5))}
+              inputMode="decimal"
+              className="w-20 rounded-md border border-slate-300 px-2.5 py-1.5 text-right text-[13px] tabular-nums focus:border-im-500 focus:outline-none"
+            />
+          </label>
         </div>
         <div className="mt-3 grid grid-cols-3 gap-2">
           <div className="rounded-lg bg-white px-3 py-2 text-center ring-1 ring-inset ring-slate-100">
@@ -286,7 +296,7 @@ export function ProductDetailBody({ product, quote, live }) {
           </div>
         </div>
         <p className="mt-2 text-[10.5px] leading-relaxed text-slate-400">
-          가정 수익률(연 {annual.toFixed(1)}%)이 유지된다고 가정한 단순 추정입니다. 실제 수익은 변동하며 원금손실이 발생할 수 있습니다.
+          기본 가정 수익률은 3년 수익률의 연환산(없으면 최근 12개월 수익률, 연 3~10% 제한)이며 직접 수정할 수 있습니다. 해당 수익률이 유지된다고 가정한 단순 추정으로, 실제 수익은 변동하며 원금손실이 발생할 수 있습니다.
         </p>
       </section>
 
