@@ -1,22 +1,12 @@
 import { useState, useMemo } from "react";
 import { Info, Printer, Sparkles, AlertTriangle } from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
 import { REFUND_TABLE_GENERAL, REFUND_TABLE_DEEMED } from "../../data/tax";
 import { SectionTitle } from "@shared/components/SectionTitle";
 import { NumberSync } from "@shared/components/NumberSync";
 import { PrintReport } from "@shared/components/PrintReport";
 import { SalesScript } from "@shared/components/SalesScript";
 import { NORAN_PRINT_META } from "../../printMeta";
-import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
+import { cn, formatKRW } from "@shared/lib/format";
 
 /* 적립이자 추정 — 약관 별표 정의: 각 납부한 날의 다음 날부터 해약일까지 기준이율로 부리 적립
    매월 P씩 N개월 납입 → 연단위 복리 적립식 FV 근사
@@ -159,13 +149,6 @@ export const RefundSimulator = ({ onOpenArticle }) => {
 
     return { principal, cases: withDiff, best };
   }, [monthlyAmount, paidMonths, assumedRate, specialReason]);
-
-  const chartData = result.cases.map((c) => ({
-    name: c.title.split(" ")[0].replace(/[·,]/g, "·"),
-    원금: result.principal,
-    "추정 환급금": c.refund,
-    isBest: c.key === result.best.key,
-  }));
 
   /* 고객에게 실제로 할 수 있는 말. 이 계산기는 「사유에 따라 받는 돈이 다르다」가 핵심.
      임의해약이 가장 불리하다는 점을 먼저 짚어야 성급한 해약을 막을 수 있다. */
@@ -361,27 +344,6 @@ export const RefundSimulator = ({ onOpenArticle }) => {
               PDF 저장 가능 · 모든 사유 환급금 + 디스클레이머 포함
             </span>
           </button>
-
-          {/* 차트 — 세전 환급금만 비교 */}
-          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
-            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-              사유별 환급금 비교 (세전 기준)
-            </h4>
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#64748b" }} />
-                <YAxis tickFormatter={(v) => formatKRWShort(v)} tick={{ fontSize: 10, fill: "#64748b" }} />
-                <Tooltip formatter={(v) => formatKRW(v)} contentStyle={{ fontSize: 12, borderRadius: 4, border: "1px solid #e2e8f0" }} />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="원금" fill="#94a3b8" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="추정 환급금" fill="#f59e0b" radius={[2, 2, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-              ※ 세전 기준. 수령 시 과세는 사유·가입기간·다른 소득에 따라 변동하므로 시뮬에서 별도 차감하지 않습니다.
-            </p>
-          </div>
 
           <SalesScript accent="amber" {...script} />
 

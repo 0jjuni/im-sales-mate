@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageSquareQuote, Copy, Check, ChevronDown } from "lucide-react";
+import { MessageSquareQuote, ChevronDown } from "lucide-react";
 import { cn } from "@shared/lib/format";
 
 /* 고객 안내 멘트 — 계산 결과를 「입으로 할 수 있는 말」로 제시한다.
@@ -32,36 +32,15 @@ const ACCENTS = {
 
 export const SalesScript = ({ accent = "amber", opening, detail = [], objections = [] }) => {
   const ac = ACCENTS[accent] ?? ACCENTS.amber;
-  const [copied, setCopied] = useState(false);
   const [openIdx, setOpenIdx] = useState(null);
-
-  const plain = [opening, ...detail].filter(Boolean).join("\n");
-  const copy = () => {
-    navigator.clipboard?.writeText(plain);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
 
   return (
     <div className={cn("rounded-md border p-4 print:hidden", ac.box)}>
-      <div className="mb-2.5 flex items-center justify-between gap-2">
+      <div className="mb-2.5 flex items-center gap-2">
         <h4 className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
           <MessageSquareQuote className={cn("h-4 w-4", ac.icon)} />
           고객 안내 멘트
         </h4>
-        <button
-          onClick={copy}
-          title="멘트 복사"
-          className={cn(
-            "inline-flex items-center gap-1 rounded-sm border px-2 py-1 text-[11px] font-semibold transition-colors",
-            copied
-              ? "border-slate-400 bg-white text-slate-700"
-              : "border-slate-300 bg-white text-slate-600 hover:border-slate-400"
-          )}
-        >
-          {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-          {copied ? "복사됨" : "복사"}
-        </button>
       </div>
 
       {/* 처음 꺼내는 한 마디 */}
