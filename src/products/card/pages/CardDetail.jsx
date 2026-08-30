@@ -138,8 +138,14 @@ export const CardDetail = () => {
       {(() => {
         const b = CARD_BENEFIT[card.id];
         /* 상품설명서의 법적·보일러플레이트 섹션은 제외하고 실제 혜택/서비스만 노출 */
-        const HIDE = /수수료\s*안내|이용\s*안내|유의|과세|반환|제공\s*조건|제공\s*기준|전월\s*이용금액|회원님|안내\s*사항|리볼빙|발급|가족카드|연회비|문의처|기본\s*정보|해외\s*이용\s*안내|부가서비스/;
-        const secs = (b?.sections || []).filter((s) => !HIDE.test(s.title));
+        const HIDE = /수수료\s*안내|이용\s*안내|유의|과세|반환|제공\s*조건|제공\s*기준|전월\s*이용금액|회원님|안내\s*사항|리볼빙|발급|가족카드|연회비|문의처|기본\s*정보|해외\s*이용\s*안내|부가서비스|심의|확인\s*사항|기타\s*안내|알아두|참고\s*사항|상품\s*안내|이용\s*전/;
+        /* 내용 없는 빈 소제목(다음이 소제목이거나 마지막) 제거 */
+        const trimItems = (items) =>
+          items.filter((it, i, arr) => (it.sub ? arr[i + 1] && !arr[i + 1].sub : true));
+        const secs = (b?.sections || [])
+          .filter((s) => !HIDE.test(s.title))
+          .map((s) => ({ ...s, items: trimItems(s.items) }))
+          .filter((s) => s.items.length);
         if (!b || (!b.summary && !secs.length)) return null;
         return (
           <div className="rounded-2xl border border-slate-200 bg-white p-6">
