@@ -6,8 +6,8 @@ import { Sparkline, MarketChart } from "./components/MarketChart";
 import { useWealth } from "./wealth/useWealth";
 import { useEtfLive } from "./wealth/useEtfLive";
 import { PRODUCTS, SOLD_RANK, riskMeta, riskName, pricingOf } from "./data/wealthProducts";
-import { genSeries, seriesMetrics } from "./data/wealthDetail";
-import { pct, retColor, won, eok, TYPE_CLASS, RISK_CLASS } from "./wealth/ProductDetail";
+import { genSeries } from "./data/wealthDetail";
+import { pct, retColor, won, TYPE_CLASS, RISK_CLASS } from "./wealth/ProductDetail";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 
@@ -202,77 +202,6 @@ const EtfRow = ({ product, rank, quote, watched, onWatch, onDetail, onEnroll, on
       <button onClick={() => onEnroll(product.id)} className="hidden flex-shrink-0 rounded-md bg-im-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-im-700 sm:block">
         가입
       </button>
-    </div>
-  );
-};
-
-/* ── 비교 모달 ── */
-const CompareModal = ({ products, onClose, onDetail }) => {
-  useEffect(() => {
-    const onKey = (e) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-  const cols = products.map((p) => ({ p, m: seriesMetrics(genSeries(p, "3y")) }));
-  const rows = [
-    ["기준가", ({ p }) => (p.nav == null ? "—" : p.nav.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }))],
-    ["6개월 수익률", ({ p }) => pct(p.return6m), ({ p }) => retColor(p.return6m)],
-    ["1년 수익률", ({ p }) => pct(p.return1y), ({ p }) => retColor(p.return1y)],
-    ["3년 수익률", ({ p }) => pct(p.return3y), ({ p }) => retColor(p.return3y)],
-    ["위험등급", ({ p }) => riskName(p.risk)],
-    ["연 변동성", ({ m }) => (m.vol == null ? "—" : `${m.vol}%`)],
-    ["최대낙폭", ({ m }) => (m.mdd == null ? "—" : `${m.mdd}%`), () => "text-blue-600"],
-    ["총보수(연)", ({ p }) => `${p.fee}%`],
-    ["순자산", ({ p }) => (p.aum == null ? "—" : eok(p.aum))],
-    ["당행 판매", ({ p }) => `${SOLD_RANK[p.id]}위`],
-  ];
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div className="flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5">
-          <span className="flex items-center gap-1.5 text-[15px] font-bold text-slate-900">
-            <GitCompare className="h-4 w-4 text-im-600" />
-            상품 비교 ({products.length})
-          </span>
-          <button onClick={onClose} aria-label="닫기" className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="overflow-auto">
-          <table className="w-full border-collapse text-[12px]">
-            <thead>
-              <tr className="border-b border-slate-100">
-                <th className="sticky left-0 z-10 bg-white p-2 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">항목</th>
-                {cols.map(({ p }) => (
-                  <th key={p.id} className="min-w-[9rem] p-2 align-top">
-                    <button onClick={() => onDetail(p.id)} className="text-left">
-                      <span className={cn("rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[p.type])}>{p.type}</span>
-                      <div className="mt-1 text-[12px] font-bold leading-snug text-slate-900 hover:text-im-700">{p.name}</div>
-                    </button>
-                    <div className="mt-1.5">
-                      <Sparkline series={genSeries(p, "1y")} width={110} height={30} />
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(([label, get, toneFn]) => (
-                <tr key={label} className="border-b border-slate-50">
-                  <td className="sticky left-0 z-10 bg-white p-2 text-[11px] font-semibold text-slate-500">{label}</td>
-                  {cols.map((c) => (
-                    <td key={c.p.id} className={cn("p-2 text-center font-bold tabular-nums", toneFn ? toneFn(c) : "text-slate-800")}>
-                      {get(c)}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="border-t border-slate-100 px-5 py-2 text-[10.5px] text-slate-400">변동성·최대낙폭은 생성 시계열 기준 데모 지표입니다.</p>
-      </div>
     </div>
   );
 };
@@ -496,7 +425,6 @@ export default function WealthPage() {
   const [sort, setSort] = useState("sold");
   const [query, setQuery] = useState("");
   const [compare, setCompare] = useState([]);
-  const [showCompare, setShowCompare] = useState(false);
   const [presetProduct, setPresetProduct] = useState(null);
   const [chartProduct, setChartProduct] = useState(null);
 
@@ -902,7 +830,7 @@ export default function WealthPage() {
           <div className="ml-auto flex items-center gap-2">
             <button onClick={() => setCompare([])} className="text-[11px] font-semibold text-slate-400 hover:text-slate-600">전체 해제</button>
             <button
-              onClick={() => setShowCompare(true)}
+              onClick={() => navigate(`/wealth/compare?ids=${compare.join(",")}`)}
               disabled={compare.length < 2}
               className="inline-flex items-center gap-1 rounded-md bg-im-600 px-3.5 py-1.5 text-[12px] font-bold text-white hover:bg-im-700 disabled:opacity-40"
             >
@@ -914,17 +842,6 @@ export default function WealthPage() {
       )}
 
       {chartProduct && <ChartModal product={chartProduct} onClose={() => setChartProduct(null)} />}
-
-      {showCompare && (
-        <CompareModal
-          products={compare.map((id) => PRODUCTS.find((p) => p.id === id)).filter(Boolean)}
-          onClose={() => setShowCompare(false)}
-          onDetail={(id) => {
-            setShowCompare(false);
-            goDetail(id);
-          }}
-        />
-      )}
     </HubShell>
   );
 }

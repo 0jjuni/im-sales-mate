@@ -11,6 +11,7 @@ import GrossTaxPage from "@hub/GrossTaxPage";
 import NewsPage from "@hub/NewsPage";
 import WealthPage from "@hub/WealthPage";
 import WealthDetailPage from "@hub/WealthDetailPage";
+import WealthComparePage from "@hub/WealthComparePage";
 
 /* iM 세일즈메이트 루트 라우터.
    "/"        → 허브(대시보드)
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/tax" element={<GrossTaxPage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/wealth" element={<WealthPage />} />
+        <Route path="/wealth/compare" element={<WealthComparePage />} />
         <Route path="/wealth/:id" element={<WealthDetailPage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
