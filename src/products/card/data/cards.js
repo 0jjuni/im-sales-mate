@@ -139,6 +139,9 @@ const INFO = {
   "im-greit": { blurb: "결제금액에 따라 iM뱅크 결제계좌 캐시백", tags: ["커피", "주유", "대형마트"] },
   "im-dandi-credit": { blurb: "대형마트·백화점·학원 5% 할인", tags: ["주유", "대형마트"] },
   "im-anygreen": { blurb: "전기차 충전 최대 40% 에코머니 적립", tags: ["어디서나 적립", "전기차/수소차"] },
+  "im-hd-mpoint": { blurb: "전 가맹점 1.5% M포인트 적립", tags: ["온라인쇼핑", "어디서나 적립", "외식"] },
+  "im-daebaek-black": { blurb: "대구백화점 5% 할인", tags: ["커피", "외식", "백화점"] },
+  "im-daebaek-purple": { blurb: "대구백화점 5% 할인", tags: ["커피", "외식", "백화점"] },
 };
 
 /* 상품설명서 PDF를 로컬에 저장해 둔 카드 — public/promo/cards/<id>.pdf */
