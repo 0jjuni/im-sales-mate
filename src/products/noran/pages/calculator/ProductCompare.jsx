@@ -461,9 +461,6 @@ export const ProductCompare = ({ onOpenArticle }) => {
           >
             <Printer className="w-4 h-4" />
             <span>상담 자료 인쇄</span>
-            <span className="text-[11px] font-normal text-slate-300 hidden sm:inline">
-              PDF 저장 가능 · 비교표 + 디스클레이머 포함
-            </span>
           </button>
 
           {/* 차트 — 원금 제외, 순 혜택만 비교 (세전 기준) */}

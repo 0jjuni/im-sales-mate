@@ -320,9 +320,6 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
               >
                 <Printer className="w-4 h-4" />
                 <span>상담 자료 인쇄</span>
-                <span className="text-[11px] font-normal text-slate-300 hidden sm:inline">
-                  PDF 저장 가능 · 디스클레이머·입력 조건 포함
-                </span>
               </button>
 
               <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">

@@ -340,9 +340,6 @@ export const RefundSimulator = ({ onOpenArticle }) => {
           >
             <Printer className="w-4 h-4" />
             <span>상담 자료 인쇄</span>
-            <span className="text-[11px] font-normal text-slate-300 hidden sm:inline">
-              PDF 저장 가능 · 모든 사유 환급금 + 디스클레이머 포함
-            </span>
           </button>
 
           <SalesScript accent="amber" {...script} />
