@@ -195,9 +195,9 @@ export const RefundSimulator = ({ onOpenArticle }) => {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 print:hidden">
-        {/* 입력부 */}
-        <div className="lg:col-span-2 space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 print:hidden lg:items-start">
+        {/* 입력부 — 결과가 길어도 스크롤 내내 붙어 있게 sticky */}
+        <div className="lg:col-span-2 space-y-4 lg:sticky lg:top-20 lg:self-start">
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 space-y-4">
             <SectionTitle sub="가입 조건을 입력하세요">입력</SectionTitle>
 
