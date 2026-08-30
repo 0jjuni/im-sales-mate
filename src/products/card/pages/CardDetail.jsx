@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { CreditCard, QrCode, FileText, ArrowLeft } from "lucide-react";
 import { findCard, typeLabel } from "../data/cards";
+import { CARD_BENEFIT } from "../data/cardBenefits";
 import { PdfViewerModal, QrSlipModal } from "../components/CardModals";
 
 /* 카드 이미지 — 파일이 없으면 플레이스홀더로 대체 */
@@ -133,6 +134,37 @@ export const CardDetail = () => {
           )}
         </div>
       </div>
+
+      {(() => {
+        const b = CARD_BENEFIT[card.id];
+        if (!b || (!b.summary && !b.rows?.length)) return null;
+        return (
+          <div className="rounded-2xl border border-slate-200 bg-white p-6">
+            <h2 className="text-[15px] font-bold text-slate-900">카드 혜택</h2>
+            {b.summary && (
+              <p className="mt-1.5 text-[13.5px] leading-relaxed text-slate-600">{b.summary}</p>
+            )}
+            {b.rows?.length > 0 && (
+              <div className="mt-4 border-t border-slate-100">
+                {b.rows.map((r, i) => (
+                  <div
+                    key={i}
+                    className="flex flex-col gap-0.5 border-b border-slate-100 py-2.5 sm:flex-row sm:items-baseline sm:gap-3"
+                  >
+                    <div className="flex items-baseline gap-2 sm:w-56 sm:flex-shrink-0">
+                      <span className="text-[13.5px] font-bold text-slate-900">{r.area}</span>
+                      <span className="text-[14px] font-bold text-rose-600">{r.rate}</span>
+                    </div>
+                    {r.target && (
+                      <div className="text-[12px] leading-relaxed text-slate-500 sm:flex-1">{r.target}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       <p className="text-[11.5px] leading-relaxed text-slate-500">
         {card.segment === "biz"
