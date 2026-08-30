@@ -27,8 +27,44 @@ export const buildQrPath = (text) => {
   return { size, d };
 };
 
-/* size — CSS 크기 문자열(예: "200px", "32mm"). 전표는 mm로 지정한다 */
-export const QrSvg = ({ text, size = "200px", className }) => {
+/* 중앙 iM 로고 — 오류정정 M(25%)이라 코드 폭의 약 30%까지는 가려도 인식된다.
+   흰 배경 위에 iM 심볼(민트→라임)을 얹는다. gradient id는 QR별로 유일해야 한다. */
+const CenterLogo = ({ modules, uid }) => {
+  const c = modules / 2;
+  const bw = modules * 0.3; // 흰 배경 정사각형 한 변
+  const li = bw * 0.74; // 심볼 가로 폭(흰 여백 확보)
+  const scale = li / 120; // IMSymbol 원본 viewBox 120×76
+  const lh = 76 * scale;
+  const gid = `qr-im-${uid}`;
+  return (
+    <g>
+      <rect
+        x={c - bw / 2}
+        y={c - bw / 2}
+        width={bw}
+        height={bw}
+        rx={bw * 0.16}
+        fill="#fff"
+      />
+      <defs>
+        <linearGradient id={gid} gradientUnits="userSpaceOnUse" x1="30" y1="34" x2="64" y2="70">
+          <stop offset="0" stopColor="#00C4A4" />
+          <stop offset="0.5" stopColor="#5ECB6F" />
+          <stop offset="1" stopColor="#A5CE39" />
+        </linearGradient>
+      </defs>
+      <g transform={`translate(${c - li / 2} ${c - lh / 2}) scale(${scale})`}>
+        <rect x="0" y="43" width="17" height="29" fill="#00C4A4" />
+        <path d="M24 28 A44 44 0 0 1 68 72 L49 72 A25 25 0 0 0 24 47 Z" fill={`url(#${gid})`} />
+        <path d="M96 28 A44 44 0 0 0 52 72 L71 72 A25 25 0 0 1 96 47 Z" fill="#00C4A4" />
+      </g>
+    </g>
+  );
+};
+
+/* size — CSS 크기 문자열(예: "200px", "32mm"). 전표는 mm로 지정한다.
+   logo=true면 중앙에 iM 심볼을 얹는다(작은 QR엔 권장하지 않음). */
+export const QrSvg = ({ text, size = "200px", className, logo = false }) => {
   const qr = useMemo(() => {
     if (!text) return null;
     try {
@@ -41,6 +77,12 @@ export const QrSvg = ({ text, size = "200px", className }) => {
 
   if (!qr) return null;
   const box = qr.size + QUIET_ZONE * 2;
+  /* gradient id 충돌 방지용 — 텍스트 기반 짧은 해시 */
+  const uid = useMemo(() => {
+    let h = 0;
+    for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) >>> 0;
+    return h.toString(36);
+  }, [text]);
 
   return (
     <svg
@@ -53,6 +95,7 @@ export const QrSvg = ({ text, size = "200px", className }) => {
     >
       <rect x={-QUIET_ZONE} y={-QUIET_ZONE} width={box} height={box} fill="#fff" />
       <path d={qr.d} fill="#000" />
+      {logo && <CenterLogo modules={qr.size} uid={uid} />}
     </svg>
   );
 };

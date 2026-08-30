@@ -224,7 +224,7 @@ export const PromoHandout = () => {
             <div className="text-[11px] font-bold uppercase tracking-wider text-sky-700">미리보기</div>
             <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start">
               <div className="flex-shrink-0 rounded-sm border border-slate-200 bg-white p-3">
-                <QrSvg text={url} size="180px" />
+                <QrSvg text={url} size="180px" logo />
                 <div className="mt-1 text-center text-[10px] text-slate-500">가입 QR</div>
               </div>
               <div className="min-w-0 flex-1 space-y-2">
@@ -330,7 +330,7 @@ const PromoPrint = ({ parsed, url, prospectusUrl }) => {
 
           <div className="flex-shrink-0 text-center">
             <div className="rounded border border-slate-300 bg-white p-2">
-              <QrSvg text={url} size="40mm" />
+              <QrSvg text={url} size="40mm" logo />
             </div>
             <div className="mt-1 text-[9.5px] font-semibold text-slate-600">QR로 바로 가입</div>
             {prospectusUrl && (
