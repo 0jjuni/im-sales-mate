@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Info, Printer, Sparkles, AlertTriangle } from "lucide-react";
+import { Info, Printer, AlertTriangle } from "lucide-react";
 import { REFUND_TABLE_GENERAL, REFUND_TABLE_DEEMED } from "../../data/tax";
 import { SectionTitle } from "@shared/components/SectionTitle";
 import { NumberSync } from "@shared/components/NumberSync";
@@ -144,10 +144,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
       };
     });
 
-    /* 가장 유리한 케이스 (세전 기준) */
-    const best = withDiff.reduce((m, c) => (c.refund > m.refund ? c : m), withDiff[0]);
-
-    return { principal, cases: withDiff, best };
+    return { principal, cases: withDiff };
   }, [monthlyAmount, paidMonths, assumedRate, specialReason]);
 
   /* 고객에게 실제로 할 수 있는 말. 이 계산기는 「사유에 따라 받는 돈이 다르다」가 핵심.
@@ -155,14 +152,15 @@ export const RefundSimulator = ({ onOpenArticle }) => {
   const script = useMemo(() => {
     /* 「중도에 임의로 해약 시」 — 가장 불리한 경우. 성급한 해약을 막는 근거가 된다 */
     const voluntary = result.cases.find((c) => /임의/.test(c.title));
+    const closure = result.cases.find((c) => c.key === "closure");
     const years = (paidMonths / 12).toFixed(1);
 
     return {
       opening: `같은 ${formatKRW(
         result.principal
-      )}을 넣으셨어도 어떤 사유로 받으시는지에 따라 금액이 달라집니다. 가장 많이 나오는 경우가 ${formatKRW(
-        result.best.refund
-      )}${voluntary ? `, 그냥 해약하시는 경우가 ${formatKRW(voluntary.refund)}입니다` : "입니다"}.`,
+      )}을 넣으셨어도 어떤 사유로 받으시는지에 따라 지급액이 달라집니다. 폐업·사망 같은 공제 사유면 약 ${formatKRW(
+        closure.refund
+      )}${voluntary ? `, 그냥 해약하시면 약 ${formatKRW(voluntary.refund)} 정도입니다` : "입니다"}.`,
       detail: [
         `${years}년, ${paidMonths}회 납입을 기준으로 본 추정입니다. 폐업이나 사망처럼 공제 사유가 생겼을 때가 가장 많이 나오고, 사정이 생겨 그냥 해약하시는 경우가 가장 적게 나옵니다.`,
         voluntary
@@ -299,36 +297,16 @@ export const RefundSimulator = ({ onOpenArticle }) => {
             </div>
           </div>
 
-          {/* 가장 유리한 경우 — 대표 결과 */}
-          <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-5 shadow-sm">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
-                  가장 많이 받는 경우
-                </div>
-                <div className="mt-1 text-[32px] font-black leading-none tracking-tight text-amber-700">
-                  {formatKRW(result.best.refund)}
-                </div>
-                <p className="mt-2 text-[13px] leading-relaxed text-slate-600">
-                  {result.best.title} · 납부원금 대비 {result.best.pctGross >= 0 ? "+" : ""}
-                  {result.best.pctGross.toFixed(1)}%. 아래 사유에 따라 금액이 달라집니다.
-                </p>
-              </div>
-              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-sm">
-                <Sparkles className="h-5 w-5" />
-              </div>
-            </div>
+          {/* 사유별 예상 지급액 — 어느 게 많은지가 아니라, 각각 얼마인지를 보여준다 */}
+          <div>
+            <h3 className="text-sm font-bold text-slate-900">사유별 예상 지급액</h3>
+            <p className="mt-0.5 text-[12px] leading-relaxed text-slate-500">
+              같은 금액을 내셔도 어떤 사유로 받으시는지에 따라 실제 지급액이 이렇게 달라집니다. 모두 세전 추정 기준입니다.
+            </p>
           </div>
-
-          {/* 사유별 환급금 카드 4종 */}
           <div className="space-y-2.5">
             {result.cases.map((c) => (
-              <CaseCard
-                key={c.key}
-                data={c}
-                isBest={c.key === result.best.key}
-                onOpenArticle={onOpenArticle}
-              />
+              <CaseCard key={c.key} data={c} onOpenArticle={onOpenArticle} />
             ))}
           </div>
 
@@ -374,7 +352,6 @@ export const RefundSimulator = ({ onOpenArticle }) => {
               label: c.title,
               value: formatKRW(c.refund),
               sub: c.sublabel,
-              emphasis: c.key === result.best.key,
             },
             {
               label: `  └ 납부원금 대비`,
@@ -384,7 +361,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
           ]),
         ]}
         notes={[
-          `💡 가장 유리한 시나리오 (세전): 「${result.best.title}」 — 약 ${formatKRW(result.best.refund)} (납부원금 대비 ${result.best.pctGross >= 0 ? "+" : ""}${result.best.pctGross.toFixed(1)}%)`,
+          "사유별로 받는 금액이 다릅니다. 세전 추정 기준이며, 어느 사유가 유리한지가 아니라 각 사유에서 대략 얼마가 나오는지를 보기 위한 자료입니다.",
           "별표1 (공제금): 1~6회 납부부금만 / 7회+ 「폐업·사망」은 차등지급이율(15년간 +0.3%) / 「노령·재난·질병·회생·파산」은 기준이율 부리적립",
           "별표2 (간주해약): 1~12회 납부부금만(이자 미부리) / 13~36회 100%+이자 70% / 37회+ 부리적립 전액",
           "별표3 (임의해약): 1~3회 80% / 4~6회 90% / 7~12회 100% / 13회+ 부터 적립이자 단계 가산 (10~95%)",
@@ -399,28 +376,18 @@ export const RefundSimulator = ({ onOpenArticle }) => {
 };
 
 /* 사유별 환급금 카드 — 세전 기준 */
-const CaseCard = ({ data, isBest, onOpenArticle }) => {
+const CaseCard = ({ data, onOpenArticle }) => {
   const isLoss = data.diff < 0;
   return (
     <div
       className={cn(
-        "rounded-xl p-4 shadow-sm transition-colors",
-        isBest
-          ? "border-2 border-emerald-400 bg-emerald-50"
-          : isLoss
-          ? "border border-slate-200 bg-slate-50"
-          : "border border-slate-200 bg-white"
+        "rounded-xl p-4 shadow-sm transition-colors border border-slate-200",
+        isLoss ? "bg-slate-50" : "bg-white"
       )}
     >
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-            {isBest && (
-              <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-wider font-bold text-emerald-700 bg-emerald-100 border border-emerald-300 px-1.5 py-0.5 rounded-sm">
-                <Sparkles className="w-2.5 h-2.5" />
-                가장 유리
-              </span>
-            )}
             <span className="text-[9px] uppercase tracking-wider font-bold text-slate-500 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-sm">
               {data.table}
             </span>
@@ -453,12 +420,7 @@ const CaseCard = ({ data, isBest, onOpenArticle }) => {
             )}
           </div>
         </div>
-        <div
-          className={cn(
-            "text-2xl font-black tracking-tight",
-            isBest ? "text-emerald-700" : "text-slate-900"
-          )}
-        >
+        <div className="text-2xl font-black tracking-tight text-slate-900">
           {formatKRW(data.refund)}
         </div>
       </div>
