@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { CreditCard, FileText, QrCode, Search, X, Heart } from "lucide-react";
 import { CARDS, CARD_TYPES, SEGMENTS, ALL_TAGS } from "../data/cards";
+import { PdfViewerModal, QrSlipModal } from "../components/CardModals";
 import { cn } from "@shared/lib/format";
 
 /* 관심 카드 — 뷰어별 로컬 저장(직원 개인 브라우저) */
@@ -37,7 +38,7 @@ const CardThumb = ({ card }) => {
   );
 };
 
-const CardRow = ({ card, fav, onFav }) => {
+const CardRow = ({ card, fav, onFav, onPdf, onQr }) => {
   return (
     <div className="relative flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 transition-shadow hover:shadow-[0_10px_30px_-16px_rgba(15,23,42,0.25)] sm:flex-row sm:items-center sm:p-5">
       <button
@@ -95,27 +96,23 @@ const CardRow = ({ card, fav, onFav }) => {
       <div className="flex flex-shrink-0 items-center gap-2 sm:w-[168px] sm:flex-col sm:items-stretch">
         {/* 기업카드는 영업점 가입이라 eBiz QR 없음 — 상품설명서만 노출 */}
         {card.segment !== "biz" && (
-          <a
-            href={`/card/qr/${card.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => onQr(card)}
             className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
           >
             <QrCode className="h-4 w-4" />
             가입 QR
-          </a>
+          </button>
         )}
 
         {card.prospectusUrl && (
-          <a
-            href={card.prospectusUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => onPdf(card)}
             className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-4 py-2.5 text-[13px] font-semibold text-slate-600 transition-colors hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700"
           >
             <FileText className="h-4 w-4" />
             상품설명서
-          </a>
+          </button>
         )}
       </div>
     </div>
@@ -128,6 +125,8 @@ export const CardCatalog = () => {
   const [query, setQuery] = useState("");
   const [activeTags, setActiveTags] = useState([]);
   const [favs, setFavs] = useState(loadFavs);
+  const [pdfCard, setPdfCard] = useState(null);
+  const [qrCard, setQrCard] = useState(null);
 
   useEffect(() => {
     try {
@@ -274,7 +273,14 @@ export const CardCatalog = () => {
       {list.length > 0 ? (
         <div className="space-y-3">
           {list.map((c) => (
-            <CardRow key={c.id} card={c} fav={favs.has(c.id)} onFav={toggleFav} />
+            <CardRow
+              key={c.id}
+              card={c}
+              fav={favs.has(c.id)}
+              onFav={toggleFav}
+              onPdf={setPdfCard}
+              onQr={setQrCard}
+            />
           ))}
         </div>
       ) : (
@@ -282,6 +288,9 @@ export const CardCatalog = () => {
           조건에 맞는 카드가 없습니다.
         </div>
       )}
+
+      {pdfCard && <PdfViewerModal card={pdfCard} onClose={() => setPdfCard(null)} />}
+      {qrCard && <QrSlipModal card={qrCard} onClose={() => setQrCard(null)} />}
     </div>
   );
 };

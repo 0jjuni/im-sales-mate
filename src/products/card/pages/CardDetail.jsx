@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { CreditCard, QrCode, FileText, ArrowLeft } from "lucide-react";
 import { findCard, typeLabel } from "../data/cards";
+import { PdfViewerModal, QrSlipModal } from "../components/CardModals";
 
 /* 카드 이미지 — 파일이 없으면 플레이스홀더로 대체 */
 const CardArt = ({ card }) => {
@@ -27,6 +28,8 @@ const CardArt = ({ card }) => {
 export const CardDetail = () => {
   const { id } = useParams();
   const card = findCard(id);
+  const [pdfOpen, setPdfOpen] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
 
   if (!card) {
     return (
@@ -111,26 +114,22 @@ export const CardDetail = () => {
 
         <div className="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
           {card.segment !== "biz" && (
-            <a
-              href={`/card/qr/${card.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setQrOpen(true)}
               className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
             >
               <QrCode className="h-4 w-4" />
               가입 QR
-            </a>
+            </button>
           )}
           {card.prospectusUrl && (
-            <a
-              href={card.prospectusUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setPdfOpen(true)}
               className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-3.5 py-2.5 text-[13px] font-semibold text-slate-600 transition-colors hover:border-rose-400 hover:text-rose-700"
             >
               <FileText className="h-4 w-4" />
               상품설명서
-            </a>
+            </button>
           )}
         </div>
       </div>
@@ -138,8 +137,11 @@ export const CardDetail = () => {
       <p className="text-[11.5px] leading-relaxed text-slate-500">
         {card.segment === "biz"
           ? "기업카드는 영업점에서 가입하는 상품입니다. 상품설명서로 안내해 주세요."
-          : "「가입 QR 만들기」를 누르면 eBiz에서 이 카드의 가입 링크를 불러와 QR 전표로 만듭니다. 인쇄해 고객에게 바로 건네실 수 있습니다."}
+          : "「가입 QR」을 누르면 eBiz에서 이 카드의 가입 링크를 불러와 QR 전표로 만듭니다. 인쇄해 고객에게 바로 건네실 수 있습니다."}
       </p>
+
+      {pdfOpen && <PdfViewerModal card={card} onClose={() => setPdfOpen(false)} />}
+      {qrOpen && <QrSlipModal card={card} onClose={() => setQrOpen(false)} />}
     </div>
   );
 };
