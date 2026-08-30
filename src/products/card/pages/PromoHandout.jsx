@@ -63,12 +63,19 @@ const absoluteUrl = (u) => {
 
 export const PromoHandout = () => {
   const [searchParams] = useSearchParams();
-  /* 카드 상세에서 「가입 안내문 만들기」로 넘어오면 ?card=<id>로 선택된 채로 진입 */
+  /* 카드 상세/카탈로그에서 넘어오면 ?card=<id>로 선택된 채로 진입 */
   const [cardId, setCardId] = useState(() => searchParams.get("card") || "");
+  /* 아직 문구가 등록되지 않은 카드는 이 자리에서 붙여넣어(임시) 안내문을 만든다 */
+  const [manualText, setManualText] = useState("");
 
-  /* 광고 문구는 붙여넣지 않고, 카드에 등록된 심의필 문구(adCopy)를 그대로 사용한다 */
   const card = findCard(cardId);
-  const rawText = card?.adCopy || "";
+  /* 등록된 카드는 심의필 문구(adCopy)를 그대로 사용, 미등록 카드는 붙여넣은 문구 사용 */
+  const rawText = card?.adCopy || manualText;
+
+  const selectCard = (id) => {
+    setCardId(id);
+    setManualText("");
+  };
 
   const parsed = useMemo(() => parseAd(rawText), [rawText]);
   const url = parsed?.url || "";
@@ -127,13 +134,14 @@ export const PromoHandout = () => {
           <label className="mb-1.5 block text-xs font-bold text-slate-700">카드 선택</label>
           <select
             value={cardId}
-            onChange={(e) => setCardId(e.target.value)}
+            onChange={(e) => selectCard(e.target.value)}
             className="w-full rounded-sm border border-slate-300 px-3 py-2.5 text-sm focus:border-rose-500 focus:outline-none"
           >
             <option value="">카드를 선택하세요</option>
-            {CARDS.filter((c) => c.adCopy).map((c) => (
+            {CARDS.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
+                {c.adCopy ? "" : " (문구 미등록)"}
               </option>
             ))}
           </select>
@@ -142,6 +150,26 @@ export const PromoHandout = () => {
         {!card && (
           <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 px-4 py-8 text-center text-[13px] text-slate-500">
             위에서 카드를 선택하면 가입 안내문 미리보기가 나타납니다.
+          </div>
+        )}
+
+        {/* 미등록 카드 — eBiz 광고 문구를 붙여넣어 그 자리에서 안내문 생성 */}
+        {card && !card.adCopy && (
+          <div className="rounded-xl border border-slate-200 bg-white p-5">
+            <label className="mb-1.5 block text-xs font-bold text-slate-700">
+              eBiz 광고 문구 붙여넣기{" "}
+              <span className="font-medium text-slate-400">(이 카드는 가입 문구가 아직 등록되지 않았습니다)</span>
+            </label>
+            <textarea
+              value={manualText}
+              onChange={(e) => setManualText(e.target.value)}
+              rows={9}
+              placeholder={"eBiz에서 복사한 광고 문구 전체를 붙여넣으세요.\n(상품명 · 가입 링크 · 확인사항 · 심의필 번호 포함)"}
+              className="w-full resize-y rounded-sm border border-slate-300 px-3 py-2.5 text-[13px] leading-relaxed focus:border-rose-500 focus:outline-none"
+            />
+            <p className="mt-1.5 text-[11.5px] text-slate-400">
+              여기 붙여넣은 문구는 이번 출력에만 쓰이며 저장되지 않습니다. 자주 쓰는 카드는 카드 데이터(adCopy)에 등록해 두면 매번 붙여넣지 않아도 됩니다.
+            </p>
           </div>
         )}
 
@@ -156,11 +184,11 @@ export const PromoHandout = () => {
           </div>
         )}
 
-        {card && !url && (
+        {card && card.adCopy && !url && (
           <div className="flex items-start gap-2 rounded-r-sm border-l-4 border-amber-500 bg-amber-50/60 px-4 py-2.5">
             <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
             <p className="text-xs leading-relaxed text-slate-800">
-              선택한 카드에 가입 링크가 등록되어 있지 않습니다. 카드 데이터(adCopy)를 확인해 주세요.
+              등록된 문구에서 가입 링크(http로 시작)를 찾지 못했습니다. 카드 데이터(adCopy)를 확인해 주세요.
             </p>
           </div>
         )}
