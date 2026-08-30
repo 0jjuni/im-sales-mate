@@ -95,6 +95,17 @@ export function MarketDetailModal({ market, asOf, onClose }) {
   const lo = vals.length ? Math.min(...vals) : null;
   const periodReturn =
     series.length >= 2 ? ((series[series.length - 1].c - series[0].c) / series[0].c) * 100 : null;
+  /* 연평균 수익률(CAGR) — 실제 경과기간 기준. 10일 같은 단기 구간을 연환산하면
+     과장되므로 경과기간이 약 1년 이상일 때만 산출한다. */
+  const elapsedYears =
+    series.length >= 2
+      ? (new Date(series[series.length - 1].t).getTime() - new Date(series[0].t).getTime()) /
+        (365.25 * 24 * 60 * 60 * 1000)
+      : 0;
+  const cagr =
+    elapsedYears >= 0.9 && series[0].c > 0
+      ? (Math.pow(series[series.length - 1].c / series[0].c, 1 / elapsedYears) - 1) * 100
+      : null;
   const asOfText = fmtAsOf(asOf);
   const note = pbNote(label, change);
   const changeText = `${up ? "+" : ""}${change.toFixed(2)}%`;
@@ -173,14 +184,21 @@ export function MarketDetailModal({ market, asOf, onClose }) {
               <MarketChart series={series} label={label} width={600} height={200} interactive />
             </div>
 
-            {/* 요약 통계 — 기간 기준 */}
+            {/* 요약 통계 — 기간 기준. 장기 구간이면 연평균 수익률(CAGR)도 함께 */}
             {hi != null && (
-              <div className="mt-3 grid grid-cols-3 gap-2">
+              <div className={cn("mt-3 grid gap-2", cagr != null ? "grid-cols-4" : "grid-cols-3")}>
                 <Stat
                   title={`${periodLabel} 수익률`}
                   value={periodReturn == null ? "—" : `${periodReturn > 0 ? "+" : ""}${periodReturn.toFixed(1)}%`}
                   tone={periodReturn == null ? "flat" : periodReturn > 0 ? "up" : periodReturn < 0 ? "down" : "flat"}
                 />
+                {cagr != null && (
+                  <Stat
+                    title="연평균 수익률"
+                    value={`${cagr > 0 ? "+" : ""}${cagr.toFixed(1)}%`}
+                    tone={cagr > 0 ? "up" : cagr < 0 ? "down" : "flat"}
+                  />
+                )}
                 <Stat title="기간 최고" value={num(hi)} />
                 <Stat title="기간 최저" value={num(lo)} />
               </div>
@@ -233,6 +251,9 @@ export function MarketDetailModal({ market, asOf, onClose }) {
             { label: "전일 대비", value: changeText },
             ...(periodReturn != null
               ? [{ label: `${periodLabel} 수익률`, value: `${periodReturn > 0 ? "+" : ""}${periodReturn.toFixed(1)}%` }]
+              : []),
+            ...(cagr != null
+              ? [{ label: "연평균 수익률", value: `${cagr > 0 ? "+" : ""}${cagr.toFixed(1)}%` }]
               : []),
             ...(hi != null ? [{ label: "기간 최고 / 최저", value: `${num(hi)} / ${num(lo)}` }] : []),
           ]}
