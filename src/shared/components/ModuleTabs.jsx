@@ -8,6 +8,7 @@ const ACTIVE_BORDER = {
   fuchsia: "border-fuchsia-500",
   violet: "border-violet-500",
   sky: "border-sky-500",
+  rose: "border-rose-500",
 };
 const BADGE = {
   im: "bg-im-100 text-im-700",
@@ -15,6 +16,7 @@ const BADGE = {
   fuchsia: "bg-fuchsia-100 text-fuchsia-700",
   violet: "bg-violet-100 text-violet-700",
   sky: "bg-sky-100 text-sky-700",
+  rose: "bg-rose-100 text-rose-700",
 };
 
 export function ModuleTabs({ items, activeId, onSelect, accent = "im" }) {

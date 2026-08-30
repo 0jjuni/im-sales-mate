@@ -5,13 +5,14 @@ import {
   Landmark,
   Wallet,
   Shield,
+  CreditCard,
   ArrowRight,
 } from "lucide-react";
 import { PRODUCTS } from "../data/products";
 import { CARD_INTERACTIVE } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 
-const ICONS = { Umbrella, PiggyBank, Landmark, Wallet, Shield };
+const ICONS = { Umbrella, PiggyBank, Landmark, Wallet, Shield, CreditCard };
 
 /* 상품 아이덴티티 컬러 — Tailwind JIT가 스캔하도록 정적 클래스 문자열로 보관.
    프로페셔널 톤: 채도 높은 그라디언트 대신 옅은 틴트 배경 + 같은 색 플랫 아이콘.
@@ -21,6 +22,7 @@ const ACCENT = {
   fuchsia: { text: "text-fuchsia-700", hover: "hover:border-fuchsia-300", icon: "bg-fuchsia-50 text-fuchsia-700" },
   violet: { text: "text-violet-700", hover: "hover:border-violet-300", icon: "bg-violet-50 text-violet-700" },
   sky: { text: "text-sky-700", hover: "hover:border-sky-300", icon: "bg-sky-50 text-sky-700" },
+  rose: { text: "text-rose-700", hover: "hover:border-rose-300", icon: "bg-rose-50 text-rose-700" },
 };
 
 /* 카드는 상품명·부제만 간결하게 — 세부 기능 나열은 desc 툴팁으로.

@@ -38,6 +38,7 @@ export default defineConfig({
       '@noran': fileURLToPath(new URL('./src/products/noran', import.meta.url)),
       '@isa': fileURLToPath(new URL('./src/products/isa', import.meta.url)),
       '@pension': fileURLToPath(new URL('./src/products/pension', import.meta.url)),
+      '@card': fileURLToPath(new URL('./src/products/card', import.meta.url)),
       '@utility': fileURLToPath(new URL('./src/products/utility', import.meta.url)),
     },
   },

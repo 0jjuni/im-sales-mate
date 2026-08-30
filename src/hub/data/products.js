@@ -36,6 +36,16 @@ export const PRODUCTS = [
     icon: "Landmark",
   },
   {
+    id: "card",
+    name: "카드",
+    tagline: "신용·체크카드 가입 안내",
+    desc: "카드 탐색 · eBiz 가입 링크 QR + 심의필 문구 안내문 인쇄",
+    to: "/card",
+    status: "active",
+    accent: "rose",
+    icon: "CreditCard",
+  },
+  {
     id: "banca",
     name: "방카슈랑스",
     tagline: "연금보험 · 저축성보험",
