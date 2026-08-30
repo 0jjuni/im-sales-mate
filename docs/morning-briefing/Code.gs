@@ -1,15 +1,18 @@
 /**
  * iM 세일즈메이트 — AI 모닝 브리핑 자동화 (Google Apps Script)
  *
- * 흐름:
- *   RSS 수집 → Gemini 요약 → 시트에 status="draft"로 적재
- *   → (담당자가 시트에서 검수 후 status="published"로 변경)
- *   → doGet 웹앱이 published 행만 JSON으로 서빙 → 프론트가 fetch
+ * 흐름(자동 노출):
+ *   RSS 수집 → Gemini 요약 → 시트에 status="published"로 바로 적재(AUTO_PUBLISH=true)
+ *   → doGet 웹앱이 최근 30일 published 행을 JSON으로 서빙 → 프론트가 fetch
+ *   (사람 검수를 원하면 AUTO_PUBLISH=false로 두고 시트에서 draft→published 로 변경)
+ *
+ * 매일 자동 실행: createDailyTrigger() 를 한 번 실행하면 매일 07시 collectAndDraft 가 돈다.
+ * 중복 방지: sourceUrl(링크) + headline(제목 정규화) 이중 체크. 오래된 행은 RETAIN_DAYS로 정리.
  *
  * 시트 1행(헤더)은 정확히 이 순서여야 한다:
  *   id | date | status | importance | category | headline | summary | pbNote | source | sourceUrl
  *
- * 설치는 같은 폴더의 SETUP.md 참고.
+ * 설치는 같은 폴더의 SETUP.md 참고. (요약에 GEMINI_API_KEY 스크립트 속성 필요)
  */
 
 // ── 설정 ─────────────────────────────────────────────────────
@@ -18,6 +21,8 @@ const GEMINI_MODEL = 'gemini-3.6-flash';   // 모델은 단종될 수 있음. 40
 const MAX_ITEMS_PER_RUN = 12;              // 한 번에 요약할 최대 뉴스 수(무료 쿼터 보호)
 const MAX_PER_FEED = 2;                     // 피드(주제)별 최대 — 한 주제가 브리핑을 독점하지 않게
 const CUTOFF_DAYS = 5;                      // 최근 며칠 내 기사만 (오래된 뉴스 배제)
+const AUTO_PUBLISH = true;                  // true면 검수 없이 바로 노출(status=published). 사람 검수를 쓰려면 false.
+const RETAIN_DAYS = 45;                     // 시트에서 이보다 오래된 행은 자동 정리(무한 누적 방지)
 const TZ = 'Asia/Seoul';
 
 /* 뉴스 소스 — 기본은 Google News RSS(키워드 검색, 무료·안정적).
@@ -87,6 +92,10 @@ function collectAndDraft() {
   const seen = new Set(
     lastRow > 1 ? sh.getRange(2, 10, lastRow - 1, 1).getValues().flat().filter(String) : []
   );
+  // headline(6번째 열) 정규화 기준 중복 방지 — 같은 내용이 다른 링크로 들어오는 것 차단
+  const seenTitles = new Set(
+    lastRow > 1 ? sh.getRange(2, 6, lastRow - 1, 1).getValues().flat().map(normalizeTitle_).filter(Boolean) : []
+  );
 
   const cutoff = Date.now() - CUTOFF_DAYS * 86400000;
   let items = [];
@@ -113,13 +122,15 @@ function collectAndDraft() {
     try {
       const ai = summarizeWithGemini_(it);
       if (!ai || ai.importance === 'skip' || !ai.summary) continue; // 막연·부적합은 건너뜀
+      const tkey = normalizeTitle_(ai.headline || it.title);
+      if (tkey && seenTitles.has(tkey)) continue; // 같은 내용(제목) 중복 방지
       const reportedAt = it.pubDate
         ? Utilities.formatDate(new Date(it.pubDate), TZ, 'yyyy-MM-dd')
         : today; // 보도 날짜(기사 pubDate). 없으면 수집일
       sh.appendRow([
         'auto_' + Utilities.getUuid().slice(0, 8),
         reportedAt,
-        'draft',                       // 담당자 검수 전까지는 노출 안 됨
+        AUTO_PUBLISH ? 'published' : 'draft', // AUTO_PUBLISH=true면 검수 없이 바로 노출
         ai.importance === 'high' ? 'high' : 'normal',
         ai.category || '기타',
         ai.headline || it.title,
@@ -130,11 +141,47 @@ function collectAndDraft() {
       ]);
       added++;
       seen.add(it.link);
+      if (tkey) seenTitles.add(tkey);
     } catch (e) {
       Logger.log('요약 실패: ' + e);
     }
   }
-  Logger.log('draft ' + added + '건 추가');
+  purgeOld_(sh); // 오래된 행 정리(무한 누적 방지)
+  Logger.log((AUTO_PUBLISH ? 'published ' : 'draft ') + added + '건 추가');
+}
+
+/* 제목 정규화 — 공백·문장부호·「…- 언론사」 꼬리표 제거해 같은 내용을 같은 키로 */
+function normalizeTitle_(s) {
+  return String(s || '')
+    .replace(/\s*-\s*[^-]+$/, '')                 // 구글뉴스 "제목 - 언론사" 꼬리 제거
+    .replace(/[\s·.,()[\]"'‘’“”\-–—…!?%]/g, '')   // 공백·문장부호 제거
+    .toLowerCase();
+}
+
+/* RETAIN_DAYS보다 오래된 행 삭제(아래에서 위로 지워 인덱스 밀림 방지) */
+function purgeOld_(sh) {
+  const lastRow = sh.getLastRow();
+  if (lastRow < 2) return;
+  const cutoff = Utilities.formatDate(new Date(Date.now() - RETAIN_DAYS * 86400000), TZ, 'yyyy-MM-dd');
+  const dates = sh.getRange(2, 2, lastRow - 1, 1).getValues().flat();
+  for (let i = dates.length - 1; i >= 0; i--) {
+    const d = dates[i] instanceof Date ? Utilities.formatDate(dates[i], TZ, 'yyyy-MM-dd') : String(dates[i]).trim();
+    if (d && d < cutoff) sh.deleteRow(i + 2);
+  }
+}
+
+// ── 트리거 설치 — 매일 아침 자동 수집 ────────────────────────
+/* 한 번만 실행하면 매일 07:00(±)에 collectAndDraft가 자동 실행된다.
+   중복 설치 방지를 위해 기존 트리거를 지우고 새로 만든다. */
+function createDailyTrigger() {
+  deleteDailyTriggers();
+  ScriptApp.newTrigger('collectAndDraft').timeBased().atHour(7).everyDays(1).inTimezone(TZ).create();
+  Logger.log('매일 07시 트리거 설치 완료');
+}
+function deleteDailyTriggers() {
+  ScriptApp.getProjectTriggers()
+    .filter((t) => t.getHandlerFunction() === 'collectAndDraft')
+    .forEach((t) => ScriptApp.deleteTrigger(t));
 }
 
 // ── RSS 파싱 (XmlService) ────────────────────────────────────
