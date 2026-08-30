@@ -112,6 +112,22 @@ const CATALOG = [
   ["imc-dandi.webp", "단디체크카드", "check"],
 ];
 
+/* 상품설명서 PDF를 로컬에 저장해 둔 카드 — public/promo/cards/<id>.pdf */
+const HAS_PDF = new Set([
+  "im-travel",
+  "im-kpass",
+  "im-anygreen",
+  "im-skypass-silver",
+  "im-skypass-gold",
+  "im-i",
+  "im-untact",
+  "im-one",
+  "imc-kpass",
+  "imc-a",
+  "imc-z",
+  "imc-kakaopay",
+]);
+
 const toCard = ([file, name, type]) => {
   const id = file.replace(/\.webp$/, "");
   if (id === "im-seven-cashback") return SEVEN;
@@ -127,7 +143,7 @@ const toCard = ([file, name, type]) => {
     spendReq: "",
     note: "",
     ebizLink: "",
-    prospectusUrl: "",
+    prospectusUrl: HAS_PDF.has(id) ? `/promo/cards/${id}.pdf` : "",
     adCopy: "",
   };
 };
