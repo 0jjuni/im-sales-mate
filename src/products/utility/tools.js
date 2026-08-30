@@ -31,4 +31,12 @@ export const UTILITY_TOOLS = [
     icon: "QrCode",
     group: "창구 업무",
   },
+  {
+    id: "utility.promo",
+    name: "상품 가입 안내문",
+    desc: "eBiz 가입 링크·심의필 문구로 고객 안내문 인쇄",
+    to: "/tools/promo",
+    icon: "Megaphone",
+    group: "창구 업무",
+  },
 ];

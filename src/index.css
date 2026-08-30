@@ -57,4 +57,10 @@ body {
   html.printing-market #root {
     display: none !important;
   }
+
+  /* 상품 가입 안내문 인쇄 — 화면(#root) 전체를 숨기고 body로 포탈된 A4 안내문만 출력.
+     (PromoHandout이 인쇄 직전 html.printing-promo를 붙이고, afterprint에 뗀다) */
+  html.printing-promo #root {
+    display: none !important;
+  }
 }

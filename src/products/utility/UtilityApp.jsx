@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { UserRound, MapPin, QrCode, Wrench, Home, ArrowRight } from "lucide-react";
+import { UserRound, MapPin, QrCode, Megaphone, Wrench, Home, ArrowRight } from "lucide-react";
 import { usePersonalization } from "@hub/personalization/PersonalizationContext";
 import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
@@ -9,6 +9,7 @@ import { ModuleTabs } from "@shared/components/ModuleTabs";
 import { NameRomanizer } from "./pages/NameRomanizer";
 import { AddressConverter } from "./pages/AddressConverter";
 import { QrConverter } from "./pages/QrConverter";
+import { PromoHandout } from "./pages/PromoHandout";
 
 /* 보조 도구 모듈 — 상단 네비 + 본문 탭(사이드바 제거). sky 아이덴티티. "/tools/*" 마운트. */
 
@@ -17,12 +18,14 @@ const NAV_ITEMS = [
   { id: "name", label: "영문 이름 변환기", icon: UserRound },
   { id: "address", label: "영문 주소 변환기", icon: MapPin },
   { id: "qr", label: "링크 QR 변환기", icon: QrCode },
+  { id: "promo", label: "상품 가입 안내문", icon: Megaphone },
 ];
 
 const TOOL_CARDS = [
   { id: "name", label: "영문 이름 변환기", desc: "한글 이름을 여권식 영문 표기로 변환", icon: UserRound },
   { id: "address", label: "영문 주소 변환기", desc: "도로명주소를 영문 표기로 변환", icon: MapPin },
   { id: "qr", label: "링크 QR 변환기", desc: "신청 링크를 QR로 만들어 전표 인쇄", icon: QrCode },
+  { id: "promo", label: "상품 가입 안내문", desc: "eBiz 가입 링크·심의필 문구로 고객 안내문 인쇄", icon: Megaphone },
 ];
 
 const VALID_PAGES = NAV_ITEMS.map((i) => i.id);
@@ -108,6 +111,8 @@ export default function UtilityApp() {
         <UtilityHome onNavigate={navigate} />
       ) : page === "qr" ? (
         <QrConverter />
+      ) : page === "promo" ? (
+        <PromoHandout />
       ) : page === "address" ? (
         <AddressConverter />
       ) : (

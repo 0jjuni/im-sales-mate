@@ -9,6 +9,7 @@ import {
   UserRound,
   MapPin,
   QrCode,
+  Megaphone,
   Wrench,
 } from "lucide-react";
 
@@ -25,6 +26,7 @@ const TOOL_ICONS = {
   UserRound,
   MapPin,
   QrCode,
+  Megaphone,
 };
 
 export const getToolIcon = (name) => TOOL_ICONS[name] ?? Wrench;
