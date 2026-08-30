@@ -57,6 +57,8 @@ const SEVEN = {
   issuer: "iM뱅크",
   type: "credit",
   image: IMG("im-seven-cashback.webp"),
+  blurb: "3만원 이상 일시불 이용 시 7% 할인",
+  tags: ["어디서나 할인"],
   maxBenefit: "",
   benefits: [
     { label: "국내·해외 가맹점", value: "7% 청구할인" },
@@ -112,6 +114,33 @@ const CATALOG = [
   ["imc-dandi.webp", "단디체크카드", "check"],
 ];
 
+/* iM뱅크 홈페이지 기준 카드 태그 마스터(표시·검색 순서 고정) */
+export const ALL_TAGS = [
+  "온라인쇼핑", "배달앱", "편의점", "커피", "이동통신", "어디서나 할인", "어디서나 적립",
+  "외식", "영화", "대중교통", "주유", "대형마트", "백화점", "간편결제", "스트리밍",
+  "반려동물", "아파트 관리비", "항공 마일리지", "공항라운지", "전기차/수소차",
+];
+
+/* 카드별 한 줄 혜택(blurb) + 태그 — iM뱅크 홈페이지 기준.
+   미기재 카드는 blurb "" / tags [] 로 남는다(추후 보강). */
+const INFO = {
+  "im-i": { blurb: "온라인쇼핑·배달앱·커피·편의점·이동통신 10% 할인", tags: ["온라인쇼핑", "배달앱", "편의점", "커피", "이동통신"] },
+  "im-kpass": { blurb: "K-패스 혜택에 대중교통 10% 추가할인까지", tags: ["배달앱", "편의점", "커피", "이동통신", "영화", "대중교통", "스트리밍"] },
+  "im-skypass-silver": { blurb: "1천원당 대한항공 1마일리지 적립", tags: ["항공 마일리지"] },
+  "im-skypass-gold": { blurb: "1천원당 대한항공 최대 2마일리지 적립에 공항라운지 무료까지", tags: ["항공 마일리지", "공항라운지"] },
+  "im-travel": { blurb: "해외 여행 필수템", tags: ["배달앱", "스트리밍", "공항라운지"] },
+  "im-untact": { blurb: "언택트 전용 할인 혜택", tags: ["배달앱", "간편결제", "스트리밍"] },
+  "im-petlove": { blurb: "반려동물병원 20%, 반려동물 업종 10% 할인", tags: ["외식", "대형마트", "반려동물"] },
+  "im-green-v2": { blurb: "대중교통 최대 20% 에코머니 적립", tags: ["온라인쇼핑", "어디서나 적립", "영화", "대중교통"] },
+  "im-one": { blurb: "전월 실적 없이 TOP포인트 적립", tags: ["어디서나 적립", "외식", "영화"] },
+  "im-shopping": { blurb: "최대 10% 쇼핑 할인", tags: ["온라인쇼핑", "편의점", "커피", "대형마트", "백화점"] },
+  "im-hipass": { blurb: "후불하이패스 전용 카드", tags: [] },
+  "im-living": { blurb: "생활비 할인 혜택", tags: ["온라인쇼핑", "배달앱", "대형마트", "아파트 관리비"] },
+  "im-greit": { blurb: "결제금액에 따라 iM뱅크 결제계좌 캐시백", tags: ["커피", "주유", "대형마트"] },
+  "im-dandi-credit": { blurb: "대형마트·백화점·학원 5% 할인", tags: ["주유", "대형마트"] },
+  "im-anygreen": { blurb: "전기차 충전 최대 40% 에코머니 적립", tags: ["어디서나 적립", "전기차/수소차"] },
+};
+
 /* 상품설명서 PDF를 로컬에 저장해 둔 카드 — public/promo/cards/<id>.pdf */
 const HAS_PDF = new Set([
   "im-travel",
@@ -131,12 +160,15 @@ const HAS_PDF = new Set([
 const toCard = ([file, name, type]) => {
   const id = file.replace(/\.webp$/, "");
   if (id === "im-seven-cashback") return SEVEN;
+  const info = INFO[id] || {};
   return {
     id,
     name,
     issuer: "iM뱅크",
     type,
     image: IMG(file),
+    blurb: info.blurb || "",
+    tags: info.tags || [],
     maxBenefit: "",
     benefits: [],
     annualFee: "",

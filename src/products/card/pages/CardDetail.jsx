@@ -57,6 +57,10 @@ export const CardDetail = () => {
               </span>
             )}
 
+            {card.blurb && (
+              <p className="mt-2 text-[16px] font-bold leading-snug text-slate-900">{card.blurb}</p>
+            )}
+
             {card.benefits?.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-x-8 gap-y-2">
                 {card.benefits.map((b, i) => (
@@ -64,6 +68,16 @@ export const CardDetail = () => {
                     <div className="text-[11px] text-slate-400">{b.label}</div>
                     <div className="text-[15px] font-bold text-slate-900">{b.value}</div>
                   </div>
+                ))}
+              </div>
+            )}
+
+            {card.tags?.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-1">
+                {card.tags.map((t) => (
+                  <span key={t} className="rounded-md bg-slate-100 px-2 py-0.5 text-[11.5px] text-slate-600">
+                    {t}
+                  </span>
                 ))}
               </div>
             )}

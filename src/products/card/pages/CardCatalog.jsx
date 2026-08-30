@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { CreditCard, FileText, Megaphone, Plus } from "lucide-react";
-import { CARDS, CARD_TYPES } from "../data/cards";
+import { CreditCard, FileText, Megaphone, Plus, Search, X } from "lucide-react";
+import { CARDS, CARD_TYPES, ALL_TAGS } from "../data/cards";
 import { cn } from "@shared/lib/format";
 
-/* 카드 탐색 — 카드고릴라식 가로 리스트.
-   상단 신용/체크 탭으로 거르고, 각 행에 카드 이미지·대표 혜택·연회비/실적.
+/* 카드 탐색 — 카드고릴라식 가로 리스트 + 혜택 태그 검색/필터.
+   상단 신용/체크 탭, 검색어(이름·혜택·태그), 태그 칩으로 거른다.
    가입 문구가 등록된 카드는 「가입 안내문」을 바로 출력, 미등록 카드는 등록 후 출력. */
 
 const CardThumb = ({ card }) => {
@@ -26,7 +26,7 @@ const CardThumb = ({ card }) => {
 };
 
 const CardRow = ({ card }) => {
-  const ready = !!card.adCopy; // 가입 문구(링크) 등록 여부
+  const ready = !!card.adCopy;
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 transition-shadow hover:shadow-[0_10px_30px_-16px_rgba(15,23,42,0.25)] sm:flex-row sm:items-center sm:p-5">
       <Link to={`/card/${card.id}`} className="group flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
@@ -34,19 +34,19 @@ const CardRow = ({ card }) => {
         <div className="min-w-0">
           <h3 className="text-[17px] font-bold text-slate-900 group-hover:text-rose-700">{card.name}</h3>
 
-          {card.maxBenefit && (
-            <span className="mt-1.5 inline-block rounded-full bg-amber-50 px-2.5 py-0.5 text-[12px] font-bold text-amber-700">
-              {card.maxBenefit}
-            </span>
+          {card.blurb && (
+            <p className="mt-1.5 text-[15px] font-semibold leading-snug text-slate-800">{card.blurb}</p>
           )}
 
-          {card.benefits?.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-x-7 gap-y-2">
-              {card.benefits.map((b, i) => (
-                <div key={i} className="min-w-0">
-                  <div className="text-[12px] text-slate-400">{b.label}</div>
-                  <div className="text-[16px] font-bold text-slate-800">{b.value}</div>
-                </div>
+          {card.tags?.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {card.tags.map((t) => (
+                <span
+                  key={t}
+                  className="rounded-md bg-slate-100 px-2 py-0.5 text-[11.5px] text-slate-600"
+                >
+                  {t}
+                </span>
               ))}
             </div>
           )}
@@ -102,7 +102,30 @@ const CardRow = ({ card }) => {
 
 export const CardCatalog = () => {
   const [type, setType] = useState("credit");
-  const list = CARDS.filter((c) => c.type === type);
+  const [query, setQuery] = useState("");
+  const [activeTags, setActiveTags] = useState([]);
+
+  const byType = useMemo(() => CARDS.filter((c) => c.type === type), [type]);
+
+  /* 현재 탭 카드들이 실제로 가진 태그만, 마스터 순서대로 노출 */
+  const availableTags = useMemo(() => {
+    const set = new Set(byType.flatMap((c) => c.tags || []));
+    return ALL_TAGS.filter((t) => set.has(t));
+  }, [byType]);
+
+  const toggleTag = (t) =>
+    setActiveTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+
+  const list = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return byType.filter((c) => {
+      const matchTag = activeTags.length === 0 || (c.tags || []).some((t) => activeTags.includes(t));
+      if (!matchTag) return false;
+      if (!q) return true;
+      const hay = `${c.name} ${c.blurb || ""} ${(c.tags || []).join(" ")}`.toLowerCase();
+      return hay.includes(q);
+    });
+  }, [byType, query, activeTags]);
 
   return (
     <div className="space-y-4">
@@ -113,11 +136,15 @@ export const CardCatalog = () => {
         </p>
       </div>
 
+      {/* 신용/체크 탭 */}
       <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1">
         {CARD_TYPES.map((t) => (
           <button
             key={t.id}
-            onClick={() => setType(t.id)}
+            onClick={() => {
+              setType(t.id);
+              setActiveTags([]);
+            }}
             className={cn(
               "rounded-md px-4 py-1.5 text-[13px] font-bold transition-colors",
               type === t.id ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
@@ -128,6 +155,59 @@ export const CardCatalog = () => {
         ))}
       </div>
 
+      {/* 검색 */}
+      <div className="relative max-w-md">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="카드명·혜택·태그로 검색 (예: 커피, 대중교통, 마일리지)"
+          className="w-full rounded-lg border border-slate-300 py-2.5 pl-9 pr-9 text-[13px] focus:border-rose-500 focus:outline-none"
+        />
+        {query && (
+          <button
+            onClick={() => setQuery("")}
+            aria-label="검색어 지우기"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      {/* 태그 필터 */}
+      {availableTags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {availableTags.map((t) => {
+            const on = activeTags.includes(t);
+            return (
+              <button
+                key={t}
+                onClick={() => toggleTag(t)}
+                className={cn(
+                  "rounded-full border px-3 py-1 text-[12px] font-semibold transition-colors",
+                  on
+                    ? "border-rose-500 bg-rose-500 text-white"
+                    : "border-slate-300 bg-white text-slate-600 hover:border-rose-400 hover:text-rose-700"
+                )}
+              >
+                {t}
+              </button>
+            );
+          })}
+          {activeTags.length > 0 && (
+            <button
+              onClick={() => setActiveTags([])}
+              className="rounded-full px-3 py-1 text-[12px] font-semibold text-slate-400 hover:text-slate-600"
+            >
+              필터 해제
+            </button>
+          )}
+        </div>
+      )}
+
+      <div className="text-[12px] text-slate-400">{list.length}개 카드</div>
+
       {list.length > 0 ? (
         <div className="space-y-3">
           {list.map((c) => (
@@ -136,7 +216,7 @@ export const CardCatalog = () => {
         </div>
       ) : (
         <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 px-4 py-10 text-center text-[13px] text-slate-500">
-          등록된 {type === "credit" ? "신용카드" : "체크카드"}가 아직 없습니다.
+          조건에 맞는 카드가 없습니다.
         </div>
       )}
     </div>
