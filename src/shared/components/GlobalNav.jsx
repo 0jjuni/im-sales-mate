@@ -54,7 +54,7 @@ const NAV = [
     label: "카드",
     children: [
       { to: "/card", label: "카드 탐색" },
-      { to: "/card/promo", label: "가입 안내문" },
+      { to: "/card/promo", label: "가입 QR" },
     ],
   },
   {

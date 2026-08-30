@@ -158,6 +158,32 @@ const INFO = {
   "imc-young": { blurb: "스타벅스 20% 할인", tags: ["편의점", "커피", "외식", "영화"] },
 };
 
+/* 대표 혜택 컬럼 — 목록 중앙에 [라벨 / 값] 2~3개로 노출(카드고릴라식).
+   상품설명서 대표혜택을 요약. 미기재 카드는 blurb 한 줄로 대체된다. */
+const BENEFITS = {
+  "im-travel": [{ label: "일상·여행", value: "5~10% 청구할인" }, { label: "공항라운지", value: "무료 이용" }, { label: "해외 수수료", value: "면제" }],
+  "im-kpass": [{ label: "대중교통", value: "10% 할인" }, { label: "생활업종", value: "5% 할인" }],
+  "im-living": [{ label: "생활요금", value: "10% 할인" }, { label: "스트리밍", value: "30% 할인" }],
+  "im-anygreen": [{ label: "전기·수소차 충전", value: "20~40% 적립" }, { label: "모빌리티·대중교통", value: "10% 적립" }],
+  "im-skypass-silver": [{ label: "대한항공", value: "1천원당 1마일" }],
+  "im-skypass-gold": [{ label: "대한항공", value: "1천원당 최대 2마일" }, { label: "공항라운지", value: "무료 이용" }],
+  "im-i": [{ label: "5개 영역", value: "10% 청구할인" }],
+  "im-untact": [{ label: "간편결제·배달앱", value: "10% 할인" }, { label: "스트리밍", value: "30% 할인" }],
+  "im-green-v2": [{ label: "대중교통", value: "최대 20% 적립" }, { label: "생활·영화", value: "5% 적립" }],
+  "im-greit": [{ label: "주유·마트·커피", value: "할인" }, { label: "캐시백", value: "결제계좌 입금" }],
+  "im-shopping": [{ label: "쇼핑", value: "최대 10% 할인" }, { label: "영화", value: "할인" }],
+  "im-petlove": [{ label: "동물병원", value: "20% 할인" }, { label: "반려업종", value: "10% 할인" }],
+  "im-one": [{ label: "전 가맹점", value: "TOP포인트 적립" }, { label: "전월실적", value: "조건 없음" }],
+  "im-daebaek-black": [{ label: "대구백화점", value: "우대 서비스" }, { label: "생활", value: "대백포인트" }],
+  "im-daebaek-purple": [{ label: "대구백화점", value: "우대 서비스" }, { label: "생활", value: "대백포인트" }],
+  "im-hipass": [{ label: "고속도로 통행료", value: "자동 결제" }, { label: "출퇴근", value: "20~50% 할인" }],
+  "im-dandi-credit": [{ label: "평상시 모드", value: "생활 할인" }, { label: "세이브 모드", value: "최대 70만원" }],
+  "im-hd-mpoint": [{ label: "전 가맹점", value: "1.5% M포인트" }],
+  "tictoc-pass": [{ label: "시간대별", value: "10% 할인" }, { label: "대중교통", value: "할인" }],
+  "tictoc-allday": [{ label: "시간대별", value: "10% 할인" }, { label: "대중교통", value: "할인" }],
+  "happy-credit": [{ label: "정부 바우처", value: "통합 지원" }],
+};
+
 /* 연회비 — iM뱅크 상품설명서(마크다운) 기준. 행에 "연회비 "가 앞에 붙는다. */
 const FEE = {
   "im-travel": "국내전용 14,000원 / 겸용 15,000원",
@@ -207,7 +233,7 @@ const toCard = ([file, name, type]) => {
     blurb: info.blurb || "",
     tags: info.tags || [],
     maxBenefit: "",
-    benefits: [],
+    benefits: BENEFITS[id] || [],
     annualFee: FEE[id] || "",
     spendReq: "",
     note: "",
@@ -220,3 +246,27 @@ const toCard = ([file, name, type]) => {
 export const CARDS = CATALOG.map(toCard);
 
 export const findCard = (id) => CARDS.find((c) => c.id === id) ?? null;
+
+/* eBiz에서 불러와 저장한 가입 링크/문구 — 브라우저 로컬(직원 개인)에 보관.
+   cards.js(adCopy)에 없는 카드도 한 번 저장하면 다음부터 자동으로 불러온다. */
+export const STORED_LINKS_KEY = "salesbridge.card.links";
+export const loadStoredLinks = () => {
+  try {
+    return JSON.parse(localStorage.getItem(STORED_LINKS_KEY) || "{}");
+  } catch {
+    return {};
+  }
+};
+export const saveStoredLink = (id, text) => {
+  const m = loadStoredLinks();
+  m[id] = text;
+  try {
+    localStorage.setItem(STORED_LINKS_KEY, JSON.stringify(m));
+  } catch {
+    /* 저장 불가(프라이빗 모드 등) */
+  }
+  return m;
+};
+/* 카드의 유효 가입 문구 — 코드 등록(adCopy) 우선, 없으면 저장된 링크 */
+export const resolveAdCopy = (card, stored = {}) =>
+  (card && (card.adCopy || stored[card.id])) || "";

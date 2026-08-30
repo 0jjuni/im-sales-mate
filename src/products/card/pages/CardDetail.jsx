@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { CreditCard, QrCode, FileText, ArrowLeft } from "lucide-react";
 import { findCard, typeLabel } from "../data/cards";
 
@@ -26,7 +26,6 @@ const CardArt = ({ card }) => {
 /* 카드 상세 — 대표 혜택·연회비 요약 + 「가입 안내문 만들기」로 바로 연결. */
 export const CardDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const card = findCard(id);
 
   if (!card) {
@@ -111,13 +110,15 @@ export const CardDetail = () => {
         </dl>
 
         <div className="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
-          <button
-            onClick={() => navigate(`/card/promo?card=${card.id}`)}
+          <a
+            href={`/card/promo?card=${card.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
           >
             <QrCode className="h-4 w-4" />
             가입 QR 만들기
-          </button>
+          </a>
           {card.prospectusUrl && (
             <a
               href={card.prospectusUrl}

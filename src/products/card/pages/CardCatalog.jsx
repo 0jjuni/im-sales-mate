@@ -54,8 +54,19 @@ const CardRow = ({ card, fav, onFav }) => {
         <div className="min-w-0">
           <h3 className="text-[17px] font-bold text-slate-900 group-hover:text-rose-700">{card.name}</h3>
 
-          {card.blurb && (
-            <p className="mt-1.5 text-[15px] font-semibold leading-snug text-slate-800">{card.blurb}</p>
+          {card.benefits?.length > 0 ? (
+            <div className="mt-2.5 flex flex-wrap gap-x-7 gap-y-2">
+              {card.benefits.map((b, i) => (
+                <div key={i} className="min-w-0">
+                  <div className="text-[11.5px] text-slate-400">{b.label}</div>
+                  <div className="text-[15px] font-bold text-slate-800">{b.value}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            card.blurb && (
+              <p className="mt-1.5 text-[15px] font-semibold leading-snug text-slate-800">{card.blurb}</p>
+            )
           )}
 
           {card.tags?.length > 0 && (
@@ -82,13 +93,15 @@ const CardRow = ({ card, fav, onFav }) => {
       </Link>
 
       <div className="flex flex-shrink-0 items-center gap-2 sm:w-[168px] sm:flex-col sm:items-stretch">
-        <Link
-          to={`/card/promo?card=${card.id}`}
+        <a
+          href={`/card/promo?card=${card.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
         >
           <QrCode className="h-4 w-4" />
           가입 QR
-        </Link>
+        </a>
 
         {card.prospectusUrl && (
           <a

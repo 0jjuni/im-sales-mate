@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 import { Printer, FileText, AlertTriangle, Sparkles, DownloadCloud, Check } from "lucide-react";
 import { QrSvg, buildQrPath } from "@utility/components/QrCode";
-import { CARDS, findCard } from "../data/cards";
+import { CARDS, findCard, loadStoredLinks, saveStoredLink, resolveAdCopy } from "../data/cards";
 import { cn } from "@shared/lib/format";
 
 /* 전표에 찍히는 담당 행원 표기 (추후 로그인 정보로 대체 가능) */
@@ -72,15 +72,26 @@ export const PromoHandout = () => {
   const [manualText, setManualText] = useState("");
   const [importing, setImporting] = useState(false);
   const [showImport, setShowImport] = useState(false); // 불러오기(붙여넣기) 화면 노출
+  const [stored, setStored] = useState(loadStoredLinks); // 저장된 링크(로컬)
 
   const card = findCard(cardId);
-  /* 등록된 카드는 eBiz 링크(adCopy)를 그대로 사용, 아니면 불러온(붙여넣은) 문구 사용 */
-  const rawText = card?.adCopy || manualText;
+  const savedText = resolveAdCopy(card, stored); // 코드 등록 or 저장된 링크
+  const hasLink = !!savedText;
+  /* 저장/등록된 문구 우선, 없으면 방금 붙여넣은 문구 사용 */
+  const rawText = savedText || manualText;
 
   const selectCard = (id) => {
     setCardId(id);
     setManualText("");
     setImporting(false);
+    setShowImport(false);
+  };
+
+  /* 불러온(붙여넣은) 링크를 저장 — 다음부터 자동으로 불러온다 */
+  const handleSave = () => {
+    if (!manualText.trim()) return;
+    setStored(saveStoredLink(cardId, manualText));
+    setManualText("");
     setShowImport(false);
   };
 
@@ -168,8 +179,8 @@ export const PromoHandout = () => {
           </div>
         )}
 
-        {/* eBiz 링크 불러오기 — 저장된 링크가 없으면 불러오기 버튼 → (데모)붙여넣기 */}
-        {card && !card.adCopy && (
+        {/* eBiz 링크 불러오기 — 저장/등록된 링크가 없으면 불러오기 버튼 → (데모)붙여넣기 */}
+        {card && !hasLink && (
           <div className="rounded-xl border border-slate-200 bg-white p-5">
             {!showImport ? (
               <div className="py-4 text-center">
@@ -201,16 +212,26 @@ export const PromoHandout = () => {
                   placeholder={"eBiz에서 복사한 가입 링크(또는 광고 문구)를 붙여넣으세요."}
                   className="w-full resize-y rounded-sm border border-slate-300 px-3 py-2.5 text-[13px] leading-relaxed focus:border-rose-500 focus:outline-none"
                 />
-                <p className="mt-1.5 text-[11.5px] text-slate-400">
-                  실서비스에서는 eBiz에서 자동으로 불러옵니다. 지금은 eBiz에서 복사한 링크(또는 문구)를 붙여넣어 주세요. 입력값은 이번 출력에만 쓰이며 저장되지 않습니다.
-                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={handleSave}
+                    disabled={!parseAd(manualText)?.url}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2 text-[13px] font-bold text-white transition-colors hover:bg-slate-700 disabled:opacity-50"
+                  >
+                    <Check className="h-4 w-4" />
+                    링크 저장
+                  </button>
+                  <span className="text-[11.5px] text-slate-400">
+                    저장하면 다음부터 이 카드는 자동으로 불러옵니다. (직원 브라우저에 저장)
+                  </span>
+                </div>
               </div>
             )}
           </div>
         )}
 
-        {/* 저장된 링크가 있는 카드 — 불러온 것으로 표시 */}
-        {card && card.adCopy && url && (
+        {/* 저장/등록된 링크가 있는 카드 — 불러온 것으로 표시 */}
+        {card && hasLink && url && (
           <div className="flex items-center gap-1.5 text-[12.5px] font-semibold text-emerald-700">
             <Check className="h-4 w-4" />
             eBiz에서 「{card.name}」 가입 링크를 불러왔습니다.
@@ -228,11 +249,11 @@ export const PromoHandout = () => {
           </div>
         )}
 
-        {card && card.adCopy && !url && (
+        {card && hasLink && !url && (
           <div className="flex items-start gap-2 rounded-r-sm border-l-4 border-amber-500 bg-amber-50/60 px-4 py-2.5">
             <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
             <p className="text-xs leading-relaxed text-slate-800">
-              등록된 문구에서 가입 링크(http로 시작)를 찾지 못했습니다. 카드 데이터(adCopy)를 확인해 주세요.
+              불러온 문구에서 가입 링크(http로 시작)를 찾지 못했습니다. 링크를 다시 확인해 주세요.
             </p>
           </div>
         )}
