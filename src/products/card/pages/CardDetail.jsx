@@ -106,20 +106,12 @@ export const CardDetail = () => {
           </div>
         </div>
 
-        <dl className="mt-5 grid gap-x-6 gap-y-3 border-t border-slate-100 pt-4 sm:grid-cols-2">
-          {card.annualFee && (
-            <div>
-              <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">연회비</dt>
-              <dd className="mt-0.5 text-[13.5px] text-slate-800">{card.annualFee}</dd>
-            </div>
-          )}
-          {card.spendReq && (
-            <div>
-              <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">전월실적</dt>
-              <dd className="mt-0.5 text-[13.5px] text-slate-800">{card.spendReq}</dd>
-            </div>
-          )}
-        </dl>
+        {(benefit?.fee || card.annualFee) && (
+          <dl className="mt-5 border-t border-slate-100 pt-4">
+            <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">연회비</dt>
+            <dd className="mt-0.5 text-[13.5px] text-slate-800">{benefit?.fee || card.annualFee}</dd>
+          </dl>
+        )}
 
         <div className="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
           {card.segment !== "biz" && (

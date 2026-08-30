@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { CreditCard, FileText, QrCode, Search, X, Heart } from "lucide-react";
 import { CARDS, CARD_TYPES, SEGMENTS, ALL_TAGS } from "../data/cards";
+import { CARD_BENEFIT } from "../data/cardBenefits";
 import { PdfViewerModal, QrSlipModal } from "../components/CardModals";
 import { cn } from "@shared/lib/format";
 
@@ -83,13 +84,16 @@ const CardRow = ({ card, fav, onFav, onPdf, onQr }) => {
             </div>
           )}
 
-          {(card.annualFee || card.spendReq || card.note) && (
-            <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12px] text-slate-500">
-              {card.annualFee && <span>연회비 {card.annualFee}</span>}
-              {card.spendReq && <span>{card.spendReq}</span>}
-              {card.note && <span className="text-slate-600">{card.note}</span>}
-            </div>
-          )}
+          {(() => {
+            const fee = CARD_BENEFIT[card.id]?.fee || card.annualFee;
+            if (!fee && !card.note) return null;
+            return (
+              <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12px] text-slate-500">
+                {fee && <span>연회비 {fee}</span>}
+                {card.note && <span className="text-slate-600">{card.note}</span>}
+              </div>
+            );
+          })()}
         </div>
       </Link>
 
