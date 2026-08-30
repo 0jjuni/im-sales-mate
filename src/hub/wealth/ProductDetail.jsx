@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { PieChart, Calculator, Activity } from "lucide-react";
-import { riskMeta, riskName } from "../data/wealthProducts";
+import { PieChart, Calculator, Activity, ShieldAlert, ArrowLeftRight, AlertTriangle, Scale } from "lucide-react";
+import { riskMeta, riskName, tradingRules, classSiblings, keyRisks, DEPOSIT_NOTE } from "../data/wealthProducts";
 import { DETAIL_PERIODS, genSeries, seriesMetrics, holdingsFor, annualizedReturn, simulateSaving } from "../data/wealthDetail";
 import { etfCustomerPoints, ETF_HOLDINGS } from "../data/wealthEtfLive";
 import { MarketChart, Sparkline } from "../components/MarketChart";
@@ -31,6 +31,9 @@ export function ProductDetailBody({ product, quote, live }) {
   const isEtf = product.type === "ETF";
   const chg = quote?.changePct;
   const points = isEtf ? etfCustomerPoints(product) : [];
+  const rules = tradingRules(product);
+  const siblings = classSiblings(product);
+  const risks = keyRisks(product);
 
   const rk = riskMeta(product.risk);
   const hasLongReturns = product.return3y != null || product.return5y != null;
@@ -47,6 +50,12 @@ export function ProductDetailBody({ product, quote, live }) {
 
   return (
     <div className="space-y-5">
+      {/* 예금자보호 비대상 고지 */}
+      <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] font-semibold text-amber-800">
+        <ShieldAlert className="h-4 w-4 flex-shrink-0" />
+        {DEPOSIT_NOTE}
+      </div>
+
       {/* ETF 실시간 시세 헤더 */}
       {isEtf && (
         <section className="rounded-xl border border-slate-200 bg-white p-4">
@@ -159,6 +168,22 @@ export function ProductDetailBody({ product, quote, live }) {
         </section>
       )}
 
+      {/* 주요 투자위험 */}
+      <section>
+        <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          주요 투자위험
+        </div>
+        <ul className="space-y-1.5">
+          {risks.map(([title, detail]) => (
+            <li key={title} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+              <div className="text-[12.5px] font-bold text-slate-800">{title}</div>
+              <div className="mt-0.5 text-[11.5px] leading-relaxed text-slate-600">{detail}</div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       {/* 수수료 */}
       <section>
         <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">수수료</div>
@@ -169,6 +194,52 @@ export function ProductDetailBody({ product, quote, live }) {
         </div>
         <p className="mt-1.5 text-[10.5px] text-slate-400">보수 구성은 데모 추정치입니다. 환매수수료·기타비용은 상품설명서 확인.</p>
       </section>
+
+      {/* 매입 / 환매 규칙 */}
+      <section>
+        <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <ArrowLeftRight className="h-3.5 w-3.5" />
+          매입 · 환매
+        </div>
+        <div className="overflow-hidden rounded-lg border border-slate-200">
+          {[
+            ["매입", rules.buy],
+            ["환매", rules.sell],
+            ["대금 지급", rules.payout],
+            ["환매수수료", rules.fee],
+          ].map(([k, v]) => (
+            <div key={k} className="flex gap-3 border-b border-slate-100 px-3 py-2 last:border-b-0">
+              <span className="w-16 flex-shrink-0 text-[11.5px] font-semibold text-slate-500">{k}</span>
+              <span className="text-[12px] text-slate-700">{v}</span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-1.5 text-[10.5px] text-slate-400">영업일·기준가 적용일은 유형별 일반 기준으로, 상품마다 다를 수 있어 (간이)투자설명서를 확인하세요.</p>
+      </section>
+
+      {/* 클래스 비교 — 동일 펀드의 선취(A)/미징구(C) */}
+      {siblings.length > 1 && (
+        <section>
+          <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <Scale className="h-3.5 w-3.5" />
+            클래스 비교
+          </div>
+          <div className="overflow-hidden rounded-lg border border-slate-200">
+            {siblings.map((s) => (
+              <div key={s.id} className={cn("flex items-center gap-2 border-b border-slate-100 px-3 py-2 last:border-b-0", s.id === product.id && "bg-im-50/50")}>
+                <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", s.feeClass === "선취" ? "bg-sky-50 text-sky-700" : "bg-violet-50 text-violet-700")}>
+                  {s.feeClass === "선취" ? "선취(A)" : "미징구(C)"}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-[11.5px] text-slate-600">{s.name}</span>
+                <span className="flex-shrink-0 text-[12px] font-bold tabular-nums text-slate-800">총보수 {s.fee}%</span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-1.5 text-[10.5px] leading-relaxed text-slate-400">
+            선취(A)는 가입 시 판매수수료를 한 번 내고 총보수가 낮아 <b className="text-slate-500">장기 보유</b>에, 미징구(C)는 선취수수료가 없고 총보수가 높아 <b className="text-slate-500">단기 보유</b>에 유리합니다(장기 보유 시 A가 유리해지는 교차 시점이 있음).
+          </p>
+        </section>
+      )}
 
       {/* 적립식 시뮬레이터 */}
       <section className="rounded-xl border border-im-200 bg-im-50/40 p-4">

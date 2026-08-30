@@ -113,3 +113,57 @@ export const pricingOf = (p) => {
 export const SOLD_RANK = Object.fromEntries(
   [...PRODUCTS].sort((a, b) => b.sold - a.sold).map((p, i) => [p.id, i + 1])
 );
+
+/* ── 간이투자설명서 기반 정보 ── */
+
+/* 예금자보호 여부 — 투자상품(펀드·ETF·신탁)은 실적배당·비보호 */
+export const DEPOSIT_NOTE = "예금자보호법 비보호 · 실적배당 상품 · 원금손실 가능";
+
+/* 매입/환매 규칙(간이투자설명서 기준, 유형별 근사 — 상품마다 다를 수 있음) */
+export const tradingRules = (product) => {
+  if (product.type === "ETF") {
+    return {
+      buy: "거래소에서 실시간 체결(장중 시장가로 매수)",
+      sell: "거래소에서 실시간 매도 · 결제 T+2",
+      payout: "매도대금 T+2 지급",
+      fee: "별도 환매수수료 없음(위탁매매수수료 발생)",
+    };
+  }
+  const overseas = /해외|글로벌|미국|미달러|이머징|중국|일본|유럽|신흥/.test(product.category);
+  return {
+    buy: overseas ? "15:30 이전 신청 시 제3영업일 기준가로 매입" : "15:30 이전 신청 시 제2영업일 기준가로 매입",
+    sell: overseas ? "15:30 이전 신청 시 제4영업일 기준가로 환매" : "15:30 이전 신청 시 제3영업일 기준가로 환매",
+    payout: overseas ? "환매대금 제8~9영업일 지급" : "환매대금 제4영업일 지급",
+    fee: "환매수수료 없음(일부 상품은 단기환매 시 이익금 일부 부과)",
+  };
+};
+
+/* 클래스 형제 — 동일 펀드의 다른 클래스(선취 A ↔ 미징구 C 등).
+   이름 끝의 클래스 코드를 떼어 같은 상품을 묶는다. */
+const classBase = (name) => name.replace(/([)\]])[A-Za-z][A-Za-z-]*$/, "$1");
+export const classSiblings = (product) =>
+  PRODUCTS.filter((p) => p.type === product.type && classBase(p.name) === classBase(product.name));
+
+/* 주요 투자위험(유형·카테고리 기반, 간이투자설명서 항목 참고) */
+export const keyRisks = (product) => {
+  const c = product.category || "";
+  const n = product.name || "";
+  const risks = [["원금손실 위험", "실적배당 상품으로 예금자보호가 되지 않으며 투자원금의 전부/일부 손실이 가능합니다."]];
+  if (product.assetType === "파생상품형" || /인덱스|파생|코스닥|나스닥|S&P|지수/.test(n)) {
+    risks.push(["추적오차·베이시스 위험", "지수를 추종하는 과정에서 선물·현물 가격차·운용방식 등으로 지수와 수익률 차이(추적오차)가 생길 수 있습니다."]);
+  }
+  const hedged = (/\(H\)/.test(n) || /H\(/.test(n)) && !/UH/.test(n);
+  if (/해외|글로벌|미국|중국|일본|유럽|신흥|달러/.test(c + n) && !hedged) {
+    risks.push(["환율 변동 위험", "환헤지되지 않은 부분은 원화 대비 환율 변동에 따라 수익률이 달라질 수 있습니다."]);
+  }
+  if (/중소형|코스닥|테마|2차전지|반도체|휴머노이드|로봇/.test(c + n)) {
+    risks.push(["유동성·집중 위험", "특정 업종·중소형 종목 비중이 높아 변동성과 유동성 제약이 클 수 있습니다."]);
+  }
+  if (/채권|국공채|MMF|하이일드|크레딧|인컴/.test(c + n)) {
+    risks.push(["금리·신용 위험", "금리 상승 시 채권가격이 하락할 수 있고, 편입 채권 발행사의 신용도 변화에 영향을 받습니다."]);
+  }
+  if (/주가연계|ELT|ELS/.test(c + n)) {
+    risks.push(["조기상환 미충족 위험", "기초자산이 조건을 충족하지 못하면 만기까지 보유하거나 원금손실이 발생할 수 있습니다."]);
+  }
+  return risks;
+};
