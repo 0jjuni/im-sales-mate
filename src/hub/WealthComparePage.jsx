@@ -217,7 +217,7 @@ export default function WealthComparePage() {
                     className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[11.5px] font-bold text-slate-700 hover:bg-slate-50"
                   >
                     <FileText className="h-3.5 w-3.5" />
-                    설명서
+                    간이투자설명서
                   </button>
                   <button
                     onClick={() => navigate(`/wealth?tab=customers&enroll=${p.id}`)}

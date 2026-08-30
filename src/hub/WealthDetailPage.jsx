@@ -120,7 +120,7 @@ export default function WealthDetailPage() {
 
       <p className="mt-2 text-[11px] leading-relaxed text-slate-400">
         {prospectus
-          ? "「간이투자설명서」 버튼은 해당 상품의 실제 설명서 PDF를 엽니다. 차트·지표는 데모 생성값이며, 정확한 내용은 설명서·집합투자규약을 확인하세요."
+          ? "「간이투자설명서」 버튼은 해당 상품의 실제 간이투자설명서 PDF를 엽니다. 차트·지표는 데모 생성값이며, 정확한 내용은 간이투자설명서·집합투자규약을 확인하세요."
           : "이 상품의 간이투자설명서는 데모에 포함돼 있지 않아 「조회」 시 협회 전자공시(dis.kofia.or.kr)로 이동합니다. 실서비스에서는 사내 시스템에서 상품별 PDF를 바로 엽니다."}
       </p>
     </HubShell>

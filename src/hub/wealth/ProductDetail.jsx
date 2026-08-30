@@ -194,7 +194,7 @@ export function ProductDetailBody({ product, quote, live }) {
           <MetricCell label="운용보수(연)" value={`${(product.fee * 0.5).toFixed(2)}%`} />
           <MetricCell label="총보수(연)" value={`${product.fee}%`} />
         </div>
-        <p className="mt-1.5 text-[10.5px] text-slate-400">보수 구성은 데모 추정치입니다. 환매수수료·기타비용은 상품설명서 확인.</p>
+        <p className="mt-1.5 text-[10.5px] text-slate-400">보수 구성은 데모 추정치입니다. 환매수수료·기타비용은 간이투자설명서 확인.</p>
       </section>
 
       {/* 매입 / 환매 규칙 */}
@@ -216,7 +216,7 @@ export function ProductDetailBody({ product, quote, live }) {
             </div>
           ))}
         </div>
-        <p className="mt-1.5 text-[10.5px] text-slate-400">영업일·기준가 적용일은 유형별 일반 기준으로, 상품마다 다를 수 있어 (간이)투자설명서를 확인하세요.</p>
+        <p className="mt-1.5 text-[10.5px] text-slate-400">영업일·기준가 적용일은 유형별 일반 기준으로, 상품마다 다를 수 있어 간이투자설명서를 확인하세요.</p>
       </section>
 
       {/* 클래스 비교 — 동일 펀드의 선취(A)/미징구(C) */}
