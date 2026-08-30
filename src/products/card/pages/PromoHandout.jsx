@@ -6,6 +6,9 @@ import { QrSvg, buildQrPath } from "@utility/components/QrCode";
 import { CARDS, findCard } from "../data/cards";
 import { cn } from "@shared/lib/format";
 
+/* 전표에 찍히는 담당 행원 표기 (추후 로그인 정보로 대체 가능) */
+const STAFF = "중산지점 행원 허영준";
+
 /* 상품 가입 안내문 (eBiz 연동).
 
    창구에서 카드를 권유했는데 고객이 「지금 바쁘니 나중에 가입하겠다」며 나갈 때,
@@ -195,35 +198,28 @@ export const PromoHandout = () => {
 
         {ready && parsed && (
           <div className="rounded-xl border border-slate-200 bg-white p-5">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-rose-600">미리보기</div>
-            <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-rose-600">전표 미리보기</div>
+            <div className="mt-3 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
               <div className="flex-shrink-0 rounded-sm border border-slate-200 bg-white p-3">
                 <QrSvg text={url} size="180px" logo />
-                <div className="mt-1 text-center text-[10px] text-slate-500">가입 QR</div>
               </div>
-              <div className="min-w-0 flex-1 space-y-2">
-                {parsed.eyebrow && (
-                  <div className="text-[13px] font-semibold text-rose-600">{parsed.eyebrow}</div>
-                )}
-                {parsed.product && (
-                  <div className="text-[20px] font-black leading-tight tracking-tight text-slate-900">
-                    {parsed.product}
-                  </div>
-                )}
-                {parsed.benefit && (
-                  <p className="text-[14px] font-semibold leading-snug text-slate-700">
-                    {parsed.benefit}
-                  </p>
-                )}
-                <p className="break-all pt-1 text-[12px] leading-relaxed text-slate-500">{url}</p>
+              <div className="min-w-0 flex-1">
+                <div className="text-[18px] font-black leading-tight text-slate-900">
+                  {card?.name || parsed.product}
+                </div>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-slate-600">
+                  휴대폰 카메라로 이 QR을 찍으면 「{card?.name || parsed.product}」 가입 화면으로 연결됩니다.
+                </p>
+                <p className="mt-2 text-[13px] font-bold text-slate-800">{STAFF}</p>
+                <p className="mt-1 break-all text-[11px] text-slate-400">{url}</p>
 
-                <div className="flex flex-wrap gap-2 pt-2">
+                <div className="flex flex-wrap gap-2 pt-3">
                   <button
                     onClick={handlePrint}
                     className="inline-flex items-center gap-1.5 rounded-sm bg-slate-900 px-3.5 py-2 text-[12.5px] font-bold text-white transition-colors hover:bg-slate-700"
                   >
                     <Printer className="h-3.5 w-3.5" />
-                    안내문 인쇄
+                    전표 인쇄
                   </button>
                   {prospectusUrl && (
                     <a
@@ -241,7 +237,7 @@ export const PromoHandout = () => {
             </div>
 
             <p className="mt-4 border-t border-slate-100 pt-3 text-[11px] leading-relaxed text-slate-500">
-              심의필 광고 문구는 임의로 고치지 않고 붙여넣은 원문 그대로 인쇄됩니다. 인쇄 전 QR을 직접 찍어 링크가 맞는지 확인하세요.
+              전표에는 QR·카드명·설명·행원명만 인쇄됩니다. 상세 혜택·유의사항은 상품설명서로 함께 안내하세요.
             </p>
           </div>
         )}
@@ -249,12 +245,13 @@ export const PromoHandout = () => {
 
       {ready &&
         parsed &&
-        createPortal(<PromoPrint parsed={parsed} url={url} prospectusUrl={prospectusUrl} />, document.body)}
+        createPortal(<PromoPrint cardName={card?.name || parsed.product} url={url} />, document.body)}
     </>
   );
 };
 
-const PromoPrint = ({ parsed, url, prospectusUrl }) => {
+/* 전표 인쇄 — QR · 카드명 · 설명 · 행원명만. 상세 안내는 상품설명서로 대체한다. */
+const PromoPrint = ({ cardName, url }) => {
   const now = new Date();
   const printedAt = `${now.getFullYear()}. ${String(now.getMonth() + 1).padStart(2, "0")}. ${String(
     now.getDate()
@@ -262,79 +259,27 @@ const PromoPrint = ({ parsed, url, prospectusUrl }) => {
 
   return (
     <div
-      className="hidden print:block print-report bg-white text-slate-900"
+      className="hidden print:block print-slip bg-white text-slate-900"
       style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
       aria-hidden="true"
     >
-      <div className="mx-auto max-w-3xl px-2 py-2 leading-snug">
-        <div className="flex items-baseline justify-between border-b-2 border-slate-900 pb-2">
-          <span className="text-[10px] font-black tracking-widest text-slate-500">
-            iM뱅크 · 상품 가입 안내
-          </span>
-          <span className="text-[9px] text-slate-500">인쇄일 {printedAt}</span>
+      <div className="border border-slate-400 p-4 text-center" style={{ width: "88mm" }}>
+        <div className="text-[16px] font-black leading-tight text-slate-900">{cardName}</div>
+        <div className="mt-0.5 text-[10px] font-semibold tracking-wide text-slate-500">가입 안내 QR</div>
+
+        <div className="my-3 flex justify-center">
+          <QrSvg text={url} size="45mm" logo />
         </div>
 
-        <div className="mt-3 flex items-start gap-5">
-          <div className="min-w-0 flex-1">
-            {parsed.eyebrow && (
-              <div className="text-[13px] font-bold text-rose-600">{parsed.eyebrow}</div>
-            )}
-            {parsed.product && (
-              <h1 className="mt-1 text-[26px] font-black leading-tight tracking-tight text-slate-900">
-                {parsed.product}
-              </h1>
-            )}
-            {parsed.benefit && (
-              <p className="mt-2 text-[15px] font-semibold leading-snug text-slate-800">
-                {parsed.benefit}
-              </p>
-            )}
+        <p className="text-[11px] leading-snug text-slate-700">
+          휴대폰 카메라로 QR을 찍으면
+          <br />「{cardName}」 가입 화면으로 연결됩니다.
+        </p>
 
-            <div className="mt-3 rounded border border-slate-300 bg-slate-50 px-3 py-2">
-              <div className="text-[11px] font-bold text-slate-700">가입 방법</div>
-              <p className="mt-0.5 text-[11px] text-slate-700">
-                휴대폰 카메라로 오른쪽 QR을 비추면 가입 화면으로 바로 연결됩니다.
-              </p>
-              <p className="mt-1 break-all text-[9px] text-slate-500">{url}</p>
-            </div>
-          </div>
-
-          <div className="flex-shrink-0 text-center">
-            <div className="rounded border border-slate-300 bg-white p-2">
-              <QrSvg text={url} size="40mm" logo />
-            </div>
-            <div className="mt-1 text-[9.5px] font-semibold text-slate-600">QR로 바로 가입</div>
-            {prospectusUrl && (
-              <div className="mt-2 border-t border-dashed border-slate-300 pt-2">
-                <div className="inline-block rounded border border-slate-200 bg-white p-1">
-                  <QrSvg text={prospectusUrl} size="22mm" />
-                </div>
-                <div className="mt-0.5 text-[8.5px] text-slate-500">상품설명서</div>
-              </div>
-            )}
-          </div>
+        <div className="mt-3 border-t border-slate-300 pt-2 text-[12px] font-bold text-slate-900">
+          {STAFF}
         </div>
-
-        <div className="mt-2 flex items-end justify-end gap-2 text-[9.5px] text-slate-600">
-          <span>상담 점포 · 담당자</span>
-          <span className="inline-block h-3 w-32 border-b border-slate-400" />
-        </div>
-
-        {parsed.body && (
-          <section className="mt-3 border-t border-slate-300 pt-2 break-inside-avoid">
-            <p className="whitespace-pre-wrap text-[9px] leading-snug text-slate-700">
-              {parsed.body}
-            </p>
-          </section>
-        )}
-
-        {parsed.approvals.length > 0 && (
-          <div className="mt-2 space-y-0.5 border-t-2 border-slate-900 pt-1.5 text-[9px] font-semibold text-slate-700">
-            {parsed.approvals.map((a, i) => (
-              <div key={i}>{a}</div>
-            ))}
-          </div>
-        )}
+        <div className="mt-0.5 text-[9px] text-slate-400">{printedAt}</div>
       </div>
     </div>
   );

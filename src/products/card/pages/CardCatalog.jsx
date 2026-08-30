@@ -1,8 +1,18 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { CreditCard, FileText, Megaphone, Plus, Search, X } from "lucide-react";
+import { CreditCard, FileText, Megaphone, Plus, Search, X, Heart } from "lucide-react";
 import { CARDS, CARD_TYPES, ALL_TAGS } from "../data/cards";
 import { cn } from "@shared/lib/format";
+
+/* 관심 카드 — 뷰어별 로컬 저장(직원 개인 브라우저) */
+const FAV_KEY = "salesbridge.card.favs";
+const loadFavs = () => {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(FAV_KEY) || "[]"));
+  } catch {
+    return new Set();
+  }
+};
 
 /* 카드 탐색 — 카드고릴라식 가로 리스트 + 혜택 태그 검색/필터.
    상단 신용/체크 탭, 검색어(이름·혜택·태그), 태그 칩으로 거른다.
@@ -27,10 +37,19 @@ const CardThumb = ({ card }) => {
   );
 };
 
-const CardRow = ({ card }) => {
+const CardRow = ({ card, fav, onFav }) => {
   const ready = !!card.adCopy;
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 transition-shadow hover:shadow-[0_10px_30px_-16px_rgba(15,23,42,0.25)] sm:flex-row sm:items-center sm:p-5">
+    <div className="relative flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 transition-shadow hover:shadow-[0_10px_30px_-16px_rgba(15,23,42,0.25)] sm:flex-row sm:items-center sm:p-5">
+      <button
+        onClick={() => onFav(card.id)}
+        aria-label={fav ? "관심 해제" : "관심 등록"}
+        aria-pressed={fav}
+        className="absolute right-3 top-3 z-10 rounded-full p-1 text-slate-300 transition-colors hover:text-rose-400"
+      >
+        <Heart className={cn("h-5 w-5", fav && "fill-rose-500 text-rose-500")} />
+      </button>
+
       <Link to={`/card/${card.id}`} className="group flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
         <CardThumb card={card} />
         <div className="min-w-0">
@@ -106,6 +125,22 @@ export const CardCatalog = () => {
   const [type, setType] = useState("credit");
   const [query, setQuery] = useState("");
   const [activeTags, setActiveTags] = useState([]);
+  const [favs, setFavs] = useState(loadFavs);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(FAV_KEY, JSON.stringify([...favs]));
+    } catch {
+      /* 저장 불가(프라이빗 모드 등) — 화면 상태는 유지 */
+    }
+  }, [favs]);
+
+  const toggleFav = (id) =>
+    setFavs((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
 
   const byType = useMemo(() => CARDS.filter((c) => c.type === type), [type]);
 
@@ -120,13 +155,15 @@ export const CardCatalog = () => {
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return byType.filter((c) => {
+    const filtered = byType.filter((c) => {
       const matchTag = activeTags.length === 0 || (c.tags || []).some((t) => activeTags.includes(t));
       if (!matchTag) return false;
       if (!q) return true;
       const hay = `${c.name} ${c.blurb || ""} ${(c.tags || []).join(" ")}`.toLowerCase();
       return hay.includes(q);
     });
+    /* 가입 링크(문구)가 등록돼 바로 QR 출력 가능한 카드를 앞으로 */
+    return filtered.sort((a, b) => (b.adCopy ? 1 : 0) - (a.adCopy ? 1 : 0));
   }, [byType, query, activeTags]);
 
   return (
@@ -213,7 +250,7 @@ export const CardCatalog = () => {
       {list.length > 0 ? (
         <div className="space-y-3">
           {list.map((c) => (
-            <CardRow key={c.id} card={c} />
+            <CardRow key={c.id} card={c} fav={favs.has(c.id)} onFav={toggleFav} />
           ))}
         </div>
       ) : (
