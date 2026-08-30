@@ -4,6 +4,7 @@ import { CreditCard, QrCode, FileText, ArrowLeft } from "lucide-react";
 import { findCard, typeLabel } from "../data/cards";
 import { CARD_BENEFIT } from "../data/cardBenefits";
 import { PdfViewerModal, QrSlipModal } from "../components/CardModals";
+import { cn } from "@shared/lib/format";
 
 /* 카드 이미지 — 파일이 없으면 플레이스홀더로 대체 */
 const CardArt = ({ card }) => {
@@ -31,6 +32,8 @@ export const CardDetail = () => {
   const card = findCard(id);
   const [pdfOpen, setPdfOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
+  const benefit = card ? CARD_BENEFIT[card.id] : null;
+  const brands = benefit?.brand || [];
 
   if (!card) {
     return (
@@ -58,12 +61,17 @@ export const CardDetail = () => {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-[22px] font-black tracking-tight text-slate-900">{card.name}</h1>
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-500">
-                {card.issuer}
-              </span>
               <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-bold text-rose-600">
                 {typeLabel(card.type)}
               </span>
+              {brands.map((b) => (
+                <span
+                  key={b}
+                  className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-bold text-slate-600"
+                >
+                  {b}
+                </span>
+              ))}
             </div>
             {card.maxBenefit && (
               <span className="mt-2 inline-block rounded-full bg-amber-50 px-2.5 py-0.5 text-[12px] font-bold text-amber-700">
@@ -136,41 +144,78 @@ export const CardDetail = () => {
       </div>
 
       {(() => {
-        const b = CARD_BENEFIT[card.id];
         /* 상품설명서의 법적·보일러플레이트 섹션은 제외하고 실제 혜택/서비스만 노출 */
         const HIDE = /수수료\s*안내|이용\s*안내|유의|과세|반환|제공\s*조건|제공\s*기준|전월\s*이용금액|회원님|안내\s*사항|리볼빙|발급|가족카드|연회비|문의처|기본\s*정보|해외\s*이용\s*안내|부가서비스|심의|확인\s*사항|기타\s*안내|알아두|참고\s*사항|상품\s*안내|이용\s*전|후불교통\s*안내|신청\s*안내/;
         /* 내용 없는 빈 소제목(다음이 소제목이거나 마지막) 제거 */
         const trimItems = (items) =>
-          items.filter((it, i, arr) => (it.sub ? arr[i + 1] && !arr[i + 1].sub : true));
-        const secs = (b?.sections || [])
+          items.filter((it, i, arr) => (it.k === "h" ? arr[i + 1] && arr[i + 1].k !== "h" : true));
+        const secs = (benefit?.sections || [])
           .filter((s) => !HIDE.test(s.title))
           .map((s) => ({ ...s, items: trimItems(s.items) }))
           .filter((s) => s.items.length);
-        if (!b || (!b.summary && !secs.length)) return null;
+        if (!benefit || (!benefit.summary && !secs.length)) return null;
         return (
           <div className="rounded-2xl border border-slate-200 bg-white p-6">
-            <h2 className="text-[15px] font-bold text-slate-900">카드 혜택</h2>
-            {b.summary && (
-              <p className="mt-1.5 text-[13.5px] leading-relaxed text-slate-600">{b.summary}</p>
+            <h2 className="text-[17px] font-bold text-slate-900">카드 혜택</h2>
+            {benefit.summary && (
+              <p className="mt-2 text-[14px] leading-relaxed text-slate-600">{benefit.summary}</p>
             )}
             {secs.map((s, si) => (
-              <div key={si} className="mt-4 border-t border-slate-100 pt-3.5">
-                <h3 className="text-[13.5px] font-bold text-rose-700">{s.title}</h3>
-                <ul className="mt-1.5 space-y-1">
-                  {s.items.map((it, ii) =>
-                    it.sub ? (
-                      <li key={ii} className="mt-2 text-[13px] font-bold text-slate-900">
-                        {it.t}
-                      </li>
-                    ) : (
-                      <li key={ii} className="flex gap-1.5 text-[12.5px] leading-relaxed text-slate-600">
-                        <span className="mt-0.5 flex-shrink-0 text-slate-300">·</span>
+              <section key={si} className="mt-5 border-t border-slate-100 pt-4">
+                <h3 className="text-[14.5px] font-bold text-rose-700">{s.title}</h3>
+                <div className="mt-2 space-y-1.5">
+                  {s.items.map((it, ii) => {
+                    if (it.k === "h")
+                      return (
+                        <div key={ii} className="mt-3 text-[13.5px] font-bold text-slate-900">
+                          {it.t}
+                        </div>
+                      );
+                    if (it.k === "table")
+                      return (
+                        <div key={ii} className="mt-2 overflow-x-auto">
+                          <table className="w-full border-collapse text-[12.5px]">
+                            <thead>
+                              <tr>
+                                {it.head.map((h, hi) => (
+                                  <th
+                                    key={hi}
+                                    className="border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-left font-bold text-slate-600 whitespace-nowrap"
+                                  >
+                                    {h}
+                                  </th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {it.rows.map((r, ri) => (
+                                <tr key={ri}>
+                                  {r.map((c, ci) => (
+                                    <td
+                                      key={ci}
+                                      className={cn(
+                                        "border border-slate-200 px-2.5 py-1.5 align-top text-slate-700",
+                                        ci === 0 && "font-semibold text-slate-800"
+                                      )}
+                                    >
+                                      {c}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      );
+                    return (
+                      <div key={ii} className="flex gap-2 text-[13px] leading-relaxed text-slate-600">
+                        <span className="mt-0.5 flex-shrink-0 text-rose-300">·</span>
                         <span>{it.t}</span>
-                      </li>
-                    )
-                  )}
-                </ul>
-              </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
             ))}
           </div>
         );
