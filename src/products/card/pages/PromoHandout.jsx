@@ -131,7 +131,7 @@ export const PromoHandout = () => {
             className="w-full rounded-sm border border-slate-300 px-3 py-2.5 text-sm focus:border-rose-500 focus:outline-none"
           >
             <option value="">카드를 선택하세요</option>
-            {CARDS.map((c) => (
+            {CARDS.filter((c) => c.adCopy).map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>

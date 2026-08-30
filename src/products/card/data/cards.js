@@ -1,21 +1,21 @@
 /* 카드 상품 카탈로그 — 카드 탐색·상세·가입 안내문의 공통 소스.
-   항목만 추가하면 카탈로그·상세·안내문 카드 선택에 자동 반영된다.
+
+   카드 이미지는 public/promo/cards/*.webp 로 저장해 두고 image 필드로 참조한다.
 
    필드
-   - id: URL·저장소 식별자(배포 후 변경 금지)
+   - id: URL·저장소 식별자(이미지 파일명 기준, 배포 후 변경 금지)
    - name: 카드명
    - issuer: 발급사 표기(예: iM뱅크)
    - type: "credit"(신용) | "check"(체크) — 카탈로그 상단 탭 필터
-   - image: 카드 이미지 경로(선택, 없으면 플레이스홀더)
+   - image: 카드 이미지 경로
    - maxBenefit: "최대 OO만원 혜택" 배지(선택)
    - benefits: [{ label, value }] 대표 혜택 2~3개(카탈로그 요약 컬럼)
-   - annualFee: 연회비 안내
-   - spendReq: 전월실적 조건(예: 전월 30만원 이상)
-   - note: 부가 표기(예: 온라인발급 전용) — 선택
-   - ebizLink: eBiz 가입 링크(고객이 타고 들어가면 담당 직원 실적)
+   - annualFee / spendReq / note: 연회비·전월실적·부가표기(선택)
+   - ebizLink: eBiz 가입 링크(고객이 타고 들어가면 담당 직원 실적) — eBiz에서 별도 발급
    - prospectusUrl: 상품설명서 PDF 경로(선택)
-   - adCopy: 심의필 광고 문구 전문(안내문 인쇄용) — 원문 그대로 보존
-*/
+   - adCopy: 심의필 광고 문구 전문(안내문 인쇄용) — 원문 그대로 보존. 없으면 안내문 비활성.
+
+   ※ 대표 혜택·연회비·adCopy·가입 링크는 카드별로 채워 넣는다(현재는 세븐카드만 완비). */
 
 export const CARD_MODULE = { id: "card", name: "카드", accent: "rose" };
 
@@ -24,6 +24,8 @@ export const CARD_TYPES = [
   { id: "check", label: "체크카드" },
 ];
 export const typeLabel = (t) => CARD_TYPES.find((x) => x.id === t)?.label ?? "카드";
+
+const IMG = (f) => `/promo/cards/${f}`;
 
 const SEVEN_AD_COPY = `심플한 카드를 찾는다면?
 국내 및 해외가맹점 7% 청구할인 (단, 전월실적 30만원 이상)
@@ -48,26 +50,88 @@ const SEVEN_AD_COPY = `심플한 카드를 찾는다면?
 [준법감시인 심의필 제26-92호(2026.02.01~2027.01.31)]
 [여신금융협회 심의필 제2026-C1f-00960호(2026.02.01~2027.01.31)]`;
 
-export const CARDS = [
-  {
-    id: "seven-cashback",
-    name: "iM세븐캐쉬백카드",
-    issuer: "iM뱅크",
-    type: "credit",
-    image: "",
-    maxBenefit: "",
-    benefits: [
-      { label: "국내·해외 가맹점", value: "7% 청구할인" },
-      { label: "실적 조건", value: "전월 30만원↑" },
-    ],
-    annualFee: "BC(국내전용) 1만원 / Master(해외겸용) 1만 2천원",
-    spendReq: "전월 30만원 이상",
-    note: "",
-    ebizLink:
-      "https://mbanking.imbank.co.kr/com_ebz_mbs_00001.act?svcId=com_ebz_sbs_30020_0001&sms_seqno=3030011781",
-    prospectusUrl: "/promo/im-seven-cashback.pdf#page=5",
-    adCopy: SEVEN_AD_COPY,
-  },
+/* 완비 카드 — 대표 혜택·연회비·adCopy·가입 링크까지 채워진 카드 */
+const SEVEN = {
+  id: "im-seven-cashback",
+  name: "iM 세븐 캐쉬백 카드",
+  issuer: "iM뱅크",
+  type: "credit",
+  image: IMG("im-seven-cashback.webp"),
+  maxBenefit: "",
+  benefits: [
+    { label: "국내·해외 가맹점", value: "7% 청구할인" },
+    { label: "실적 조건", value: "전월 30만원↑" },
+  ],
+  annualFee: "BC(국내전용) 1만원 / Master(해외겸용) 1만 2천원",
+  spendReq: "전월 30만원 이상",
+  note: "",
+  ebizLink:
+    "https://mbanking.imbank.co.kr/com_ebz_mbs_00001.act?svcId=com_ebz_sbs_30020_0001&sms_seqno=3030011781",
+  prospectusUrl: "/promo/im-seven-cashback.pdf#page=5",
+  adCopy: SEVEN_AD_COPY,
+};
+
+/* 카탈로그 나열 순서 — [이미지파일, 카드명, 신용/체크].
+   세븐카드는 위 SEVEN(완비)로 대체된다. 나머지는 이미지·이름만 우선 등록. */
+const CATALOG = [
+  ["im-travel.webp", "iM 트래블 카드", "credit"],
+  ["im-kpass.webp", "iM K-패스 카드", "credit"],
+  ["im-living.webp", "iM LIVING카드", "credit"],
+  ["im-anygreen.webp", "iM 어디로든 그린카드", "credit"],
+  ["im-skypass-silver.webp", "iM 스카이패스 카드 V2 Silver", "credit"],
+  ["im-skypass-gold.webp", "iM 스카이패스 카드 V2 Gold", "credit"],
+  ["im-i.webp", "iM i 카드", "credit"],
+  ["im-untact.webp", "iM UntacT 카드", "credit"],
+  ["im-green-v2.webp", "그린카드 v2", "credit"],
+  ["im-seven-cashback.webp", "iM 세븐 캐쉬백 카드", "credit"],
+  ["im-greit.webp", "GREiT(그래잇)카드", "credit"],
+  ["im-olleh-superdc.webp", "iM 올레 Super DC 카드", "credit"],
+  ["im-homeshopping.webp", "부자되세요 홈쇼핑카드", "credit"],
+  ["im-shopping.webp", "iM 쇼핑카드", "credit"],
+  ["im-petlove.webp", "iM Pet Love 카드", "credit"],
+  ["im-one.webp", "iM ONE 카드", "credit"],
+  ["im-green.webp", "그린카드", "credit"],
+  ["im-daebaek-black.webp", "대백-iM뱅크 카드 (블랙)", "credit"],
+  ["im-daebaek-purple.webp", "대백-iM뱅크 카드 (퍼플)", "credit"],
+  ["im-hipass.webp", "후불 하이패스카드", "credit"],
+  ["im-dandi-credit.webp", "단디카드", "credit"],
+  ["im-hd-mpoint.webp", "iM뱅크-현대카드M", "credit"],
+  ["imc-kpass.webp", "iM K-패스 체크카드", "check"],
+  ["imc-a.webp", "iM A 체크카드", "check"],
+  ["imc-z.webp", "iM Z 체크카드", "check"],
+  ["imc-bujamile.webp", "부자되세요 더마일리지 체크카드", "check"],
+  ["imc-ddokdi.webp", "똑디체크카드", "check"],
+  ["imc-new-hyundai.webp", "NEW 현대백화점 체크카드", "check"],
+  ["imc-kakaopay.webp", "iM 카카오페이 체크카드", "check"],
+  ["imc-happy-check.webp", "국민행복카드 체크카드", "check"],
+  ["imc-daebaek-plus.webp", "대백 플러스 체크카드", "check"],
+  ["imc-master-young.webp", "Master Y+(영플러스) 체크카드", "check"],
+  ["imc-hyundai-dept.webp", "iM 현대백화점 체크카드", "check"],
+  ["imc-young.webp", "Y+(영플러스) 체크카드", "check"],
+  ["imc-happypoint.webp", "iM 해피포인트 체크카드", "check"],
+  ["imc-dandi.webp", "단디체크카드", "check"],
 ];
+
+const toCard = ([file, name, type]) => {
+  const id = file.replace(/\.webp$/, "");
+  if (id === "im-seven-cashback") return SEVEN;
+  return {
+    id,
+    name,
+    issuer: "iM뱅크",
+    type,
+    image: IMG(file),
+    maxBenefit: "",
+    benefits: [],
+    annualFee: "",
+    spendReq: "",
+    note: "",
+    ebizLink: "",
+    prospectusUrl: "",
+    adCopy: "",
+  };
+};
+
+export const CARDS = CATALOG.map(toCard);
 
 export const findCard = (id) => CARDS.find((c) => c.id === id) ?? null;
