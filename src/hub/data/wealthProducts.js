@@ -144,6 +144,16 @@ const classBase = (name) => name.replace(/([)\]])[A-Za-z][A-Za-z-]*$/, "$1");
 export const classSiblings = (product) =>
   PRODUCTS.filter((p) => p.type === product.type && classBase(p.name) === classBase(product.name));
 
+/* 간이투자설명서 PDF — 상품별 실제 설명서 파일.
+   데모엔 KB스타코스닥150 실물만 넣어 두었고(운용사/협회에서 받은 원본),
+   나머지는 실서비스에서 사내 시스템/협회 전자공시로 조회한다(없으면 KOFIA 공시로 안내). */
+export const KOFIA_DISCLOSURE_URL = "https://dis.kofia.or.kr";
+const PROSPECTUS = {
+  "f-kosdaq150-ae": "/prospectus/kb-kosdaq150.pdf",
+  "f-kosdaq150-ce": "/prospectus/kb-kosdaq150.pdf",
+};
+export const prospectusUrlOf = (product) => (product && PROSPECTUS[product.id]) || null;
+
 /* 주요 투자위험(유형·카테고리 기반, 간이투자설명서 항목 참고) */
 export const keyRisks = (product) => {
   const c = product.category || "";
