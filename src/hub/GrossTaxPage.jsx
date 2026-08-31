@@ -578,7 +578,7 @@ export default function GrossTaxPage() {
 
   useEffect(() => {
     const prev = document.title;
-    document.title = "금융소득 종합과세 관리 · iM 세일즈메이트";
+    document.title = "고객 종합 진단 · iM 세일즈메이트";
     return () => {
       document.title = prev;
     };
@@ -610,10 +610,10 @@ export default function GrossTaxPage() {
       {/* 헤더 + 통합 의도 */}
       <div className="mb-5">
         <div className="flex items-center gap-2">
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">금융소득 종합과세 관리</h1>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">고객 종합 진단</h1>
         </div>
         <p className="mt-1 text-[13px] text-slate-500">
-          고객번호로 종합과세 대상 여부와 당행 절세상품을 조회합니다.
+          고객번호로 종합과세 여부·재무 상태를 진단하고, 미보유 상품을 상담으로 연결합니다.
           <span className="text-slate-400"> · 당행 보유 기준(타행 조회 불가)</span>
         </p>
       </div>

@@ -9,7 +9,7 @@ import { cn } from "@shared/lib/format";
 
 const NAV = [
   { to: "/", label: "홈" },
-  { to: "/tax", label: "종합과세" },
+  { to: "/tax", label: "고객 진단" },
   {
     to: "/wealth",
     label: "투자상품",

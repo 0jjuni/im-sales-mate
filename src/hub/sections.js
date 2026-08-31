@@ -6,7 +6,7 @@ import {
   Library,
   CalendarClock,
   Wrench,
-  ReceiptText,
+  UserSearch,
   LineChart,
 } from "lucide-react";
 
@@ -17,7 +17,7 @@ export const HUB_SECTIONS = [
   { id: "market", label: "마켓 보드", icon: CandlestickChart, desc: "지수·환율·금리 한 줄 요약" },
   { id: "mytools", label: "내 도구", icon: Star, desc: "자주 쓰는 계산기·도구 바로가기" },
   { id: "products", label: "상품 상담", icon: MessagesSquare, desc: "상품별 상담 화면 진입" },
-  { id: "grosstax", label: "종합과세 관리", icon: ReceiptText, desc: "고객번호로 종합과세·절세상품 조회" },
+  { id: "grosstax", label: "고객 종합 진단", icon: UserSearch, desc: "고객번호로 상태 진단 + 상품 상담 연결" },
   { id: "wealth", label: "투자상품", icon: LineChart, desc: "관심·가입 상품과 목표수익률 알림" },
   { id: "utility", label: "보조 도구", icon: Wrench, desc: "영문 이름·주소 변환 등" },
   { id: "followups", label: "일정 관리", icon: CalendarClock, desc: "후속 연락 약속과 고객 메모" },

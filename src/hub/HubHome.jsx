@@ -207,7 +207,7 @@ export function HubHome() {
         const meta = getSection("grosstax");
         return (
           <SectionPanel>
-            <SectionHeader icon={meta.icon} title="종합과세 관리" sub="고객번호로 종합과세 대상·절세상품 조회" />
+            <SectionHeader icon={meta.icon} title="고객 종합 진단" sub="고객번호로 상태 진단 + 미보유 상품 상담 연결" />
             <GrossTaxCard />
           </SectionPanel>
         );
