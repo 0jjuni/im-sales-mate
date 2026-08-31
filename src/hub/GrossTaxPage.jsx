@@ -249,9 +249,12 @@ const YesNo = ({ value, onChange }) => (
   </div>
 );
 
-const ManualField = ({ label, children }) => (
-  <div className="flex items-center gap-2">
-    <span className="text-[12.5px] font-semibold text-slate-700">{label}</span>
+const ManualField = ({ label, hint, children }) => (
+  <div className="flex flex-col gap-1">
+    <div className="flex items-baseline gap-1.5">
+      <span className="text-[12.5px] font-semibold text-slate-700">{label}</span>
+      {hint && <span className="text-[11px] font-normal text-slate-400">{hint}</span>}
+    </div>
     {children}
   </div>
 );
@@ -265,8 +268,8 @@ const ManualPanel = ({ manual, onChange }) => {
         <MessageSquareText className="h-3.5 w-3.5" />
         고객에게 확인
       </div>
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-        <ManualField label="소득 유형">
+      <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
+        <ManualField label="소득 유형" hint="노란우산·연금·기업카드 자격 판단">
           <div className="flex flex-wrap gap-1">
             {INCOME_TYPES.map((t) => (
               <SegBtn key={t} active={manual.incomeType === t} onClick={() => set("incomeType", t)}>
@@ -275,13 +278,13 @@ const ManualPanel = ({ manual, onChange }) => {
             ))}
           </div>
         </ManualField>
-        <ManualField label="무주택 세대주">
+        <ManualField label="무주택 세대주" hint="주택청약 소득공제 대상 판단">
           <YesNo value={manual.homeless} onChange={(v) => set("homeless", v)} />
         </ManualField>
-        <ManualField label="총급여 7천만원 이하">
+        <ManualField label="총급여 7천만원 이하" hint="청약·카드 소득공제 한도 판단">
           <YesNo value={manual.salaryUnder7000} onChange={(v) => set("salaryUnder7000", v)} />
         </ManualField>
-        <ManualField label="비과세종합저축 자격">
+        <ManualField label="비과세종합저축 자격" hint="비과세종합저축 가입 대상 판단">
           <select
             value={manual.nontaxQual ?? ""}
             onChange={(e) => set("nontaxQual", e.target.value || null)}
@@ -472,8 +475,8 @@ function ResultView({ data }) {
       {j.isTarget && <GuidanceForTarget data={data} />}
 
       <section>
-        <SectionTitle icon={Layers} sub="당행 보유 기준">
-          절세 상품 활용 현황
+        <SectionTitle icon={Layers} sub="당행 보유 기준 · 미보유 상품은 가입 권유로 연결">
+          상품 활용 현황
         </SectionTitle>
         <div className="grid gap-3 sm:grid-cols-2">
           {sortedProducts.map((p) => (

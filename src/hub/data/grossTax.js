@@ -18,6 +18,8 @@ export const SOURCES = {
   isa: { code: "당행", label: "ISA 가입 여부" },
   housing: { code: "당행", label: "주택청약 가입 여부" },
   noran: { code: "노란우산", label: "노란우산공제" },
+  cardPersonal: { code: "BC/당행", label: "개인 신용카드" },
+  cardBiz: { code: "BC/당행", label: "개인사업자 신용카드" },
 };
 
 /* 상품 상태 → 색/의미.
@@ -80,6 +82,8 @@ const CUSTOMERS = {
       /* 소득 유형에 따라 자격·소득공제가 달라지는 상품은 held/monthly만 두고 viewProduct로 파생 */
       { key: "housing", held: true, monthly: "10만원" },
       { key: "noran", held: true, monthly: "20만원" },
+      { key: "cardPersonal", held: true },
+      { key: "cardBiz", held: false },
     ],
   },
 
@@ -121,6 +125,8 @@ const CUSTOMERS = {
       },
       { key: "housing", held: true, monthly: "10만원" },
       { key: "noran", held: false },
+      { key: "cardPersonal", held: false },
+      { key: "cardBiz", held: false },
     ],
   },
 
@@ -157,6 +163,8 @@ const CUSTOMERS = {
       },
       { key: "housing", held: true, monthly: "10만원" },
       { key: "noran", held: true, monthly: "10만원" },
+      { key: "cardPersonal", held: true },
+      { key: "cardBiz", held: false },
     ],
   },
 };
@@ -253,6 +261,58 @@ export function viewProduct(product, manual, restricted = false) {
       note: deductible
         ? "무주택 세대주 근로자(총급여 7천만원 이하) 소득공제 대상. 유지 권장."
         : "청약 자격 유지 목적. 소득공제는 무주택·근로·총급여 7천만원 이하만.",
+    };
+  }
+
+  if (product.key === "cardPersonal") {
+    if (product.held) {
+      return {
+        ...product,
+        state: "active",
+        metrics: [{ label: "보유", value: "개인 신용카드" }],
+        note: "개인 신용카드 보유 중 — 소득공제·캐시백 혜택 카드로 재점검 여지.",
+      };
+    }
+    return {
+      ...product,
+      state: "recommend",
+      cta: { to: "/card", label: "카드 권유" },
+      metrics: [{ label: "미보유", value: "개인 신용카드", strong: true }],
+      note: "개인 신용카드 미보유 — 소득공제 문턱 활용 + 캐시백 카드 신규 권유.",
+    };
+  }
+
+  if (product.key === "cardBiz") {
+    if (incomeType && incomeType !== "개인사업자") {
+      return {
+        ...product,
+        state: "none",
+        metrics: [{ label: "가입 대상", value: "개인사업자" }],
+        note: "개인사업자 전용 기업카드 — 해당 없음.",
+      };
+    }
+    if (product.held) {
+      return {
+        ...product,
+        state: "active",
+        metrics: [{ label: "보유", value: "개인사업자 신용카드" }],
+        note: "기업카드 보유 중 — 사업지원·경비관리 서비스 활용 점검.",
+      };
+    }
+    if (incomeType == null) {
+      return {
+        ...product,
+        state: "unknown",
+        metrics: [{ label: "가입 대상", value: "개인사업자" }],
+        note: "소득 유형(개인사업자) 확인 후 기업카드 권유.",
+      };
+    }
+    return {
+      ...product,
+      state: "recommend",
+      cta: { to: "/card", label: "기업카드 권유" },
+      metrics: [{ label: "미보유", value: "개인사업자 신용카드", strong: true }],
+      note: "개인사업자 — 기업 신용카드 미보유. 사업지원·부가세환급·경비관리 카드 권유.",
     };
   }
 
