@@ -6,13 +6,14 @@ import {
   Wallet,
   Shield,
   CreditCard,
+  LineChart,
   ArrowRight,
 } from "lucide-react";
 import { PRODUCTS } from "../data/products";
 import { CARD_INTERACTIVE } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 
-const ICONS = { Umbrella, PiggyBank, Landmark, Wallet, Shield, CreditCard };
+const ICONS = { Umbrella, PiggyBank, Landmark, Wallet, Shield, CreditCard, LineChart };
 
 /* 상품 아이덴티티 컬러 — Tailwind JIT가 스캔하도록 정적 클래스 문자열로 보관.
    프로페셔널 톤: 채도 높은 그라디언트 대신 옅은 틴트 배경 + 같은 색 플랫 아이콘.
@@ -23,6 +24,7 @@ const ACCENT = {
   violet: { text: "text-violet-700", hover: "hover:border-violet-300", icon: "bg-violet-50 text-violet-700" },
   sky: { text: "text-sky-700", hover: "hover:border-sky-300", icon: "bg-sky-50 text-sky-700" },
   rose: { text: "text-rose-700", hover: "hover:border-rose-300", icon: "bg-rose-50 text-rose-700" },
+  emerald: { text: "text-emerald-700", hover: "hover:border-emerald-300", icon: "bg-emerald-50 text-emerald-700" },
 };
 
 /* 카드는 상품명·부제만 간결하게 — 세부 기능 나열은 desc 툴팁으로.
@@ -79,7 +81,7 @@ const ProductCard = ({ product }) => {
 
 export function ProductGrid() {
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 grid-cols-2 lg:grid-cols-5">
       {PRODUCTS.map((p) => (
         <ProductCard key={p.id} product={p} />
       ))}
