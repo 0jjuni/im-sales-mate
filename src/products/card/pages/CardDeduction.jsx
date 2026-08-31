@@ -1,12 +1,12 @@
 import { CardDeductionGuide } from "../components/CardDeductionGuide";
 
-/* 카드 모듈 「소득공제」 탭 — 신용카드 소득공제 문턱 계산 + 카드 활용 전략. */
+/* 카드 모듈 「소득공제」 탭 — 신용카드 소득공제 최저사용금액 계산 + 카드 활용 전략. */
 export const CardDeduction = () => (
   <div className="space-y-4">
     <div>
       <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">신용카드 소득공제</h1>
       <p className="mt-1 text-sm text-slate-600">
-        고객의 연 총급여로 소득공제 문턱(총급여 25%)을 계산해, 어디까지 신용카드가 유리한지 안내합니다.
+        고객의 연 총급여로 소득공제 최저사용금액(총급여 25%)을 계산해, 어디까지 신용카드가 유리한지 안내합니다.
       </p>
     </div>
 

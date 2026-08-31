@@ -65,10 +65,10 @@ export function CardDeductionGuide({ ctaTo = "/card", ctaLabel = "iM 카드 추�
         <div className="px-5 py-5">
           {/* 문턱 */}
           <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-4">
-            <div className="text-[12.5px] font-semibold text-slate-500">소득공제 시작 문턱 (연 카드사용액)</div>
+            <div className="text-[12.5px] font-semibold text-slate-500">소득공제 최저사용금액 (연 카드사용액)</div>
             <div className="mt-1 flex flex-wrap items-baseline gap-2">
               <span className="text-[28px] font-black tabular-nums text-rose-700">{won(threshold)}</span>
-              <span className="text-[13px] text-slate-500">총급여 {won(s)}의 25%</span>
+              <span className="text-[13px] text-slate-500">총급여 {won(s)}의 25% · 초과분부터 공제</span>
             </div>
           </div>
 
@@ -87,14 +87,14 @@ export function CardDeductionGuide({ ctaTo = "/card", ctaLabel = "iM 카드 추�
               <tbody>
                 <tr>
                   <td className="border border-slate-200 px-3 py-2.5 align-top font-semibold text-slate-800 whitespace-nowrap">
-                    문턱까지<div className="text-[11.5px] font-normal text-slate-400">~ {won(threshold)}</div>
+                    최저사용금액까지<div className="text-[11.5px] font-normal text-slate-400">~ {won(threshold)}</div>
                   </td>
                   <td className="border border-slate-200 px-3 py-2.5 align-top text-slate-600">공제 없음</td>
                   <td className="border border-slate-200 px-3 py-2.5 align-top text-slate-700">캐시백·할인 큰 신용카드</td>
                 </tr>
                 <tr>
                   <td className="border border-slate-200 px-3 py-2.5 align-top font-semibold text-slate-800 whitespace-nowrap">
-                    문턱 초과분<div className="text-[11.5px] font-normal text-slate-400">{won(threshold)} 초과</div>
+                    최저사용금액 초과분<div className="text-[11.5px] font-normal text-slate-400">{won(threshold)} 초과</div>
                   </td>
                   <td className="border border-slate-200 px-3 py-2.5 align-top text-slate-600">
                     신용 15%<br />체크·현금 30%<br />전통시장·대중교통 40%
@@ -130,7 +130,7 @@ export function CardDeductionGuide({ ctaTo = "/card", ctaLabel = "iM 카드 추�
         </div>
       ) : (
         <div className="px-5 py-8 text-center text-[13px] text-slate-400">
-          연 총급여를 입력하면 소득공제 문턱과 카드 전략을 계산합니다.
+          연 총급여를 입력하면 소득공제 최저사용금액과 카드 전략을 계산합니다.
         </div>
       )}
     </div>

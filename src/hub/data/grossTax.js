@@ -278,7 +278,7 @@ export function viewProduct(product, manual, restricted = false) {
       state: "recommend",
       cta: { to: "/card", label: "카드 권유" },
       metrics: [{ label: "미보유", value: "개인 신용카드", strong: true }],
-      note: "개인 신용카드 미보유 — 소득공제 문턱 활용 + 캐시백 카드 신규 권유.",
+      note: "개인 신용카드 미보유 — 최저사용금액 초과분 소득공제 + 캐시백 카드 신규 권유.",
     };
   }
 
