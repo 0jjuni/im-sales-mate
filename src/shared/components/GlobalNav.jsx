@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { IMSymbol } from "@hub/components/IMSymbol";
+import { QuickCustomerLookup } from "./QuickCustomerLookup";
 import { cn } from "@shared/lib/format";
 
 /* 글로벌 상단 네비게이션 — 모든 화면 공통 뼈대.
@@ -144,8 +145,11 @@ export function GlobalNav({ right = null }) {
           ))}
         </nav>
 
-        {/* 우측 — 페이지별 액션 슬롯 */}
-        {right && <div className="flex flex-shrink-0 items-center gap-2">{right}</div>}
+        {/* 우측 — 상시 진입점(고객 조회) + 페이지별 액션 슬롯 */}
+        <div className="flex flex-shrink-0 items-center gap-2">
+          <QuickCustomerLookup />
+          {right}
+        </div>
       </div>
     </header>
   );

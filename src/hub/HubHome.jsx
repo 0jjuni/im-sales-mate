@@ -11,6 +11,8 @@ import {
   ArrowUp,
   ArrowDown,
   HelpCircle,
+  UserSearch,
+  Pin,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { getSection } from "./sections";
@@ -27,6 +29,31 @@ import { UtilityGrid } from "./components/UtilityGrid";
 import { KnowledgeLibrary } from "./components/KnowledgeLibrary";
 import { EditGuide, hasSeenEditGuide, markEditGuideSeen } from "./components/EditGuide";
 import { cn } from "@shared/lib/format";
+
+/* 고정 히어로 — '고객 종합 진단'. 모든 상담의 시작점이라 개인화(순서·숨김) 대상에서 빼고
+   대시보드 최상단에 항상 렌더한다. 일반 섹션 패널보다 강조(민트 그라디언트 + 큰 아이콘)해
+   "여기서 시작"이 한눈에 보이게 한다. */
+const GrossTaxHero = () => (
+  <section id="grosstax" className="scroll-mt-20">
+    <div className="rounded-2xl border border-im-200 bg-gradient-to-br from-im-50 to-white p-4 shadow-sm md:p-6">
+      <div className="mb-4 flex items-center gap-2.5">
+        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-im-600 text-white">
+          <UserSearch className="h-5 w-5" />
+        </div>
+        <div className="min-w-0">
+          <h2 className="text-[18px] font-bold leading-tight tracking-tight text-slate-900">고객 종합 진단</h2>
+          <p className="mt-0.5 text-[12.5px] text-slate-600">
+            고객번호로 상태를 진단하고 맞춤 상품 상담으로 연결 — 모든 상담의 시작점
+          </p>
+        </div>
+        <span className="ml-auto hidden flex-shrink-0 items-center gap-1 rounded-full border border-im-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-im-700 sm:inline-flex">
+          <Pin className="h-3 w-3" /> 고정
+        </span>
+      </div>
+      <GrossTaxCard />
+    </div>
+  </section>
+);
 
 const SectionHeader = ({ icon: Icon, title, sub }) => (
   <div className="mb-4 flex items-center gap-2.5">
@@ -203,15 +230,6 @@ export function HubHome() {
           </SectionPanel>
         );
       }
-      case "grosstax": {
-        const meta = getSection("grosstax");
-        return (
-          <SectionPanel>
-            <SectionHeader icon={meta.icon} title="고객 종합 진단" sub="고객번호로 상태 진단 + 미보유 상품 상담 연결" />
-            <GrossTaxCard />
-          </SectionPanel>
-        );
-      }
       case "wealth": {
         const meta = getSection("wealth");
         return (
@@ -279,6 +297,11 @@ export function HubHome() {
       editMode={editMode}
       onToggleEdit={() => (editMode ? setEditMode(false) : openEdit())}
     >
+      {/* 최상단 고정 — 개인화 편집 중에도 항상 보이는 상담 시작점 */}
+      <div className="mb-6">
+        <GrossTaxHero />
+      </div>
+
       {editMode ? (
         <>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-im-200 bg-im-50/60 px-4 py-2.5">
