@@ -268,7 +268,7 @@ const ManualPanel = ({ manual, onChange }) => {
         <MessageSquareText className="h-3.5 w-3.5" />
         고객에게 확인
       </div>
-      <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
+      <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
         <ManualField label="소득 유형" hint="노란우산·연금·기업카드 자격 판단">
           <div className="flex flex-wrap gap-1">
             {INCOME_TYPES.map((t) => (
