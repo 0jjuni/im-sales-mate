@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { CreditCard, FileText, QrCode, Search, X, Heart, BadgePercent, ArrowRight } from "lucide-react";
+import { CreditCard, FileText, QrCode, Search, X, Heart } from "lucide-react";
 import { CARDS, CARD_TYPES, SEGMENTS, ALL_TAGS } from "../data/cards";
 import { CARD_BENEFIT } from "../data/cardBenefits";
 import { PdfViewerModal, QrSlipModal } from "../components/CardModals";
@@ -180,17 +180,6 @@ export const CardCatalog = () => {
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">카드 탐색</h1>
         <p className="mt-1 text-sm text-slate-600">
           고객에게 권유할 카드를 고르면, eBiz 가입 링크를 QR 전표로 바로 인쇄할 수 있습니다.
-        </p>
-      </div>
-
-      {/* 신용카드 소득공제 안내 — 계산은 종합과세 관리에서 */}
-      <div className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3">
-        <BadgePercent className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-400" />
-        <p className="text-[12.5px] leading-relaxed text-slate-600">
-          <strong className="font-semibold text-slate-800">신용카드 소득공제</strong> — 총급여의 25%를 초과해 사용한 금액부터 공제됩니다(신용 15% · 체크/현금 30% · 전통시장·대중교통 40%). 문턱까지는 캐시백·할인 혜택이 큰 카드가 유리합니다.
-          <Link to="/tax" className="ml-1 inline-flex items-center gap-0.5 font-semibold text-rose-700 hover:text-rose-800">
-            고객 소득 기준 계산 <ArrowRight className="h-3 w-3" />
-          </Link>
         </p>
       </div>
 
