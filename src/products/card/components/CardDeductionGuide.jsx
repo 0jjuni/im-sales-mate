@@ -39,7 +39,7 @@ export function CardDeductionGuide({ ctaTo = "/card", ctaLabel = "iM 카드 추�
   return (
     <div className={cn(CARD, "overflow-hidden")}>
       <div className="border-b border-slate-100 px-5 py-4">
-        <label className="mb-1.5 block text-[12px] font-bold text-slate-500">연 총급여 (대략 · 만원)</label>
+        <label className="mb-2 block text-[14px] font-bold text-slate-800">연 총급여</label>
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
             <input
@@ -47,11 +47,11 @@ export function CardDeductionGuide({ ctaTo = "/card", ctaLabel = "iM 카드 추�
               onChange={(e) => setSalary(e.target.value.replace(/\D/g, "").slice(0, 6))}
               inputMode="numeric"
               placeholder="예: 5000"
-              className="w-40 rounded-md border border-slate-300 py-2 pl-3 pr-10 text-[14px] tabular-nums focus:border-rose-500 focus:outline-none"
+              className="w-44 rounded-md border border-slate-300 py-2.5 pl-3.5 pr-12 text-[16px] font-semibold tabular-nums focus:border-rose-500 focus:outline-none"
             />
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">만원</span>
+            <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[13px] text-slate-400">만원</span>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1.5">
             {[3000, 5000, 8000].map((v) => (
               <Preset key={v} active={s === v} onClick={() => setSalary(String(v))}>
                 {won(v)}
@@ -62,37 +62,58 @@ export function CardDeductionGuide({ ctaTo = "/card", ctaLabel = "iM 카드 추�
       </div>
 
       {s > 0 ? (
-        <div className="px-5 py-4">
+        <div className="px-5 py-5">
+          {/* 문턱 */}
           <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-4">
-            <div className="text-[12px] text-slate-500">소득공제 시작 문턱 · 연 카드사용액</div>
-            <div className="mt-0.5 flex flex-wrap items-baseline gap-1.5">
-              <span className="text-[24px] font-bold tabular-nums text-rose-700">{won(threshold)}</span>
-              <span className="text-[12px] text-slate-500">= 총급여 {won(s)}의 25%</span>
+            <div className="text-[12.5px] font-semibold text-slate-500">소득공제 시작 문턱 (연 카드사용액)</div>
+            <div className="mt-1 flex flex-wrap items-baseline gap-2">
+              <span className="text-[28px] font-black tabular-nums text-rose-700">{won(threshold)}</span>
+              <span className="text-[13px] text-slate-500">총급여 {won(s)}의 25%</span>
             </div>
-            <p className="mt-1 text-[12px] leading-relaxed text-slate-600">
-              카드 사용액이 이 문턱을 넘어야 소득공제가 시작됩니다. 문턱까지는 어차피 공제가 없으니{" "}
-              <strong className="font-semibold text-slate-800">캐시백·할인 혜택이 큰 신용카드</strong>로 쓰는 게 유리합니다.
-            </p>
           </div>
 
-          <ul className="mt-3 space-y-2">
-            <li className="flex gap-2.5 rounded-lg border border-slate-200 bg-white p-3">
-              <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-slate-900 text-[11px] font-bold text-white">1</span>
-              <p className="text-[12.5px] leading-relaxed text-slate-700">
-                <strong className="font-bold text-slate-900">문턱({won(threshold)})까지</strong> — 혜택 좋은 신용카드로. 공제는 없지만 캐시백·할인으로 실속을 챙깁니다.
-              </p>
-            </li>
-            <li className="flex gap-2.5 rounded-lg border border-slate-200 bg-white p-3">
-              <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-slate-900 text-[11px] font-bold text-white">2</span>
-              <p className="text-[12.5px] leading-relaxed text-slate-700">
-                <strong className="font-bold text-slate-900">문턱 초과분</strong> — 소득공제 시작(신용 15% · 체크/현금 30% · 전통시장·대중교통 40%). 연 공제한도 {limit}만원(총급여 7천만원 {s <= 7000 ? "이하" : "초과"} 기준). 공제만 보면 초과분은 체크가 유리하나, 신용카드 캐시백이 공제 차액보다 큰 경우가 많아 함께 비교해 권유하세요.
-              </p>
-            </li>
-          </ul>
+          {/* 구간별 전략 표 */}
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full border-collapse text-[13px]">
+              <thead>
+                <tr>
+                  {["구간", "소득공제", "카드 전략"].map((h) => (
+                    <th key={h} className="border border-slate-200 bg-slate-50 px-3 py-2 text-left font-bold text-slate-600 whitespace-nowrap">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-slate-200 px-3 py-2.5 align-top font-semibold text-slate-800 whitespace-nowrap">
+                    문턱까지<div className="text-[11.5px] font-normal text-slate-400">~ {won(threshold)}</div>
+                  </td>
+                  <td className="border border-slate-200 px-3 py-2.5 align-top text-slate-600">공제 없음</td>
+                  <td className="border border-slate-200 px-3 py-2.5 align-top text-slate-700">캐시백·할인 큰 신용카드</td>
+                </tr>
+                <tr>
+                  <td className="border border-slate-200 px-3 py-2.5 align-top font-semibold text-slate-800 whitespace-nowrap">
+                    문턱 초과분<div className="text-[11.5px] font-normal text-slate-400">{won(threshold)} 초과</div>
+                  </td>
+                  <td className="border border-slate-200 px-3 py-2.5 align-top text-slate-600">
+                    신용 15%<br />체크·현금 30%<br />전통시장·대중교통 40%
+                  </td>
+                  <td className="border border-slate-200 px-3 py-2.5 align-top text-slate-700">
+                    공제율은 체크가 높지만, 캐시백이 더 큰 신용카드도 함께 비교
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-2 text-[12px] text-slate-500">
+            연 공제한도 <strong className="font-semibold text-slate-700">{limit}만원</strong> (총급여 7천만원 {s <= 7000 ? "이하" : "초과"}) · 전통시장·대중교통·도서공연 추가한도 별도
+          </div>
 
           <Link
             to={ctaTo}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3.5 py-2 text-[12.5px] font-bold text-white transition-colors hover:bg-slate-700"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
           >
             <CreditCard className="h-4 w-4" />
             {ctaLabel}
@@ -100,12 +121,12 @@ export function CardDeductionGuide({ ctaTo = "/card", ctaLabel = "iM 카드 추�
           </Link>
 
           <p className="mt-3 text-[11px] leading-relaxed text-slate-400">
-            참고용 추정입니다. 실제 공제액은 총급여·기존 카드사용액·부양가족·세법 개정 등에 따라 달라지며, 공제한도 외 전통시장·대중교통·도서공연 추가한도가 별도로 적용됩니다. 단정 안내는 피해 주세요.
+            참고용 추정입니다. 실제 공제액은 총급여·기존 카드사용액·부양가족·세법 개정에 따라 달라집니다.
           </p>
         </div>
       ) : (
-        <div className="px-5 py-6 text-center text-[12.5px] text-slate-400">
-          연 총급여를 입력하면 소득공제 문턱과 카드 활용 전략을 계산합니다.
+        <div className="px-5 py-8 text-center text-[13px] text-slate-400">
+          연 총급여를 입력하면 소득공제 문턱과 카드 전략을 계산합니다.
         </div>
       )}
     </div>
