@@ -17,6 +17,7 @@ import {
   BadgePercent,
   MessageSquareText,
   Megaphone,
+  CreditCard,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { PrintReport } from "@shared/components/PrintReport";
@@ -422,6 +423,102 @@ const STRATEGY_GROUPS = [
   { key: "분산", label: "소득 분산 · 이연" },
 ];
 
+/* 신용카드 소득공제 — 대략적인 총급여로 공제 문턱(총급여 25%)을 계산해 카드 권유로 연결.
+   금융소득(종합과세)과 별개로 근로소득(총급여) 기준이라 값을 따로 입력받는다. */
+const won = (manwon) => {
+  const m = Math.round(manwon);
+  if (m >= 10000) {
+    const eok = Math.floor(m / 10000);
+    const rest = m % 10000;
+    return rest ? `${eok}억 ${rest.toLocaleString()}만원` : `${eok}억원`;
+  }
+  return `${m.toLocaleString()}만원`;
+};
+
+const CardDeductionCard = () => {
+  const [salary, setSalary] = useState(""); // 연 총급여(만원)
+  const s = Number(salary) || 0;
+  const threshold = Math.round(s * 0.25);
+  const limit = s === 0 ? null : s <= 7000 ? 300 : 250;
+
+  return (
+    <div className={cn(CARD, "overflow-hidden")}>
+      <div className="border-b border-slate-100 px-5 py-4">
+        <label className="mb-1.5 block text-[12px] font-bold text-slate-500">연 총급여 (대략 · 만원)</label>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative">
+            <input
+              value={salary}
+              onChange={(e) => setSalary(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              inputMode="numeric"
+              placeholder="예: 5000"
+              className="w-40 rounded-md border border-slate-300 py-2 pl-3 pr-10 text-[14px] tabular-nums focus:border-im-500 focus:outline-none"
+            />
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">만원</span>
+          </div>
+          <div className="flex gap-1">
+            {[3000, 5000, 8000].map((v) => (
+              <SegBtn key={v} active={s === v} onClick={() => setSalary(String(v))}>
+                {won(v)}
+              </SegBtn>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {s > 0 ? (
+        <div className="px-5 py-4">
+          {/* 문턱 */}
+          <div className="rounded-xl border border-im-200 bg-im-50/50 p-4">
+            <div className="text-[12px] text-slate-500">소득공제 시작 문턱 · 연 카드사용액</div>
+            <div className="mt-0.5 flex items-baseline gap-1.5">
+              <span className="text-[24px] font-bold tabular-nums text-im-700">{won(threshold)}</span>
+              <span className="text-[12px] text-slate-500">= 총급여 {won(s)}의 25%</span>
+            </div>
+            <p className="mt-1 text-[12px] leading-relaxed text-slate-600">
+              카드 사용액이 이 문턱을 넘어야 소득공제가 시작됩니다. 문턱까지는 어차피 공제가 없으니 <strong className="font-semibold text-slate-800">캐시백·할인 혜택이 큰 신용카드</strong>로 쓰는 게 유리합니다.
+            </p>
+          </div>
+
+          {/* 전략 2줄 */}
+          <ul className="mt-3 space-y-2">
+            <li className="flex gap-2.5 rounded-lg border border-slate-200 bg-white p-3">
+              <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-slate-900 text-[11px] font-bold text-white">1</span>
+              <p className="text-[12.5px] leading-relaxed text-slate-700">
+                <strong className="font-bold text-slate-900">문턱({won(threshold)})까지</strong> — 혜택 좋은 신용카드로. 공제는 없지만 캐시백·할인으로 실속을 챙깁니다.
+              </p>
+            </li>
+            <li className="flex gap-2.5 rounded-lg border border-slate-200 bg-white p-3">
+              <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-slate-900 text-[11px] font-bold text-white">2</span>
+              <p className="text-[12.5px] leading-relaxed text-slate-700">
+                <strong className="font-bold text-slate-900">문턱 초과분</strong> — 소득공제 시작(신용 15% · 체크/현금 30% · 전통시장·대중교통 40%). 연 공제한도 {limit}만원(총급여 7천만원 {s <= 7000 ? "이하" : "초과"} 기준). 공제만 보면 초과분은 체크가 유리하나, 신용카드 캐시백이 공제 차액보다 큰 경우가 많아 함께 비교해 권유하세요.
+              </p>
+            </li>
+          </ul>
+
+          {/* 권유 CTA */}
+          <Link
+            to="/card"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-im-600 px-3.5 py-2 text-[12.5px] font-bold text-white transition-colors hover:bg-im-700"
+          >
+            <CreditCard className="h-4 w-4" />
+            iM 카드 추천 보기
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+
+          <p className="mt-3 text-[11px] leading-relaxed text-slate-400">
+            참고용 추정입니다. 실제 공제액은 총급여·기존 카드사용액·부양가족·세법 개정 등에 따라 달라지며, 공제한도 외 전통시장·대중교통·도서공연 추가한도가 별도로 적용됩니다. 단정 안내는 피해 주세요.
+          </p>
+        </div>
+      ) : (
+        <div className="px-5 py-6 text-center text-[12.5px] text-slate-400">
+          연 총급여를 입력하면 소득공제 문턱과 카드 활용 전략을 계산합니다.
+        </div>
+      )}
+    </div>
+  );
+};
+
 /* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
 function ResultView({ data }) {
   const j = data.jonghap;
@@ -501,6 +598,13 @@ function ResultView({ data }) {
             );
           })}
         </div>
+      </section>
+
+      <section>
+        <SectionTitle icon={BadgePercent} sub="대략적인 총급여로 소득공제 문턱을 계산해 카드 권유로 연결">
+          신용카드 소득공제 · 카드 권유
+        </SectionTitle>
+        <CardDeductionCard />
       </section>
 
       <ReferenceGuide />
