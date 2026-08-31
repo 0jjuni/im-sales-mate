@@ -107,8 +107,12 @@ export function CardDeductionGuide({ ctaTo = "/card", ctaLabel = "iM 카드 추�
             </table>
           </div>
 
-          <div className="mt-2 text-[12px] text-slate-500">
-            연 공제한도 <strong className="font-semibold text-slate-700">{limit}만원</strong> (총급여 7천만원 {s <= 7000 ? "이하" : "초과"}) · 전통시장·대중교통·도서공연 추가한도 별도
+          <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg bg-slate-50 px-3 py-2.5">
+            <span className="text-[12.5px] font-semibold text-slate-500">연 공제한도</span>
+            <span className="text-[15px] font-bold tabular-nums text-slate-900">{limit}만원</span>
+            <span className="text-[12px] text-slate-400">
+              총급여 7천만원 {s <= 7000 ? "이하" : "초과"} 기준 · 전통시장·대중교통·도서공연 추가한도 별도
+            </span>
           </div>
 
           <Link

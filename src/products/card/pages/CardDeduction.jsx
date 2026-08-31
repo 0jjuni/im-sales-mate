@@ -10,15 +10,26 @@ export const CardDeduction = () => (
       </p>
     </div>
 
-    <CardDeductionGuide ctaTo="/card" ctaLabel="카드 탐색으로" />
-
-    <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 text-[12.5px] leading-relaxed text-slate-600">
-      <div className="mb-1 font-bold text-slate-800">한눈에</div>
-      <ul className="space-y-1">
-        <li>· 공제 대상: 총급여의 <strong className="text-slate-800">25% 초과분</strong>부터</li>
-        <li>· 공제율: 신용카드 15% · 체크/현금영수증 30% · 전통시장·대중교통 40%</li>
-        <li>· 공제한도: 총급여 7천만원 이하 300만원 / 초과 250만원 (전통시장·대중교통·도서공연 추가한도 별도)</li>
-      </ul>
+    {/* 소득공제 기본 — 정의 리스트로 정돈 */}
+    <div className="rounded-xl border border-slate-200 bg-white p-5">
+      <h2 className="text-[15px] font-bold text-slate-900">소득공제 기본</h2>
+      <dl className="mt-3 divide-y divide-slate-100">
+        {[
+          ["공제 대상", "총급여의 25%를 초과해 사용한 금액"],
+          ["공제율", "신용 15% · 체크/현금영수증 30% · 전통시장·대중교통 40%"],
+          ["연 공제한도", "총급여 7천만원 이하 300만원 / 초과 250만원"],
+        ].map(([k, v]) => (
+          <div key={k} className="flex flex-col gap-0.5 py-2.5 sm:flex-row sm:items-baseline sm:gap-4">
+            <dt className="w-28 flex-shrink-0 text-[12.5px] font-bold text-slate-500">{k}</dt>
+            <dd className="text-[13.5px] text-slate-800">{v}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-2 border-t border-slate-100 pt-2 text-[11.5px] text-slate-400">
+        전통시장·대중교통·도서공연 사용분은 위 한도와 별도로 추가 공제됩니다.
+      </p>
     </div>
+
+    <CardDeductionGuide ctaTo="/card" ctaLabel="카드 탐색으로" />
   </div>
 );
