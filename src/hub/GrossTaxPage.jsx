@@ -99,7 +99,7 @@ const VerdictBanner = ({ data }) => {
             />
           </div>
           <div className="mt-1 text-[11px] text-slate-400">
-            기준 대비 {pct}%{!j.isTarget && pct > 80 && " · 기준 근접 — 시기 분산으로 관리 필요"}
+            기준 대비 {pct}%{!j.isTarget && pct > 80 && " · 기준 근접, 시기 분산 관리 필요"}
           </div>
         </div>
 
@@ -326,7 +326,7 @@ const ReferenceGuide = () => {
       >
         <span className="flex items-center gap-2.5">
           <Info className="h-4 w-4 text-slate-400" />
-          <span className="text-[14px] font-bold text-slate-900">참고 — 종합과세 제외 상품 · 불이익 · 절세 전략 프레임</span>
+          <span className="text-[14px] font-bold text-slate-900">참고: 종합과세 제외 상품 · 불이익 · 절세 전략</span>
         </span>
         {open ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
       </button>
@@ -344,7 +344,7 @@ const ReferenceGuide = () => {
                   </span>
                   <span>
                     <span className="font-semibold text-slate-800">{p.name}</span>
-                    <span className="text-slate-500"> — {p.detail}</span>
+                    <span className="text-slate-500">: {p.detail}</span>
                   </span>
                 </li>
               ))}
@@ -475,7 +475,7 @@ function ResultView({ data }) {
       {j.isTarget && <GuidanceForTarget data={data} />}
 
       <section>
-        <SectionTitle icon={Layers} sub="당행 보유 기준 · 미보유 상품은 가입 권유로 연결">
+        <SectionTitle icon={Layers} sub="당행 보유 기준입니다. 미보유 상품은 가입을 권유하세요">
           상품 활용 현황
         </SectionTitle>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -508,8 +508,8 @@ function ResultView({ data }) {
       </section>
 
       <section>
-        <SectionTitle icon={BadgePercent} sub="대략적인 총급여로 소득공제 문턱을 계산해 카드 권유로 연결">
-          신용카드 소득공제 · 카드 권유
+        <SectionTitle icon={BadgePercent} sub="총급여를 입력하면 소득공제 최저사용금액을 계산합니다">
+          신용카드 소득공제
         </SectionTitle>
         <CardDeductionGuide />
       </section>
@@ -517,7 +517,7 @@ function ResultView({ data }) {
       <ReferenceGuide />
 
       <p className="text-[11px] leading-relaxed text-slate-400">
-        본 화면은 내부 조회 데이터를 통합해 상담을 돕는 참고 자료입니다(데모 — 표시 데이터는 예시). 실제 과세 여부·한도·세액은
+        본 화면은 내부 조회 데이터를 통합해 상담을 돕는 참고 자료입니다(데모, 표시 데이터는 예시). 실제 과세 여부·한도·세액은
         소득 전체와 세법 개정에 따라 달라지며, 신고·납부는 관할세무서·홈택스 기준으로 확인해야 합니다. 특정 상품의 투자권유가 아닙니다.
       </p>
 
@@ -526,7 +526,7 @@ function ResultView({ data }) {
         <PrintReport
           title={`금융소득 종합과세 진단 · ${data.name}`}
           subtitle={`${data.customerNo} · ${data.age} · ${manual.incomeType || "소득유형 미확인"} · ${j.taxYear}년 기준`}
-          disclaimer="본 자료는 당행 보유 기준 내부 조회를 통합한 상담 참고용입니다(데모 — 표시 데이터는 예시). 타행 가입분은 조회되지 않으며, 실제 과세 여부·한도·세액은 소득 전체와 세법 개정에 따라 달라집니다. 신고·납부는 관할세무서·홈택스 기준으로 확인해야 하며, 특정 상품의 투자권유가 아닙니다."
+          disclaimer="본 자료는 당행 보유 기준 내부 조회를 통합한 상담 참고용입니다(데모, 표시 데이터는 예시). 타행 가입분은 조회되지 않으며, 실제 과세 여부·한도·세액은 소득 전체와 세법 개정에 따라 달라집니다. 신고·납부는 관할세무서·홈택스 기준으로 확인해야 하며, 특정 상품의 투자권유가 아닙니다."
           inputs={[
             { label: "고객번호", value: data.customerNo },
             { label: "연령", value: data.age },

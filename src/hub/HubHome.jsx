@@ -12,7 +12,6 @@ import {
   ArrowDown,
   HelpCircle,
   UserSearch,
-  Pin,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { getSection } from "./sections";
@@ -29,31 +28,6 @@ import { UtilityGrid } from "./components/UtilityGrid";
 import { KnowledgeLibrary } from "./components/KnowledgeLibrary";
 import { EditGuide, hasSeenEditGuide, markEditGuideSeen } from "./components/EditGuide";
 import { cn } from "@shared/lib/format";
-
-/* 고정 히어로 — '고객 종합 진단'. 모든 상담의 시작점이라 개인화(순서·숨김) 대상에서 빼고
-   대시보드 최상단에 항상 렌더한다. 일반 섹션 패널보다 강조(민트 그라디언트 + 큰 아이콘)해
-   "여기서 시작"이 한눈에 보이게 한다. */
-const GrossTaxHero = () => (
-  <section id="grosstax" className="scroll-mt-20">
-    <div className="rounded-2xl border border-im-200 bg-gradient-to-br from-im-50 to-white p-4 shadow-sm md:p-6">
-      <div className="mb-4 flex items-center gap-2.5">
-        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-im-600 text-white">
-          <UserSearch className="h-5 w-5" />
-        </div>
-        <div className="min-w-0">
-          <h2 className="text-[18px] font-bold leading-tight tracking-tight text-slate-900">고객 종합 진단</h2>
-          <p className="mt-0.5 text-[12.5px] text-slate-600">
-            고객번호로 상태를 진단하고 맞춤 상품 상담으로 연결 — 모든 상담의 시작점
-          </p>
-        </div>
-        <span className="ml-auto hidden flex-shrink-0 items-center gap-1 rounded-full border border-im-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-im-700 sm:inline-flex">
-          <Pin className="h-3 w-3" /> 고정
-        </span>
-      </div>
-      <GrossTaxCard />
-    </div>
-  </section>
-);
 
 const SectionHeader = ({ icon: Icon, title, sub }) => (
   <div className="mb-4 flex items-center gap-2.5">
@@ -73,6 +47,21 @@ const SectionHeader = ({ icon: Icon, title, sub }) => (
    명도 층: 캔버스(slate-50) → 박스(white) → 안쪽 카드(white, 테두리로 구분). (스킬: 절제 · 명도로 층 만들기) */
 const SectionPanel = ({ children }) => (
   <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">{children}</div>
+);
+
+/* '고객 종합 진단'은 개인화(순서·숨김) 대상에서 빼고 대시보드 맨 위에 항상 둔다.
+   다른 섹션과 같은 패널을 써서 일관되게 보이게 한다. */
+const GrossTaxHero = () => (
+  <section id="grosstax" className="scroll-mt-20">
+    <SectionPanel>
+      <SectionHeader
+        icon={UserSearch}
+        title="고객 종합 진단"
+        sub="고객번호로 종합과세 여부와 재무 상태를 진단합니다"
+      />
+      <GrossTaxCard />
+    </SectionPanel>
+  </section>
 );
 
 /* 편집 모드의 섹션 한 줄.
@@ -256,7 +245,7 @@ export function HubHome() {
         const meta = getSection("knowledge");
         return (
           <SectionPanel>
-            <SectionHeader icon={meta.icon} title="PB 지식 라이브러리" sub="세무·규제·용어 — 상담 근거 자료" />
+            <SectionHeader icon={meta.icon} title="PB 지식 라이브러리" sub="세무·규제·용어 참고 자료" />
             <KnowledgeLibrary />
           </SectionPanel>
         );
