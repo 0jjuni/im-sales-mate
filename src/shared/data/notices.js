@@ -12,6 +12,16 @@ const KEY = "salesbridge.notices";
 /* 초기 시드 — 실제 창구 공지 톤의 예시. 최초 1회 localStorage에 심고, 이후엔 저장소가 원본이 된다. */
 const SEED = [
   {
+    id: "seed-card-training",
+    moduleId: "card",
+    title: "[교육 이수] 신상품 출시 — 판매 전 필수 교육 이수 안내",
+    body: "신상품 출시에 따라 판매 담당자는 관련 상품 교육을 반드시 이수해야 합니다. 이수 완료 후 고객 안내를 진행해 주세요.",
+    level: "important",
+    pinned: true,
+    date: "2026-08-31",
+    author: "카드사업부",
+  },
+  {
     id: "seed-card-1",
     moduleId: "card",
     title: "iM 세븐카드 캐시백 프로모션 9월 말까지 연장",
@@ -29,7 +39,7 @@ const SEED = [
     level: "info",
     pinned: false,
     date: "2026-08-25",
-    author: "공제사업부",
+    author: "WM사업부",
   },
   {
     id: "seed-isa-1",
@@ -39,7 +49,7 @@ const SEED = [
     level: "info",
     pinned: false,
     date: "2026-08-22",
-    author: "자산관리부(WM)",
+    author: "WM사업부",
   },
   {
     id: "seed-pension-1",
@@ -49,7 +59,7 @@ const SEED = [
     level: "info",
     pinned: false,
     date: "2026-08-20",
-    author: "연금사업부",
+    author: "신탁연금부",
   },
   {
     id: "seed-wealth-1",
@@ -59,7 +69,7 @@ const SEED = [
     level: "info",
     pinned: false,
     date: "2026-08-27",
-    author: "신탁부",
+    author: "WM사업부",
   },
   {
     id: "seed-tax-1",

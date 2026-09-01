@@ -67,6 +67,7 @@ const NAV = [
       { to: "/tools/qr", label: "링크 QR 변환기" },
     ],
   },
+  { to: "/notices", label: "공지사항" },
   { to: "/news", label: "뉴스" },
   { to: "/followups", label: "일정 관리" },
 ];

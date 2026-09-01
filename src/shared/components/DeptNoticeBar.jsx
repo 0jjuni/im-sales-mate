@@ -1,21 +1,18 @@
-import { useState } from "react";
-import { Megaphone, AlertTriangle, Pin, ChevronDown, ChevronUp } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Megaphone, AlertTriangle, ArrowRight } from "lucide-react";
 import { noticesForModule } from "@shared/data/notices";
 import { deptOfModule } from "@shared/data/departments";
 import { cn } from "@shared/lib/format";
 
-/* 상품 모듈 상단에 붙는 「담당 부서 공지」 바.
-   해당 모듈의 공지를 담당 부서가 올린 것으로 표시한다. 공지가 없으면 아무것도 렌더하지 않는다.
-   기본 1건 노출, 여러 건이면 펼쳐 보기. */
+/* 상품 모듈 상단의 「담당 부서 공지」 바.
+   게시판이 기본이고, 여기에는 부서가 '띄우기(pinned)'로 정한 공지만 노출한다.
+   담당 부서 공지가 하나도 없으면 렌더하지 않는다. 우측 링크로 공지 게시판에 진입한다. */
 export function DeptNoticeBar({ moduleId }) {
-  const [open, setOpen] = useState(false);
-  const notices = noticesForModule(moduleId);
+  const all = noticesForModule(moduleId);
   const dept = deptOfModule(moduleId);
+  if (all.length === 0) return null;
 
-  if (notices.length === 0) return null;
-
-  const shown = open ? notices : notices.slice(0, 1);
-  const rest = notices.length - 1;
+  const pinned = all.filter((n) => n.pinned);
 
   return (
     <div className="mb-4 overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -23,40 +20,37 @@ export function DeptNoticeBar({ moduleId }) {
         <Megaphone className="h-3.5 w-3.5 text-slate-500" />
         <span className="text-[12px] font-bold text-slate-700">담당 부서 공지</span>
         {dept && <span className="text-[11px] text-slate-400">{dept.name}</span>}
-        <span className="ml-auto text-[11px] tabular-nums text-slate-400">{notices.length}건</span>
+        <Link
+          to={`/notices?dept=${dept?.id ?? ""}`}
+          className="ml-auto inline-flex items-center gap-1 text-[11.5px] font-semibold text-slate-500 hover:text-im-700"
+        >
+          공지 게시판 {all.length}건
+          <ArrowRight className="h-3 w-3" />
+        </Link>
       </div>
 
-      <ul className="divide-y divide-slate-100">
-        {shown.map((n) => (
-          <li key={n.id} className="px-4 py-2.5">
-            <div className="flex items-start gap-2">
-              {n.level === "important" ? (
-                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
-              ) : n.pinned ? (
-                <Pin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-slate-400" />
-              ) : (
-                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-slate-300" />
-              )}
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                  <span className="text-[13px] font-bold text-slate-900">{n.title}</span>
-                  <span className="text-[11px] tabular-nums text-slate-400">{n.date}</span>
+      {pinned.length > 0 && (
+        <ul className="divide-y divide-slate-100">
+          {pinned.map((n) => (
+            <li key={n.id} className="px-4 py-2.5">
+              <div className="flex items-start gap-2">
+                <AlertTriangle
+                  className={cn(
+                    "mt-0.5 h-3.5 w-3.5 flex-shrink-0",
+                    n.level === "important" ? "text-amber-500" : "text-slate-300"
+                  )}
+                />
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                    <span className="text-[13px] font-bold text-slate-900">{n.title}</span>
+                    <span className="text-[11px] tabular-nums text-slate-400">{n.date}</span>
+                  </div>
+                  <p className="mt-0.5 text-[12.5px] leading-relaxed text-slate-600">{n.body}</p>
                 </div>
-                <p className="mt-0.5 text-[12.5px] leading-relaxed text-slate-600">{n.body}</p>
               </div>
-            </div>
-          </li>
-        ))}
-      </ul>
-
-      {rest > 0 && (
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="flex w-full items-center justify-center gap-1.5 border-t border-slate-100 px-4 py-2 text-[12px] font-semibold text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-800"
-        >
-          {open ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-          {open ? "접기" : `공지 ${rest}건 더 보기`}
-        </button>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

@@ -15,10 +15,8 @@ export const MODULES = {
 };
 
 export const DEPARTMENTS = [
-  { id: "gongje", name: "공제사업부", modules: ["noran"] },
-  { id: "wm", name: "자산관리부(WM)", modules: ["isa"] },
-  { id: "pension", name: "연금사업부", modules: ["pension"] },
-  { id: "trust", name: "신탁부", modules: ["wealth"] },
+  { id: "wm", name: "WM사업부", modules: ["noran", "wealth", "isa"] },
+  { id: "trustpension", name: "신탁연금부", modules: ["pension"] },
   { id: "card", name: "카드사업부", modules: ["card"] },
   { id: "tax", name: "WM세무팀", modules: ["tax"] },
 ];

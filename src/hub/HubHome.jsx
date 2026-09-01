@@ -23,7 +23,6 @@ import { MyTools } from "./components/MyTools";
 import { FollowupBoard } from "./components/FollowupBoard";
 import { ProductGrid } from "./components/ProductGrid";
 import { GrossTaxCard } from "./components/GrossTaxCard";
-import { DeptNoticeBoard } from "./components/DeptNoticeBoard";
 import { WealthCard } from "./components/WealthCard";
 import { UtilityGrid } from "./components/UtilityGrid";
 import { KnowledgeLibrary } from "./components/KnowledgeLibrary";
@@ -189,15 +188,6 @@ export function HubHome() {
         );
       case "news":
         return <MorningNews data={data} status={status} onReload={reload} />;
-      case "notices": {
-        const meta = getSection("notices");
-        return (
-          <SectionPanel>
-            <SectionHeader icon={meta.icon} title="부서 공지" sub="담당 부서가 올린 상품별 공지" />
-            <DeptNoticeBoard />
-          </SectionPanel>
-        );
-      }
       case "mytools": {
         const meta = getSection("mytools");
         return (

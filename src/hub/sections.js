@@ -7,7 +7,6 @@ import {
   CalendarClock,
   Wrench,
   LineChart,
-  Megaphone,
 } from "lucide-react";
 
 /* 허브 대시보드 섹션 정의 — 개인화(순서·숨김)의 기준 목록.
@@ -16,7 +15,6 @@ import {
    섹션을 새로 만들면 여기 등록 + HubHome의 renderSection()에 렌더러 추가.
    라벨은 은행원(사용자) 언어를 쓴다 — 내부 용어(모듈 등) 노출 금지. */
 export const HUB_SECTIONS = [
-  { id: "notices", label: "부서 공지", icon: Megaphone, desc: "담당 부서가 올린 상품별 공지" },
   { id: "market", label: "마켓 보드", icon: CandlestickChart, desc: "지수·환율·금리 한 줄 요약" },
   { id: "mytools", label: "내 도구", icon: Star, desc: "자주 쓰는 계산기·도구 바로가기" },
   { id: "products", label: "상품 상담", icon: MessagesSquare, desc: "상품별 상담 화면 진입" },
