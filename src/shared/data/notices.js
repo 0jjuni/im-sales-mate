@@ -49,7 +49,7 @@ const SEED = [
     level: "info",
     pinned: false,
     date: "2026-08-22",
-    author: "WM사업부",
+    author: "신탁연금부",
   },
   {
     id: "seed-pension-1",
