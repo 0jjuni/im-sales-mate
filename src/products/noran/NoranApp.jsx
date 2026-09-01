@@ -17,6 +17,7 @@ import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
 import { HubShell } from "@hub/HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
+import { DeptNoticeBar } from "@shared/components/DeptNoticeBar";
 
 /* 노란우산 모듈 — 상단 네비 + 본문 탭(사이드바 제거). amber 아이덴티티. "/noran/*" 마운트. */
 
@@ -127,6 +128,8 @@ export default function NoranApp() {
       </div>
 
       <GlobalWarning />
+
+      <DeptNoticeBar moduleId="noran" />
 
       <ModuleTabs items={NAV_ITEMS} activeId={page} onSelect={(id) => navigate(id)} accent="amber" />
 

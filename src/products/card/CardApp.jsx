@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { CreditCard, Search, QrCode, BadgePercent } from "lucide-react";
 import { HubShell } from "@hub/HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
+import { DeptNoticeBar } from "@shared/components/DeptNoticeBar";
 import { CardCatalog } from "./pages/CardCatalog";
 import { CardDetail } from "./pages/CardDetail";
 import { PromoHandout } from "./pages/PromoHandout";
@@ -48,6 +49,8 @@ export default function CardApp() {
           <p className="text-[11px] text-slate-500">카드 탐색 · 가입 QR</p>
         </div>
       </div>
+
+      <DeptNoticeBar moduleId="card" />
 
       <ModuleTabs items={NAV_ITEMS} activeId={activeId} onSelect={onSelect} accent="rose" />
 

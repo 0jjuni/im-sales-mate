@@ -6,6 +6,7 @@ import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
 import { HubShell } from "@hub/HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
+import { DeptNoticeBar } from "@shared/components/DeptNoticeBar";
 import { Overview } from "./pages/Overview";
 import { CalculatorPage } from "./pages/CalculatorPage";
 import { FaqPage } from "./pages/FaqPage";
@@ -83,6 +84,8 @@ export default function PensionApp() {
           </div>
         )}
       </div>
+
+      <DeptNoticeBar moduleId="pension" />
 
       <ModuleTabs items={NAV_ITEMS} activeId={page} onSelect={navigate} accent="violet" />
 

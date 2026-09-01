@@ -10,6 +10,7 @@ import { genSeries } from "./data/wealthDetail";
 import { pct, retColor, won, TYPE_CLASS, RISK_CLASS } from "./wealth/ProductDetail";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
+import { DeptNoticeBar } from "@shared/components/DeptNoticeBar";
 
 /* 위험등급 필터 버튼 색 — riskMeta tone(rose/amber/slate)에 맞춤 */
 const RISK_ACTIVE = {
@@ -533,6 +534,8 @@ export default function WealthPage() {
         <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">투자상품</h1>
         <p className="mt-1 text-[13px] text-slate-500">펀드·ETF·신탁을 검색·비교하고, 가입 고객의 목표수익률·알림을 관리합니다.</p>
       </div>
+
+      <DeptNoticeBar moduleId="wealth" />
 
       <div className="mb-4 flex items-center gap-1">
         {TABS.map((t) => {

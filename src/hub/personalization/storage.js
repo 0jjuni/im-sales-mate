@@ -15,7 +15,7 @@ export const DEFAULT_STATE = {
   /* 섹션 순서 — src/hub/sections.js의 id. 새 섹션은 로드 시 자동으로 뒤에 붙는다.
      아침에 열면 시황부터 훑고, 바로 쓰는 도구(내 도구·상품 상담·보조 도구)와
      고객 후속 관리가 이어지고, 읽을거리(뉴스·지식 라이브러리)를 아래에 둔다. */
-  sectionOrder: ["market", "wealth", "mytools", "products", "utility", "followups", "news", "knowledge"],
+  sectionOrder: ["notices", "market", "wealth", "mytools", "products", "utility", "followups", "news", "knowledge"],
   /* 상품 상담은 상단 네비 모듈 드롭다운과 중복이라 기본 숨김(대시보드 편집에서 켤 수 있음) */
   hiddenSections: ["products"],
   /* 첫 실행 기본 핀 — 데모에서 빈 화면을 피하기 위한 추천 구성 */
