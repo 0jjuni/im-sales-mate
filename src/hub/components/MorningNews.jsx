@@ -18,7 +18,7 @@ import { getEconomicCalendar } from "../data/economicCalendar";
 /* 오늘 아침 꼭 알아야 할 뉴스 — PB/VM 출근 브리핑.
    금융 리서치 노트 톤: 채도 높은 배너 대신 흰 마스트헤드 + 타이포 위계.
    구성: ① 오늘의 시황 한 줄(마켓 데이터 → PB 관점 해석) ② 뉴스(사실+상담포인트+관련상품).
-   홈 위젯은 최근 7일치를 기본 노출하고, 그보다 오래된 것은 「지난 뉴스」로 접는다.
+   홈 위젯은 최근 7일치만 노출한다(지난 뉴스는 뉴스 탭에서 확인).
    뉴스 탭(full)에서는 전체/최근 7일/최근 1달/지난 필터로 본다. */
 
 const HOME_RECENT = 7; // 홈 위젯 기본 노출 기간(일)
@@ -188,7 +188,6 @@ const SkeletonItem = () => (
 );
 
 export function MorningNews({ data, status, onReload, full = false }) {
-  const [showOlder, setShowOlder] = useState(false);
   const [showAllRecent, setShowAllRecent] = useState(false);
   /* 전체(뉴스 탭) 모드 필터 — 누적되어도 기간·카테고리·검색으로 좁힌다 */
   const [cat, setCat] = useState("전체");
@@ -397,22 +396,6 @@ export function MorningNews({ data, status, onReload, full = false }) {
                 </li>
               )}
 
-              {older.length > 0 && (
-                <li className="border-l-[3px] border-transparent">
-                  <button
-                    onClick={() => setShowOlder((v) => !v)}
-                    className="flex w-full items-center justify-center gap-1.5 px-5 py-2.5 text-[12px] font-semibold text-slate-500 transition-colors hover:bg-slate-50 hover:text-im-700"
-                  >
-                    {showOlder ? (
-                      <ChevronUp className="h-3.5 w-3.5" />
-                    ) : (
-                      <ChevronDown className="h-3.5 w-3.5" />
-                    )}
-                    {showOlder ? "지난 뉴스 접기" : `지난 뉴스 ${older.length}건 더 보기`}
-                  </button>
-                </li>
-              )}
-              {showOlder && older.map((item) => <NewsItem key={item.id} item={item} />)}
             </>
           )}
         </ul>
