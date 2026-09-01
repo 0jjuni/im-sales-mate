@@ -1,13 +1,16 @@
 import { useState, useMemo } from "react";
-import { Search, HelpCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Search, HelpCircle, Building2, Settings2 } from "lucide-react";
 import { CATEGORIES } from "../data/categories";
 import { FAQS } from "../data/faqs";
+import { faqsForModule } from "@shared/data/faqs";
 import { SourceBadge } from "@shared/components/SourceBadge";
 import { cn } from "@shared/lib/format";
 
 export const FaqPage = ({ onOpenArticle }) => {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
+  const [deptFaqs] = useState(() => faqsForModule("noran"));
 
   const filtered = useMemo(() => {
     return FAQS.filter((f) => {
@@ -27,6 +30,37 @@ export const FaqPage = ({ onOpenArticle }) => {
         <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">자주 묻는 질문</h1>
         <p className="text-sm text-slate-600 mt-1">키워드로 약관 기반 답변과 근거 조항을 즉시 확인하세요.</p>
       </div>
+
+      {/* 부서 FAQ — 담당 부서가 부서 관리자 화면에서 추가·수정한 문항 */}
+      {deptFaqs.length > 0 && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-4">
+          <div className="mb-2 flex items-center gap-1.5">
+            <Building2 className="h-4 w-4 text-amber-600" />
+            <h2 className="text-[14px] font-bold text-slate-900">부서 FAQ</h2>
+            <span className="text-[11px] text-slate-500">담당 부서 추가 문항</span>
+            <Link
+              to="/admin?mode=faq"
+              className="ml-auto inline-flex items-center gap-1 rounded-md border border-amber-200 bg-white px-2 py-1 text-[11px] font-semibold text-amber-700 transition-colors hover:border-amber-300"
+            >
+              <Settings2 className="h-3 w-3" />
+              FAQ 관리
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {deptFaqs.map((f) => (
+              <div key={f.id} className="rounded-lg border border-amber-100 bg-white p-3">
+                <h3 className="text-sm font-bold text-slate-900">{f.q}</h3>
+                <p className="mt-1 text-[13px] leading-relaxed text-slate-700">{f.a}</p>
+                {f.ref && (
+                  <div className="mt-2 inline-flex items-center gap-1 rounded-sm border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                    {f.ref}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4 space-y-3">
         <div className="relative">

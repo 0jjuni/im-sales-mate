@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Megaphone,
   Pin,
@@ -8,6 +9,7 @@ import {
   Plus,
   X,
   RotateCcw,
+  HelpCircle,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { DEPARTMENTS, getModule } from "@shared/data/departments";
@@ -18,23 +20,32 @@ import {
   removeNotice,
   resetNotices,
 } from "@shared/data/notices";
+import { resetFaqs } from "@shared/data/faqs";
+import { FaqManager } from "./components/FaqManager";
 import { cn } from "@shared/lib/format";
 
-/* 부서 관리자 화면 — 담당 부서가 자기 상품의 공지를 직접 관리한다.
+/* 부서 관리자 화면 — 담당 부서가 자기 상품의 공지·FAQ를 직접 관리한다.
    데모라 인증 대신 「부서 선택」으로 담당 부서를 고른다(실배포 시 부서 SSO·권한으로 교체).
    저장은 브라우저 localStorage(이 브라우저 안에서만 유지). */
 
 const EMPTY = { moduleId: "", title: "", body: "", level: "info", pinned: false };
 
+const MODES = [
+  { id: "notices", label: "공지사항", icon: Megaphone },
+  { id: "faq", label: "FAQ", icon: HelpCircle },
+];
+
 export default function AdminPage() {
+  const [params] = useSearchParams();
   const [deptId, setDeptId] = useState(DEPARTMENTS[0].id);
+  const [mode, setMode] = useState(params.get("mode") === "faq" ? "faq" : "notices");
   const [notices, setNotices] = useState(() => loadNotices());
   const [form, setForm] = useState(EMPTY);
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     const prev = document.title;
-    document.title = "부서 공지 관리 · iM 세일즈메이트";
+    document.title = "부서 관리자 · iM 세일즈메이트";
     return () => {
       document.title = prev;
     };
@@ -88,6 +99,11 @@ export default function AdminPage() {
   };
 
   const onReset = () => {
+    if (mode === "faq") {
+      resetFaqs();
+      window.location.reload();
+      return;
+    }
     setNotices(resetNotices());
     cancelEdit();
   };
@@ -100,8 +116,8 @@ export default function AdminPage() {
             <Megaphone className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-[17px] font-black leading-tight text-slate-900 md:text-xl">부서 공지 관리</h1>
-            <p className="text-[11.5px] text-slate-500">담당 부서가 자기 상품의 공지를 직접 관리합니다</p>
+            <h1 className="text-[17px] font-black leading-tight text-slate-900 md:text-xl">부서 관리자</h1>
+            <p className="text-[11.5px] text-slate-500">담당 부서가 자기 상품의 공지·FAQ를 직접 관리합니다</p>
           </div>
         </div>
         <button
@@ -136,6 +152,30 @@ export default function AdminPage() {
         ))}
       </div>
 
+      {/* 공지사항 / FAQ 모드 */}
+      <div className="mb-5 flex gap-1 border-b border-slate-200">
+        {MODES.map((m) => {
+          const Icon = m.icon;
+          const on = mode === m.id;
+          return (
+            <button
+              key={m.id}
+              onClick={() => setMode(m.id)}
+              className={cn(
+                "-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2 text-[13px] font-semibold transition-colors",
+                on ? "border-slate-900 text-slate-900" : "border-transparent text-slate-500 hover:text-slate-800"
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {m.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {mode === "faq" ? (
+        <FaqManager dept={dept} />
+      ) : (
       <div className="grid gap-5 lg:grid-cols-[1fr_1.2fr]">
         {/* 작성/수정 폼 */}
         <form onSubmit={submit} className="rounded-xl border border-slate-200 bg-white p-4">
@@ -273,6 +313,7 @@ export default function AdminPage() {
           )}
         </div>
       </div>
+      )}
     </HubShell>
   );
 }

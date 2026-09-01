@@ -1,26 +1,37 @@
 import { useState } from "react";
-import { Search, ChevronDown } from "lucide-react";
-import { PENSION_FAQS } from "../data/pension";
+import { Link } from "react-router-dom";
+import { Search, ChevronDown, Settings2 } from "lucide-react";
+import { faqsForModule } from "@shared/data/faqs";
 import { cn } from "@shared/lib/format";
 
-/* 연금계좌 FAQ — 소득세법·근퇴법 근거 + iM뱅크 공시자료 기반 핵심 문항. */
+/* 연금계좌 FAQ — 소득세법·근퇴법 근거 핵심 문항. 담당 부서가 부서 관리자 화면에서 편집(FAQ 스토어). */
 export const FaqPage = () => {
   const [query, setQuery] = useState("");
   const [openIdx, setOpenIdx] = useState(0);
+  const [items] = useState(() => faqsForModule("pension"));
 
-  const filtered = PENSION_FAQS.filter(
+  const filtered = items.filter(
     (f) => f.q.includes(query) || f.a.includes(query)
   );
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-          자주 묻는 질문
-        </h1>
-        <p className="text-sm text-slate-600 mt-1">
-          소득세법·근퇴법 근거 핵심 문항 · 자사 상품 FAQ는 자료 확보 후 확장 예정
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+            자주 묻는 질문
+          </h1>
+          <p className="text-sm text-slate-600 mt-1">
+            소득세법·근퇴법 근거 핵심 문항 · 담당 부서가 직접 관리
+          </p>
+        </div>
+        <Link
+          to="/admin?mode=faq"
+          className="inline-flex flex-shrink-0 items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-[11.5px] font-semibold text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+        >
+          <Settings2 className="h-3.5 w-3.5" />
+          FAQ 관리
+        </Link>
       </div>
 
       <div className="relative">
@@ -56,9 +67,11 @@ export const FaqPage = () => {
               {isOpen && (
                 <div className="px-4 pb-3.5 pt-0.5 border-t border-slate-100">
                   <p className="text-[13px] text-slate-700 leading-relaxed">{f.a}</p>
-                  <div className="mt-2 inline-flex items-center gap-1 rounded-sm border border-violet-200 bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-700">
-                    {f.ref}
-                  </div>
+                  {f.ref && (
+                    <div className="mt-2 inline-flex items-center gap-1 rounded-sm border border-violet-200 bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-700">
+                      {f.ref}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

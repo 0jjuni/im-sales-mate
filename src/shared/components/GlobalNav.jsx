@@ -28,7 +28,7 @@ const NAV = [
       { to: "/noran/calculator", label: "계산기" },
       { to: "/noran/guide", label: "업무별 가이드" },
       { to: "/noran/checklist", label: "구비서류 체크리스트" },
-      { to: "/noran/faq", label: "FAQ 검색" },
+      { to: "/noran/faq", label: "FAQ" },
     ],
   },
   {

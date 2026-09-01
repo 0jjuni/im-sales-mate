@@ -24,13 +24,13 @@ import { noticesForModule } from "@shared/data/notices";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "대시보드", icon: Home },
-  { id: "intro", label: "5분 입문", icon: Lightbulb },
   { id: "simulator", label: "상담 시뮬레이터", icon: MessageSquare },
   { id: "calculator", label: "계산기", icon: Calculator, highlight: true },
   { id: "guide", label: "업무별 가이드", icon: ClipboardList },
   { id: "checklist", label: "구비서류 체크리스트", icon: CheckSquare },
-  { id: "faq", label: "FAQ 검색", icon: HelpCircle },
+  { id: "faq", label: "FAQ", icon: HelpCircle },
   { id: "notices", label: "공지사항", icon: Megaphone },
+  { id: "intro", label: "5분 입문", icon: Lightbulb },
 ];
 
 const VALID_PAGES = NAV_ITEMS.map((i) => i.id);
