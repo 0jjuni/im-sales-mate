@@ -36,6 +36,11 @@ export function ModuleTabs({ items, activeId, onSelect, accent = "im" }) {
           >
             {Icon && <Icon className="h-3.5 w-3.5" />}
             {item.label}
+            {item.count != null && item.count > 0 && (
+              <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-slate-500">
+                {item.count}
+              </span>
+            )}
             {item.highlight && !on && (
               <span className={cn("rounded-sm px-1 py-0.5 text-[9px] font-bold", BADGE[accent])}>세일즈</span>
             )}

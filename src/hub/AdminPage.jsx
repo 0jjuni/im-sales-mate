@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import {
   Megaphone,
   Pin,
@@ -9,7 +8,6 @@ import {
   Plus,
   X,
   RotateCcw,
-  ListChecks,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { DEPARTMENTS, getModule } from "@shared/data/departments";
@@ -106,22 +104,13 @@ export default function AdminPage() {
             <p className="text-[11.5px] text-slate-500">담당 부서가 자기 상품의 공지를 직접 관리합니다</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Link
-            to="/notices"
-            className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[11.5px] font-semibold text-slate-600 hover:border-slate-400 hover:text-slate-900"
-          >
-            <ListChecks className="h-3.5 w-3.5" />
-            게시판 보기
-          </Link>
-          <button
-            onClick={onReset}
-            className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[11.5px] font-semibold text-slate-600 hover:border-slate-400"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            기본값 복원
-          </button>
-        </div>
+        <button
+          onClick={onReset}
+          className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[11.5px] font-semibold text-slate-600 hover:border-slate-400"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          기본값 복원
+        </button>
       </div>
 
       <p className="mb-4 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-[11.5px] leading-relaxed text-slate-500">
@@ -205,8 +194,8 @@ export default function AdminPage() {
                 onChange={(e) => setForm((f) => ({ ...f, pinned: e.target.checked }))}
                 className="h-4 w-4 rounded border-slate-300 text-slate-700 focus:ring-slate-400"
               />
-              <Pin className="h-3.5 w-3.5 text-slate-500" /> 상단 띄우기
-              <span className="text-[11px] font-normal text-slate-400">(상품 화면 상단 노출)</span>
+              <Pin className="h-3.5 w-3.5 text-slate-500" /> 상단 고정
+              <span className="text-[11px] font-normal text-slate-400">(공지 게시판 상단 고정)</span>
             </label>
           </div>
 
@@ -249,7 +238,7 @@ export default function AdminPage() {
                         )}
                         {n.pinned && (
                           <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500">
-                            <Pin className="h-3 w-3" /> 띄움
+                            <Pin className="h-3 w-3" /> 고정
                           </span>
                         )}
                         <span className="text-[13px] font-bold text-slate-900">{n.title}</span>

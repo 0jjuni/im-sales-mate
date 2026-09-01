@@ -71,16 +71,6 @@ const SEED = [
     date: "2026-08-27",
     author: "WM사업부",
   },
-  {
-    id: "seed-tax-1",
-    moduleId: "tax",
-    title: "2026년 귀속 금융소득 종합과세 기준·신고 일정",
-    body: "종합과세 기준(연 2,000만원 초과)과 신고 일정은 홈택스·관할세무서 기준으로 확인해야 합니다. 진단 결과는 참고용입니다.",
-    level: "important",
-    pinned: true,
-    date: "2026-08-30",
-    author: "WM세무팀",
-  },
 ];
 
 const canStore = () => typeof window !== "undefined" && !!window.localStorage;

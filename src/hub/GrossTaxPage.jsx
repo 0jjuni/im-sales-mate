@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { CardDeductionGuide } from "@card/components/CardDeductionGuide";
-import { DeptNoticeBar } from "@shared/components/DeptNoticeBar";
 import { PrintReport } from "@shared/components/PrintReport";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
@@ -618,8 +617,6 @@ export default function GrossTaxPage() {
           <span className="text-slate-400"> · 당행 보유 기준(타행 조회 불가)</span>
         </p>
       </div>
-
-      <DeptNoticeBar moduleId="tax" />
 
       {/* 조회 입력 */}
       <form onSubmit={onSubmit} className={cn(CARD, "mb-5 flex flex-wrap items-center gap-2 p-3")}>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert, UserCheck, Flame, Globe } from "lucide-react";
+import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert, UserCheck, Flame, Globe, Megaphone } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { Sparkline, MarketChart } from "./components/MarketChart";
 import { useWealth } from "./wealth/useWealth";
@@ -10,7 +10,8 @@ import { genSeries } from "./data/wealthDetail";
 import { pct, retColor, won, TYPE_CLASS, RISK_CLASS } from "./wealth/ProductDetail";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
-import { DeptNoticeBar } from "@shared/components/DeptNoticeBar";
+import { ModuleNoticeBoard } from "@shared/components/ModuleNoticeBoard";
+import { noticesForModule } from "@shared/data/notices";
 
 /* 위험등급 필터 버튼 색 — riskMeta tone(rose/amber/slate)에 맞춤 */
 const RISK_ACTIVE = {
@@ -526,6 +527,7 @@ export default function WealthPage() {
   const TABS = [
     ...PRODUCT_TABS.map((t) => ({ ...t, count: PRODUCTS.filter((p) => p.type === t.type).length })),
     { id: "customers", label: "내 가입고객 관리", icon: Users, count: enrollments.length },
+    { id: "notices", label: "공지사항", icon: Megaphone, count: noticesForModule("wealth").length },
   ];
 
   return (
@@ -534,8 +536,6 @@ export default function WealthPage() {
         <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">투자상품</h1>
         <p className="mt-1 text-[13px] text-slate-500">펀드·ETF·신탁을 검색·비교하고, 가입 고객의 목표수익률·알림을 관리합니다.</p>
       </div>
-
-      <DeptNoticeBar moduleId="wealth" />
 
       <div className="mb-4 flex items-center gap-1">
         {TABS.map((t) => {
@@ -564,7 +564,9 @@ export default function WealthPage() {
         )}
       </div>
 
-      {!isCustomers ? (
+      {tab === "notices" ? (
+        <ModuleNoticeBoard moduleId="wealth" />
+      ) : !isCustomers ? (
         <section>
           {/* 검색 */}
           <div className="relative mb-2">

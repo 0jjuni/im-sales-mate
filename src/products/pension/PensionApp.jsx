@@ -1,12 +1,13 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Home, Coins, HelpCircle, Landmark } from "lucide-react";
+import { Home, Coins, HelpCircle, Landmark, Megaphone } from "lucide-react";
 import { usePersonalization } from "@hub/personalization/PersonalizationContext";
 import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
 import { HubShell } from "@hub/HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
-import { DeptNoticeBar } from "@shared/components/DeptNoticeBar";
+import { ModuleNoticeBoard } from "@shared/components/ModuleNoticeBoard";
+import { noticesForModule } from "@shared/data/notices";
 import { Overview } from "./pages/Overview";
 import { CalculatorPage } from "./pages/CalculatorPage";
 import { FaqPage } from "./pages/FaqPage";
@@ -17,6 +18,7 @@ const NAV_ITEMS = [
   { id: "overview", label: "세제 한눈에", icon: Home },
   { id: "calculator", label: "세액공제 계산기", icon: Coins, highlight: true },
   { id: "faq", label: "FAQ", icon: HelpCircle },
+  { id: "notices", label: "공지사항", icon: Megaphone },
 ];
 
 const VALID_PAGES = NAV_ITEMS.map((i) => i.id);
@@ -61,10 +63,16 @@ export default function PensionApp() {
         return <CalculatorPage />;
       case "faq":
         return <FaqPage />;
+      case "notices":
+        return <ModuleNoticeBoard moduleId="pension" />;
       default:
         return <Overview onNavigate={navigate} />;
     }
   };
+
+  const navItems = NAV_ITEMS.map((i) =>
+    i.id === "notices" ? { ...i, count: noticesForModule("pension").length } : i
+  );
 
   return (
     <HubShell>
@@ -85,9 +93,7 @@ export default function PensionApp() {
         )}
       </div>
 
-      <DeptNoticeBar moduleId="pension" />
-
-      <ModuleTabs items={NAV_ITEMS} activeId={page} onSelect={navigate} accent="violet" />
+      <ModuleTabs items={navItems} activeId={page} onSelect={navigate} accent="violet" />
 
       {renderPage()}
     </HubShell>

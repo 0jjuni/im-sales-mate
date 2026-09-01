@@ -11,14 +11,12 @@ export const MODULES = {
   pension: { label: "연금계좌", to: "/pension", accent: "violet" },
   wealth: { label: "투자상품", to: "/wealth", accent: "emerald" },
   card: { label: "카드", to: "/card", accent: "rose" },
-  tax: { label: "고객 종합 진단", to: "/tax", accent: "im" },
 };
 
 export const DEPARTMENTS = [
   { id: "wm", name: "WM사업부", modules: ["noran", "wealth", "isa"] },
   { id: "trustpension", name: "신탁연금부", modules: ["pension"] },
   { id: "card", name: "카드사업부", modules: ["card"] },
-  { id: "tax", name: "WM세무팀", modules: ["tax"] },
 ];
 
 export const MODULE_IDS = Object.keys(MODULES);

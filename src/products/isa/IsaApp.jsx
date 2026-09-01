@@ -1,12 +1,13 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Home, Percent, HelpCircle, PiggyBank } from "lucide-react";
+import { Home, Percent, HelpCircle, PiggyBank, Megaphone } from "lucide-react";
 import { usePersonalization } from "@hub/personalization/PersonalizationContext";
 import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
 import { HubShell } from "@hub/HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
-import { DeptNoticeBar } from "@shared/components/DeptNoticeBar";
+import { ModuleNoticeBoard } from "@shared/components/ModuleNoticeBoard";
+import { noticesForModule } from "@shared/data/notices";
 import { Overview } from "./pages/Overview";
 import { CalculatorPage } from "./pages/CalculatorPage";
 import { FaqPage } from "./pages/FaqPage";
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { id: "overview", label: "세제 한눈에", icon: Home },
   { id: "calculator", label: "세제 절세 계산기", icon: Percent, highlight: true },
   { id: "faq", label: "FAQ", icon: HelpCircle },
+  { id: "notices", label: "공지사항", icon: Megaphone },
 ];
 
 const VALID_PAGES = NAV_ITEMS.map((i) => i.id);
@@ -62,10 +64,16 @@ export default function IsaApp() {
         return <CalculatorPage />;
       case "faq":
         return <FaqPage />;
+      case "notices":
+        return <ModuleNoticeBoard moduleId="isa" />;
       default:
         return <Overview onNavigate={navigate} />;
     }
   };
+
+  const navItems = NAV_ITEMS.map((i) =>
+    i.id === "notices" ? { ...i, count: noticesForModule("isa").length } : i
+  );
 
   return (
     <HubShell>
@@ -87,9 +95,7 @@ export default function IsaApp() {
         )}
       </div>
 
-      <DeptNoticeBar moduleId="isa" />
-
-      <ModuleTabs items={NAV_ITEMS} activeId={page} onSelect={navigate} accent="fuchsia" />
+      <ModuleTabs items={navItems} activeId={page} onSelect={navigate} accent="fuchsia" />
 
       {renderPage()}
     </HubShell>

@@ -15,7 +15,6 @@ import WealthPage from "@hub/WealthPage";
 import WealthDetailPage from "@hub/WealthDetailPage";
 import WealthComparePage from "@hub/WealthComparePage";
 import AdminPage from "@hub/AdminPage";
-import NoticeBoardPage from "@hub/NoticeBoardPage";
 
 /* iM 세일즈메이트 루트 라우터.
    "/"        → 허브(대시보드)
@@ -39,7 +38,6 @@ export default function App() {
         <Route path="/wealth/compare" element={<WealthComparePage />} />
         <Route path="/wealth/:id" element={<WealthDetailPage />} />
         <Route path="/search" element={<SearchPage />} />
-        <Route path="/notices" element={<NoticeBoardPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

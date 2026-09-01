@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Home, ClipboardList, HelpCircle, CheckSquare, MessageSquare, Calculator, Lightbulb } from "lucide-react";
+import { Home, ClipboardList, HelpCircle, CheckSquare, MessageSquare, Calculator, Lightbulb, Megaphone } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { GUIDES } from "./data/guides";
 import { ArticleModal } from "./components/ArticleModal";
@@ -17,7 +17,8 @@ import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
 import { HubShell } from "@hub/HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
-import { DeptNoticeBar } from "@shared/components/DeptNoticeBar";
+import { ModuleNoticeBoard } from "@shared/components/ModuleNoticeBoard";
+import { noticesForModule } from "@shared/data/notices";
 
 /* 노란우산 모듈 — 상단 네비 + 본문 탭(사이드바 제거). amber 아이덴티티. "/noran/*" 마운트. */
 
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
   { id: "guide", label: "업무별 가이드", icon: ClipboardList },
   { id: "checklist", label: "구비서류 체크리스트", icon: CheckSquare },
   { id: "faq", label: "FAQ 검색", icon: HelpCircle },
+  { id: "notices", label: "공지사항", icon: Megaphone },
 ];
 
 const VALID_PAGES = NAV_ITEMS.map((i) => i.id);
@@ -105,10 +107,16 @@ export default function NoranApp() {
         return <ChecklistPage onOpenArticle={setOpenArticle} initialReason={checklistReason} />;
       case "faq":
         return <FaqPage onOpenArticle={setOpenArticle} />;
+      case "notices":
+        return <ModuleNoticeBoard moduleId="noran" />;
       default:
         return <Dashboard onNavigate={navigate} onOpenArticle={setOpenArticle} />;
     }
   };
+
+  const navItems = NAV_ITEMS.map((i) =>
+    i.id === "notices" ? { ...i, count: noticesForModule("noran").length } : i
+  );
 
   return (
     <HubShell>
@@ -129,9 +137,7 @@ export default function NoranApp() {
 
       <GlobalWarning />
 
-      <DeptNoticeBar moduleId="noran" />
-
-      <ModuleTabs items={NAV_ITEMS} activeId={page} onSelect={(id) => navigate(id)} accent="amber" />
+      <ModuleTabs items={navItems} activeId={page} onSelect={(id) => navigate(id)} accent="amber" />
 
       {renderPage()}
 
