@@ -159,10 +159,10 @@ const focusLine = (product) => {
   const c = product.category || "";
   if (c.includes("반도체")) return "반도체 기업에 집중 투자";
   if (c.includes("미국") || c.includes("해외주식")) return "미국 대형주에 분산 투자";
-  if (c.includes("배당")) return "배당주 중심 — 분배금 지급";
-  if (c.includes("테마")) return "성장 테마 집중 — 변동성 큼";
+  if (c.includes("배당")) return "배당주 중심, 분배금 지급";
+  if (c.includes("테마")) return "성장 테마 집중, 변동성 큼";
   if (c.includes("원자재") || c.includes("금")) return "금 등 실물자산에 투자";
-  if (c.includes("채권")) return "채권에 투자 — 변동성 낮음";
+  if (c.includes("채권")) return "채권에 투자, 변동성 낮음";
   if (c.includes("국내주식")) return "국내 대표주에 분산 투자";
   return "지수·바스켓에 분산 투자";
 };
@@ -183,5 +183,5 @@ export const etfCustomerPoints = (product) => [
   focusLine(product),
   `총보수 연 ${product.fee}%`,
   `위험등급 ${product.risk}등급 · ${riskName(product.risk)} (원금손실 가능)`,
-  "거래소 상장 — 실시간 매매로 환금 쉬움",
+  "거래소 상장, 실시간 매매로 환금 쉬움",
 ];

@@ -71,7 +71,7 @@ const CUSTOMERS = {
         key: "insOther",
         state: "recommend",
         metrics: [{ label: "일시납 비과세 한도", value: "1억원", strong: true }],
-        note: "일시납 저축성보험(계약 10년 이상)은 종합과세 제한 없음 — 과세 예금을 비과세로 이전 권유.",
+        note: "일시납 저축성보험(계약 10년 이상)은 종합과세 제한이 없습니다. 과세 예금을 비과세로 이전하도록 권유하세요.",
       },
       {
         key: "isa",
@@ -160,7 +160,7 @@ const CUSTOMERS = {
         key: "insOther",
         state: "recommend",
         metrics: [{ label: "일시납 비과세 한도", value: "1억원", strong: true }],
-        note: "일시납 저축성보험(계약 10년 이상)은 종합과세 제한 없음 — 과세 예금을 비과세로 이전 권유.",
+        note: "일시납 저축성보험(계약 10년 이상)은 종합과세 제한이 없습니다. 과세 예금을 비과세로 이전하도록 권유하세요.",
       },
       {
         key: "isa",
@@ -211,7 +211,7 @@ export function viewProduct(product, manual, restricted = false) {
       };
     }
     if (product.held) {
-      return { ...product, state: "active", metrics: [remain], note: `${nontaxQual} · 가입 중 (전금융기관 합산 — 타행 별도 확인).` };
+      return { ...product, state: "active", metrics: [remain], note: `${nontaxQual} · 가입 중 (전금융기관 합산, 타행 별도 확인).` };
     }
     if (restricted) {
       return {
@@ -221,7 +221,7 @@ export function viewProduct(product, manual, restricted = false) {
         note: `${nontaxQual} 자격은 있으나 종합과세 대상/이력으로 신규 가입 제한.`,
       };
     }
-    return { ...product, state: "recommend", metrics: [remain], note: `${nontaxQual} → 남은 한도까지 비과세 예적금 권유 (전금융기관 합산 — 타행 별도 확인).` };
+    return { ...product, state: "recommend", metrics: [remain], note: `${nontaxQual} → 남은 한도까지 비과세 예적금 권유 (전금융기관 합산, 타행 별도 확인).` };
   }
 
   if (product.key === "noran") {
@@ -246,10 +246,10 @@ export function viewProduct(product, manual, restricted = false) {
         state: "recommend",
         cta: { to: "/noran", label: "노란우산 상담" },
         metrics: [{ label: "혜택", value: "소득공제 + 폐업 대비", strong: true }],
-        note: "사업소득자 소득공제 핵심 — 미보유, 가입 권유.",
+        note: "사업소득자 소득공제 핵심 상품입니다. 미보유 상태라 가입을 권유하세요.",
       };
     }
-    return { ...product, state: "none", metrics: [{ label: "가입 자격", value: "소기업·소상공인" }], note: "사업소득자(소기업·소상공인)만 가입 대상 — 해당 없음." };
+    return { ...product, state: "none", metrics: [{ label: "가입 자격", value: "소기업·소상공인" }], note: "사업소득자(소기업·소상공인)만 가입 대상이라 해당 없음." };
   }
 
   if (product.key === "housing") {
@@ -290,7 +290,7 @@ export function viewProduct(product, manual, restricted = false) {
               { label: "월 이용금액 합계", value: `${monthlyTotal.toLocaleString()}만원` },
             ]
           : [{ label: "보유", value: "개인 신용카드" }],
-        note: "소득공제 최저사용금액(총급여 25%)과 비교해 초과분이 적으면 캐시백·공제율 높은 카드 추가 권유 — 아래 신용카드 소득공제 참고.",
+        note: "소득공제 최저사용금액(총급여 25%)과 비교해 초과분이 적으면 캐시백·공제율 높은 카드 추가 권유를 검토하세요. 아래 신용카드 소득공제 참고.",
       };
     }
     return {
@@ -298,7 +298,7 @@ export function viewProduct(product, manual, restricted = false) {
       state: "recommend",
       cta: { to: "/card", label: "카드 권유" },
       metrics: [{ label: "미보유", value: "개인 신용카드", strong: true }],
-      note: "개인 신용카드 미보유 — 최저사용금액 초과분 소득공제 + 캐시백 카드 신규 권유.",
+      note: "개인 신용카드 미보유. 최저사용금액 초과분 소득공제·캐시백 카드 신규 권유.",
     };
   }
 
@@ -308,7 +308,7 @@ export function viewProduct(product, manual, restricted = false) {
         ...product,
         state: "none",
         metrics: [{ label: "가입 대상", value: "개인사업자" }],
-        note: "개인사업자 전용 기업카드 — 해당 없음.",
+        note: "개인사업자 전용 기업카드라 해당 없음.",
       };
     }
     if (product.held) {
@@ -316,7 +316,7 @@ export function viewProduct(product, manual, restricted = false) {
         ...product,
         state: "active",
         metrics: [{ label: "보유", value: "개인사업자 신용카드" }],
-        note: "기업카드 보유 중 — 사업지원·경비관리 서비스 활용 점검.",
+        note: "기업카드 보유 중. 사업지원·경비관리 서비스 활용을 점검하세요.",
       };
     }
     if (incomeType == null) {
@@ -332,7 +332,7 @@ export function viewProduct(product, manual, restricted = false) {
       state: "recommend",
       cta: { to: "/card", label: "기업카드 권유" },
       metrics: [{ label: "미보유", value: "개인사업자 신용카드", strong: true }],
-      note: "개인사업자 — 기업 신용카드 미보유. 사업지원·부가세환급·경비관리 카드 권유.",
+      note: "개인사업자이고 기업 신용카드 미보유. 사업지원·부가세환급·경비관리 카드 권유.",
     };
   }
 
@@ -378,7 +378,7 @@ export function deriveStrategy(data, manual) {
       group: "진단",
       tag: "우선",
       kind: "warn",
-      title: "종합과세 대상 — 신규 비과세·ISA 가입/연장 제한",
+      title: "종합과세 대상, 신규 비과세·ISA 가입/연장 제한",
       detail: `당해 금융소득 ${won(j.financialIncome)}만원으로 기준(${won(
         j.threshold
       )}만원)을 초과했습니다. 신규 비과세·ISA 가입이 제한되니, 상품 판매보다 소득 분산·이연으로 방향을 잡으세요.`,
@@ -388,7 +388,7 @@ export function deriveStrategy(data, manual) {
       group: "진단",
       tag: "우선",
       kind: "warn",
-      title: `금융소득 ${won(j.financialIncome)}만원 — 기준에 근접`,
+      title: `금융소득 ${won(j.financialIncome)}만원, 기준에 근접`,
       detail: `기준(${won(j.threshold)}만원)의 ${Math.round(
         ratio * 100
       )}% 수준입니다. 이자 수령 시점을 조절해 당해 합산소득이 기준을 넘지 않게 관리하세요.`,
@@ -460,7 +460,7 @@ export function deriveStrategy(data, manual) {
       group: "제안",
       tag: "세액공제",
       kind: "action",
-      title: housingDeduct ? "IRP·연금저축 세액공제 + 주택청약 소득공제" : "IRP·연금저축 세액공제 제안",
+      title: housingDeduct ? "IRP·연금저축 세액공제와 주택청약 소득공제" : "IRP·연금저축 세액공제 제안",
       detail: housingDeduct
         ? "연말정산에서 연금계좌 세액공제(IRP·연금저축 합산 900만원)와 무주택 세대주 주택청약 소득공제(총급여 7천만원 이하)를 함께 챙기도록 제안하세요."
         : "연말정산 연금계좌 세액공제(IRP·연금저축 합산 900만원)로 환급을 늘리도록 제안하세요.",
@@ -471,7 +471,7 @@ export function deriveStrategy(data, manual) {
       group: "제안",
       tag: "세액공제",
       kind: "action",
-      title: noranActive ? "노란우산 부금 증액 + 개인형 IRP·연금저축" : "개인형 IRP·연금저축 세액공제 제안",
+      title: noranActive ? "노란우산 부금 증액과 개인형 IRP·연금저축" : "개인형 IRP·연금저축 세액공제 제안",
       detail: noranActive
         ? "가입 제한이 없는 소득공제(노란우산)·세액공제(IRP·연금저축)로 절세를 확보하게 하세요. 사업소득 규모에 맞춰 부금 증액을 제안합니다."
         : "IRP·연금저축 세액공제(합산 900만원 한도)로 종합소득세 부담을 줄이도록 제안하세요.",
@@ -503,7 +503,7 @@ export function deriveStrategy(data, manual) {
       kind: "action",
       title: "외화예금·해외채권 환차익 비과세 활용",
       detail:
-        "외화예금·외화채권의 환차익은 비과세입니다(예금이자는 과세). 브라질 국채 등은 이자·환차익 모두 비과세 — 과세 이자자산의 대체 수단으로 검토하세요.",
+        "외화예금·외화채권의 환차익은 비과세입니다(예금이자는 과세). 브라질 국채 등은 이자·환차익 모두 비과세이므로, 과세 이자자산의 대체 수단으로 검토하세요.",
     });
   }
 
@@ -512,7 +512,7 @@ export function deriveStrategy(data, manual) {
       group: "분산",
       tag: "시기 분산",
       kind: "action",
-      title: "이자 수령 시기 분산 — 특정 연도 집중 회피",
+      title: "이자 수령 시기 분산으로 특정 연도 집중 회피",
       detail:
         "3년 만기 일시수령보다 매년 이자 수령·월이자지급식으로 옮겨, 특정 과세연도에 기준을 넘기는 것을 피하세요.",
     });
@@ -557,7 +557,7 @@ export const EXCLUDED_PRODUCTS = [
 /* 금융소득 종합과세 시 불이익 */
 export const DISADVANTAGES = [
   { title: "종합소득세 신고의무", detail: "매년 5월 말까지 주소지 관할세무서·홈택스에서 신고·납부(전년 1.1~12.31 소득)" },
-  { title: "세금부담 증가", detail: "금융소득이 다른 소득과 합산 과세 — 높은 누진세율 구간 적용" },
+  { title: "세금부담 증가", detail: "금융소득이 다른 소득과 합산 과세되어 높은 누진세율 구간 적용" },
   { title: "세제혜택 상품 가입 제한", detail: "비과세종합저축·ISA 등 가입·연장 제한(직전 3개 과세기간 중 1회 이상 대상자)" },
   { title: "인적·기본공제 배제", detail: "소득금액 100만원(근로만 있으면 총급여 500만원) 초과 시 인적·기본공제 대상에서 배제" },
   { title: "건강보험료 부담 증가", detail: "추가 납부 또는 피부양자 자격상실·지역가입자 전환 등" },

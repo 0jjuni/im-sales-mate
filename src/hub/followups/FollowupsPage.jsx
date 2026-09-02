@@ -135,7 +135,7 @@ export default function FollowupsPage() {
           <div className="border-b border-slate-100 px-3 py-2 text-[12px] text-slate-600">
             「<span className="font-bold text-slate-900">{q}</span>」 검색 결과{" "}
             <span className="font-bold text-im-700">{searchResults.length}건</span>
-            {searchResults.length > 0 && " — 고객 메모 · 예정 · 완료 순"}
+            {searchResults.length > 0 && " · 고객 메모 · 예정 · 완료 순"}
           </div>
           {searchResults.length === 0 ? (
             <p className="px-3 py-8 text-center text-[12.5px] text-slate-400">

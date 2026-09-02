@@ -572,9 +572,9 @@ function ResultView({ data }) {
               };
             }),
           ]}
-          notes={strategy.map((s) => `[${s.tag}] ${s.title} — ${s.detail}`)}
+          notes={strategy.map((s) => `[${s.tag}] ${s.title}: ${s.detail}`)}
           legalBasis="소득세법 제14조·제62조(금융소득 종합과세) · 조세특례제한법(비과세종합저축·ISA)"
-          sourceLine="당행 내부 조회 통합(0192-8·0192-1·0192-74/75 · ISA/주택청약/노란우산 가입여부) — 데모, 실서비스 시 실제 조회로 대체"
+          sourceLine="당행 내부 조회 통합(0192-8·0192-1·0192-74/75 · ISA/주택청약/노란우산 가입여부). 데모이며 실서비스 시 실제 조회로 대체"
           brandLabel="iM 세일즈메이트 · 종합과세 진단자료 · iM뱅크"
           accent="amber"
         />,
@@ -700,7 +700,7 @@ const NotFound = ({ no, onPick }) => (
   <div className={cn(CARD, "flex flex-col items-center gap-2 px-5 py-12 text-center")}>
     <Search className="h-7 w-7 text-slate-300" />
     <p className="text-[13px] font-semibold text-slate-600">
-      <span className="font-mono tabular-nums">{no}</span> — 조회 결과가 없습니다
+      <span className="font-mono tabular-nums">{no}</span> · 조회 결과가 없습니다
     </p>
     <p className="max-w-sm text-[12px] leading-relaxed text-slate-400">
       데모에는 대표 고객만 등록돼 있습니다. 아래 예시 번호로 확인해 보세요.
