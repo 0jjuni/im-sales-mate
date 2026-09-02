@@ -177,6 +177,20 @@ const ProductCard = ({ product }) => {
         </dl>
       )}
 
+      {product.cards && product.cards.length > 0 && (
+        <ul className="mt-2 space-y-1 border-t border-slate-200/70 pt-2">
+          {product.cards.map((c, i) => (
+            <li key={i} className="flex items-center justify-between gap-2 text-[12px]">
+              <span className="min-w-0 truncate text-slate-700">
+                <span className="font-semibold">{c.name}</span>
+                <span className="ml-1 text-[10px] text-slate-400">{c.brand} · {c.type}</span>
+              </span>
+              <span className="flex-shrink-0 tabular-nums font-semibold text-slate-800">월 {c.monthly.toLocaleString()}만원</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
       {product.note && (
         <p className="mt-2 border-t border-slate-200/70 pt-2 text-[11.5px] leading-relaxed text-slate-500">
           {product.note}

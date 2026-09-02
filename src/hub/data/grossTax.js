@@ -82,7 +82,14 @@ const CUSTOMERS = {
       /* 소득 유형에 따라 자격·소득공제가 달라지는 상품은 held/monthly만 두고 viewProduct로 파생 */
       { key: "housing", held: true, monthly: "10만원" },
       { key: "noran", held: true, monthly: "20만원" },
-      { key: "cardPersonal", held: true },
+      {
+        key: "cardPersonal",
+        held: true,
+        cards: [
+          { name: "iM 세븐카드", brand: "BC", type: "신용", monthly: 85 },
+          { name: "iM 트래블카드", brand: "VISA", type: "신용", monthly: 40 },
+        ],
+      },
       { key: "cardBiz", held: false },
     ],
   },
@@ -163,7 +170,11 @@ const CUSTOMERS = {
       },
       { key: "housing", held: true, monthly: "10만원" },
       { key: "noran", held: true, monthly: "10만원" },
-      { key: "cardPersonal", held: true },
+      {
+        key: "cardPersonal",
+        held: true,
+        cards: [{ name: "iM K-패스카드", brand: "Master", type: "신용", monthly: 55 }],
+      },
       { key: "cardBiz", held: false },
     ],
   },
@@ -266,11 +277,20 @@ export function viewProduct(product, manual, restricted = false) {
 
   if (product.key === "cardPersonal") {
     if (product.held) {
+      const cards = product.cards || [];
+      const monthlyTotal = cards.reduce((s, c) => s + (c.monthly || 0), 0);
+      const annual = monthlyTotal * 12;
       return {
         ...product,
         state: "active",
-        metrics: [{ label: "보유", value: "개인 신용카드" }],
-        note: "개인 신용카드 보유 중 — 소득공제·캐시백 혜택 카드로 재점검 여지.",
+        cards,
+        metrics: cards.length
+          ? [
+              { label: "연간 카드 이용금액(추정)", value: `${annual.toLocaleString()}만원`, strong: true },
+              { label: "월 이용금액 합계", value: `${monthlyTotal.toLocaleString()}만원` },
+            ]
+          : [{ label: "보유", value: "개인 신용카드" }],
+        note: "소득공제 최저사용금액(총급여 25%)과 비교해 초과분이 적으면 캐시백·공제율 높은 카드 추가 권유 — 아래 신용카드 소득공제 참고.",
       };
     }
     return {
