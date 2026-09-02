@@ -4,6 +4,13 @@ import { noticesForModule } from "@shared/data/notices";
 import { deptOfModule } from "@shared/data/departments";
 import { cn } from "@shared/lib/format";
 
+/* 최근 7일 이내 게시글이면 NEW 표시 */
+const isRecent = (date) => {
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return false;
+  return (Date.now() - d.getTime()) / 86400000 <= 7;
+};
+
 /* 상품 모듈 내부 「공지사항」 탭 — 담당 부서가 올린 그 상품의 공지 게시판.
    상단 고정 공지가 위로 정렬된다(noticesForModule에서 처리). 작성·수정은 부서 관리자(/admin). */
 export function ModuleNoticeBoard({ moduleId }) {
@@ -48,9 +55,13 @@ export function ModuleNoticeBoard({ moduleId }) {
                   </span>
                 )}
                 <span className="text-[13.5px] font-bold text-slate-900">{n.title}</span>
+                {isRecent(n.date) && (
+                  <span className="rounded bg-rose-50 px-1.5 py-0.5 text-[9px] font-bold text-rose-600">NEW</span>
+                )}
                 <span className="ml-auto text-[11px] tabular-nums text-slate-400">{n.date}</span>
               </div>
               <p className="mt-1 text-[12.5px] leading-relaxed text-slate-600">{n.body}</p>
+              <div className="mt-1.5 text-[11px] text-slate-400">게시 {n.author}</div>
             </li>
           ))}
         </ul>

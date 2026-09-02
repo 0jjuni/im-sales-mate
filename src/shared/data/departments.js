@@ -14,9 +14,9 @@ export const MODULES = {
 };
 
 export const DEPARTMENTS = [
-  { id: "wm", name: "WM사업부", modules: ["noran", "wealth"] },
-  { id: "trustpension", name: "신탁연금부", modules: ["pension", "isa"] },
-  { id: "card", name: "카드사업부", modules: ["card"] },
+  { id: "wm", name: "WM사업부", manager: "김성우 대리", modules: ["noran", "wealth"] },
+  { id: "trustpension", name: "신탁연금부", manager: "이지현 대리", modules: ["pension", "isa"] },
+  { id: "card", name: "카드사업부", manager: "박준호 대리", modules: ["card"] },
 ];
 
 export const MODULE_IDS = Object.keys(MODULES);

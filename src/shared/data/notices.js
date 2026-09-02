@@ -14,7 +14,7 @@ const SEED = [
   {
     id: "seed-card-training",
     moduleId: "card",
-    title: "[교육 이수] 신상품 출시 — 판매 전 필수 교육 이수 안내",
+    title: "[교육 이수] 신상품 출시 관련 판매 전 필수 교육 이수 안내",
     body: "신상품 출시에 따라 판매 담당자는 관련 상품 교육을 반드시 이수해야 합니다. 이수 완료 후 고객 안내를 진행해 주세요.",
     level: "important",
     pinned: true,
