@@ -116,7 +116,7 @@ const uid = () => `n-${Date.now().toString(36)}-${Math.random().toString(36).sli
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export const addNotice = ({ moduleId, title, body, level = "info", pinned = false }) => {
+export const addNotice = ({ moduleId, title, body, level = "info", pinned = false, attachments = [] }) => {
   const dept = deptOfModule(moduleId);
   const next = [
     {
@@ -126,6 +126,7 @@ export const addNotice = ({ moduleId, title, body, level = "info", pinned = fals
       body: body.trim(),
       level,
       pinned,
+      attachments,
       date: today(),
       author: dept?.name ?? "담당 부서",
     },
