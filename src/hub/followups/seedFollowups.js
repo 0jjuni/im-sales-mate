@@ -36,6 +36,7 @@ const NOTES = [
 
 /* 지점 일정(휴가·연수 계획) — 기간(시작~종료), 동료가 올린 지점 공유. 알림 데모용 fresh. */
 const STAFF = [
+  { category: "branch", staffName: "월말 마감 점검 회의", author: "이지현", memo: "전 직원 참석", startOffset: 1, endOffset: 1, fresh: true },
   { category: "leave", staffName: "박준호", author: "박준호", memo: "연차 휴가", startOffset: 3, endOffset: 5, fresh: true },
   { category: "training", staffName: "이지현", author: "이지현", memo: "여신 심사 실무 연수(집합)", startOffset: 8, endOffset: 9, fresh: true },
 ];

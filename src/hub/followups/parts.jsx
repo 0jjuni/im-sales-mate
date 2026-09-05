@@ -12,6 +12,7 @@ import {
   Users,
   Plane,
   GraduationCap,
+  Building2,
 } from "lucide-react";
 import { ddayOf } from "./useFollowups";
 import { cn } from "@shared/lib/format";
@@ -61,58 +62,6 @@ export const fmtDate = (iso) => {
   if (isNaN(d)) return iso;
   const day = ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
   return `${d.getMonth() + 1}.${d.getDate()}(${day})`;
-};
-
-/* 지점 휴가·연수 계획 전체를 iCalendar(.ics)로 만든다 — 구글/아웃룩/그룹웨어에 가져오기(import).
-   고객 정보는 절대 포함하지 않는다(휴가·연수 계획만). 종일 일정이라 DTEND는 종료일+1(미포함). */
-const ymd = (iso) => (iso || "").replace(/-/g, "");
-const plusDay = (iso) => {
-  const d = new Date(`${iso}T00:00:00`);
-  d.setDate(d.getDate() + 1);
-  return ymd(toISO(d));
-};
-
-export const buildBranchIcs = (items) => {
-  const staff = items.filter((i) => i.category === "leave" || i.category === "training");
-  const stamp = ymd(toISO(new Date())) + "T000000Z";
-  const esc = (s) => (s || "").replace(/[\\;,]/g, (m) => "\\" + m).replace(/\n/g, "\\n");
-  const events = staff.map((i) => {
-    const label = i.category === "leave" ? "휴가" : "연수";
-    return [
-      "BEGIN:VEVENT",
-      `UID:${i.id}@im-sales-mate`,
-      `DTSTAMP:${stamp}`,
-      `DTSTART;VALUE=DATE:${ymd(i.startDate)}`,
-      `DTEND;VALUE=DATE:${plusDay(i.endDate || i.startDate)}`,
-      `SUMMARY:[${label}] ${esc(i.staffName)}`,
-      i.memo ? `DESCRIPTION:${esc(i.memo)}` : "",
-      "END:VEVENT",
-    ]
-      .filter(Boolean)
-      .join("\r\n");
-  });
-  return [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//iM SalesMate//Branch Schedule//KO",
-    "CALSCALE:GREGORIAN",
-    "X-WR-CALNAME:지점 휴가·연수 계획",
-    ...events,
-    "END:VCALENDAR",
-  ].join("\r\n");
-};
-
-/* 브라우저에서 .ics 파일 내려받기 */
-export const downloadIcs = (items) => {
-  const blob = new Blob([buildBranchIcs(items)], { type: "text/calendar;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "지점_휴가연수_계획.ics";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
 };
 
 /* 기준일(연락일이 있으면 그 날, 없으면 오늘)에서 n일 뒤 */
@@ -258,6 +207,13 @@ export const DateControl = ({ item, onUpdate }) => {
   );
 };
 
+/* 지점 일정(휴가·연수·지점 일정) 표시 메타 */
+export const STAFF_META = {
+  leave: { label: "휴가 계획", subject: "담당자", icon: Plane, badge: "bg-teal-50 text-teal-700", dot: "bg-teal-50 text-teal-500" },
+  training: { label: "연수 계획", subject: "담당자", icon: GraduationCap, badge: "bg-indigo-50 text-indigo-700", dot: "bg-indigo-50 text-indigo-500" },
+  branch: { label: "지점 일정", subject: "제목", icon: Building2, badge: "bg-sky-50 text-sky-700", dot: "bg-sky-50 text-sky-500" },
+};
+
 export const FollowupRow = ({
   item,
   onToggle,
@@ -268,14 +224,10 @@ export const FollowupRow = ({
   highlight,
 }) => {
   const cat = item.category || "todo";
-  const isStaff = cat === "leave" || cat === "training";
+  const isStaff = cat === "leave" || cat === "training" || cat === "branch";
   const isNote = cat === "note";
   const done = cat === "todo" && item.status === "done";
-  const STAFF = {
-    leave: { label: "휴가", icon: Plane, badge: "bg-teal-50 text-teal-700", dot: "bg-teal-50 text-teal-500" },
-    training: { label: "연수", icon: GraduationCap, badge: "bg-indigo-50 text-indigo-700", dot: "bg-indigo-50 text-indigo-500" },
-  };
-  const staff = STAFF[cat];
+  const staff = STAFF_META[cat];
   const StaffIcon = staff?.icon;
   return (
     <li
@@ -317,9 +269,9 @@ export const FollowupRow = ({
           {isStaff ? (
             <>
               <span className={cn("inline-flex items-center rounded-sm px-1.5 py-0.5 text-[10px] font-bold", staff.badge)}>
-                {staff.label} 계획
+                {staff.label}
               </span>
-              <span className="text-[12.5px] font-bold text-slate-900">{item.staffName || "담당자"}</span>
+              <span className="text-[12.5px] font-bold text-slate-900">{item.staffName || staff.subject}</span>
               {item.startDate && (
                 <span className="text-[11px] font-semibold tabular-nums text-slate-500">
                   {fmtDate(item.startDate)}
@@ -388,6 +340,7 @@ export const FollowupRow = ({
 const CATS = [
   { id: "todo", label: "할 일", icon: CalendarClock },
   { id: "note", label: "고객 메모", icon: StickyNote },
+  { id: "branch", label: "지점 일정", icon: Building2 },
   { id: "leave", label: "휴가 계획", icon: Plane },
   { id: "training", label: "연수 계획", icon: GraduationCap },
 ];
@@ -409,8 +362,9 @@ const DateField = ({ value, onChange, className }) => (
   />
 );
 
-export const FollowupForm = ({ onAdd, defaultDate = "" }) => {
-  const [cat, setCat] = useState("todo");
+export const FollowupForm = ({ onAdd, defaultDate = "", allowed }) => {
+  const cats = allowed ? CATS.filter((c) => allowed.includes(c.id)) : CATS;
+  const [cat, setCat] = useState(cats[0]?.id ?? "todo");
   const [customerNo, setCustomerNo] = useState("");
   const [staffName, setStaffName] = useState("");
   const [memo, setMemo] = useState("");
@@ -428,8 +382,9 @@ export const FollowupForm = ({ onAdd, defaultDate = "" }) => {
     if (defaultDate && (!endDate || endDate < defaultDate)) setEndDate(defaultDate);
   }
 
-  const isStaff = cat === "leave" || cat === "training";
+  const isStaff = cat === "leave" || cat === "training" || cat === "branch";
   const isNote = cat === "note";
+  const subjectLabel = cat === "branch" ? "일정 제목" : "담당자 이름";
   const canAdd = isStaff
     ? staffName.trim().length > 0 && !!startDate
     : memo.trim().length > 0 || customerNo.trim().length > 0;
@@ -459,7 +414,7 @@ export const FollowupForm = ({ onAdd, defaultDate = "" }) => {
     <div className="space-y-2.5">
       {/* 유형 선택 */}
       <div className="flex flex-wrap gap-1">
-        {CATS.map((c) => {
+        {cats.map((c) => {
           const Icon = c.icon;
           const on = cat === c.id;
           return (
@@ -479,12 +434,12 @@ export const FollowupForm = ({ onAdd, defaultDate = "" }) => {
       </div>
 
       {isStaff ? (
-        /* 휴가·연수 계획 — 담당자 + 기간(시작~종료), 지점 공유 고정 */
+        /* 지점 일정/휴가/연수 — 제목(담당자) + 기간(시작~종료), 지점 공유 고정 */
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <input
             value={staffName}
             onChange={(e) => setStaffName(e.target.value)}
-            placeholder="담당자 이름"
+            placeholder={subjectLabel}
             className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] focus:border-im-500 focus:outline-none sm:w-36"
           />
           <div className="flex items-center gap-1.5">

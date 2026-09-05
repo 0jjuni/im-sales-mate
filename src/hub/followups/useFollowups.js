@@ -13,7 +13,7 @@ export const ddayOf = (dateStr) => {
   return Math.round((d - today) / 86400000);
 };
 
-export const isStaffCat = (c) => c === "leave" || c === "training";
+export const isStaffCat = (c) => c === "leave" || c === "training" || c === "branch";
 
 /* 고객 후속·지점 일정 상태 관리 훅. localStorage 어댑터에 자동 저장.
    category: "todo"(할 일) | "note"(고객 메모) | "leave"(휴가 계획) | "training"(연수 계획) */
@@ -26,7 +26,7 @@ export function useFollowups() {
   }, [items]);
 
   const add = useCallback((input) => {
-    const cat = ["note", "leave", "training"].includes(input.category) ? input.category : "todo";
+    const cat = ["note", "leave", "training", "branch"].includes(input.category) ? input.category : "todo";
     const staff = isStaffCat(cat);
     const item = {
       id: uid(),
