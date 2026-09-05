@@ -4,7 +4,7 @@ import { HubShell } from "../HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
 import { useFollowups, ddayOf } from "./useFollowups";
 import { MonthCalendar } from "./MonthCalendar";
-import { FollowupRow, FollowupForm, PrivacyNotice, fmtDate, toISO } from "./parts";
+import { FollowupRow, FollowupForm, PrivacyNotice, fmtDate } from "./parts";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 
@@ -40,7 +40,7 @@ export default function FollowupsPage() {
   const [tab, setTab] = useState("list");
   const [query, setQuery] = useState("");
   const [showDone, setShowDone] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(() => toISO(new Date()));
+  const [picker, setPicker] = useState(null); // { start, end } — 달력에서 고른 날짜/기간
 
   useEffect(() => {
     const prev = document.title;
@@ -140,24 +140,7 @@ export default function FollowupsPage() {
         </div>
       ) : tab === "calendar" ? (
         <div className="space-y-3">
-          <MonthCalendar items={items} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
-
-          {/* 선택한 날짜에 지점 일정 추가 */}
-          <div className={cn(CARD, "overflow-hidden")}>
-            <div className="flex items-center gap-2 border-b border-slate-100 bg-im-50/50 px-3.5 py-2.5">
-              <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-im-600 text-white">
-                <PlusCircle className="h-3.5 w-3.5" />
-              </span>
-              <span className="text-[12.5px] font-bold text-slate-800">지점 일정 추가</span>
-              <span className="text-[11px] text-slate-400">
-                선택한 날짜: <span className="font-semibold text-im-700">{fmtDate(selectedDate)}</span>
-              </span>
-            </div>
-            <div className="p-3.5">
-              <FollowupForm onAdd={add} defaultDate={selectedDate} allowed={["branch", "leave", "training"]} />
-            </div>
-          </div>
-
+          <MonthCalendar items={items} onPickRange={(start, end) => setPicker({ start, end })} />
           {staffOpen.length > 0 && <Group title="지점 일정 목록" tone="teal" items={staffOpen} rowProps={rowProps} />}
         </div>
       ) : (
@@ -206,6 +189,37 @@ export default function FollowupsPage() {
         <ShieldAlert className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-amber-600" />
         <PrivacyNotice />
       </div>
+
+      {/* 날짜/기간 선택 → 지점 일정 추가 팝업 */}
+      {picker && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={() => setPicker(null)}>
+          <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+              <div className="text-[13px] font-bold text-slate-900">
+                지점 일정 추가
+                <span className="ml-2 text-[12px] font-semibold text-im-700">
+                  {fmtDate(picker.start)}
+                  {picker.end !== picker.start ? ` ~ ${fmtDate(picker.end)}` : ""}
+                </span>
+              </div>
+              <button onClick={() => setPicker(null)} aria-label="닫기" className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="p-4">
+              <FollowupForm
+                onAdd={(v) => {
+                  add(v);
+                  setPicker(null);
+                }}
+                defaultDate={picker.start}
+                defaultEnd={picker.end}
+                allowed={["branch", "leave", "training"]}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </HubShell>
   );
 }

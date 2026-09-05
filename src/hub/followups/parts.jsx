@@ -362,7 +362,7 @@ const DateField = ({ value, onChange, className }) => (
   />
 );
 
-export const FollowupForm = ({ onAdd, defaultDate = "", allowed }) => {
+export const FollowupForm = ({ onAdd, defaultDate = "", defaultEnd = "", allowed }) => {
   const cats = allowed ? CATS.filter((c) => allowed.includes(c.id)) : CATS;
   const [cat, setCat] = useState(cats[0]?.id ?? "todo");
   const [customerNo, setCustomerNo] = useState("");
@@ -370,16 +370,17 @@ export const FollowupForm = ({ onAdd, defaultDate = "", allowed }) => {
   const [memo, setMemo] = useState("");
   const [date, setDate] = useState(defaultDate); // 할 일 연락일(선택)
   const [startDate, setStartDate] = useState(defaultDate);
-  const [endDate, setEndDate] = useState(defaultDate);
+  const [endDate, setEndDate] = useState(defaultEnd || defaultDate);
   const [shared, setShared] = useState(false);
 
-  /* 달력에서 날짜를 고르면 폼에 반영(할 일 연락일·휴가/연수 시작일) */
-  const [lastDefault, setLastDefault] = useState(defaultDate);
-  if (defaultDate !== lastDefault) {
-    setLastDefault(defaultDate);
+  /* 달력에서 날짜(또는 기간)를 고르면 폼에 반영 */
+  const rangeKey = `${defaultDate}|${defaultEnd}`;
+  const [lastKey, setLastKey] = useState(rangeKey);
+  if (rangeKey !== lastKey) {
+    setLastKey(rangeKey);
     setDate(defaultDate);
     setStartDate(defaultDate);
-    if (defaultDate && (!endDate || endDate < defaultDate)) setEndDate(defaultDate);
+    setEndDate(defaultEnd || defaultDate);
   }
 
   const isStaff = cat === "leave" || cat === "training" || cat === "branch";
