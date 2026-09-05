@@ -4,7 +4,7 @@ import { HubShell } from "../HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
 import { useFollowups, ddayOf } from "./useFollowups";
 import { MonthCalendar } from "./MonthCalendar";
-import { FollowupRow, FollowupForm, PrivacyNotice, fmtDate } from "./parts";
+import { FollowupRow, FollowupForm, PrivacyNotice, fmtDate, fmtTime, STAFF_META } from "./parts";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 
@@ -41,6 +41,7 @@ export default function FollowupsPage() {
   const [query, setQuery] = useState("");
   const [showDone, setShowDone] = useState(false);
   const [picker, setPicker] = useState(null); // { start, end } — 달력에서 고른 날짜/기간
+  const [detail, setDetail] = useState(null); // 달력 띠 클릭 시 상세 항목
 
   useEffect(() => {
     const prev = document.title;
@@ -140,7 +141,7 @@ export default function FollowupsPage() {
         </div>
       ) : tab === "calendar" ? (
         <div className="space-y-3">
-          <MonthCalendar items={items} onPickRange={(start, end) => setPicker({ start, end })} />
+          <MonthCalendar items={items} onPickRange={(start, end) => setPicker({ start, end })} onEventClick={setDetail} />
           {staffOpen.length > 0 && <Group title="지점 일정 목록" tone="teal" items={staffOpen} rowProps={rowProps} />}
         </div>
       ) : (
@@ -220,6 +221,68 @@ export default function FollowupsPage() {
           </div>
         </div>
       )}
+
+      {/* 달력 띠 클릭 → 일정 상세 */}
+      {detail && (() => {
+        const cat = detail.category || "todo";
+        const staff = STAFF_META[cat];
+        const isStaff = !!staff;
+        const isTodo = cat === "todo";
+        const badge = isStaff ? staff.label : cat === "note" ? "고객 메모" : "할 일";
+        const when = isStaff
+          ? `${fmtDate(detail.startDate)}${detail.endDate && detail.endDate !== detail.startDate ? ` ~ ${fmtDate(detail.endDate)}` : ""}${detail.time ? ` · ${fmtTime(detail.time)}` : ""}`
+          : detail.followUpDate
+          ? fmtDate(detail.followUpDate)
+          : "기한 없음";
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={() => setDetail(null)}>
+            <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                <span className={cn("inline-flex items-center rounded-sm px-1.5 py-0.5 text-[11px] font-bold", isStaff ? staff.badge : cat === "note" ? "bg-violet-50 text-violet-600" : "bg-im-50 text-im-700")}>
+                  {badge}
+                </span>
+                <button onClick={() => setDetail(null)} aria-label="닫기" className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="space-y-2 px-4 py-4">
+                <h3 className="text-[15px] font-bold text-slate-900">
+                  {isStaff ? detail.staffName || staff.subject : detail.customerNo ? `고객 ${detail.customerNo}` : "고객 메모"}
+                </h3>
+                <div className="flex flex-wrap items-center gap-2 text-[12px] text-slate-500">
+                  <span className="font-semibold text-slate-700">{when}</span>
+                  {detail.scope === "branch" && <span className="text-teal-600">· 지점 공유</span>}
+                  {detail.author && detail.author !== "나" && <span>· 게시 {detail.author}</span>}
+                </div>
+                {detail.memo && <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-slate-700">{detail.memo}</p>}
+              </div>
+              <div className="flex items-center justify-between gap-2 border-t border-slate-100 px-4 py-3">
+                <div>
+                  {isTodo && (
+                    <button
+                      onClick={() => { toggleDone(detail.id); setDetail(null); }}
+                      className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-semibold text-slate-600 hover:border-im-400 hover:text-im-700"
+                    >
+                      {detail.status === "done" ? "예정으로 되돌리기" : "완료 처리"}
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => { remove(detail.id); setDetail(null); }}
+                    className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-semibold text-rose-600 hover:border-rose-300"
+                  >
+                    삭제
+                  </button>
+                  <button onClick={() => setDetail(null)} className="rounded-md bg-slate-900 px-3 py-1.5 text-[12.5px] font-bold text-white hover:bg-slate-700">
+                    닫기
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </HubShell>
   );
 }

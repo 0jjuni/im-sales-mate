@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Users, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { ddayOf } from "./useFollowups";
 import { toISO, isShared } from "./parts";
 import { CARD } from "@shared/lib/surface";
@@ -39,7 +39,7 @@ const rangeOf = (i) => {
   return i.followUpDate ? { start: i.followUpDate, end: i.followUpDate } : null;
 };
 
-export function MonthCalendar({ items, onPickRange }) {
+export function MonthCalendar({ items, onPickRange, onEventClick }) {
   const today = new Date();
   const todayIso = toISO(today);
   const [view, setView] = useState({ y: today.getFullYear(), m: today.getMonth() });
@@ -146,62 +146,76 @@ export function MonthCalendar({ items, onPickRange }) {
         {weeks.map((week, wi) => {
           const lanes = lanesForWeek(week);
           return (
-            <div key={wi} className="flex min-h-[128px] flex-col border-b border-slate-100 last:border-b-0">
-              {/* 날짜 숫자(드래그 선택 영역) */}
-              <div className="grid grid-cols-7">
-                {week.map((iso, di) => {
-                  if (!iso) return <div key={di} className="px-2 pt-1.5" />;
-                  const day = Number(iso.slice(8, 10));
-                  const dow = new Date(`${iso}T00:00:00`).getDay();
-                  const isToday = iso === todayIso;
-                  return (
+            <div key={wi} className="relative min-h-[132px] border-b border-slate-100 last:border-b-0">
+              {/* 배경 — 칸 전체를 클릭·드래그해 일정 추가 */}
+              <div className="absolute inset-0 grid grid-cols-7">
+                {week.map((iso, di) =>
+                  iso ? (
                     <div
                       key={di}
                       onMouseDown={() => setDrag({ start: iso, end: iso })}
                       onMouseEnter={() => setDrag((d) => (d ? { ...d, end: iso } : d))}
                       className={cn(
-                        "group flex cursor-pointer items-center justify-between px-2 pt-1.5",
-                        inDrag(iso) && "bg-im-100/70"
+                        "cursor-pointer border-r border-slate-100 transition-colors last:border-r-0",
+                        inDrag(iso) ? "bg-im-100/70" : "hover:bg-slate-50"
                       )}
-                    >
-                      <span
-                        className={cn(
-                          "inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full px-1 text-[12.5px] tabular-nums",
-                          isToday ? "bg-im-600 font-bold text-white" : dow === 0 ? "text-rose-500" : dow === 6 ? "text-blue-500" : "text-slate-700"
-                        )}
-                      >
-                        {day}
-                      </span>
-                      <Plus className="h-3 w-3 text-slate-300 opacity-0 transition-opacity group-hover:opacity-100" />
-                    </div>
-                  );
-                })}
+                    />
+                  ) : (
+                    <div key={di} className="border-r border-slate-100 bg-slate-50/40 last:border-r-0" />
+                  )
+                )}
               </div>
 
-              {/* 일정 띠(레인) */}
-              <div className="flex-1 space-y-1 px-1 pb-2 pt-1">
-                {lanes.map((lane, li) => (
-                  <div key={li} className="grid grid-cols-7 gap-x-1">
-                    {lane.map((e) => {
-                      const shared = isShared(e.item);
-                      return (
+              {/* 오버레이 — 날짜 숫자·일정 띠. 클릭은 배경으로 통과, 띠만 예외 */}
+              <div className="pointer-events-none relative">
+                <div className="grid grid-cols-7">
+                  {week.map((iso, di) => {
+                    if (!iso) return <div key={di} className="px-2 pt-1.5" />;
+                    const day = Number(iso.slice(8, 10));
+                    const dow = new Date(`${iso}T00:00:00`).getDay();
+                    const isToday = iso === todayIso;
+                    return (
+                      <div key={di} className="px-2 pt-1.5">
                         <span
-                          key={e.item.id}
-                          style={{ gridColumn: `${e.colStart + 1} / span ${e.span}` }}
-                          title={`${shared ? "[지점 공유] " : ""}${barLabel(e.item)}${e.item.memo ? ` · ${e.item.memo}` : ""}`}
                           className={cn(
-                            "truncate rounded-md px-1.5 py-0.5 text-[11px] font-medium leading-tight",
-                            barTone(e.item),
-                            shared && "border-l-2 border-teal-500"
+                            "inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full px-1 text-[12.5px] tabular-nums",
+                            isToday ? "bg-im-600 font-bold text-white" : dow === 0 ? "text-rose-500" : dow === 6 ? "text-blue-500" : "text-slate-700"
                           )}
                         >
-                          {shared && <Users className="mr-0.5 inline h-2.5 w-2.5 align-[-1px]" />}
-                          {barLabel(e.item)}
+                          {day}
                         </span>
-                      );
-                    })}
-                  </div>
-                ))}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="space-y-1 px-1 pb-2 pt-1">
+                  {lanes.map((lane, li) => (
+                    <div key={li} className="grid grid-cols-7 gap-x-1">
+                      {lane.map((e) => {
+                        const shared = isShared(e.item);
+                        return (
+                          <button
+                            key={e.item.id}
+                            type="button"
+                            style={{ gridColumn: `${e.colStart + 1} / span ${e.span}` }}
+                            onMouseDown={(ev) => ev.stopPropagation()}
+                            onClick={() => onEventClick?.(e.item)}
+                            title={`${shared ? "[지점 공유] " : ""}${barLabel(e.item)}${e.item.memo ? ` · ${e.item.memo}` : ""}`}
+                            className={cn(
+                              "pointer-events-auto block truncate rounded-md px-1.5 py-0.5 text-left text-[11px] font-medium leading-tight transition-shadow hover:ring-1 hover:ring-slate-300",
+                              barTone(e.item),
+                              shared && "border-l-2 border-teal-500"
+                            )}
+                          >
+                            {shared && <Users className="mr-0.5 inline h-2.5 w-2.5 align-[-1px]" />}
+                            {barLabel(e.item)}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           );
