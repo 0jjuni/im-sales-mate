@@ -20,9 +20,9 @@ const rel = (offset) => {
 /* 할 일(todo) — 지남·오늘·임박·예정·기한없음 골고루 */
 const TODOS = [
   { customerNo: "841023391", memo: "정기예금 만기(지난주) 재예치 상담. 특판 금리 나오면 먼저 안내하기로 함", offset: -3, scope: "mine" },
-  { customerNo: "772501180", memo: "노란우산 청약 서류(사업자등록증) 다시 받기로 함. 방문 시 챙길 것", offset: -1, scope: "branch", author: "이지현" },
+  { customerNo: "772501180", memo: "노란우산 청약 서류(사업자등록증) 다시 받기로 함. 방문 시 챙길 것", offset: -1, scope: "branch", author: "이지현 대리" },
   { customerNo: "904176624", memo: "ISA 만기 도래. 재가입 vs 연장 비교 원함. 오늘 오후 재방문 예정", offset: 0, scope: "mine" },
-  { customerNo: "630084412", memo: "IRP 이전 절차·수수료 문의 전화 주기로 함", offset: 0, scope: "branch", author: "이지현", fresh: true },
+  { customerNo: "630084412", memo: "IRP 이전 절차·수수료 문의 전화 주기로 함", offset: 0, scope: "branch", author: "이지현 대리", fresh: true },
   { customerNo: "519937705", memo: "연금저축 세액공제 한도 초과분 IRP 이체 설명 예정", offset: 2, scope: "mine" },
   { customerNo: "881642093", memo: "방카 만기자금 12월 초 나오면 재예치 상담 원함", offset: 5, scope: "mine" },
   { customerNo: "400218834", memo: "대출 만기 연장 서류 준비되면 연락 주기로 함(날짜 미정)", offset: null, scope: "mine" },
@@ -30,7 +30,7 @@ const TODOS = [
 
 /* 고객 메모(note) — 날짜·완료 개념 없이 기억용 */
 const NOTES = [
-  { customerNo: "550123300", memo: "부부가 함께 방문하는 단골. 결정은 남편분, 실무는 사모님이 챙김", scope: "branch", author: "박준호" },
+  { customerNo: "550123300", memo: "부부가 함께 방문하는 단골. 결정은 남편분, 실무는 사모님이 챙김", scope: "branch", author: "박준호 대리" },
   { customerNo: "318759910", memo: "매장 확장 준비 중, 내년 초 자금 수요 예상. 노란우산 증액 여지 있음", scope: "mine" },
 ];
 
@@ -39,7 +39,7 @@ const STAFF = [
   {
     category: "branch",
     staffName: "지점 정례 회의",
-    author: "이지현",
+    author: "이지현 대리",
     time: "08:30",
     memo: "오전 8시 30분까지 도착 부탁드립니다. 회의 후 바로 개점 준비합니다.",
     startOffset: 2,
@@ -49,7 +49,7 @@ const STAFF = [
   {
     category: "branch",
     staffName: "방카슈랑스 교육",
-    author: "박준호",
+    author: "박준호 대리",
     time: "17:00",
     memo: "오후 5시 방카 교육이 있어 지점 분들 빠른 마감 부탁드립니다.",
     startOffset: 4,
@@ -59,7 +59,7 @@ const STAFF = [
   {
     category: "branch",
     staffName: "월말 실적 마감 워크숍",
-    author: "이지현",
+    author: "이지현 대리",
     time: "17:30",
     memo: "5시 30분 회의실 집합. 월말 실적 마감·다음 달 목표 공유합니다.",
     startOffset: 5,
@@ -68,7 +68,7 @@ const STAFF = [
   {
     category: "branch",
     staffName: "전산 정기점검",
-    author: "박준호",
+    author: "박준호 대리",
     time: "18:00",
     memo: "18시 이후 전산 점검이 있으니 마감 업무를 서둘러 마무리해 주세요.",
     startOffset: 7,
@@ -77,17 +77,17 @@ const STAFF = [
   {
     category: "branch",
     staffName: "소방 대피 훈련",
-    author: "이지현",
+    author: "이지현 대리",
     time: "14:00",
     memo: "오후 2시 소방 대피 훈련. 진행 중 고객 안내 협조 부탁드립니다.",
     startOffset: 11,
     endOffset: 11,
   },
-  { category: "leave", staffName: "박준호", author: "박준호", memo: "연차 휴가", startOffset: 6, endOffset: 8, fresh: true },
+  { category: "leave", staffName: "박준호 대리", author: "박준호 대리", memo: "연차 휴가", startOffset: 6, endOffset: 8, fresh: true },
   {
     category: "training",
-    staffName: "이지현",
-    author: "이지현",
+    staffName: "이지현 대리",
+    author: "이지현 대리",
     memo: "본점 집합교육(여신 심사 실무). 이틀간 자리 비웁니다.",
     startOffset: 9,
     endOffset: 10,
@@ -104,7 +104,7 @@ export function buildSeedItems() {
       id: `seed_${seq}`,
       category: base.category ?? "todo",
       scope: base.scope === "branch" ? "branch" : "mine",
-      author: base.author ?? "나",
+      author: base.author ?? "이현수 계장",
       customerNo: base.customerNo ?? "",
       staffName: base.staffName ?? "",
       memo: base.memo,

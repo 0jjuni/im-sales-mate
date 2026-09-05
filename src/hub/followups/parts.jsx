@@ -16,7 +16,7 @@ import {
   ChevronDown,
   Pencil,
 } from "lucide-react";
-import { ddayOf } from "./useFollowups";
+import { ddayOf, ME } from "./useFollowups";
 import { cn } from "@shared/lib/format";
 
 /* 고객 후속 관리 화면들이 공유하는 표시 부품.
@@ -334,8 +334,8 @@ export const FollowupRow = ({
           {item.memo}
         </p>
         <div className="mt-1 text-[11px] text-slate-400">
-          작성 <span className="font-semibold text-slate-500">{item.author || "나"}</span>
-          {(item.author || "나") === "나" && <span className="text-slate-300"> (나)</span>}
+          작성 <span className="font-semibold text-slate-500">{item.author || ME}</span>
+          {(item.author || ME) === ME && <span className="text-slate-300"> (나)</span>}
         </div>
       </div>
 
@@ -370,7 +370,7 @@ export const FollowupRow = ({
             </button>
           )}
           {/* 내가 올린 항목만 편집 */}
-          {onEdit && (item.author || "나") === "나" && !compact && (
+          {onEdit && (item.author || ME) === ME && !compact && (
             <button
               onClick={() => onEdit(item)}
               title="편집"

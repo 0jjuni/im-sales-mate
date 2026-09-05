@@ -15,6 +15,9 @@ export const ddayOf = (dateStr) => {
 
 export const isStaffCat = (c) => c === "leave" || c === "training" || c === "branch";
 
+/* 현재 로그인 직원(가정). 내가 올린 항목 식별·편집 권한 기준. 실서비스에선 세션 사용자로 대체. */
+export const ME = "이현수 계장";
+
 /* 고객 후속·지점 일정 상태 관리 훅. localStorage 어댑터에 자동 저장.
    category: "todo"(할 일) | "note"(고객 메모) | "leave"(휴가 계획) | "training"(연수 계획) */
 export function useFollowups() {
@@ -32,7 +35,7 @@ export function useFollowups() {
       id: uid(),
       category: cat,
       scope: staff ? "branch" : input.scope === "branch" ? "branch" : "mine",
-      author: "나",
+      author: ME,
       customerNo: (input.customerNo || "").trim(),
       staffName: (input.staffName || "").trim(),
       memo: (input.memo || "").trim(),
@@ -85,7 +88,7 @@ export function useFollowups() {
   const branchNew = useMemo(
     () =>
       items
-        .filter((i) => i.scope === "branch" && i.author && i.author !== "나" && i.createdAt > branchSeen)
+        .filter((i) => i.scope === "branch" && i.author && i.author !== ME && i.createdAt > branchSeen)
         .sort((a, b) => b.createdAt - a.createdAt),
     [items, branchSeen]
   );

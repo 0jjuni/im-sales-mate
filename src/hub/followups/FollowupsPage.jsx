@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, List, Search, X, ShieldAlert, PlusCircle } from "lucide-react";
 import { HubShell } from "../HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
-import { useFollowups, ddayOf } from "./useFollowups";
+import { useFollowups, ddayOf, ME } from "./useFollowups";
 import { MonthCalendar } from "./MonthCalendar";
 import { FollowupRow, FollowupForm, PrivacyNotice, fmtDate, fmtTime, STAFF_META } from "./parts";
 import { CARD } from "@shared/lib/surface";
@@ -253,7 +253,7 @@ export default function FollowupsPage() {
                 <div className="flex flex-wrap items-center gap-2 text-[12px] text-slate-500">
                   <span className="font-semibold text-slate-700">{when}</span>
                   {detail.scope === "branch" && <span className="text-teal-600">· 지점 공유</span>}
-                  <span>· 작성 {detail.author || "나"}</span>
+                  <span>· 작성 {detail.author || ME}</span>
                 </div>
                 {detail.memo && <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-slate-700">{detail.memo}</p>}
               </div>
@@ -269,7 +269,7 @@ export default function FollowupsPage() {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  {(detail.author || "나") === "나" && (
+                  {(detail.author || ME) === ME && (
                     <button
                       onClick={() => { setEditing(detail); setDetail(null); }}
                       className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-semibold text-slate-600 hover:border-im-400 hover:text-im-700"
