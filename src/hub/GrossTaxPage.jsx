@@ -17,9 +17,12 @@ import {
   BadgePercent,
   MessageSquareText,
   Megaphone,
+  CalendarClock,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { CardDeductionGuide } from "@card/components/CardDeductionGuide";
+import { useFollowups } from "./followups/useFollowups";
+import { FollowupRow } from "./followups/parts";
 import { PrintReport } from "@shared/components/PrintReport";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
@@ -329,6 +332,48 @@ const SectionTitle = ({ icon: Icon, children, sub }) => (
   </div>
 );
 
+/* 이 고객의 일정·메모 — 일정 관리(할 일·고객 메모)에 기록된 것을 진단 화면에서 함께 본다.
+   상담 전 "이 고객과 무슨 약속을 했는지"를 바로 확인하고, 그 자리에서 완료·삭제도 가능. */
+function CustomerFollowups({ no }) {
+  const { items, toggleDone, update, remove } = useFollowups();
+  const mine = items
+    .filter((i) => i.customerNo === no && (i.category === "todo" || i.category === "note"))
+    .sort((a, b) => {
+      const rank = (i) => (i.category === "note" ? 2 : i.status === "done" ? 3 : 0);
+      return rank(a) - rank(b) || (a.followUpDate || "").localeCompare(b.followUpDate || "") || (b.createdAt ?? 0) - (a.createdAt ?? 0);
+    });
+
+  return (
+    <section>
+      <SectionTitle icon={CalendarClock} sub="일정 관리에 기록된 이 고객의 할 일·메모">
+        이 고객 일정·메모
+      </SectionTitle>
+      {mine.length === 0 ? (
+        <div className={cn(CARD, "flex flex-wrap items-center justify-between gap-2 px-4 py-3")}>
+          <span className="text-[12.5px] text-slate-500">이 고객으로 기록된 할 일·메모가 없습니다.</span>
+          <Link to="/followups" className="inline-flex items-center gap-1 text-[12px] font-semibold text-im-700 hover:underline">
+            일정 관리 열기 <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      ) : (
+        <div className={cn(CARD, "overflow-hidden")}>
+          <ul className="divide-y divide-slate-100 py-1">
+            {mine.map((item) => (
+              <FollowupRow key={item.id} item={item} onToggle={toggleDone} onUpdate={update} onRemove={remove} />
+            ))}
+          </ul>
+          <Link
+            to="/followups"
+            className="block border-t border-slate-100 px-3 py-2 text-center text-[12px] font-semibold text-slate-500 transition-colors hover:bg-slate-50 hover:text-im-700"
+          >
+            일정 관리에서 전체 보기·추가 →
+          </Link>
+        </div>
+      )}
+    </section>
+  );
+}
+
 /* 참고 자료 — 접이식 */
 const ReferenceGuide = () => {
   const [open, setOpen] = useState(false);
@@ -487,6 +532,8 @@ function ResultView({ data }) {
       <VerdictBanner data={data} />
 
       {j.isTarget && <GuidanceForTarget data={data} />}
+
+      <CustomerFollowups no={data.customerNo} />
 
       <section>
         <SectionTitle icon={Layers} sub="당행 보유 기준입니다. 미보유 상품은 가입을 권유하세요">
