@@ -14,6 +14,7 @@ import {
   GraduationCap,
   Building2,
   ChevronDown,
+  Pencil,
 } from "lucide-react";
 import { ddayOf } from "./useFollowups";
 import { cn } from "@shared/lib/format";
@@ -240,6 +241,7 @@ export const FollowupRow = ({
   onUpdate,
   onRemove,
   onSearch,
+  onEdit,
   compact,
   highlight,
 }) => {
@@ -270,18 +272,14 @@ export const FollowupRow = ({
           <StickyNote className="h-3 w-3" />
         </span>
       ) : (
-        <button
-          onClick={() => onToggle(item.id)}
-          title={done ? "예정으로 되돌리기" : "완료 처리"}
+        <span
           className={cn(
-            "mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border transition-colors",
-            done
-              ? "border-im-500 bg-im-500 text-white"
-              : "border-slate-300 text-transparent hover:border-im-400"
+            "mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full",
+            done ? "bg-im-500 text-white" : "bg-slate-100 text-slate-400"
           )}
         >
-          <Check className="h-3 w-3" />
-        </button>
+          {done ? <Check className="h-3 w-3" /> : <CalendarClock className="h-3 w-3" />}
+        </span>
       )}
 
       <div className="min-w-0 flex-1">
@@ -335,13 +333,32 @@ export const FollowupRow = ({
         >
           {item.memo}
         </p>
+        <div className="mt-1 text-[11px] text-slate-400">
+          작성 <span className="font-semibold text-slate-500">{item.author || "나"}</span>
+          {(item.author || "나") === "나" && <span className="text-slate-300"> (나)</span>}
+        </div>
       </div>
 
       {onRemove && (
         <div className="flex flex-shrink-0 items-center gap-1">
-          {/* 할 일: 완료 / 미루기 선택 */}
+          {/* 할 일: 완료 + 날짜 변경 */}
+          {cat === "todo" && !done && onToggle && (
+            <button
+              onClick={() => onToggle(item.id)}
+              className="rounded-md border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-600 transition-colors hover:border-im-500 hover:text-im-700"
+            >
+              완료
+            </button>
+          )}
           {cat === "todo" && !done && onUpdate && !compact && (
-            <DateControl item={item} onUpdate={onUpdate} asMenu />
+            <input
+              type="date"
+              value={item.followUpDate ?? ""}
+              onChange={(e) => onUpdate(item.id, { followUpDate: e.target.value || null })}
+              onClick={openPicker}
+              title="날짜 변경"
+              className="rounded-md border border-slate-300 px-1.5 py-1 text-[11px] text-slate-600 focus:border-im-500 focus:outline-none"
+            />
           )}
           {done && (
             <button
@@ -350,6 +367,16 @@ export const FollowupRow = ({
               className="rounded p-1 text-slate-300 hover:bg-slate-100 hover:text-slate-500"
             >
               <RotateCcw className="h-3.5 w-3.5" />
+            </button>
+          )}
+          {/* 내가 올린 항목만 편집 */}
+          {onEdit && (item.author || "나") === "나" && !compact && (
+            <button
+              onClick={() => onEdit(item)}
+              title="편집"
+              className="rounded p-1 text-slate-300 hover:bg-slate-100 hover:text-slate-700"
+            >
+              <Pencil className="h-3.5 w-3.5" />
             </button>
           )}
           <button
@@ -393,17 +420,17 @@ const DateField = ({ value, onChange, className }) => (
   />
 );
 
-export const FollowupForm = ({ onAdd, defaultDate = "", defaultEnd = "", allowed }) => {
+export const FollowupForm = ({ onAdd, defaultDate = "", defaultEnd = "", allowed, initial, submitLabel = "기록" }) => {
   const cats = allowed ? CATS.filter((c) => allowed.includes(c.id)) : CATS;
-  const [cat, setCat] = useState(cats[0]?.id ?? "todo");
-  const [customerNo, setCustomerNo] = useState("");
-  const [staffName, setStaffName] = useState("");
-  const [memo, setMemo] = useState("");
-  const [date, setDate] = useState(defaultDate); // 할 일 연락일(선택)
-  const [startDate, setStartDate] = useState(defaultDate);
-  const [endDate, setEndDate] = useState(defaultEnd || defaultDate);
-  const [time, setTime] = useState("");
-  const [shared, setShared] = useState(false);
+  const [cat, setCat] = useState(initial?.category || cats[0]?.id || "todo");
+  const [customerNo, setCustomerNo] = useState(initial?.customerNo || "");
+  const [staffName, setStaffName] = useState(initial?.staffName || "");
+  const [memo, setMemo] = useState(initial?.memo || "");
+  const [date, setDate] = useState(initial?.followUpDate || defaultDate); // 할 일 연락일(선택)
+  const [startDate, setStartDate] = useState(initial?.startDate || defaultDate);
+  const [endDate, setEndDate] = useState(initial?.endDate || defaultEnd || defaultDate);
+  const [time, setTime] = useState(initial?.time || "");
+  const [shared, setShared] = useState(initial ? initial.scope === "branch" : false);
 
   /* 달력에서 날짜(또는 기간)를 고르면 폼에 반영 */
   const rangeKey = `${defaultDate}|${defaultEnd}`;
@@ -574,7 +601,7 @@ export const FollowupForm = ({ onAdd, defaultDate = "", defaultEnd = "", allowed
           className="inline-flex items-center gap-1 rounded-md bg-im-600 px-3.5 py-1.5 text-[12px] font-bold text-white transition-colors hover:bg-im-700 disabled:opacity-40"
         >
           <Plus className="h-3.5 w-3.5" />
-          기록
+          {submitLabel}
         </button>
       </div>
     </div>

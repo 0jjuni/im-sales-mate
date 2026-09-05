@@ -42,6 +42,7 @@ export default function FollowupsPage() {
   const [showDone, setShowDone] = useState(false);
   const [picker, setPicker] = useState(null); // { start, end } — 달력에서 고른 날짜/기간
   const [detail, setDetail] = useState(null); // 달력 띠 클릭 시 상세 항목
+  const [editing, setEditing] = useState(null); // 편집 중인 항목(내가 올린 것)
 
   useEffect(() => {
     const prev = document.title;
@@ -52,7 +53,7 @@ export default function FollowupsPage() {
     };
   }, [markBranchSeen]);
 
-  const rowProps = { onToggle: toggleDone, onUpdate: update, onRemove: remove, onSearch: (no) => setQuery(no) };
+  const rowProps = { onToggle: toggleDone, onUpdate: update, onRemove: remove, onSearch: (no) => setQuery(no), onEdit: setEditing };
 
   const q = query.trim();
   const searchResults = useMemo(() => {
@@ -252,7 +253,7 @@ export default function FollowupsPage() {
                 <div className="flex flex-wrap items-center gap-2 text-[12px] text-slate-500">
                   <span className="font-semibold text-slate-700">{when}</span>
                   {detail.scope === "branch" && <span className="text-teal-600">· 지점 공유</span>}
-                  {detail.author && detail.author !== "나" && <span>· 게시 {detail.author}</span>}
+                  <span>· 작성 {detail.author || "나"}</span>
                 </div>
                 {detail.memo && <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-slate-700">{detail.memo}</p>}
               </div>
@@ -268,6 +269,14 @@ export default function FollowupsPage() {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
+                  {(detail.author || "나") === "나" && (
+                    <button
+                      onClick={() => { setEditing(detail); setDetail(null); }}
+                      className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-semibold text-slate-600 hover:border-im-400 hover:text-im-700"
+                    >
+                      편집
+                    </button>
+                  )}
                   <button
                     onClick={() => { remove(detail.id); setDetail(null); }}
                     className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-[12.5px] font-semibold text-rose-600 hover:border-rose-300"
@@ -283,6 +292,31 @@ export default function FollowupsPage() {
           </div>
         );
       })()}
+
+      {/* 편집(내가 올린 항목) */}
+      {editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={() => setEditing(null)}>
+          <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+              <span className="text-[13px] font-bold text-slate-900">일정 편집</span>
+              <button onClick={() => setEditing(null)} aria-label="닫기" className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="p-4">
+              <FollowupForm
+                initial={editing}
+                allowed={[editing.category]}
+                submitLabel="수정 저장"
+                onAdd={(v) => {
+                  update(editing.id, v);
+                  setEditing(null);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </HubShell>
   );
 }
