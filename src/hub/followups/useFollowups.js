@@ -13,80 +13,63 @@ export const ddayOf = (dateStr) => {
   return Math.round((d - today) / 86400000);
 };
 
-/* 고객 후속 메모 상태 관리 훅. localStorage 어댑터에 자동 저장. */
+export const isStaffCat = (c) => c === "leave" || c === "training";
+
+/* 고객 후속·지점 일정 상태 관리 훅. localStorage 어댑터에 자동 저장.
+   category: "todo"(할 일) | "note"(고객 메모) | "leave"(휴가 계획) | "training"(연수 계획) */
 export function useFollowups() {
   const [items, setItems] = useState(() => followupStore.load().items);
+  const [branchSeen, setBranchSeen] = useState(() => followupStore.getBranchSeen());
 
   useEffect(() => {
-    followupStore.save({ version: 1, items });
+    followupStore.save({ version: 2, items });
   }, [items]);
 
-  const add = useCallback(({ customerNo, memo, followUpDate, scope, category, staffName }) => {
-    /* category: "customer"(고객 연락) | "leave"(휴가) | "training"(연수).
-       휴가·연수는 지점 일정이라 항상 지점 공유. */
-    const cat = category === "leave" || category === "training" ? category : "customer";
-    const isStaff = cat !== "customer";
+  const add = useCallback((input) => {
+    const cat = ["note", "leave", "training"].includes(input.category) ? input.category : "todo";
+    const staff = isStaffCat(cat);
     const item = {
       id: uid(),
-      type: "followup",
       category: cat,
-      scope: isStaff ? "branch" : scope === "branch" ? "branch" : "mine",
-      customerNo: (customerNo || "").trim(),
-      staffName: (staffName || "").trim(),
-      memo: (memo || "").trim(),
-      followUpDate: followUpDate || null,
-      products: [],
+      scope: staff ? "branch" : input.scope === "branch" ? "branch" : "mine",
+      author: "나",
+      customerNo: (input.customerNo || "").trim(),
+      staffName: (input.staffName || "").trim(),
+      memo: (input.memo || "").trim(),
+      followUpDate: cat === "todo" ? input.followUpDate || null : null,
+      startDate: staff ? input.startDate || null : null,
+      endDate: staff ? input.endDate || input.startDate || null : null,
       status: "open",
       createdAt: Date.now(),
     };
     setItems((prev) => [item, ...prev]);
   }, []);
 
-  const remove = useCallback((id) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
-  }, []);
+  const remove = useCallback((id) => setItems((prev) => prev.filter((i) => i.id !== id)), []);
 
-  /* 부분 수정 — 연락일 변경 등 */
-  const update = useCallback((id, patch) => {
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)));
-  }, []);
+  const update = useCallback(
+    (id, patch) => setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i))),
+    []
+  );
 
-  const toggleDone = useCallback((id) => {
-    setItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, status: i.status === "done" ? "open" : "done" } : i))
-    );
-  }, []);
+  const toggleDone = useCallback(
+    (id) =>
+      setItems((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, status: i.status === "done" ? "open" : "done" } : i))
+      ),
+    []
+  );
 
-  /* 예정(open) — 날짜 있는 항목은 가까운 순, 날짜 없는 항목은 뒤로(최근 등록순).
-     고객 메모(note)는 별도 목록으로 분리 */
+  /* 할 일(todo) 열린 항목 — 날짜 있는 건 가까운 순, 없는 건 뒤로. FollowupBoard 미리보기용 */
   const openItems = useMemo(() => {
-    const open = items.filter((i) => i.type !== "note" && i.status === "open");
-    const dated = open
-      .filter((i) => i.followUpDate)
-      .sort((a, b) => a.followUpDate.localeCompare(b.followUpDate));
+    const open = items.filter((i) => i.category === "todo" && i.status === "open");
+    const dated = open.filter((i) => i.followUpDate).sort((a, b) => a.followUpDate.localeCompare(b.followUpDate));
     const undated = open.filter((i) => !i.followUpDate).sort((a, b) => b.createdAt - a.createdAt);
     return [...dated, ...undated];
   }, [items]);
 
-  const doneItems = useMemo(
-    () =>
-      items
-        .filter((i) => i.type !== "note" && i.status === "done")
-        .sort((a, b) => b.createdAt - a.createdAt),
-    [items]
-  );
-
-  /* 고객 메모 — 최근 등록순 */
-  const noteItems = useMemo(
-    () => items.filter((i) => i.type === "note").sort((a, b) => b.createdAt - a.createdAt),
-    [items]
-  );
-
-  /* 상단 요약 — 지남/오늘/7일 이내 카운트 */
   const summary = useMemo(() => {
-    let overdue = 0;
-    let today = 0;
-    let soon = 0;
+    let overdue = 0, today = 0, soon = 0;
     openItems.forEach((i) => {
       const d = ddayOf(i.followUpDate);
       if (d === null) return;
@@ -97,5 +80,20 @@ export function useFollowups() {
     return { overdue, today, soon, openCount: openItems.length };
   }, [openItems]);
 
-  return { items, openItems, doneItems, noteItems, summary, add, update, remove, toggleDone };
+  /* 지점 공유 새 소식 — 동료(author!=="나")가 올린 지점 공유 항목 중 확인 시각 이후 등록분 */
+  const branchNew = useMemo(
+    () =>
+      items
+        .filter((i) => i.scope === "branch" && i.author && i.author !== "나" && i.createdAt > branchSeen)
+        .sort((a, b) => b.createdAt - a.createdAt),
+    [items, branchSeen]
+  );
+
+  const markBranchSeen = useCallback(() => {
+    const ts = Date.now();
+    followupStore.setBranchSeen(ts);
+    setBranchSeen(ts);
+  }, []);
+
+  return { items, openItems, summary, add, update, remove, toggleDone, branchNew, markBranchSeen };
 }

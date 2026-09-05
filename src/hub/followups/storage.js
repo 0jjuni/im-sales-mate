@@ -8,7 +8,8 @@
 import { buildSeedItems } from "./seedFollowups";
 
 const STORAGE_KEY = "salesbridge.followups";
-const SCHEMA_VERSION = 1;
+const SEEN_KEY = "salesbridge.followups.branchSeen";
+const SCHEMA_VERSION = 2;
 
 /* FollowupItem:
    { id, type: "followup"|"note"(고객 메모 — 없으면 followup으로 간주),
@@ -69,6 +70,23 @@ export const followupStore = {
   clear() {
     try {
       localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      /* noop */
+    }
+  },
+
+  /* 지점 공유 새 소식 확인 시각(대시보드 알림 기준) */
+  getBranchSeen() {
+    try {
+      return Number(localStorage.getItem(SEEN_KEY)) || 0;
+    } catch {
+      return 0;
+    }
+  },
+
+  setBranchSeen(ts) {
+    try {
+      localStorage.setItem(SEEN_KEY, String(ts));
     } catch {
       /* noop */
     }

@@ -45,16 +45,19 @@ const itemLabel = (it) =>
 const ItemBar = ({ item }) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: item.id });
   const shared = isShared(item);
+  /* 휴가·연수는 기간 일정이라 끌어서 옮기지 않는다(할 일만 이동) */
+  const draggable = item.category !== "leave" && item.category !== "training";
   return (
     <span
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      title={`${shared ? "[지점 공유] " : ""}${item.customerNo || "(번호 미기재)"} · ${
-        item.memo
-      }\n끌어서 날짜 변경`}
+      ref={draggable ? setNodeRef : undefined}
+      {...(draggable ? listeners : {})}
+      {...(draggable ? attributes : {})}
+      title={`${shared ? "[지점 공유] " : ""}${itemLabel(item)}${item.memo ? ` · ${item.memo}` : ""}${
+        draggable ? "\n끌어서 날짜 변경" : ""
+      }`}
       className={cn(
-        "block cursor-grab truncate rounded-md px-1.5 py-1 text-[11px] font-medium leading-tight transition-shadow hover:shadow-sm active:cursor-grabbing",
+        "block truncate rounded-md px-1.5 py-1 text-[11px] font-medium leading-tight transition-shadow hover:shadow-sm",
+        draggable ? "cursor-grab active:cursor-grabbing" : "cursor-default",
         itemTone(item),
         shared && "border-l-2 border-teal-500",
         isDragging && "opacity-30"
@@ -126,12 +129,24 @@ export function MonthCalendar({ items, selectedDate, onSelectDate, onMoveItem })
   /* 끌기 시작 전 약간의 이동을 요구해야 칸 클릭(날짜 선택)과 섞이지 않는다 */
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
-  /* 날짜(ISO) → 그날의 건 목록 */
+  /* 날짜(ISO) → 그날의 건 목록.
+     할 일: followUpDate 하루. 휴가·연수: startDate~endDate 기간을 매일 펼쳐 표시. 메모: 제외. */
   const byDate = useMemo(() => {
     const map = {};
     items.forEach((i) => {
-      if (i.type === "note" || !i.followUpDate) return;
-      (map[i.followUpDate] ||= []).push(i);
+      if (i.category === "note") return;
+      if (i.category === "leave" || i.category === "training") {
+        if (!i.startDate) return;
+        let d = new Date(`${i.startDate}T00:00:00`);
+        const end = new Date(`${i.endDate || i.startDate}T00:00:00`);
+        while (d <= end) {
+          (map[toISO(d)] ||= []).push(i);
+          d.setDate(d.getDate() + 1);
+        }
+      } else {
+        if (!i.followUpDate) return;
+        (map[i.followUpDate] ||= []).push(i);
+      }
     });
     Object.values(map).forEach((list) =>
       list.sort((a, b) => (a.status === b.status ? 0 : a.status === "done" ? 1 : -1))

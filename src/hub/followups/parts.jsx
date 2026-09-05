@@ -63,6 +63,58 @@ export const fmtDate = (iso) => {
   return `${d.getMonth() + 1}.${d.getDate()}(${day})`;
 };
 
+/* 지점 휴가·연수 계획 전체를 iCalendar(.ics)로 만든다 — 구글/아웃룩/그룹웨어에 가져오기(import).
+   고객 정보는 절대 포함하지 않는다(휴가·연수 계획만). 종일 일정이라 DTEND는 종료일+1(미포함). */
+const ymd = (iso) => (iso || "").replace(/-/g, "");
+const plusDay = (iso) => {
+  const d = new Date(`${iso}T00:00:00`);
+  d.setDate(d.getDate() + 1);
+  return ymd(toISO(d));
+};
+
+export const buildBranchIcs = (items) => {
+  const staff = items.filter((i) => i.category === "leave" || i.category === "training");
+  const stamp = ymd(toISO(new Date())) + "T000000Z";
+  const esc = (s) => (s || "").replace(/[\\;,]/g, (m) => "\\" + m).replace(/\n/g, "\\n");
+  const events = staff.map((i) => {
+    const label = i.category === "leave" ? "휴가" : "연수";
+    return [
+      "BEGIN:VEVENT",
+      `UID:${i.id}@im-sales-mate`,
+      `DTSTAMP:${stamp}`,
+      `DTSTART;VALUE=DATE:${ymd(i.startDate)}`,
+      `DTEND;VALUE=DATE:${plusDay(i.endDate || i.startDate)}`,
+      `SUMMARY:[${label}] ${esc(i.staffName)}`,
+      i.memo ? `DESCRIPTION:${esc(i.memo)}` : "",
+      "END:VEVENT",
+    ]
+      .filter(Boolean)
+      .join("\r\n");
+  });
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//iM SalesMate//Branch Schedule//KO",
+    "CALSCALE:GREGORIAN",
+    "X-WR-CALNAME:지점 휴가·연수 계획",
+    ...events,
+    "END:VCALENDAR",
+  ].join("\r\n");
+};
+
+/* 브라우저에서 .ics 파일 내려받기 */
+export const downloadIcs = (items) => {
+  const blob = new Blob([buildBranchIcs(items)], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "지점_휴가연수_계획.ics";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+};
+
 /* 기준일(연락일이 있으면 그 날, 없으면 오늘)에서 n일 뒤 */
 const shiftDate = (iso, days) => {
   const base = iso ? new Date(`${iso}T00:00:00`) : new Date();
@@ -215,10 +267,10 @@ export const FollowupRow = ({
   compact,
   highlight,
 }) => {
-  const cat = item.category || "customer";
+  const cat = item.category || "todo";
   const isStaff = cat === "leave" || cat === "training";
-  const isNote = !isStaff && item.type === "note";
-  const done = !isStaff && !isNote && item.status === "done";
+  const isNote = cat === "note";
+  const done = cat === "todo" && item.status === "done";
   const STAFF = {
     leave: { label: "휴가", icon: Plane, badge: "bg-teal-50 text-teal-700", dot: "bg-teal-50 text-teal-500" },
     training: { label: "연수", icon: GraduationCap, badge: "bg-indigo-50 text-indigo-700", dot: "bg-indigo-50 text-indigo-500" },
@@ -265,11 +317,14 @@ export const FollowupRow = ({
           {isStaff ? (
             <>
               <span className={cn("inline-flex items-center rounded-sm px-1.5 py-0.5 text-[10px] font-bold", staff.badge)}>
-                {staff.label}
+                {staff.label} 계획
               </span>
               <span className="text-[12.5px] font-bold text-slate-900">{item.staffName || "담당자"}</span>
-              {item.followUpDate && (
-                <span className="text-[11px] font-semibold tabular-nums text-slate-500">{fmtDate(item.followUpDate)}</span>
+              {item.startDate && (
+                <span className="text-[11px] font-semibold tabular-nums text-slate-500">
+                  {fmtDate(item.startDate)}
+                  {item.endDate && item.endDate !== item.startDate ? ` ~ ${fmtDate(item.endDate)}` : ""}
+                </span>
               )}
               <ScopeBadge item={item} />
             </>
@@ -327,34 +382,56 @@ export const FollowupRow = ({
   );
 };
 
-/* 기록 입력 폼 — 후속 연락 / 고객 메모 두 유형.
-   defaultDate가 주어지면(캘린더에서 날짜를 고른 경우) 연락일을 미리 채운다. */
-/* 기록 유형 — 고객 연락 / 휴가 / 연수. 휴가·연수는 지점 공유 일정. */
+/* 기록 유형 — 할 일 / 고객 메모 / 휴가 계획 / 연수 계획.
+   할 일=날짜·완료 있는 후속 연락, 고객 메모=기억용(날짜·완료 없음),
+   휴가·연수 계획=담당자·기간의 지점 공유 일정. */
 const CATS = [
-  { id: "customer", label: "고객 연락", icon: CalendarClock },
-  { id: "leave", label: "휴가", icon: Plane },
-  { id: "training", label: "연수", icon: GraduationCap },
+  { id: "todo", label: "할 일", icon: CalendarClock },
+  { id: "note", label: "고객 메모", icon: StickyNote },
+  { id: "leave", label: "휴가 계획", icon: Plane },
+  { id: "training", label: "연수 계획", icon: GraduationCap },
 ];
 
+/* 한 번 클릭으로 달력이 바로 열리게(브라우저 지원 시). 세그먼트 직접 입력도 그대로 됨. */
+const openPicker = (e) => e.currentTarget.showPicker?.();
+
+const DateField = ({ value, onChange, className }) => (
+  <input
+    type="date"
+    value={value || ""}
+    onChange={(e) => onChange(e.target.value)}
+    onClick={openPicker}
+    onFocus={openPicker}
+    className={cn(
+      "rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] text-slate-700 focus:border-im-500 focus:outline-none",
+      className
+    )}
+  />
+);
+
 export const FollowupForm = ({ onAdd, defaultDate = "" }) => {
-  const [cat, setCat] = useState("customer");
+  const [cat, setCat] = useState("todo");
   const [customerNo, setCustomerNo] = useState("");
   const [staffName, setStaffName] = useState("");
   const [memo, setMemo] = useState("");
-  /* 연락일은 기본 없음(기한 없음). 필요할 때만 눌러서 지정한다. */
-  const [date, setDate] = useState(defaultDate);
+  const [date, setDate] = useState(defaultDate); // 할 일 연락일(선택)
+  const [startDate, setStartDate] = useState(defaultDate);
+  const [endDate, setEndDate] = useState(defaultDate);
   const [shared, setShared] = useState(false);
 
-  /* 캘린더에서 날짜를 고르면 폼 연락일에 반영 */
+  /* 달력에서 날짜를 고르면 폼에 반영(할 일 연락일·휴가/연수 시작일) */
   const [lastDefault, setLastDefault] = useState(defaultDate);
   if (defaultDate !== lastDefault) {
     setLastDefault(defaultDate);
     setDate(defaultDate);
+    setStartDate(defaultDate);
+    if (defaultDate && (!endDate || endDate < defaultDate)) setEndDate(defaultDate);
   }
 
-  const isStaff = cat !== "customer";
+  const isStaff = cat === "leave" || cat === "training";
+  const isNote = cat === "note";
   const canAdd = isStaff
-    ? staffName.trim().length > 0 && !!date
+    ? staffName.trim().length > 0 && !!startDate
     : memo.trim().length > 0 || customerNo.trim().length > 0;
 
   const submit = () => {
@@ -364,14 +441,18 @@ export const FollowupForm = ({ onAdd, defaultDate = "" }) => {
       customerNo: isStaff ? "" : customerNo,
       staffName: isStaff ? staffName : "",
       memo,
-      followUpDate: date || null,
+      followUpDate: cat === "todo" ? date || null : null,
+      startDate: isStaff ? startDate : null,
+      endDate: isStaff ? endDate || startDate : null,
       scope: shared ? "branch" : "mine",
     });
     setCustomerNo("");
     setStaffName("");
     setMemo("");
     setDate(defaultDate);
-    /* 유형·공유 설정은 유지 — 같은 유형을 연달아 올리는 경우가 많다 */
+    setStartDate(defaultDate);
+    setEndDate(defaultDate);
+    /* 유형·공유 설정은 유지 */
   };
 
   return (
@@ -398,26 +479,29 @@ export const FollowupForm = ({ onAdd, defaultDate = "" }) => {
       </div>
 
       {isStaff ? (
-        /* 휴가·연수 — 담당자 + 날짜(필수), 지점 공유 고정 */
+        /* 휴가·연수 계획 — 담당자 + 기간(시작~종료), 지점 공유 고정 */
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <input
             value={staffName}
             onChange={(e) => setStaffName(e.target.value)}
             placeholder="담당자 이름"
-            className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] focus:border-im-500 focus:outline-none sm:w-40"
+            className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] focus:border-im-500 focus:outline-none sm:w-36"
           />
-          <input
-            type="date"
-            value={date || ""}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] text-slate-600 focus:border-im-500 focus:outline-none sm:w-40"
-          />
+          <div className="flex items-center gap-1.5">
+            <DateField value={startDate} onChange={setStartDate} className="w-full sm:w-36" />
+            <span className="text-[12px] text-slate-400">~</span>
+            <DateField
+              value={endDate}
+              onChange={(v) => setEndDate(v < startDate ? startDate : v)}
+              className="w-full sm:w-36"
+            />
+          </div>
           <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-600">
-            <Users className="h-3 w-3" /> 지점 공유 일정
+            <Users className="h-3 w-3" /> 지점 공유
           </span>
         </div>
       ) : (
-        /* 고객 연락 — 고객번호 + 연락일(눌러서 지정) */
+        /* 할 일 / 고객 메모 — 고객번호 + (할 일만) 연락일 */
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <input
             value={customerNo}
@@ -427,30 +511,20 @@ export const FollowupForm = ({ onAdd, defaultDate = "" }) => {
             placeholder="고객번호 9자리 (선택)"
             className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] tabular-nums focus:border-im-500 focus:outline-none sm:w-44"
           />
-          {date ? (
+          {!isNote && (
             <div className="flex items-center gap-1.5">
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] text-slate-600 focus:border-im-500 focus:outline-none sm:w-40"
-              />
-              <button
-                type="button"
-                onClick={() => setDate("")}
-                className="flex-shrink-0 rounded-md px-2 py-1 text-[11.5px] font-semibold text-slate-500 hover:bg-slate-100"
-              >
-                기한 없음
-              </button>
+              <span className="text-[12px] text-slate-500">연락일</span>
+              <DateField value={date} onChange={setDate} className="w-full sm:w-40" />
+              {date && (
+                <button
+                  type="button"
+                  onClick={() => setDate("")}
+                  className="flex-shrink-0 rounded-md px-2 py-1 text-[11.5px] font-semibold text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                >
+                  지우기
+                </button>
+              )}
             </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setDate(toISO(new Date()))}
-              className="inline-flex items-center gap-1 rounded-md border border-dashed border-slate-300 px-2.5 py-1.5 text-[12px] font-semibold text-slate-500 hover:border-im-400 hover:text-im-700"
-            >
-              <CalendarClock className="h-3.5 w-3.5" /> 연락일 지정
-            </button>
           )}
         </div>
       )}
@@ -462,7 +536,13 @@ export const FollowupForm = ({ onAdd, defaultDate = "" }) => {
           if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit();
         }}
         rows={2}
-        placeholder={isStaff ? "메모 (선택 · 예: 오전 반차)" : "메모 (예: 방카 만기자금 재예치 상담)"}
+        placeholder={
+          isStaff
+            ? "메모 (선택 · 예: 오전 반차 / 본점 집합교육)"
+            : isNote
+            ? "기억할 고객 특징 (예: 매장 확장 준비 중)"
+            : "메모 (예: 방카 만기자금 재예치 상담)"
+        }
         className="w-full resize-y rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] leading-relaxed focus:border-im-500 focus:outline-none"
       />
 

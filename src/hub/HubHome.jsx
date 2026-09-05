@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -12,8 +13,12 @@ import {
   ArrowDown,
   HelpCircle,
   UserSearch,
+  Bell,
+  ArrowRight,
+  X,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
+import { useFollowups } from "./followups/useFollowups";
 import { getSection } from "./sections";
 import { usePersonalization } from "./personalization/PersonalizationContext";
 import { useMorningBriefing } from "./hooks/useMorningBriefing";
@@ -158,6 +163,47 @@ const SortableSectionRow = ({ id, hidden, index, total, onToggleHidden, onMove }
   );
 };
 
+/* 지점 공유 새 소식 알림 — 동료가 올린 지점 공유 항목을 대시보드에서 알려 확인을 유도한다.
+   (로그인 가정: author!=="나"인 지점 공유 항목이 「확인 시각」 이후 등록되면 표시) */
+const branchLabel = (i) => {
+  if (i.category === "leave") return `${i.staffName || "담당자"} · 휴가 계획`;
+  if (i.category === "training") return `${i.staffName || "담당자"} · 연수 계획`;
+  return `고객 ${i.customerNo || "메모"} · ${i.memo}`;
+};
+
+function BranchAlert() {
+  const { branchNew, markBranchSeen } = useFollowups();
+  if (branchNew.length === 0) return null;
+  const top = branchNew[0];
+  return (
+    <div className="mb-4 flex items-start gap-3 rounded-xl border border-teal-200 bg-teal-50/70 px-4 py-3">
+      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-teal-500 text-white">
+        <Bell className="h-4 w-4" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[13px] font-bold text-slate-900">지점 공유 새 소식 {branchNew.length}건</p>
+        <p className="truncate text-[12px] text-slate-600">
+          <span className="font-semibold text-slate-700">{top.author}</span> · {branchLabel(top)}
+        </p>
+      </div>
+      <Link
+        to="/followups"
+        onClick={markBranchSeen}
+        className="inline-flex flex-shrink-0 items-center gap-1 rounded-md bg-teal-600 px-3 py-1.5 text-[12px] font-bold text-white transition-colors hover:bg-teal-700"
+      >
+        확인 <ArrowRight className="h-3.5 w-3.5" />
+      </Link>
+      <button
+        onClick={markBranchSeen}
+        aria-label="닫기"
+        className="flex-shrink-0 rounded p-1 text-slate-400 hover:bg-slate-200/60 hover:text-slate-600"
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
 export function HubHome() {
   /* 마켓 보드와 뉴스 카드가 같은 브리핑 데이터를 공유 — fetch는 한 번만 */
   const { data, status, reload } = useMorningBriefing();
@@ -286,6 +332,9 @@ export function HubHome() {
       editMode={editMode}
       onToggleEdit={() => (editMode ? setEditMode(false) : openEdit())}
     >
+      {/* 지점 공유 새 소식 알림 */}
+      <BranchAlert />
+
       {/* 최상단 고정 — 개인화 편집 중에도 항상 보이는 상담 시작점 */}
       <div className="mb-6">
         <GrossTaxHero />
