@@ -21,18 +21,21 @@ export function useFollowups() {
     followupStore.save({ version: 1, items });
   }, [items]);
 
-  const add = useCallback(({ customerNo, memo, followUpDate, products, type, scope }) => {
-    const isNote = type === "note";
+  const add = useCallback(({ customerNo, memo, followUpDate, scope, category, staffName }) => {
+    /* category: "customer"(고객 연락) | "leave"(휴가) | "training"(연수).
+       휴가·연수는 지점 일정이라 항상 지점 공유. */
+    const cat = category === "leave" || category === "training" ? category : "customer";
+    const isStaff = cat !== "customer";
     const item = {
       id: uid(),
-      /* type: "followup"(후속 연락) | "note"(고객 메모 — 날짜·완료 개념 없음) */
-      type: isNote ? "note" : "followup",
-      /* scope: "mine"(나만) | "branch"(지점 공유). 기존 기록에는 없으므로 없으면 나만 */
-      scope: scope === "branch" ? "branch" : "mine",
+      type: "followup",
+      category: cat,
+      scope: isStaff ? "branch" : scope === "branch" ? "branch" : "mine",
       customerNo: (customerNo || "").trim(),
+      staffName: (staffName || "").trim(),
       memo: (memo || "").trim(),
-      followUpDate: isNote ? null : followUpDate || null,
-      products: Array.isArray(products) ? products : [],
+      followUpDate: followUpDate || null,
+      products: [],
       status: "open",
       createdAt: Date.now(),
     };

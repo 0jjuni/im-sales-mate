@@ -19,7 +19,7 @@ const rel = (offset) => {
 const FOLLOWUPS = [
   {
     customerNo: "841023391",
-    memo: "정기예금 만기(지난주) 재예치 상담 — 특판 금리 나오면 먼저 안내하기로 함",
+    memo: "정기예금 만기(지난주) 재예치 상담. 특판 금리 나오면 먼저 안내하기로 함",
     offset: -3,
     products: ["deposit"],
     scope: "mine",
@@ -33,7 +33,7 @@ const FOLLOWUPS = [
   },
   {
     customerNo: "904176624",
-    memo: "ISA 만기 도래 — 재가입 vs 연장 비교 원함. 오늘 오후 재방문 예정",
+    memo: "ISA 만기 도래. 재가입 vs 연장 비교 원함. 오늘 오후 재방문 예정",
     offset: 0,
     products: ["isa"],
     scope: "mine",
@@ -61,7 +61,7 @@ const FOLLOWUPS = [
   },
   {
     customerNo: "723405567",
-    memo: "펀드 평가손 회복 여부 보고 재상담 — 다음 주 재방문 약속",
+    memo: "펀드 평가손 회복 여부 보고 재상담. 다음 주 재방문 약속",
     offset: 12,
     products: ["fund"],
     scope: "branch",
@@ -79,13 +79,13 @@ const FOLLOWUPS = [
 const NOTES = [
   {
     customerNo: "550123300",
-    memo: "부부가 함께 방문하는 단골 — 결정은 남편분, 실무는 사모님이 챙김",
+    memo: "부부가 함께 방문하는 단골. 결정은 남편분, 실무는 사모님이 챙김",
     products: [],
     scope: "branch",
   },
   {
     customerNo: "318759910",
-    memo: "매장 확장 준비 중, 내년 초 자금 수요 예상 — 노란우산 증액 여지 있음",
+    memo: "매장 확장 준비 중, 내년 초 자금 수요 예상. 노란우산 증액 여지 있음",
     products: ["noran"],
     scope: "mine",
   },

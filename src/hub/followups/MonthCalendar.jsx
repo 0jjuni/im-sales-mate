@@ -24,9 +24,11 @@ const MAX_VISIBLE = 4; // 칸 안에 직접 보여 줄 건수. 넘으면 「+n�
 /* 칸 높이 — 창구에서 한 화면에 한 달치를 읽어야 하므로 넉넉하게 잡는다 */
 const CELL_H = "min-h-[118px] md:min-h-[136px]";
 
-/* 예정 건의 상태별 색 — 목록의 D-day 배지와 같은 규칙 */
+/* 예정 건의 상태별 색 — 목록의 D-day 배지와 같은 규칙. 휴가·연수는 별도 색. */
 const itemTone = (item) => {
   if (item.status === "done") return "bg-slate-100 text-slate-400 line-through";
+  if (item.category === "leave") return "bg-teal-100 text-teal-700";
+  if (item.category === "training") return "bg-indigo-100 text-indigo-700";
   const d = ddayOf(item.followUpDate);
   if (d === null) return "bg-slate-100 text-slate-600";
   if (d < 0) return "bg-rose-100 text-rose-700";
@@ -34,7 +36,9 @@ const itemTone = (item) => {
   return "bg-im-100 text-im-800";
 };
 
-const itemLabel = (it) => it.memo || it.customerNo || "내용 없음";
+const CAT_LABEL = { leave: "휴가", training: "연수" };
+const itemLabel = (it) =>
+  CAT_LABEL[it.category] ? `${CAT_LABEL[it.category]} ${it.staffName || ""}`.trim() : it.memo || it.customerNo || "내용 없음";
 
 /* 칸 안의 띠 하나 — 끌어서 다른 날짜로 옮긴다.
    지점 공유 건은 앞에 사람 아이콘을 붙여 내 기록과 구분한다 */

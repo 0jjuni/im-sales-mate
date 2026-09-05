@@ -10,6 +10,8 @@ import {
   StickyNote,
   Lock,
   Users,
+  Plane,
+  GraduationCap,
 } from "lucide-react";
 import { ddayOf } from "./useFollowups";
 import { cn } from "@shared/lib/format";
@@ -213,8 +215,16 @@ export const FollowupRow = ({
   compact,
   highlight,
 }) => {
-  const isNote = item.type === "note";
-  const done = !isNote && item.status === "done";
+  const cat = item.category || "customer";
+  const isStaff = cat === "leave" || cat === "training";
+  const isNote = !isStaff && item.type === "note";
+  const done = !isStaff && !isNote && item.status === "done";
+  const STAFF = {
+    leave: { label: "휴가", icon: Plane, badge: "bg-teal-50 text-teal-700", dot: "bg-teal-50 text-teal-500" },
+    training: { label: "연수", icon: GraduationCap, badge: "bg-indigo-50 text-indigo-700", dot: "bg-indigo-50 text-indigo-500" },
+  };
+  const staff = STAFF[cat];
+  const StaffIcon = staff?.icon;
   return (
     <li
       className={cn(
@@ -224,7 +234,11 @@ export const FollowupRow = ({
         highlight && "bg-im-50/70"
       )}
     >
-      {isNote ? (
+      {isStaff ? (
+        <span className={cn("mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full", staff.dot)}>
+          <StaffIcon className="h-3 w-3" />
+        </span>
+      ) : isNote ? (
         <span
           title="고객 메모"
           className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-500"
@@ -248,21 +262,35 @@ export const FollowupRow = ({
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5">
-          {isNote && (
-            <span className="inline-flex items-center rounded-sm bg-violet-50 px-1.5 py-0.5 text-[10px] font-bold text-violet-600">
-              고객 메모
-            </span>
+          {isStaff ? (
+            <>
+              <span className={cn("inline-flex items-center rounded-sm px-1.5 py-0.5 text-[10px] font-bold", staff.badge)}>
+                {staff.label}
+              </span>
+              <span className="text-[12.5px] font-bold text-slate-900">{item.staffName || "담당자"}</span>
+              {item.followUpDate && (
+                <span className="text-[11px] font-semibold tabular-nums text-slate-500">{fmtDate(item.followUpDate)}</span>
+              )}
+              <ScopeBadge item={item} />
+            </>
+          ) : (
+            <>
+              {isNote && (
+                <span className="inline-flex items-center rounded-sm bg-violet-50 px-1.5 py-0.5 text-[10px] font-bold text-violet-600">
+                  고객 메모
+                </span>
+              )}
+              {!isNote && !done && <DdayBadge date={item.followUpDate} />}
+              {!isNote && done && (
+                <span className="inline-flex items-center rounded-sm bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500">
+                  완료
+                </span>
+              )}
+              <ScopeBadge item={item} />
+              <CustomerNo no={item.customerNo} onSearch={onSearch} />
+              {!isNote && onUpdate && <DateControl item={item} onUpdate={onUpdate} />}
+            </>
           )}
-          {!isNote && !done && <DdayBadge date={item.followUpDate} />}
-          {!isNote && done && (
-            <span className="inline-flex items-center rounded-sm bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500">
-              완료
-            </span>
-          )}
-          <ScopeBadge item={item} />
-          <CustomerNo no={item.customerNo} onSearch={onSearch} />
-          {!isNote && onUpdate && <DateControl item={item} onUpdate={onUpdate} />}
-          <ProductChips ids={item.products} />
         </div>
         <p
           className={cn(
@@ -301,140 +329,131 @@ export const FollowupRow = ({
 
 /* 기록 입력 폼 — 후속 연락 / 고객 메모 두 유형.
    defaultDate가 주어지면(캘린더에서 날짜를 고른 경우) 연락일을 미리 채운다. */
-export const FollowupForm = ({ onAdd, defaultDate = "", fixedType }) => {
-  const [entryType, setEntryType] = useState(fixedType ?? "followup");
-  const [customerNo, setCustomerNo] = useState("");
-  const [memo, setMemo] = useState("");
-  const [date, setDate] = useState(defaultDate);
-  const [noDeadline, setNoDeadline] = useState(false);
-  const [products, setProducts] = useState([]);
-  const [scope, setScope] = useState("mine");
+/* 기록 유형 — 고객 연락 / 휴가 / 연수. 휴가·연수는 지점 공유 일정. */
+const CATS = [
+  { id: "customer", label: "고객 연락", icon: CalendarClock },
+  { id: "leave", label: "휴가", icon: Plane },
+  { id: "training", label: "연수", icon: GraduationCap },
+];
 
-  /* 캘린더에서 날짜를 바꾸면 폼에도 반영 */
+export const FollowupForm = ({ onAdd, defaultDate = "" }) => {
+  const [cat, setCat] = useState("customer");
+  const [customerNo, setCustomerNo] = useState("");
+  const [staffName, setStaffName] = useState("");
+  const [memo, setMemo] = useState("");
+  /* 연락일은 기본 없음(기한 없음). 필요할 때만 눌러서 지정한다. */
+  const [date, setDate] = useState(defaultDate);
+  const [shared, setShared] = useState(false);
+
+  /* 캘린더에서 날짜를 고르면 폼 연락일에 반영 */
   const [lastDefault, setLastDefault] = useState(defaultDate);
   if (defaultDate !== lastDefault) {
     setLastDefault(defaultDate);
     setDate(defaultDate);
-    if (defaultDate) setNoDeadline(false);
   }
 
-  const isNoteEntry = entryType === "note";
-  /* 고객 메모는 나중에 고객번호로 다시 찾는 게 목적이라 번호가 필수 */
-  const canAdd = isNoteEntry
-    ? customerNo.trim().length > 0 && memo.trim().length > 0
+  const isStaff = cat !== "customer";
+  const canAdd = isStaff
+    ? staffName.trim().length > 0 && !!date
     : memo.trim().length > 0 || customerNo.trim().length > 0;
-
-  const toggleProduct = (id) =>
-    setProducts((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
 
   const submit = () => {
     if (!canAdd) return;
     onAdd({
-      customerNo,
+      category: cat,
+      customerNo: isStaff ? "" : customerNo,
+      staffName: isStaff ? staffName : "",
       memo,
-      followUpDate: noDeadline ? null : date,
-      products,
-      type: entryType,
-      scope,
+      followUpDate: date || null,
+      scope: shared ? "branch" : "mine",
     });
     setCustomerNo("");
+    setStaffName("");
     setMemo("");
     setDate(defaultDate);
-    setNoDeadline(false);
-    setProducts([]);
-    /* 공유 범위는 유지 — 지점 공유로 여러 건을 연달아 올리는 경우가 많다 */
+    /* 유형·공유 설정은 유지 — 같은 유형을 연달아 올리는 경우가 많다 */
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap items-center gap-1">
-        {!fixedType &&
-          [
-            { id: "followup", label: "후속 연락", icon: CalendarClock },
-            { id: "note", label: "고객 메모", icon: StickyNote },
-          ].map((t) => {
-            const Icon = t.icon;
-            const on = entryType === t.id;
-            return (
-              <button
-                key={t.id}
-                onClick={() => setEntryType(t.id)}
-                className={cn(
-                  "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors",
-                  on
-                    ? t.id === "note"
-                      ? "bg-violet-600 text-white"
-                      : "bg-im-600 text-white"
-                    : "bg-white text-slate-500 ring-1 ring-inset ring-slate-200 hover:text-slate-700"
-                )}
-              >
-                <Icon className="h-3 w-3" />
-                {t.label}
-              </button>
-            );
-          })}
+    <div className="space-y-2.5">
+      {/* 유형 선택 */}
+      <div className="flex flex-wrap gap-1">
+        {CATS.map((c) => {
+          const Icon = c.icon;
+          const on = cat === c.id;
+          return (
+            <button
+              key={c.id}
+              onClick={() => setCat(c.id)}
+              className={cn(
+                "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors",
+                on ? "bg-slate-900 text-white" : "bg-white text-slate-500 ring-1 ring-inset ring-slate-200 hover:text-slate-800"
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {c.label}
+            </button>
+          );
+        })}
+      </div>
 
-        {/* 공유 범위 — 나만 볼 기록인지, 지점이 함께 볼 기록인지 */}
-        <div className="ml-auto inline-flex overflow-hidden rounded-md ring-1 ring-inset ring-slate-200">
-          {SCOPES.map((s) => {
-            const Icon = s.icon;
-            const on = scope === s.id;
-            return (
-              <button
-                key={s.id}
-                onClick={() => setScope(s.id)}
-                title={
-                  s.id === "branch"
-                    ? "같은 지점 직원이 함께 보는 기록으로 올립니다"
-                    : "나만 보는 기록입니다"
-                }
-                className={cn(
-                  "inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold transition-colors",
-                  on ? s.on : "bg-white text-slate-500 hover:text-slate-700"
-                )}
-              >
-                <Icon className="h-3 w-3" />
-                {s.label}
-              </button>
-            );
-          })}
+      {isStaff ? (
+        /* 휴가·연수 — 담당자 + 날짜(필수), 지점 공유 고정 */
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <input
+            value={staffName}
+            onChange={(e) => setStaffName(e.target.value)}
+            placeholder="담당자 이름"
+            className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] focus:border-im-500 focus:outline-none sm:w-40"
+          />
+          <input
+            type="date"
+            value={date || ""}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] text-slate-600 focus:border-im-500 focus:outline-none sm:w-40"
+          />
+          <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-600">
+            <Users className="h-3 w-3" /> 지점 공유 일정
+          </span>
         </div>
-      </div>
-
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <input
-          value={customerNo}
-          onChange={(e) => setCustomerNo(e.target.value.replace(/\D/g, "").slice(0, 9))}
-          inputMode="numeric"
-          maxLength={9}
-          placeholder={isNoteEntry ? "고객번호 9자리 — 필수" : "고객번호 9자리"}
-          className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] tabular-nums focus:border-im-500 focus:outline-none sm:w-44"
-        />
-        {!isNoteEntry && (
-          <div className="flex items-center gap-2">
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              disabled={noDeadline}
-              title="후속 연락일"
-              className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] text-slate-600 focus:border-im-500 focus:outline-none disabled:bg-slate-100 disabled:text-slate-400 sm:w-40"
-            />
-            <label className="inline-flex flex-shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-[12px] text-slate-600">
+      ) : (
+        /* 고객 연락 — 고객번호 + 연락일(눌러서 지정) */
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <input
+            value={customerNo}
+            onChange={(e) => setCustomerNo(e.target.value.replace(/\D/g, "").slice(0, 9))}
+            inputMode="numeric"
+            maxLength={9}
+            placeholder="고객번호 9자리 (선택)"
+            className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] tabular-nums focus:border-im-500 focus:outline-none sm:w-44"
+          />
+          {date ? (
+            <div className="flex items-center gap-1.5">
               <input
-                type="checkbox"
-                checked={noDeadline}
-                onChange={(e) => {
-                  setNoDeadline(e.target.checked);
-                  if (e.target.checked) setDate("");
-                }}
-                className="h-3.5 w-3.5 accent-im-600"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] text-slate-600 focus:border-im-500 focus:outline-none sm:w-40"
               />
-              기한 없음
-            </label>
-          </div>
-        )}
-      </div>
+              <button
+                type="button"
+                onClick={() => setDate("")}
+                className="flex-shrink-0 rounded-md px-2 py-1 text-[11.5px] font-semibold text-slate-500 hover:bg-slate-100"
+              >
+                기한 없음
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setDate(toISO(new Date()))}
+              className="inline-flex items-center gap-1 rounded-md border border-dashed border-slate-300 px-2.5 py-1.5 text-[12px] font-semibold text-slate-500 hover:border-im-400 hover:text-im-700"
+            >
+              <CalendarClock className="h-3.5 w-3.5" /> 연락일 지정
+            </button>
+          )}
+        </div>
+      )}
 
       <textarea
         value={memo}
@@ -443,45 +462,29 @@ export const FollowupForm = ({ onAdd, defaultDate = "", fixedType }) => {
           if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit();
         }}
         rows={2}
-        placeholder={
-          isNoteEntry
-            ? "기억할 고객 특징 (예: 매장 확장 준비 중)"
-            : "메모 (예: 방카 만기자금 재예치 상담)"
-        }
+        placeholder={isStaff ? "메모 (선택 · 예: 오전 반차)" : "메모 (예: 방카 만기자금 재예치 상담)"}
         className="w-full resize-y rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] leading-relaxed focus:border-im-500 focus:outline-none"
       />
 
-      <div>
-        <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-          권유 상품 <span className="font-medium normal-case">(선택 · 복수 가능)</span>
-        </div>
-        <div className="flex flex-wrap items-center gap-1.5">
-          {PRODUCT_TAGS.map((p) => {
-            const on = products.includes(p.id);
-            return (
-              <button
-                key={p.id}
-                onClick={() => toggleProduct(p.id)}
-                className={cn(
-                  "rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-colors",
-                  on ? p.on : "border-slate-300 bg-white text-slate-500 hover:border-slate-400"
-                )}
-              >
-                {p.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        {isStaff ? (
+          <span className="text-[11px] text-slate-400">지점 전원이 함께 봅니다</span>
+        ) : (
+          <label className="inline-flex cursor-pointer items-center gap-1.5 text-[12px] text-slate-600">
+            <input
+              type="checkbox"
+              checked={shared}
+              onChange={(e) => setShared(e.target.checked)}
+              className="h-3.5 w-3.5 accent-teal-600"
+            />
+            <Users className="h-3.5 w-3.5 text-teal-600" /> 지점 공유
+            <span className="text-[11px] text-slate-400">(같은 지점 직원이 함께 봅니다)</span>
+          </label>
+        )}
         <button
           onClick={submit}
           disabled={!canAdd}
-          className={cn(
-            "inline-flex items-center gap-1 rounded-md px-3.5 py-1.5 text-[12px] font-bold text-white transition-colors disabled:opacity-40",
-            isNoteEntry ? "bg-violet-600 hover:bg-violet-700" : "bg-im-600 hover:bg-im-700"
-          )}
+          className="inline-flex items-center gap-1 rounded-md bg-im-600 px-3.5 py-1.5 text-[12px] font-bold text-white transition-colors hover:bg-im-700 disabled:opacity-40"
         >
           <Plus className="h-3.5 w-3.5" />
           기록
