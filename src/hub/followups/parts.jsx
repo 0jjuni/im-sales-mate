@@ -402,6 +402,7 @@ export const FollowupForm = ({ onAdd, defaultDate = "", defaultEnd = "", allowed
   const isStaff = cat === "leave" || cat === "training" || cat === "branch";
   const isNote = cat === "note";
   const subjectLabel = cat === "branch" ? "일정 제목" : "담당자 이름";
+  const singleDay = !!startDate && (!endDate || endDate === startDate); // 하루짜리만 시간 지정
   const canAdd = isStaff
     ? staffName.trim().length > 0 && !!startDate
     : memo.trim().length > 0 || customerNo.trim().length > 0;
@@ -416,7 +417,7 @@ export const FollowupForm = ({ onAdd, defaultDate = "", defaultEnd = "", allowed
       followUpDate: cat === "todo" ? date || null : null,
       startDate: isStaff ? startDate : null,
       endDate: isStaff ? endDate || startDate : null,
-      time: isStaff ? time : "",
+      time: isStaff && singleDay ? time : "",
       scope: shared ? "branch" : "mine",
     });
     setCustomerNo("");
@@ -453,33 +454,38 @@ export const FollowupForm = ({ onAdd, defaultDate = "", defaultEnd = "", allowed
       </div>
 
       {isStaff ? (
-        /* 지점 일정/휴가/연수 — 제목(담당자) + 기간(시작~종료), 지점 공유 고정 */
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        /* 지점 일정/휴가/연수 — 제목(담당자) + 기간(시작~종료) + (하루면) 시간. 지점 공유 고정 */
+        <div className="space-y-2">
           <input
             value={staffName}
             onChange={(e) => setStaffName(e.target.value)}
             placeholder={subjectLabel}
-            className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] focus:border-im-500 focus:outline-none sm:w-36"
+            className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] focus:border-im-500 focus:outline-none"
           />
-          <div className="flex items-center gap-1.5">
-            <DateField value={startDate} onChange={setStartDate} className="w-full sm:w-36" />
-            <span className="text-[12px] text-slate-400">~</span>
-            <DateField
-              value={endDate}
-              onChange={(v) => setEndDate(v < startDate ? startDate : v)}
-              className="w-full sm:w-36"
-            />
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-[12px] text-slate-500">시간</span>
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              onClick={openPicker}
-              className="rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] text-slate-700 focus:border-im-500 focus:outline-none"
-            />
-            <span className="text-[11px] text-slate-400">선택</span>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+            <div className="flex items-center gap-1.5">
+              <DateField value={startDate} onChange={setStartDate} className="w-[9.5rem]" />
+              <span className="text-[12px] text-slate-400">~</span>
+              <DateField
+                value={endDate}
+                onChange={(v) => setEndDate(v < startDate ? startDate : v)}
+                className="w-[9.5rem]"
+              />
+            </div>
+            {singleDay ? (
+              <label className="flex items-center gap-1.5">
+                <span className="text-[12px] text-slate-500">시간</span>
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  onClick={openPicker}
+                  className="w-[7.5rem] rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] text-slate-700 focus:border-im-500 focus:outline-none"
+                />
+              </label>
+            ) : (
+              <span className="text-[11px] text-slate-400">여러 날 일정은 시간 없이 종일로 표시됩니다</span>
+            )}
           </div>
           <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-600">
             <Users className="h-3 w-3" /> 지점 공유
