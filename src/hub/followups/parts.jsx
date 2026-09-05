@@ -13,6 +13,7 @@ import {
   Plane,
   GraduationCap,
   Building2,
+  ChevronDown,
 } from "lucide-react";
 import { ddayOf } from "./useFollowups";
 import { cn } from "@shared/lib/format";
@@ -157,9 +158,11 @@ export const CustomerNo = ({ no, onSearch }) => {
   );
 };
 
-/* 연락일 — 누르면 미루기 패널. 창구에서 가장 잦은 조작이 「다음에 다시 연락」이다 */
-export const DateControl = ({ item, onUpdate }) => {
+/* 연락일 미루기 — 누르면 패널. 창구에서 가장 잦은 조작이 「다음에 다시 연락」이다.
+   asMenu=true면 "미루기" 버튼 형태(오른쪽 액션용), 아니면 날짜 표시형(인라인). */
+export const DateControl = ({ item, onUpdate, asMenu }) => {
   const [open, setOpen] = useState(false);
+  const base = item.followUpDate || toISO(new Date()); // 기한 없음이면 오늘 기준으로 미루기
   const set = (followUpDate) => {
     onUpdate(item.id, { followUpDate });
     setOpen(false);
@@ -169,29 +172,36 @@ export const DateControl = ({ item, onUpdate }) => {
     <span className="relative inline-flex">
       <button
         onClick={() => setOpen((v) => !v)}
-        title="연락일 변경"
+        title="연락일 미루기/변경"
         className={cn(
-          "inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[11px] transition-colors",
-          open ? "bg-im-50 text-im-700" : "text-slate-500 hover:bg-slate-100 hover:text-im-700"
+          "inline-flex items-center gap-1 text-[11px] font-semibold transition-colors",
+          asMenu
+            ? cn("rounded-md border px-2 py-1", open ? "border-im-400 bg-im-50 text-im-700" : "border-slate-300 bg-white text-slate-600 hover:border-im-400 hover:text-im-700")
+            : cn("rounded-sm px-1.5 py-0.5", open ? "bg-im-50 text-im-700" : "text-slate-500 hover:bg-slate-100 hover:text-im-700")
         )}
       >
         <CalendarClock className="h-3 w-3" />
-        {item.followUpDate ? fmtDate(item.followUpDate) : "기한 없음"}
+        {asMenu ? "미루기" : item.followUpDate ? fmtDate(item.followUpDate) : "기한 없음"}
+        {asMenu && <ChevronDown className="h-3 w-3 opacity-60" />}
       </button>
 
       {open && (
         <>
           <span className="fixed inset-0 z-20" onClick={() => setOpen(false)} aria-hidden="true" />
-          <div className="absolute left-0 top-full z-30 mt-1 w-52 rounded-md border border-slate-200 bg-white p-2 shadow-lg">
+          <div className={cn("absolute top-full z-30 mt-1 w-56 rounded-md border border-slate-200 bg-white p-2 shadow-lg", asMenu ? "right-0" : "left-0")}>
+            <div className="mb-1 px-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">연락일로 미루기</div>
             <div className="mb-1.5 grid grid-cols-3 gap-1">
               {[
+                { label: "오늘", days: 0 },
                 { label: "내일", days: 1 },
+                { label: "+3일", days: 3 },
                 { label: "+1주", days: 7 },
+                { label: "+2주", days: 14 },
                 { label: "+1개월", days: 30 },
               ].map((q) => (
                 <button
                   key={q.label}
-                  onClick={() => set(shiftDate(item.followUpDate, q.days))}
+                  onClick={() => set(q.days === 0 ? toISO(new Date()) : shiftDate(base, q.days))}
                   className="rounded-sm border border-slate-200 px-1.5 py-1 text-[11px] font-semibold text-slate-600 hover:border-im-400 hover:text-im-700"
                 >
                   {q.label}
@@ -303,6 +313,9 @@ export const FollowupRow = ({
                 </span>
               )}
               {!isNote && !done && <DdayBadge date={item.followUpDate} />}
+              {!isNote && !done && item.followUpDate && (
+                <span className="text-[11px] font-semibold tabular-nums text-slate-500">{fmtDate(item.followUpDate)}</span>
+              )}
               {!isNote && done && (
                 <span className="inline-flex items-center rounded-sm bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500">
                   완료
@@ -310,7 +323,6 @@ export const FollowupRow = ({
               )}
               <ScopeBadge item={item} />
               <CustomerNo no={item.customerNo} onSearch={onSearch} />
-              {!isNote && onUpdate && <DateControl item={item} onUpdate={onUpdate} />}
             </>
           )}
         </div>
@@ -326,7 +338,11 @@ export const FollowupRow = ({
       </div>
 
       {onRemove && (
-        <div className="flex flex-shrink-0 items-start gap-0.5">
+        <div className="flex flex-shrink-0 items-center gap-1">
+          {/* 할 일: 완료 / 미루기 선택 */}
+          {cat === "todo" && !done && onUpdate && !compact && (
+            <DateControl item={item} onUpdate={onUpdate} asMenu />
+          )}
           {done && (
             <button
               onClick={() => onToggle(item.id)}
