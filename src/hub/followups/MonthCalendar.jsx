@@ -24,8 +24,11 @@ const barTone = (item) => {
 };
 
 const barLabel = (item) => {
-  const tag = CAT_TAG[item.category];
-  if (tag) return `${tag} ${item.staffName || ""}`.trim();
+  const t = item.time ? item.time + " " : "";
+  if (item.category === "branch") return `${t}${item.staffName || "지점 일정"}`.trim();
+  if (item.category === "leave" || item.category === "training") {
+    return `${t}${CAT_TAG[item.category]} ${item.staffName || ""}`.trim();
+  }
   return item.memo || item.customerNo || "내용 없음";
 };
 

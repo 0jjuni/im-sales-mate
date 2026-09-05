@@ -64,6 +64,16 @@ export const fmtDate = (iso) => {
   return `${d.getMonth() + 1}.${d.getDate()}(${day})`;
 };
 
+/* HH:MM → 오전/오후 h:mm */
+export const fmtTime = (hhmm) => {
+  if (!hhmm) return "";
+  const [h, m] = hhmm.split(":").map(Number);
+  if (Number.isNaN(h)) return "";
+  const ap = h < 12 ? "오전" : "오후";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${ap} ${h12}:${String(m ?? 0).padStart(2, "0")}`;
+};
+
 /* 기준일(연락일이 있으면 그 날, 없으면 오늘)에서 n일 뒤 */
 const shiftDate = (iso, days) => {
   const base = iso ? new Date(`${iso}T00:00:00`) : new Date();
@@ -278,6 +288,11 @@ export const FollowupRow = ({
                   {item.endDate && item.endDate !== item.startDate ? ` ~ ${fmtDate(item.endDate)}` : ""}
                 </span>
               )}
+              {item.time && (
+                <span className="inline-flex items-center rounded-sm bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-600">
+                  {fmtTime(item.time)}
+                </span>
+              )}
               <ScopeBadge item={item} />
             </>
           ) : (
@@ -371,6 +386,7 @@ export const FollowupForm = ({ onAdd, defaultDate = "", defaultEnd = "", allowed
   const [date, setDate] = useState(defaultDate); // 할 일 연락일(선택)
   const [startDate, setStartDate] = useState(defaultDate);
   const [endDate, setEndDate] = useState(defaultEnd || defaultDate);
+  const [time, setTime] = useState("");
   const [shared, setShared] = useState(false);
 
   /* 달력에서 날짜(또는 기간)를 고르면 폼에 반영 */
@@ -400,6 +416,7 @@ export const FollowupForm = ({ onAdd, defaultDate = "", defaultEnd = "", allowed
       followUpDate: cat === "todo" ? date || null : null,
       startDate: isStaff ? startDate : null,
       endDate: isStaff ? endDate || startDate : null,
+      time: isStaff ? time : "",
       scope: shared ? "branch" : "mine",
     });
     setCustomerNo("");
@@ -408,6 +425,7 @@ export const FollowupForm = ({ onAdd, defaultDate = "", defaultEnd = "", allowed
     setDate(defaultDate);
     setStartDate(defaultDate);
     setEndDate(defaultDate);
+    setTime("");
     /* 유형·공유 설정은 유지 */
   };
 
@@ -451,6 +469,17 @@ export const FollowupForm = ({ onAdd, defaultDate = "", defaultEnd = "", allowed
               onChange={(v) => setEndDate(v < startDate ? startDate : v)}
               className="w-full sm:w-36"
             />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[12px] text-slate-500">시간</span>
+            <input
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              onClick={openPicker}
+              className="rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] text-slate-700 focus:border-im-500 focus:outline-none"
+            />
+            <span className="text-[11px] text-slate-400">선택</span>
           </div>
           <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-600">
             <Users className="h-3 w-3" /> 지점 공유

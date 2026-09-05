@@ -39,6 +39,7 @@ export function useFollowups() {
       followUpDate: cat === "todo" ? input.followUpDate || null : null,
       startDate: staff ? input.startDate || null : null,
       endDate: staff ? input.endDate || input.startDate || null : null,
+      time: staff ? input.time || "" : "",
       status: "open",
       createdAt: Date.now(),
     };

@@ -36,9 +36,37 @@ const NOTES = [
 
 /* 지점 일정(휴가·연수 계획) — 기간(시작~종료), 동료가 올린 지점 공유. 알림 데모용 fresh. */
 const STAFF = [
-  { category: "branch", staffName: "월말 마감 점검 회의", author: "이지현", memo: "전 직원 참석", startOffset: 1, endOffset: 1, fresh: true },
-  { category: "leave", staffName: "박준호", author: "박준호", memo: "연차 휴가", startOffset: 3, endOffset: 5, fresh: true },
-  { category: "training", staffName: "이지현", author: "이지현", memo: "여신 심사 실무 연수(집합)", startOffset: 8, endOffset: 9, fresh: true },
+  {
+    category: "branch",
+    staffName: "지점 정례 회의",
+    author: "이지현",
+    time: "08:30",
+    memo: "오전 8시 30분까지 도착 부탁드립니다. 회의 후 바로 개점 준비합니다.",
+    startOffset: 2,
+    endOffset: 2,
+    fresh: true,
+  },
+  {
+    category: "branch",
+    staffName: "방카슈랑스 교육",
+    author: "박준호",
+    time: "17:00",
+    memo: "오후 5시 방카 교육이 있어 지점 분들 빠른 마감 부탁드립니다.",
+    startOffset: 4,
+    endOffset: 4,
+    fresh: true,
+  },
+  { category: "leave", staffName: "박준호", author: "박준호", memo: "연차 휴가", startOffset: 6, endOffset: 8, fresh: true },
+  {
+    category: "training",
+    staffName: "이지현",
+    author: "이지현",
+    time: "09:00",
+    memo: "본점 집합교육(여신 심사 실무). 이틀간 자리 비웁니다.",
+    startOffset: 9,
+    endOffset: 10,
+    fresh: true,
+  },
 ];
 
 export function buildSeedItems() {
@@ -57,6 +85,7 @@ export function buildSeedItems() {
       followUpDate: null,
       startDate: null,
       endDate: null,
+      time: base.time ?? "",
       status: "open",
       /* fresh(동료가 방금 올린 지점 공유) = 아주 최근, 나머지는 과거로 */
       createdAt: base.fresh ? now - seq * 1000 : now - (seq + 200) * 60000,
