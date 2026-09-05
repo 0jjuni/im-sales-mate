@@ -40,8 +40,11 @@ export const PRODUCT_STATE = {
 const CUSTOMERS = {
   "841023391": {
     customerNo: "841023391",
-    name: "김○호",
+    name: "김우디",
     age: "52세",
+    profile: "제조·도매업 대표 · 사업 20년차",
+    persona:
+      "사업이 자리 잡아 예금·채권 등 이자자산이 많아졌고, 그만큼 금융소득이 종합과세 기준을 넘겼습니다. 상품을 더 파는 것보다 소득 분산·비과세 전환으로 세부담을 낮추는 게 핵심인 고객입니다.",
     jonghap: {
       taxYear: 2025,
       isTarget: true,
@@ -96,8 +99,11 @@ const CUSTOMERS = {
 
   "772501180": {
     customerNo: "772501180",
-    name: "이○희",
+    name: "이단디",
     age: "48세",
+    profile: "맞벌이 근로소득자 · 총급여 6천만원대",
+    persona:
+      "목돈은 모았는데 절세계좌가 비어 있는 근로소득자입니다. 종합과세 비대상이고 가입 제한도 없어, 서민형 ISA·연금계좌·주택청약 소득공제로 절세를 채워 주기 좋은 대표 판매 기회 고객입니다.",
     jonghap: {
       taxYear: 2025,
       isTarget: false,
@@ -139,8 +145,11 @@ const CUSTOMERS = {
 
   "904176624": {
     customerNo: "904176624",
-    name: "박○수",
+    name: "박똑디",
     age: "59세",
+    profile: "소매점 운영 · 내년 은퇴 준비",
+    persona:
+      "직전 3년 중 종합과세 대상 이력이 있어 신규 비과세·ISA가 막혔고, 금융소득도 기준에 근접한 경계 고객입니다. 노란우산 부금 증액·연금 세액공제 같은 소득공제·세액공제와 이자 수령 시기 분산으로 관리해야 합니다.",
     jonghap: {
       taxYear: 2025,
       isTarget: false,

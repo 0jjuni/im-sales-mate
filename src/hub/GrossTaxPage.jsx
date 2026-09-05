@@ -64,9 +64,14 @@ const VerdictBanner = ({ data }) => {
             <UserRound className="h-5 w-5" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
               <span className="text-[16px] font-bold text-slate-900">{data.name}</span>
               <span className="text-[12px] text-slate-500">{data.age}</span>
+              {data.profile && (
+                <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-500">
+                  {data.profile}
+                </span>
+              )}
             </div>
             <div className="mt-0.5 font-mono text-[12px] tabular-nums text-slate-400">{data.customerNo}</div>
           </div>
@@ -138,6 +143,14 @@ const VerdictBanner = ({ data }) => {
           </span>
         )}
       </div>
+
+      {/* 이 고객은 어떤 사람인가 — 상담 방향 한눈에 */}
+      {data.persona && (
+        <div className="flex gap-2.5 border-t border-slate-100 bg-slate-50/60 px-5 py-3">
+          <UserRound className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-400" />
+          <p className="text-[12px] leading-relaxed text-slate-600">{data.persona}</p>
+        </div>
+      )}
     </div>
   );
 };
