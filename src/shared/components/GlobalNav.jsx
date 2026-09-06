@@ -68,6 +68,7 @@ const NAV = [
     ],
   },
   { to: "/news", label: "뉴스" },
+  { to: "/library", label: "지식 라이브러리" },
   { to: "/followups", label: "일정 관리" },
 ];
 

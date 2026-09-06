@@ -30,7 +30,7 @@ import { ProductGrid } from "./components/ProductGrid";
 import { GrossTaxCard } from "./components/GrossTaxCard";
 import { WealthCard } from "./components/WealthCard";
 import { UtilityGrid } from "./components/UtilityGrid";
-import { KnowledgeLibrary } from "./components/KnowledgeLibrary";
+import { LibraryBoard } from "./components/LibraryBoard";
 import { EditGuide, hasSeenEditGuide, markEditGuideSeen } from "./components/EditGuide";
 import { cn } from "@shared/lib/format";
 
@@ -291,8 +291,8 @@ export function HubHome() {
         const meta = getSection("knowledge");
         return (
           <SectionPanel>
-            <SectionHeader icon={meta.icon} title="PB 지식 라이브러리" sub="세무·규제·용어 참고 자료" />
-            <KnowledgeLibrary />
+            <SectionHeader icon={meta.icon} title="지식 라이브러리" sub="구독한 채널의 최신 시황·리포트·WM 코멘트" />
+            <LibraryBoard />
           </SectionPanel>
         );
       }

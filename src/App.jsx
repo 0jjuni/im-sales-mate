@@ -11,6 +11,7 @@ import FollowupsPage from "@hub/followups/FollowupsPage";
 import SearchPage from "@hub/SearchPage";
 import GrossTaxPage from "@hub/GrossTaxPage";
 import NewsPage from "@hub/NewsPage";
+import LibraryPage from "@hub/LibraryPage";
 import WealthPage from "@hub/WealthPage";
 import WealthDetailPage from "@hub/WealthDetailPage";
 import WealthComparePage from "@hub/WealthComparePage";
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="/followups" element={<FollowupsPage />} />
         <Route path="/tax" element={<GrossTaxPage />} />
         <Route path="/news" element={<NewsPage />} />
+        <Route path="/library" element={<LibraryPage />} />
         <Route path="/wealth" element={<WealthPage />} />
         <Route path="/wealth/compare" element={<WealthComparePage />} />
         <Route path="/wealth/:id" element={<WealthDetailPage />} />
