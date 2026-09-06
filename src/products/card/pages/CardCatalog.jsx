@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { CreditCard, FileText, QrCode, Search, X, Heart, Plus } from "lucide-react";
-import { CARDS, CARD_TYPES, SEGMENTS, ALL_TAGS, resolveAdCopy, loadStoredLinks } from "../data/cards";
+import { getCards, CARD_TYPES, SEGMENTS, ALL_TAGS, resolveAdCopy, loadStoredLinks } from "../data/cards";
 import { CARD_BENEFIT } from "../data/cardBenefits";
 import { PdfViewerModal, QrSlipModal } from "../components/CardModals";
 import { cn } from "@shared/lib/format";
@@ -157,7 +157,7 @@ export const CardCatalog = () => {
     });
 
   const byType = useMemo(
-    () => CARDS.filter((c) => c.segment === segment && c.type === type),
+    () => getCards().filter((c) => c.segment === segment && c.type === type),
     [segment, type]
   );
 

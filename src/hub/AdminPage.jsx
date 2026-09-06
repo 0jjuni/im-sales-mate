@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Megaphone, RotateCcw, HelpCircle, ChevronDown, Check } from "lucide-react";
+import { Megaphone, RotateCcw, HelpCircle, ChevronDown, Check, CreditCard } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { DEPARTMENTS } from "@shared/data/departments";
 import { resetNotices } from "@shared/data/notices";
 import { resetFaqs } from "@shared/data/faqs";
+import { CUSTOM_CARDS_KEY } from "@card/data/cards";
 import { NoticeManager } from "./components/NoticeManager";
 import { FaqManager } from "./components/FaqManager";
+import { CardManager } from "./components/CardManager";
 import { cn } from "@shared/lib/format";
 
 /* 부서 관리자 화면 — 담당 부서가 자기 상품의 공지·FAQ를 직접 관리한다.
@@ -33,9 +35,22 @@ export default function AdminPage() {
   }, []);
 
   const dept = DEPARTMENTS.find((d) => d.id === deptId);
+  const ownsCard = dept?.modules?.includes("card");
+  const modes = [...MODES, ...(ownsCard ? [{ id: "card", label: "카드 관리", icon: CreditCard }] : [])];
+
+  /* 부서를 바꿔 현재 모드를 쓸 수 없게 되면 공지로 되돌린다 */
+  useEffect(() => {
+    if (mode === "card" && !ownsCard) setMode("notices");
+  }, [ownsCard, mode]);
 
   const onReset = () => {
-    if (mode === "faq") resetFaqs();
+    if (mode === "card") {
+      try {
+        localStorage.removeItem(CUSTOM_CARDS_KEY);
+      } catch {
+        /* 무시 */
+      }
+    } else if (mode === "faq") resetFaqs();
     else resetNotices();
     window.location.reload();
   };
@@ -105,9 +120,9 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* 공지사항 / FAQ 모드 */}
+      {/* 공지사항 / FAQ / 카드 관리 모드 */}
       <div className="mb-5 flex gap-1 border-b border-slate-200">
-        {MODES.map((m) => {
+        {modes.map((m) => {
           const Icon = m.icon;
           const on = mode === m.id;
           return (
@@ -126,13 +141,13 @@ export default function AdminPage() {
         })}
       </div>
 
-      {mode === "faq" ? <FaqManager dept={dept} /> : <NoticeManager dept={dept} />}
+      {mode === "card" ? <CardManager /> : mode === "faq" ? <FaqManager dept={dept} /> : <NoticeManager dept={dept} />}
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 pt-3 text-[11px] text-slate-400">
         <span>변경 사항은 저장 즉시 각 상품 화면에 반영됩니다.</span>
         <button onClick={onReset} className="inline-flex items-center gap-1 text-slate-400 hover:text-slate-600">
           <RotateCcw className="h-3 w-3" />
-          {mode === "faq" ? "FAQ" : "공지"} 기본값으로 초기화
+          {mode === "card" ? "등록 카드" : mode === "faq" ? "FAQ" : "공지"} 기본값으로 초기화
         </button>
       </div>
     </HubShell>

@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 import { Printer, FileText, AlertTriangle, Sparkles, DownloadCloud, Check } from "lucide-react";
 import { QrSvg, buildQrPath } from "@utility/components/QrCode";
-import { CARDS, findCard, loadStoredLinks, saveStoredLink, resolveAdCopy } from "../data/cards";
+import { getCards, findCard, loadStoredLinks, saveStoredLink, resolveAdCopy } from "../data/cards";
 import { cn } from "@shared/lib/format";
 
 /* 전표에 찍히는 담당 행원 표기 (추후 로그인 정보로 대체 가능) */
@@ -165,7 +165,7 @@ export const PromoHandout = () => {
             className="w-full rounded-sm border border-slate-300 px-3 py-2.5 text-sm focus:border-rose-500 focus:outline-none"
           >
             <option value="">카드를 선택하세요</option>
-            {CARDS.map((c) => (
+            {getCards().map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
@@ -203,14 +203,15 @@ export const PromoHandout = () => {
             ) : (
               <div>
                 <label className="mb-1.5 block text-xs font-bold text-slate-700">
-                  가입 링크 / 광고 문구 붙여넣기
+                  eBiz 가입 링크 붙여넣기
                 </label>
-                <textarea
+                <input
                   value={manualText}
                   onChange={(e) => setManualText(e.target.value)}
-                  rows={8}
-                  placeholder={"eBiz에서 복사한 가입 링크(또는 광고 문구)를 붙여넣으세요."}
-                  className="w-full resize-y rounded-sm border border-slate-300 px-3 py-2.5 text-[13px] leading-relaxed focus:border-rose-500 focus:outline-none"
+                  type="url"
+                  inputMode="url"
+                  placeholder="eBiz에서 복사한 가입 링크(URL)를 붙여넣으세요"
+                  className="w-full rounded-sm border border-slate-300 px-3 py-2.5 text-[13px] focus:border-rose-500 focus:outline-none"
                 />
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button

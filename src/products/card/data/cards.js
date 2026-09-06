@@ -331,12 +331,77 @@ const toCard = (segment) => ([file, name, type]) => {
   };
 };
 
-export const CARDS = [
+/* 코드에 내장된 기본 카탈로그 */
+export const BASE_CARDS = [
   ...CATALOG.map(toCard("personal")),
   ...BIZ_CATALOG.map(toCard("biz")),
 ];
 
-export const findCard = (id) => CARDS.find((c) => c.id === id) ?? null;
+/* ── 카드사업부가 추가·관리하는 카드 — 브라우저 localStorage(데모).
+   실배포 시 이 어댑터를 백엔드 API로 교체하면 카탈로그·상세·QR이 그대로 동작한다. ── */
+export const CUSTOM_CARDS_KEY = "salesbridge.card.custom";
+
+export const loadCustomCards = () => {
+  try {
+    const raw = JSON.parse(localStorage.getItem(CUSTOM_CARDS_KEY) || "[]");
+    return Array.isArray(raw) ? raw : [];
+  } catch {
+    return [];
+  }
+};
+const saveCustomCards = (list) => {
+  try {
+    localStorage.setItem(CUSTOM_CARDS_KEY, JSON.stringify(list));
+  } catch {
+    /* 저장 불가(프라이빗 모드 등) */
+  }
+  return list;
+};
+
+const cardUid = () => `card_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+
+/* 관리 화면에서 넘어온 입력을 카드 객체로 정규화.
+   ※ eBiz 가입 링크는 직원 개인별이라 카드사업부(카드 등록)에서 넣지 않는다.
+      링크는 각 직원이 카드 상세의 「가입 링크 추가」에서 저장한다(loadStoredLinks). */
+const normalizeCard = (input) => ({
+  id: input.id || cardUid(),
+  name: (input.name || "").trim(),
+  issuer: "iM뱅크",
+  segment: input.segment === "biz" ? "biz" : "personal",
+  type: input.type === "check" ? "check" : "credit",
+  image: input.image || "",
+  blurb: (input.blurb || "").trim(),
+  tags: input.tags || [],
+  maxBenefit: "",
+  benefits: (input.benefits || []).filter((b) => (b.label || "").trim() && (b.value || "").trim()),
+  annualFee: (input.annualFee || "").trim(),
+  spendReq: "",
+  note: "",
+  ebizLink: "",
+  prospectusUrl: "",
+  adCopy: "",
+  custom: true,
+  createdAt: input.createdAt || Date.now(),
+});
+
+export const addCustomCard = (input) => {
+  const card = normalizeCard(input);
+  saveCustomCards([card, ...loadCustomCards()]);
+  return card;
+};
+export const updateCustomCard = (id, input) => {
+  const next = loadCustomCards().map((c) => (c.id === id ? normalizeCard({ ...c, ...input, id }) : c));
+  return saveCustomCards(next);
+};
+export const removeCustomCard = (id) => saveCustomCards(loadCustomCards().filter((c) => c.id !== id));
+
+/* 기본 카탈로그 + 관리자 추가 카드(추가분이 위로) */
+export const getCards = () => [...loadCustomCards(), ...BASE_CARDS];
+
+/* 하위 호환 — 기존에 CARDS를 import하던 곳(정적 기본 카탈로그) */
+export const CARDS = BASE_CARDS;
+
+export const findCard = (id) => getCards().find((c) => c.id === id) ?? null;
 
 /* eBiz에서 불러와 저장한 가입 링크/문구 — 브라우저 로컬(직원 개인)에 보관.
    cards.js(adCopy)에 없는 카드도 한 번 저장하면 다음부터 자동으로 불러온다. */
