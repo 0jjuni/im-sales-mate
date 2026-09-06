@@ -15,7 +15,10 @@ const SEED = [
     id: "seed-card-training",
     moduleId: "card",
     title: "[교육 이수] 신상품 출시 관련 판매 전 필수 교육 이수 안내",
-    body: "신상품 출시에 따라 판매 담당자는 관련 상품 교육을 반드시 이수해야 합니다. 이수 완료 후 고객 안내를 진행해 주세요.",
+    body:
+      "<p>신상품 출시에 따라 판매 담당자는 <strong>관련 상품 교육을 반드시 이수</strong>해야 합니다.</p>" +
+      "<ul><li>교육 미이수 시 판매·안내 불가</li><li>이수 완료 후 고객 안내 진행</li></ul>" +
+      "<blockquote>기한 내 이수 부탁드립니다.</blockquote>",
     level: "important",
     pinned: true,
     date: "2026-08-31",
@@ -25,7 +28,9 @@ const SEED = [
     id: "seed-card-1",
     moduleId: "card",
     title: "iM 세븐카드 캐시백 프로모션 9월 말까지 연장",
-    body: "3만원 이상 일시불 7% 캐시백 프로모션을 9월 30일까지 연장합니다. 신규 발급 고객 안내 시 활용하세요.",
+    body:
+      "<p>3만원 이상 일시불 <strong>7% 캐시백</strong> 프로모션을 <strong>9월 30일까지 연장</strong>합니다.</p>" +
+      "<p>신규 발급 고객 안내 시 활용하세요.</p>",
     level: "important",
     pinned: true,
     date: "2026-08-28",
@@ -35,7 +40,9 @@ const SEED = [
     id: "seed-noran-1",
     moduleId: "noran",
     title: "노란우산공제 폐업 시 공제금 지급 서류 간소화",
-    body: "행정정보 공동이용 동의 시 폐업사실증명 등 일부 서류가 자동 조회됩니다. 창구 제출 서류를 확인 후 안내해 주세요.",
+    body:
+      "<p><strong>행정정보 공동이용 동의</strong> 시 폐업사실증명 등 일부 서류가 자동 조회됩니다.</p>" +
+      "<p>창구 제출 서류를 확인한 뒤 안내해 주세요.</p>",
     level: "info",
     pinned: false,
     date: "2026-08-25",
@@ -45,7 +52,9 @@ const SEED = [
     id: "seed-isa-1",
     moduleId: "isa",
     title: "ISA 서민형 가입자격 확인서류 변경 안내",
-    body: "서민형 가입 시 소득확인 증빙 기준이 일부 변경되었습니다. 대상 여부는 상담 화면의 확인 항목을 참고하세요.",
+    body:
+      "<p>서민형 가입 시 <strong>소득확인 증빙 기준</strong>이 일부 변경되었습니다.</p>" +
+      "<p>대상 여부는 상담 화면의 확인 항목을 참고하세요.</p>",
     level: "info",
     pinned: false,
     date: "2026-08-22",
@@ -55,7 +64,9 @@ const SEED = [
     id: "seed-pension-1",
     moduleId: "pension",
     title: "연금저축·IRP 세액공제 한도 상담 유의사항",
-    body: "연금저축과 IRP는 세액공제 한도(연 900만원)를 공유합니다. 배분 최적화는 계산기 결과를 근거로 안내하세요.",
+    body:
+      "<p>연금저축과 IRP는 <strong>세액공제 한도(연 900만원)를 공유</strong>합니다.</p>" +
+      "<p>배분 최적화는 계산기 결과를 근거로 안내하세요.</p>",
     level: "info",
     pinned: false,
     date: "2026-08-20",
@@ -65,7 +76,9 @@ const SEED = [
     id: "seed-wealth-1",
     moduleId: "wealth",
     title: "국내주식형 ETF 신규 라인업 추가",
-    body: "이번 주 신규 ETF가 카탈로그에 추가되었습니다. 목표수익률 관리 고객에게 리밸런싱 상담 시 참고하세요.",
+    body:
+      "<p>이번 주 <strong>신규 ETF</strong>가 카탈로그에 추가되었습니다.</p>" +
+      "<p>목표수익률 관리 고객에게 리밸런싱 상담 시 참고하세요.</p>",
     level: "info",
     pinned: false,
     date: "2026-08-27",
