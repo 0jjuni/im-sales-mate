@@ -223,7 +223,7 @@ export const PromoHandout = () => {
                     링크 저장
                   </button>
                   <span className="text-[11.5px] text-slate-400">
-                    저장하면 다음부터 이 카드는 자동으로 불러옵니다. (직원 브라우저에 저장)
+                    저장하면 다음부터 이 카드는 자동으로 불러옵니다.
                   </span>
                 </div>
               </div>

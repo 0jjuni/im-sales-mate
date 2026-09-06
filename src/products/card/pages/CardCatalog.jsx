@@ -6,7 +6,7 @@ import { CARD_BENEFIT } from "../data/cardBenefits";
 import { PdfViewerModal, QrSlipModal } from "../components/CardModals";
 import { cn } from "@shared/lib/format";
 
-/* 관심 카드 — 뷰어별 로컬 저장(직원 개인 브라우저) */
+/* 관심 카드 — 로컬 저장(데모) */
 const FAV_KEY = "salesbridge.card.favs";
 const loadFavs = () => {
   try {

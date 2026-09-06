@@ -866,7 +866,7 @@ export default function LibraryPage() {
 
       <p className="mt-8 flex items-start gap-1.5 text-[11px] leading-relaxed text-slate-400">
         <Megaphone className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-        누구나 채널을 열어 자신의 콘텐츠를 발행할 수 있는 사내 게시판입니다(데모, 저장은 이 브라우저에만 유지). 게시 내용은 작성자 의견이며 투자권유가 아닙니다.
+        누구나 채널을 열어 자신의 콘텐츠를 발행할 수 있는 사내 게시판입니다(데모). 게시 내용은 작성자 의견이며 투자권유가 아닙니다.
       </p>
     </HubShell>
   );

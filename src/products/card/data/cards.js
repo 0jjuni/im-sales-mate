@@ -403,7 +403,7 @@ export const CARDS = BASE_CARDS;
 
 export const findCard = (id) => getCards().find((c) => c.id === id) ?? null;
 
-/* eBiz에서 불러와 저장한 가입 링크/문구 — 브라우저 로컬(직원 개인)에 보관.
+/* eBiz에서 불러와 저장한 가입 링크 — 로컬(데모)에 보관.
    cards.js(adCopy)에 없는 카드도 한 번 저장하면 다음부터 자동으로 불러온다. */
 export const STORED_LINKS_KEY = "salesbridge.card.links";
 export const loadStoredLinks = () => {
