@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert, UserCheck, Flame, Globe, Megaphone } from "lucide-react";
+import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, LineChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert, UserCheck, Flame, Globe, Megaphone } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { Sparkline, MarketChart } from "./components/MarketChart";
 import { useWealth } from "./wealth/useWealth";
@@ -534,7 +534,7 @@ export default function WealthPage() {
     <HubShell>
       <div className="mb-4">
         <div className="flex items-center gap-2">
-          <CandlestickChart className="h-5 w-5 text-im-600" />
+          <LineChart className="h-5 w-5 text-im-600" />
           <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">투자상품</h1>
         </div>
         <p className="mt-1 text-[13px] text-slate-500">펀드·ETF·신탁을 검색·비교하고, 가입 고객의 목표수익률·알림을 관리합니다.</p>
