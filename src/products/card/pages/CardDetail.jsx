@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { CreditCard, QrCode, FileText, ArrowLeft } from "lucide-react";
-import { findCard, typeLabel } from "../data/cards";
+import { CreditCard, QrCode, FileText, ArrowLeft, Plus } from "lucide-react";
+import { findCard, typeLabel, resolveAdCopy, loadStoredLinks } from "../data/cards";
 import { CARD_BENEFIT } from "../data/cardBenefits";
 import { PdfViewerModal, QrSlipModal } from "../components/CardModals";
 import { cn } from "@shared/lib/format";
@@ -34,6 +34,7 @@ export const CardDetail = () => {
   const [qrOpen, setQrOpen] = useState(false);
   const benefit = card ? CARD_BENEFIT[card.id] : null;
   const brands = benefit?.brand || [];
+  const hasLink = card ? !!resolveAdCopy(card, loadStoredLinks()) : false;
 
   if (!card) {
     return (
@@ -114,15 +115,24 @@ export const CardDetail = () => {
         )}
 
         <div className="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
-          {card.segment !== "biz" && (
-            <button
-              onClick={() => setQrOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
-            >
-              <QrCode className="h-4 w-4" />
-              가입 QR
-            </button>
-          )}
+          {card.segment !== "biz" &&
+            (hasLink ? (
+              <button
+                onClick={() => setQrOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
+              >
+                <QrCode className="h-4 w-4" />
+                가입 QR
+              </button>
+            ) : (
+              <button
+                onClick={() => setQrOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-md border border-rose-300 bg-white px-4 py-2.5 text-[13px] font-bold text-rose-600 transition-colors hover:bg-rose-50"
+              >
+                <Plus className="h-4 w-4" />
+                가입 링크 추가
+              </button>
+            ))}
           {card.prospectusUrl && (
             <button
               onClick={() => setPdfOpen(true)}
@@ -216,7 +226,9 @@ export const CardDetail = () => {
       <p className="text-[11.5px] leading-relaxed text-slate-500">
         {card.segment === "biz"
           ? "기업카드는 영업점에서 가입하는 상품입니다. 상품설명서로 안내해 주세요."
-          : "「가입 QR」을 누르면 eBiz에서 이 카드의 가입 링크를 불러와 QR 전표로 만듭니다. 인쇄해 고객에게 바로 건네실 수 있습니다."}
+          : hasLink
+          ? "「가입 QR」을 누르면 이 카드의 가입 링크를 QR 전표로 만들어 고객에게 바로 건네실 수 있습니다."
+          : "이 카드는 아직 가입 링크가 없습니다. 「가입 링크 추가」로 eBiz 링크를 불러와 등록하면 QR 전표를 인쇄할 수 있습니다."}
       </p>
 
       {pdfOpen && <PdfViewerModal card={card} onClose={() => setPdfOpen(false)} />}

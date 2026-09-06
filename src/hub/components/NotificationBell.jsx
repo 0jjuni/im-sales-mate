@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, CalendarClock, Check, Rss } from "lucide-react";
+import { Bell, CalendarClock, Check } from "lucide-react";
 import { useNotifications } from "../notifications/useNotifications";
 import { ChannelAvatar } from "../library/channelStyle";
 import { cn } from "@shared/lib/format";
@@ -125,16 +125,6 @@ export function NotificationBell() {
               })}
             </ul>
           )}
-
-          <button
-            onClick={() => {
-              setOpen(false);
-              nav("/library");
-            }}
-            className="flex w-full items-center justify-center gap-1.5 border-t border-slate-100 py-2.5 text-[12px] font-semibold text-slate-500 transition-colors hover:bg-slate-50 hover:text-im-700"
-          >
-            <Rss className="h-3.5 w-3.5" /> 지식 라이브러리 열기
-          </button>
         </div>
       )}
     </div>

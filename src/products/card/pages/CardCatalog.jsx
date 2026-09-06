@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { CreditCard, FileText, QrCode, Search, X, Heart } from "lucide-react";
-import { CARDS, CARD_TYPES, SEGMENTS, ALL_TAGS } from "../data/cards";
+import { CreditCard, FileText, QrCode, Search, X, Heart, Plus } from "lucide-react";
+import { CARDS, CARD_TYPES, SEGMENTS, ALL_TAGS, resolveAdCopy, loadStoredLinks } from "../data/cards";
 import { CARD_BENEFIT } from "../data/cardBenefits";
 import { PdfViewerModal, QrSlipModal } from "../components/CardModals";
 import { cn } from "@shared/lib/format";
@@ -39,7 +39,7 @@ const CardThumb = ({ card }) => {
   );
 };
 
-const CardRow = ({ card, fav, onFav, onPdf, onQr }) => {
+const CardRow = ({ card, fav, hasLink, onFav, onPdf, onQr }) => {
   return (
     <div className="relative flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 transition-shadow hover:shadow-[0_10px_30px_-16px_rgba(15,23,42,0.25)] sm:flex-row sm:items-center sm:p-5">
       <button
@@ -99,15 +99,24 @@ const CardRow = ({ card, fav, onFav, onPdf, onQr }) => {
 
       <div className="flex flex-shrink-0 items-center gap-2 sm:w-[168px] sm:flex-col sm:items-stretch">
         {/* 기업카드는 영업점 가입이라 eBiz QR 없음 — 상품설명서만 노출 */}
-        {card.segment !== "biz" && (
-          <button
-            onClick={() => onQr(card)}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
-          >
-            <QrCode className="h-4 w-4" />
-            가입 QR
-          </button>
-        )}
+        {card.segment !== "biz" &&
+          (hasLink ? (
+            <button
+              onClick={() => onQr(card)}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-slate-700"
+            >
+              <QrCode className="h-4 w-4" />
+              가입 QR
+            </button>
+          ) : (
+            <button
+              onClick={() => onQr(card)}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-300 bg-white px-4 py-2.5 text-[13px] font-bold text-rose-600 transition-colors hover:bg-rose-50"
+            >
+              <Plus className="h-4 w-4" />
+              가입 링크 추가
+            </button>
+          ))}
 
         {card.prospectusUrl && (
           <button
@@ -161,6 +170,10 @@ export const CardCatalog = () => {
   const toggleTag = (t) =>
     setActiveTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
 
+  /* eBiz 링크가 등록/저장된 카드 판별(코드 등록 adCopy 또는 직원 저장 링크) */
+  const stored = loadStoredLinks();
+  const hasLink = (c) => !!resolveAdCopy(c, stored);
+
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
     const filtered = byType.filter((c) => {
@@ -170,9 +183,9 @@ export const CardCatalog = () => {
       const hay = `${c.name} ${c.blurb || ""} ${(c.tags || []).join(" ")}`.toLowerCase();
       return hay.includes(q);
     });
-    /* 가입 링크(문구)가 등록돼 바로 QR 출력 가능한 카드를 앞으로 */
-    return filtered.sort((a, b) => (b.adCopy ? 1 : 0) - (a.adCopy ? 1 : 0));
-  }, [byType, query, activeTags]);
+    /* 가입 링크가 등록돼 바로 QR 출력 가능한 카드를 앞으로 */
+    return filtered.sort((a, b) => (hasLink(b) ? 1 : 0) - (hasLink(a) ? 1 : 0));
+  }, [byType, query, activeTags]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="space-y-4">
@@ -281,6 +294,7 @@ export const CardCatalog = () => {
               key={c.id}
               card={c}
               fav={favs.has(c.id)}
+              hasLink={hasLink(c)}
               onFav={toggleFav}
               onPdf={setPdfCard}
               onQr={setQrCard}
