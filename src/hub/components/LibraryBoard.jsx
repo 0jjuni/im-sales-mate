@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Rss } from "lucide-react";
 import { useLibrary } from "../library/useLibrary";
+import { ChannelAvatar } from "../library/channelStyle";
 import { cn } from "@shared/lib/format";
 
 /* 홈 대시보드 위젯 — 지식 라이브러리에서 「내가 구독한 채널의 최신 글」을 몰아 보여 준다.
@@ -36,7 +37,7 @@ export function LibraryBoard() {
               to="/library"
               className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 transition-colors hover:border-im-300"
             >
-              <span className="text-[18px]">{c.emoji}</span>
+              <ChannelAvatar icon={c.icon} color={c.color} size="sm" />
               <span className="min-w-0">
                 <span className="block truncate text-[12.5px] font-bold text-slate-800">{c.name}</span>
                 <span className="block text-[10.5px] text-slate-400">구독 {(c.subscribers || 0).toLocaleString()}</span>
@@ -59,9 +60,7 @@ export function LibraryBoard() {
           return (
             <li key={p.id}>
               <Link to="/library" className="flex items-start gap-2.5 py-2.5 transition-colors hover:bg-slate-50">
-                <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-[16px]">
-                  {ch?.emoji}
-                </span>
+                <ChannelAvatar icon={ch?.icon} color={ch?.color} size="sm" className="mt-0.5 !h-8 !w-8" />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-1.5 text-[11px]">
                     <span className="font-bold text-im-700">{ch?.name}</span>

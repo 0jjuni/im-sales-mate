@@ -45,14 +45,9 @@ export function useLibrary() {
 
   const isSubscribed = useCallback((channelId) => subs.includes(channelId), [subs]);
 
-  /* 구독자 수(데모) — 시드 기준값 + 내가 구독 중이면 +1 */
+  /* 구독자 수(데모) — 나를 제외한 기준값(subscribers) + 내가 구독 중이면 +1 */
   const subCountOf = useCallback(
-    (channelId) => {
-      const base = channelById(channelId)?.subscribers ?? 0;
-      const meIn = subs.includes(channelId);
-      const seededMe = ["ch_morning", "ch_wm"].includes(channelId); // 시드 기본 구독분은 base에 포함
-      return base + (meIn && !seededMe ? 1 : 0) - (!meIn && seededMe ? 1 : 0);
-    },
+    (channelId) => (channelById(channelId)?.subscribers ?? 0) + (subs.includes(channelId) ? 1 : 0),
     [channelById, subs]
   );
 
@@ -63,15 +58,16 @@ export function useLibrary() {
   );
 
   const addChannel = useCallback(
-    ({ name, emoji, category, desc }) => {
+    ({ name, icon, color, category, desc }) => {
       const ch = {
         id: uid("ch"),
         name: (name || "").trim(),
-        emoji: (emoji || "📌").trim() || "📌",
-        category: (category || "기타").trim(),
+        icon: icon || "news",
+        color: color || "im",
+        category: (category || "").trim() || "일반",
         desc: (desc || "").trim(),
         author: ME,
-        subscribers: 1,
+        subscribers: 0,
         createdAt: Date.now(),
       };
       persistChannels([ch, ...channels]);
@@ -82,7 +78,7 @@ export function useLibrary() {
   );
 
   const addPost = useCallback(
-    ({ channelId, title, body, images }) => {
+    ({ channelId, title, body, images, tags }) => {
       const post = {
         id: uid("p"),
         channelId,
@@ -90,6 +86,7 @@ export function useLibrary() {
         body: (body || "").trim(),
         author: ME,
         images: images || [],
+        tags: tags || [],
         createdAt: Date.now(),
       };
       persistPosts([post, ...posts]);

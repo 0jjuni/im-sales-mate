@@ -11,9 +11,10 @@
 
 import { buildLibrarySeed } from "./seedLibrary";
 
-const K_CH = "salesbridge.library.channels";
-const K_POST = "salesbridge.library.posts";
-const K_SUB = "salesbridge.library.subs";
+/* v2 — 채널 아이덴티티를 이모지에서 아이콘+색상으로 전환하며 키를 올려 재시드 유도 */
+const K_CH = "salesbridge.library.channels.v2";
+const K_POST = "salesbridge.library.posts.v2";
+const K_SUB = "salesbridge.library.subs.v2";
 
 const canStore = () => typeof window !== "undefined" && !!window.localStorage;
 

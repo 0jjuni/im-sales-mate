@@ -36,7 +36,7 @@ const Group = ({ title, tone, items, rowProps }) => {
 };
 
 export default function FollowupsPage() {
-  const { items, add, update, remove, toggleDone, markBranchSeen } = useFollowups();
+  const { items, add, update, remove, toggleDone } = useFollowups();
   const [tab, setTab] = useState("list");
   const [query, setQuery] = useState("");
   const [showDone, setShowDone] = useState(false);
@@ -47,11 +47,10 @@ export default function FollowupsPage() {
   useEffect(() => {
     const prev = document.title;
     document.title = "일정 관리 · iM 세일즈메이트";
-    markBranchSeen();
     return () => {
       document.title = prev;
     };
-  }, [markBranchSeen]);
+  }, []);
 
   const rowProps = { onToggle: toggleDone, onUpdate: update, onRemove: remove, onSearch: (no) => setQuery(no), onEdit: setEditing };
 
