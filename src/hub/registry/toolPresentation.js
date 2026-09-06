@@ -11,6 +11,9 @@ import {
   QrCode,
   Megaphone,
   Wrench,
+  LineChart,
+  Users,
+  CreditCard,
 } from "lucide-react";
 
 /* 도구 매니페스트의 icon(문자열) → lucide 컴포넌트 매핑.
@@ -27,6 +30,9 @@ const TOOL_ICONS = {
   MapPin,
   QrCode,
   Megaphone,
+  LineChart,
+  Users,
+  CreditCard,
 };
 
 export const getToolIcon = (name) => TOOL_ICONS[name] ?? Wrench;
@@ -40,6 +46,8 @@ export const TOOL_ACCENT = {
   fuchsia: { chip: "bg-fuchsia-100 text-fuchsia-800", icon: "bg-fuchsia-50 text-fuchsia-700" },
   violet: { chip: "bg-violet-100 text-violet-800", icon: "bg-violet-50 text-violet-700" },
   sky: { chip: "bg-sky-100 text-sky-800", icon: "bg-sky-50 text-sky-700" },
+  emerald: { chip: "bg-emerald-100 text-emerald-800", icon: "bg-emerald-50 text-emerald-700" },
+  rose: { chip: "bg-rose-100 text-rose-800", icon: "bg-rose-50 text-rose-700" },
 };
 
 export const getToolAccent = (accent) => TOOL_ACCENT[accent] ?? TOOL_ACCENT.sky;

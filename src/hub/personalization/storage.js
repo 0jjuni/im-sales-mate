@@ -18,8 +18,9 @@ export const DEFAULT_STATE = {
   sectionOrder: ["market", "wealth", "mytools", "products", "utility", "followups", "news", "knowledge"],
   /* 상품 상담은 상단 네비 모듈 드롭다운과 중복이라 기본 숨김(대시보드 편집에서 켤 수 있음) */
   hiddenSections: ["products"],
-  /* 첫 실행 기본 핀 — 데모에서 빈 화면을 피하기 위한 추천 구성 */
-  pinnedTools: ["noran.calc.tax", "noran.simulator"],
+  /* 첫 실행 기본 핀 — 데모에서 빈 화면을 피하기 위한 추천 구성.
+     노란우산 계산기 + 투자상품 탐색 + 카드 가입 QR + 상담 시뮬레이터로 상품군을 고루 노출 */
+  pinnedTools: ["noran.calc.tax", "wealth.explore", "card.promo", "noran.simulator"],
   /* [{ id, at(epoch ms) }] 최신순 */
   recentTools: [],
 };

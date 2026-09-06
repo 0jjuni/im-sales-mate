@@ -2,6 +2,8 @@ import { NORAN_MODULE, NORAN_TOOLS } from "@noran/tools";
 import { ISA_MODULE, ISA_TOOLS } from "@isa/tools";
 import { PENSION_MODULE, PENSION_TOOLS } from "@pension/tools";
 import { UTILITY_MODULE, UTILITY_TOOLS } from "@utility/tools";
+import { WEALTH_MODULE, WEALTH_TOOLS } from "@hub/wealth/tools";
+import { CARD_MODULE, CARD_TOOLS } from "@card/tools";
 
 /* 도구 레지스트리 — 각 상품 모듈의 도구 매니페스트를 집계하는 단일 지점.
    새 모듈 추가 시: ① 모듈에 tools.js 매니페스트 작성 → ② 아래 배열에 한 줄 추가.
@@ -9,8 +11,10 @@ import { UTILITY_MODULE, UTILITY_TOOLS } from "@utility/tools";
    모두 이 레지스트리를 통해서만 도구를 참조한다. */
 const MODULE_MANIFESTS = [
   { module: NORAN_MODULE, tools: NORAN_TOOLS },
+  { module: WEALTH_MODULE, tools: WEALTH_TOOLS },
   { module: ISA_MODULE, tools: ISA_TOOLS },
   { module: PENSION_MODULE, tools: PENSION_TOOLS },
+  { module: CARD_MODULE, tools: CARD_TOOLS },
   { module: UTILITY_MODULE, tools: UTILITY_TOOLS },
 ];
 
