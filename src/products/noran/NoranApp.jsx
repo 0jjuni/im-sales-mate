@@ -125,7 +125,6 @@ export default function NoranApp() {
           <NoranBrandIcon />
           <div>
             <h1 className="text-[17px] font-black leading-tight text-slate-900 md:text-xl">노란우산 상담 가이드</h1>
-            <p className="text-[11px] text-slate-500">iM뱅크 영업점 전용</p>
           </div>
         </div>
         {currentTool && (

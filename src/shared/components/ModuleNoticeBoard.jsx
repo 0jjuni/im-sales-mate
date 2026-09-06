@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
-import { AlertTriangle, Pin, Settings2 } from "lucide-react";
+import { AlertTriangle, Pin, Settings2, Paperclip } from "lucide-react";
 import { noticesForModule } from "@shared/data/notices";
 import { deptOfModule } from "@shared/data/departments";
 import { cn } from "@shared/lib/format";
+import "@hub/library/richtext.css";
+
+const isHtml = (s) => /^\s*</.test(s || "");
 
 /* 최근 7일 이내 게시글이면 NEW 표시 */
 const isRecent = (date) => {
@@ -60,7 +63,20 @@ export function ModuleNoticeBoard({ moduleId }) {
                 )}
                 <span className="ml-auto text-[11px] tabular-nums text-slate-400">{n.date}</span>
               </div>
-              <p className="mt-1 text-[12.5px] leading-relaxed text-slate-600">{n.body}</p>
+              {isHtml(n.body) ? (
+                <div className="rich-content mt-1.5 text-[12.5px]" dangerouslySetInnerHTML={{ __html: n.body }} />
+              ) : (
+                <p className="mt-1 whitespace-pre-wrap text-[12.5px] leading-relaxed text-slate-600">{n.body}</p>
+              )}
+              {n.attachments?.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {n.attachments.map((a, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] text-slate-500">
+                      <Paperclip className="h-3 w-3" /> {a.name}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div className="mt-1.5 text-[11px] text-slate-400">게시 {n.author}</div>
             </li>
           ))}

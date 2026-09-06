@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   Pin,
   AlertTriangle,
@@ -13,6 +13,10 @@ import {
 import { getModule } from "@shared/data/departments";
 import { loadNotices, addNotice, updateNotice, removeNotice } from "@shared/data/notices";
 import { cn } from "@shared/lib/format";
+
+const RichEditor = lazy(() => import("@hub/library/RichEditor").then((m) => ({ default: m.RichEditor })));
+
+const plainText = (s) => (s || "").replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/gi, " ").replace(/\s+/g, " ").trim();
 
 /* 부서 공지 관리 — 진짜 게시판 흐름.
    목록(list)에서 「글쓰기」로 전체 화면 작성기(write)에 들어가 제목·내용·첨부파일을 쓴다.
@@ -73,7 +77,7 @@ export function NoticeManager({ dept }) {
   const removeAttachment = (i) =>
     setForm((f) => ({ ...f, attachments: f.attachments.filter((_, idx) => idx !== i) }));
 
-  const canSubmit = form.moduleId && form.title.trim() && form.body.trim();
+  const canSubmit = form.moduleId && form.title.trim() && plainText(form.body);
 
   const submit = (e) => {
     e.preventDefault();
@@ -83,7 +87,7 @@ export function NoticeManager({ dept }) {
         updateNotice(editingId, {
           moduleId: form.moduleId,
           title: form.title.trim(),
-          body: form.body.trim(),
+          body: form.body,
           level: form.level,
           pinned: form.pinned,
           attachments: form.attachments,
@@ -134,12 +138,14 @@ export function NoticeManager({ dept }) {
             className="w-full border-0 border-b border-slate-200 px-0 py-2 text-[18px] font-bold text-slate-900 placeholder:font-normal placeholder:text-slate-300 focus:border-im-500 focus:outline-none focus:ring-0"
           />
 
-          <textarea
-            value={form.body}
-            onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))}
-            placeholder="창구 직원에게 전달할 내용을 자유롭게 작성하세요."
-            className="min-h-[340px] w-full resize-y rounded-lg border border-slate-200 px-4 py-3 text-[14px] leading-relaxed text-slate-800 focus:border-im-500 focus:outline-none"
-          />
+          <Suspense fallback={<div className="rounded-xl border border-slate-200 px-4 py-10 text-center text-[12px] text-slate-400">에디터 불러오는 중…</div>}>
+            <RichEditor
+              key={editingId || "new"}
+              initialContent={form.body}
+              placeholder="창구 직원에게 전달할 내용을 자유롭게 작성하세요."
+              onChange={(html) => setForm((f) => ({ ...f, body: html }))}
+            />
+          </Suspense>
 
           {/* 첨부파일 */}
           <div className="rounded-lg border border-dashed border-slate-300 p-3">

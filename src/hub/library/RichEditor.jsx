@@ -120,7 +120,7 @@ const Tb = ({ on, onClick, title, children }) => (
 
 const Divider = () => <span className="mx-0.5 h-5 w-px bg-slate-200" />;
 
-export function RichEditor({ onChange, placeholder = "내용을 입력하세요." }) {
+export function RichEditor({ onChange, placeholder = "내용을 입력하세요.", initialContent = "" }) {
   const fileRef = useRef(null);
   const insertRef = useRef(null);
   const [showHelp, setShowHelp] = useState(false);
@@ -131,7 +131,7 @@ export function RichEditor({ onChange, placeholder = "내용을 입력하세요.
       Image.configure({ allowBase64: true }),
       Placeholder.configure({ placeholder }),
     ],
-    content: "",
+    content: initialContent,
     editorProps: {
       attributes: { class: "rich-content min-h-[460px] px-1 py-2" },
     },

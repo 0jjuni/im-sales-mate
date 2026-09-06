@@ -26,7 +26,7 @@ import {
   CHANNEL_COLOR_LIST,
   CHANNEL_COLORS,
 } from "./library/channelStyle";
-import { CARD } from "@shared/lib/surface";
+import { CARD, CARD_INTERACTIVE } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 import "./library/richtext.css";
 
@@ -131,35 +131,52 @@ const PostImages = ({ images }) => (
   </div>
 );
 
-/* 목록의 글 한 줄 */
-const PostRow = ({ post, channel, onOpen, showChannel }) => (
-  <button onClick={onOpen} className="flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors hover:bg-slate-50">
-    {showChannel && channel && <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} size="sm" />}
-    <div className="min-w-0 flex-1">
-      {showChannel && channel && (
-        <div className="mb-0.5 flex items-center gap-1.5 text-[11px]">
-          <span className="font-bold text-im-700">{channel.name}</span>
-          <span className="text-slate-300">·</span>
-          <span className="text-slate-400">{fmtWhen(post.createdAt)}</span>
+/* 글 카드 — 피드·채널 목록에서 글 하나를 독립된 카드로 뚜렷하게 구분해 보여 준다 */
+const PostCard = ({ post, channel, onOpen, showChannel }) => {
+  const cover = post.images?.[0];
+  return (
+    <button onClick={onOpen} className={cn(CARD_INTERACTIVE, "flex flex-col overflow-hidden text-left")}>
+      {cover && (
+        <div className="border-b border-slate-100 bg-slate-50">
+          <img src={cover} alt="" className="h-40 w-full object-cover" />
         </div>
       )}
-      <div className="truncate text-[14px] font-bold text-slate-900">{post.title}</div>
-      <div className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-slate-500">{plain(post.body)}</div>
-      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-400">
-        {!showChannel && (
-          <>
-            <span>{post.author}</span>
+      <div className="flex flex-1 flex-col p-4">
+        {showChannel && channel && (
+          <div className="mb-2 flex items-center gap-1.5 text-[11px]">
+            <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} size="sm" className="!h-6 !w-6 rounded-md" />
+            <span className="font-bold text-im-700">{channel.name}</span>
             <span className="text-slate-300">·</span>
-            <span>{fmtWhen(post.createdAt)}</span>
-          </>
+            <span className="text-slate-400">{fmtWhen(post.createdAt)}</span>
+          </div>
         )}
-        {post.images?.length > 0 && <span className="rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-500">이미지 {post.images.length}</span>}
-        {post.cards?.length > 0 && <span className="rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-500">카드뉴스</span>}
+        <h3 className="line-clamp-2 text-[15px] font-bold leading-snug text-slate-900">{post.title}</h3>
+        <p className="mt-1.5 line-clamp-3 flex-1 text-[12.5px] leading-relaxed text-slate-500">{plain(post.body)}</p>
+
+        {post.tags?.length > 0 && (
+          <div className="mt-2.5 flex flex-wrap gap-1">
+            {post.tags.slice(0, 3).map((t) => (
+              <span key={t} className="rounded-full bg-slate-100 px-2 py-0.5 text-[10.5px] font-semibold text-slate-500">#{t}</span>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-2.5 text-[11px] text-slate-400">
+          {!showChannel && (
+            <>
+              <span>{post.author}</span>
+              <span className="text-slate-300">·</span>
+              <span>{fmtWhen(post.createdAt)}</span>
+            </>
+          )}
+          {post.images?.length > 0 && <span className="rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-500">이미지 {post.images.length}</span>}
+          {post.cards?.length > 0 && <span className="rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-500">카드뉴스</span>}
+          <ArrowRight className="ml-auto h-4 w-4 flex-shrink-0 text-slate-300" />
+        </div>
       </div>
-    </div>
-    <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-slate-300" />
-  </button>
-);
+    </button>
+  );
+};
 
 /* 전체 채널 카드 */
 const ChannelCard = ({ channel, count, subCount, subscribed, latest, onOpen, onToggle }) => (
@@ -596,7 +613,7 @@ function PostDetail({ post, channel, isMine, onBack, onOpenChannel, onRemove }) 
 
 function ChannelDetail({ channel, posts, subCount, subscribed, onBack, onToggle, onWrite, onOpenPost }) {
   return (
-    <div className="mx-auto max-w-3xl space-y-4">
+    <div className="space-y-4">
       <button onClick={onBack} className="inline-flex items-center gap-1 text-[13px] font-semibold text-slate-500 hover:text-slate-800">
         <ArrowLeft className="h-4 w-4" /> 지식 라이브러리
       </button>
@@ -634,12 +651,10 @@ function ChannelDetail({ channel, posts, subCount, subscribed, onBack, onToggle,
           <p className="mt-1 text-[12px] text-slate-400">첫 글을 올려 구독자에게 발행해 보세요.</p>
         </div>
       ) : (
-        <div className={cn(CARD, "overflow-hidden")}>
-          <div className="divide-y divide-slate-100">
-            {posts.map((p) => (
-              <PostRow key={p.id} post={p} onOpen={() => onOpenPost(p.id)} showChannel={false} />
-            ))}
-          </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {posts.map((p) => (
+            <PostCard key={p.id} post={p} onOpen={() => onOpenPost(p.id)} showChannel={false} />
+          ))}
         </div>
       )}
     </div>
@@ -679,7 +694,7 @@ export default function LibraryPage() {
   /* 1) 작성 화면 */
   if (composer?.mode === "channel") {
     return (
-      <HubShell>
+      <HubShell wide>
         <ChannelComposer
           onCancel={() => setComposer(null)}
           onSubmit={(v) => {
@@ -694,7 +709,7 @@ export default function LibraryPage() {
   if (composer?.mode === "post") {
     const ch = lib.channelById(composer.channelId);
     return (
-      <HubShell>
+      <HubShell wide>
         <PostComposer
           channel={ch}
           onCancel={() => setComposer(null)}
@@ -713,7 +728,7 @@ export default function LibraryPage() {
   if (activePost) {
     const ch = lib.channelById(activePost.channelId);
     return (
-      <HubShell>
+      <HubShell wide>
         <PostDetail
           post={activePost}
           channel={ch}
@@ -732,7 +747,7 @@ export default function LibraryPage() {
   /* 3) 채널 상세 */
   if (activeChannel) {
     return (
-      <HubShell>
+      <HubShell wide>
         <ChannelDetail
           channel={activeChannel}
           posts={lib.postsOf(activeChannel.id)}
@@ -752,7 +767,7 @@ export default function LibraryPage() {
   const subChannels = lib.channels.filter((c) => lib.isSubscribed(c.id));
 
   return (
-    <HubShell>
+    <HubShell wide>
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
@@ -825,17 +840,15 @@ export default function LibraryPage() {
               ))}
             </div>
 
-            <div className={cn(CARD, "overflow-hidden")}>
-              <div className="divide-y divide-slate-100">
-                {feed.map((p) => (
-                  <PostRow key={p.id} post={p} channel={lib.channelById(p.channelId)} onOpen={() => openPost(p.id)} showChannel />
-                ))}
-              </div>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {feed.map((p) => (
+                <PostCard key={p.id} post={p} channel={lib.channelById(p.channelId)} onOpen={() => openPost(p.id)} showChannel />
+              ))}
             </div>
           </div>
         )
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {lib.channels.map((c) => (
             <ChannelCard
               key={c.id}

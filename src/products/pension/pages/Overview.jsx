@@ -35,7 +35,7 @@ export const Overview = ({ onNavigate }) => (
     </div>
 
     <div className="bg-amber-50/60 border-l-4 border-amber-500 px-4 py-2.5 rounded-r-sm text-xs text-slate-800 leading-relaxed">
-      <strong>데모 모듈입니다.</strong> 세제는 소득세법, 수수료·상품 조건은 iM뱅크 공시자료(개인형IRP
+      세제는 소득세법, 수수료·상품 조건은 iM뱅크 공시자료(개인형IRP
       수수료율·연금저축신탁 핵심설명서)를 반영했습니다. 판매 중인 연금저축보험·펀드 라인업 등 나머지
       자사 상품 조건은 자료 확보 후 채워집니다.
     </div>
