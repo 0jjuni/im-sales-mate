@@ -24,7 +24,7 @@ const fmtWhen = (ts) => {
 
 const NotifIcon = ({ n }) =>
   n.kind === "library" && n.channel ? (
-    <ChannelAvatar icon={n.channel.icon} color={n.channel.color} size="sm" />
+    <ChannelAvatar icon={n.channel.icon} color={n.channel.color} image={n.channel.image} size="sm" />
   ) : (
     <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
       <CalendarClock className="h-4 w-4" />

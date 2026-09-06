@@ -1,58 +1,93 @@
 import {
   Sunrise,
   TrendingUp,
+  TrendingDown,
+  BarChart3,
+  LineChart,
+  PieChart,
+  Activity,
   MessageSquare,
+  MessagesSquare,
   Lightbulb,
   Newspaper,
-  BarChart3,
   FileText,
+  BookOpen,
   Landmark,
-  CalendarDays,
+  Building2,
+  Receipt,
+  Coins,
+  Wallet,
+  PiggyBank,
+  Banknote,
+  Percent,
+  Target,
+  Flag,
+  Star,
+  Award,
+  Bell,
+  Bookmark,
+  Briefcase,
   Globe,
   ShieldCheck,
-  Receipt,
-  PieChart,
-  Coins,
+  Compass,
+  Rocket,
+  Zap,
+  Flame,
+  CalendarDays,
+  Clock,
+  Users,
+  Gift,
+  Umbrella,
 } from "lucide-react";
 import { cn } from "@shared/lib/format";
 
-/* 지식 라이브러리 채널 아이덴티티 — 이모지 대신 정제된 아이콘 + 강조색(엔터프라이즈 톤).
-   Tailwind 정적 클래스라 색은 맵으로 보관한다. LibraryPage·LibraryBoard·알림에서 공용. */
+/* 지식 라이브러리 채널 아이덴티티 — 정제된 아이콘 + 강조색(엔터프라이즈 톤),
+   또는 직접 업로드한 이미지. LibraryPage·LibraryBoard·알림에서 공용. */
 
 export const CHANNEL_ICONS = {
   sunrise: Sunrise,
   trending: TrendingUp,
+  trendingdown: TrendingDown,
+  chart: BarChart3,
+  line: LineChart,
+  pie: PieChart,
+  activity: Activity,
   comment: MessageSquare,
+  comments: MessagesSquare,
   lightbulb: Lightbulb,
   news: Newspaper,
-  chart: BarChart3,
   file: FileText,
+  book: BookOpen,
   landmark: Landmark,
-  calendar: CalendarDays,
+  building: Building2,
+  receipt: Receipt,
+  coins: Coins,
+  wallet: Wallet,
+  piggybank: PiggyBank,
+  banknote: Banknote,
+  percent: Percent,
+  target: Target,
+  flag: Flag,
+  star: Star,
+  award: Award,
+  bell: Bell,
+  bookmark: Bookmark,
+  briefcase: Briefcase,
   globe: Globe,
   shield: ShieldCheck,
-  receipt: Receipt,
-  pie: PieChart,
-  coins: Coins,
+  compass: Compass,
+  rocket: Rocket,
+  zap: Zap,
+  flame: Flame,
+  calendar: CalendarDays,
+  clock: Clock,
+  users: Users,
+  gift: Gift,
+  umbrella: Umbrella,
 };
 
 /* 채널 만들기 아이콘 선택 순서 */
-export const CHANNEL_ICON_LIST = [
-  "sunrise",
-  "trending",
-  "comment",
-  "lightbulb",
-  "news",
-  "chart",
-  "file",
-  "landmark",
-  "receipt",
-  "pie",
-  "coins",
-  "globe",
-  "shield",
-  "calendar",
-];
+export const CHANNEL_ICON_LIST = Object.keys(CHANNEL_ICONS);
 
 export const CHANNEL_COLORS = {
   im: { bg: "bg-im-50", tx: "text-im-600", dot: "bg-im-500", ring: "ring-im-500" },
@@ -70,7 +105,14 @@ export const CHANNEL_COLOR_LIST = ["im", "blue", "violet", "amber", "rose", "tea
 const DIM = { sm: "h-9 w-9", md: "h-11 w-11", lg: "h-12 w-12" };
 const ISZ = { sm: "h-4 w-4", md: "h-5 w-5", lg: "h-6 w-6" };
 
-export function ChannelAvatar({ icon, color, size = "md", className }) {
+export function ChannelAvatar({ icon, color, image, size = "md", className }) {
+  if (image) {
+    return (
+      <div className={cn("flex-shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-100", DIM[size], className)}>
+        <img src={image} alt="" className="h-full w-full object-cover" />
+      </div>
+    );
+  }
   const Icon = CHANNEL_ICONS[icon] || Newspaper;
   const c = CHANNEL_COLORS[color] || CHANNEL_COLORS.slate;
   return (

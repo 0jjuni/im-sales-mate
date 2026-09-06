@@ -58,12 +58,13 @@ export function useLibrary() {
   );
 
   const addChannel = useCallback(
-    ({ name, icon, color, category, desc }) => {
+    ({ name, icon, color, image, category, desc }) => {
       const ch = {
         id: uid("ch"),
         name: (name || "").trim(),
         icon: icon || "news",
         color: color || "im",
+        image: image || null,
         category: (category || "").trim() || "일반",
         desc: (desc || "").trim(),
         author: ME,

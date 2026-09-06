@@ -37,7 +37,7 @@ export function LibraryBoard() {
               to="/library"
               className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 transition-colors hover:border-im-300"
             >
-              <ChannelAvatar icon={c.icon} color={c.color} size="sm" />
+              <ChannelAvatar icon={c.icon} color={c.color} image={c.image} size="sm" />
               <span className="min-w-0">
                 <span className="block truncate text-[12.5px] font-bold text-slate-800">{c.name}</span>
                 <span className="block text-[10.5px] text-slate-400">구독 {(c.subscribers || 0).toLocaleString()}</span>
@@ -60,7 +60,7 @@ export function LibraryBoard() {
           return (
             <li key={p.id}>
               <Link to="/library" className="flex items-start gap-2.5 py-2.5 transition-colors hover:bg-slate-50">
-                <ChannelAvatar icon={ch?.icon} color={ch?.color} size="sm" className="mt-0.5 !h-8 !w-8" />
+                <ChannelAvatar icon={ch?.icon} color={ch?.color} image={ch?.image} size="sm" className="mt-0.5 !h-8 !w-8" />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-1.5 text-[11px]">
                     <span className="font-bold text-im-700">{ch?.name}</span>

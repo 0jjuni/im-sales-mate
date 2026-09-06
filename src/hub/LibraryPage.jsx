@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   Library,
   Plus,
@@ -7,6 +7,7 @@ import {
   Rss,
   Check,
   PenLine,
+  ImagePlus,
   X,
   TrendingUp,
   TrendingDown,
@@ -133,7 +134,7 @@ const PostImages = ({ images }) => (
 /* 목록의 글 한 줄 */
 const PostRow = ({ post, channel, onOpen, showChannel }) => (
   <button onClick={onOpen} className="flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors hover:bg-slate-50">
-    {showChannel && channel && <ChannelAvatar icon={channel.icon} color={channel.color} size="sm" />}
+    {showChannel && channel && <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} size="sm" />}
     <div className="min-w-0 flex-1">
       {showChannel && channel && (
         <div className="mb-0.5 flex items-center gap-1.5 text-[11px]">
@@ -165,7 +166,7 @@ const ChannelCard = ({ channel, count, subCount, subscribed, latest, onOpen, onT
   <div className={cn(CARD, "flex flex-col p-4")}>
     <div className="flex items-start gap-3">
       <button onClick={onOpen} className="flex min-w-0 flex-1 items-start gap-3 text-left">
-        <ChannelAvatar icon={channel.icon} color={channel.color} />
+        <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} />
         <div className="min-w-0">
           <h3 className="truncate text-[14.5px] font-bold text-slate-900">{channel.name}</h3>
           <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-slate-400">
@@ -259,7 +260,7 @@ function PostComposer({ channel, onSubmit, onCancel }) {
 
       <div className={cn(CARD, "overflow-hidden")}>
         <div className="flex items-center gap-2.5 border-b border-slate-100 px-5 py-3.5">
-          <ChannelAvatar icon={channel.icon} color={channel.color} size="sm" />
+          <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} size="sm" />
           <div>
             <div className="text-[14px] font-bold text-slate-900">새 글 쓰기</div>
             <div className="text-[11.5px] text-slate-500">{channel.name} · 구독자에게 발행됩니다</div>
@@ -303,23 +304,82 @@ function PostComposer({ channel, onSubmit, onCancel }) {
 
 /* ── 채널 만들기 (전체화면, 전문 폼) ───────────────────── */
 
+/* 폼 필드 래퍼 — 컴포넌트 밖에 두어야 매 렌더 리마운트(포커스 유실)를 막는다 */
+const Field = ({ label, hint, children }) => (
+  <div>
+    <div className="mb-1.5 flex items-baseline gap-1.5">
+      <label className="text-[12.5px] font-bold text-slate-700">{label}</label>
+      {hint && <span className="text-[11px] font-normal text-slate-400">{hint}</span>}
+    </div>
+    {children}
+  </div>
+);
+
+/* 분류 입력 — 자유 입력 + 클릭/타이핑 시 제안 드롭다운(커스텀, datalist 대체) */
+function CategoryCombobox({ value, onChange, suggestions }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [open]);
+  const q = value.trim().toLowerCase();
+  const list = q ? suggestions.filter((s) => s.toLowerCase().includes(q) && s.toLowerCase() !== q) : suggestions;
+  return (
+    <div className="relative" ref={ref}>
+      <input
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        placeholder="예: 아침 시황, 세무 상식, 시장 전략 …"
+        className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-[13.5px] text-slate-800 placeholder:text-slate-300 focus:border-im-500 focus:outline-none focus:ring-2 focus:ring-im-500/20"
+      />
+      {open && list.length > 0 && (
+        <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-52 overflow-y-auto rounded-lg border border-slate-200 bg-white p-1 shadow-lg">
+          {list.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => {
+                onChange(s);
+                setOpen(false);
+              }}
+              className="block w-full rounded-md px-2.5 py-1.5 text-left text-[12.5px] text-slate-700 hover:bg-slate-50"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ChannelComposer({ onSubmit, onCancel }) {
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("news");
   const [color, setColor] = useState("im");
+  const [image, setImage] = useState(null);
   const [category, setCategory] = useState("");
   const [desc, setDesc] = useState("");
+  const iconFileRef = useRef(null);
   const canSubmit = name.trim();
 
-  const Field = ({ label, hint, children }) => (
-    <div>
-      <div className="mb-1.5 flex items-baseline gap-1.5">
-        <label className="text-[12.5px] font-bold text-slate-700">{label}</label>
-        {hint && <span className="text-[11px] font-normal text-slate-400">{hint}</span>}
-      </div>
-      {children}
-    </div>
-  );
+  const onPickIcon = (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => setImage(r.result);
+    r.readAsDataURL(f);
+    e.target.value = "";
+  };
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
@@ -335,7 +395,7 @@ function ChannelComposer({ onSubmit, onCancel }) {
 
         {/* 미리보기 */}
         <div className="flex items-center gap-3 border-b border-slate-100 bg-slate-50/60 px-6 py-4">
-          <ChannelAvatar icon={icon} color={color} size="lg" />
+          <ChannelAvatar icon={icon} color={color} image={image} size="lg" />
           <div className="min-w-0">
             <div className="text-[15px] font-bold text-slate-900">{name.trim() || "채널 이름"}</div>
             <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-slate-400">
@@ -352,71 +412,82 @@ function ChannelComposer({ onSubmit, onCancel }) {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="예: 모닝 브리핑, 알기 쉬운 세무상식"
+              placeholder="예: 나만의 시황 노트, 세일즈 팁 모음"
               className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-[14px] font-semibold text-slate-900 placeholder:text-slate-300 focus:border-im-500 focus:outline-none focus:ring-2 focus:ring-im-500/20"
             />
           </Field>
 
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="아이콘">
-              <div className="flex flex-wrap gap-1.5">
-                {CHANNEL_ICON_LIST.map((k) => {
-                  const Icon = CHANNEL_ICONS[k];
-                  const on = icon === k;
-                  return (
-                    <button
-                      key={k}
-                      onClick={() => setIcon(k)}
-                      className={cn(
-                        "flex h-9 w-9 items-center justify-center rounded-lg border transition-colors",
-                        on ? "border-im-500 bg-im-50 text-im-600" : "border-slate-200 bg-white text-slate-400 hover:border-slate-300 hover:text-slate-600"
-                      )}
-                      aria-label={k}
-                    >
-                      <Icon className="h-[18px] w-[18px]" />
-                    </button>
-                  );
-                })}
-              </div>
-            </Field>
+          <Field label="아이콘" hint="아이콘 선택 또는 이미지 업로드">
+            <div className="flex max-h-[148px] flex-wrap gap-1.5 overflow-y-auto rounded-lg border border-slate-200 p-2">
+              {/* 이미지 업로드 타일 */}
+              <button
+                type="button"
+                onClick={() => iconFileRef.current?.click()}
+                title="이미지 업로드"
+                className={cn(
+                  "flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg border transition-colors",
+                  image ? "border-im-500 ring-2 ring-im-500/30" : "border-dashed border-slate-300 text-slate-400 hover:border-im-400 hover:text-im-600"
+                )}
+              >
+                {image ? <img src={image} alt="" className="h-full w-full object-cover" /> : <ImagePlus className="h-[18px] w-[18px]" />}
+              </button>
+              {CHANNEL_ICON_LIST.map((k) => {
+                const Icon = CHANNEL_ICONS[k];
+                const on = !image && icon === k;
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => {
+                      setIcon(k);
+                      setImage(null);
+                    }}
+                    className={cn(
+                      "flex h-9 w-9 items-center justify-center rounded-lg border transition-colors",
+                      on ? "border-im-500 bg-im-50 text-im-600" : "border-slate-200 bg-white text-slate-400 hover:border-slate-300 hover:text-slate-600"
+                    )}
+                    aria-label={k}
+                  >
+                    <Icon className="h-[18px] w-[18px]" />
+                  </button>
+                );
+              })}
+            </div>
+            {image && (
+              <button onClick={() => setImage(null)} className="mt-1.5 text-[11px] font-semibold text-slate-500 hover:text-rose-600">
+                업로드 이미지 제거
+              </button>
+            )}
+            <input ref={iconFileRef} type="file" accept="image/*" className="hidden" onChange={onPickIcon} />
+          </Field>
 
-            <Field label="강조색">
-              <div className="flex flex-wrap gap-2">
-                {CHANNEL_COLOR_LIST.map((k) => {
-                  const c = CHANNEL_COLORS[k];
-                  const on = color === k;
-                  return (
-                    <button
-                      key={k}
-                      onClick={() => setColor(k)}
-                      className={cn(
-                        "flex h-9 w-9 items-center justify-center rounded-lg transition-transform",
-                        c.bg,
-                        on ? "ring-2 ring-offset-2 " + c.ring : "hover:scale-105"
-                      )}
-                      aria-label={k}
-                    >
-                      <span className={cn("h-3.5 w-3.5 rounded-full", c.dot)} />
-                    </button>
-                  );
-                })}
-              </div>
-            </Field>
-          </div>
+          <Field label="강조색" hint={image ? "이미지 아이콘 사용 중" : "아이콘 배경색"}>
+            <div className="flex flex-wrap gap-2">
+              {CHANNEL_COLOR_LIST.map((k) => {
+                const c = CHANNEL_COLORS[k];
+                const on = color === k;
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => setColor(k)}
+                    className={cn(
+                      "flex h-9 w-9 items-center justify-center rounded-lg transition-transform",
+                      c.bg,
+                      on ? "ring-2 ring-offset-2 " + c.ring : "hover:scale-105",
+                      image && "opacity-40"
+                    )}
+                    aria-label={k}
+                  >
+                    <span className={cn("h-3.5 w-3.5 rounded-full", c.dot)} />
+                  </button>
+                );
+              })}
+            </div>
+          </Field>
 
-          <Field label="분류" hint="직접 입력 · 아래 제안에서 골라도 됩니다">
-            <input
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              list="lib-category-suggestions"
-              placeholder="예: 아침 시황, 세무 상식, 시장 전략 …"
-              className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-[13.5px] text-slate-800 placeholder:text-slate-300 focus:border-im-500 focus:outline-none focus:ring-2 focus:ring-im-500/20"
-            />
-            <datalist id="lib-category-suggestions">
-              {CATEGORY_SUGGESTIONS.map((c) => (
-                <option key={c} value={c} />
-              ))}
-            </datalist>
+          <Field label="분류" hint="직접 입력하거나 제안에서 선택">
+            <CategoryCombobox value={category} onChange={setCategory} suggestions={CATEGORY_SUGGESTIONS} />
           </Field>
 
           <Field label="소개" hint="선택">
@@ -435,7 +506,7 @@ function ChannelComposer({ onSubmit, onCancel }) {
             취소
           </button>
           <button
-            onClick={() => onSubmit({ name, icon, color, category, desc })}
+            onClick={() => onSubmit({ name, icon, color, image, category, desc })}
             disabled={!canSubmit}
             className="inline-flex items-center gap-1.5 rounded-md bg-im-600 px-4 py-2 text-[12.5px] font-bold text-white transition-colors hover:bg-im-700 disabled:cursor-not-allowed disabled:opacity-40"
           >
@@ -461,7 +532,7 @@ function PostDetail({ post, channel, isMine, onBack, onOpenChannel, onRemove }) 
           onClick={onOpenChannel}
           className="flex w-full items-center gap-2.5 border-b border-slate-100 px-5 py-3 text-left transition-colors hover:bg-slate-50"
         >
-          <ChannelAvatar icon={channel.icon} color={channel.color} size="sm" />
+          <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} size="sm" />
           <div className="min-w-0">
             <div className="text-[13px] font-bold text-im-700">{channel.name}</div>
             <div className="text-[11px] text-slate-400">{channel.category}</div>
@@ -532,7 +603,7 @@ function ChannelDetail({ channel, posts, subCount, subscribed, onBack, onToggle,
 
       <div className={cn(CARD, "p-5")}>
         <div className="flex items-start gap-3.5">
-          <ChannelAvatar icon={channel.icon} color={channel.color} size="lg" />
+          <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} size="lg" />
           <div className="min-w-0 flex-1">
             <h1 className="text-[18px] font-bold text-slate-900">{channel.name}</h1>
             <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11.5px] text-slate-400">
@@ -748,7 +819,7 @@ export default function LibraryPage() {
                   onClick={() => openChannel(c.id)}
                   className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white py-1 pl-1 pr-2.5 text-[11.5px] font-semibold text-slate-600 hover:border-im-300 hover:text-im-700"
                 >
-                  <ChannelAvatar icon={c.icon} color={c.color} size="sm" className="!h-5 !w-5 rounded-md" />
+                  <ChannelAvatar icon={c.icon} color={c.color} image={c.image} size="sm" className="!h-5 !w-5 rounded-md" />
                   {c.name}
                 </button>
               ))}
