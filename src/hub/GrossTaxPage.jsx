@@ -21,6 +21,8 @@ import {
   CreditCard,
   X,
   Landmark,
+  Sparkles,
+  Split,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { CardDeductionGuide } from "@card/components/CardDeductionGuide";
@@ -608,13 +610,6 @@ const GuidanceForTarget = ({ data }) => (
   </div>
 );
 
-/* 전략 그룹 — 가독성을 위해 소제목으로 묶는다 */
-const STRATEGY_GROUPS = [
-  { key: "진단", label: "진단 · 유의" },
-  { key: "제안", label: "상품 제안 (판매)" },
-  { key: "분산", label: "소득 분산 · 이연" },
-];
-
 /* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
 function ResultView({ data }) {
   const j = data.jonghap;
@@ -630,6 +625,12 @@ function ResultView({ data }) {
     (a, b) => (PRODUCT_STATE[b.state].sell ? 1 : 0) - (PRODUCT_STATE[a.state].sell ? 1 : 0)
   );
   const strategy = deriveStrategy(data, manual);
+  /* 전략을 성격별로 분리해 각 섹션에 배치(진단→상단, 제안→상품 옆, 분산→하단) */
+  const strat = {
+    진단: strategy.filter((s) => s.group === "진단"),
+    제안: strategy.filter((s) => s.group === "제안"),
+    분산: strategy.filter((s) => s.group === "분산"),
+  };
 
   useEffect(() => {
     const cleanup = () => document.documentElement.classList.remove("printing-market");
@@ -659,12 +660,20 @@ function ResultView({ data }) {
         </button>
       </div>
 
+      {/* 1) 진단 — 판정·유의 */}
       <VerdictBanner data={data} />
 
       {j.isTarget && <GuidanceForTarget data={data} />}
 
-      <CustomerFollowups no={data.customerNo} />
+      {strat.진단.length > 0 && (
+        <ol className="space-y-2">
+          {strat.진단.map((s, i) => (
+            <StrategyItem key={i} item={s} />
+          ))}
+        </ol>
+      )}
 
+      {/* 2) 핵심 — 상품 활용 현황 · 제안 */}
       <section>
         <SectionTitle icon={Layers} sub="당행 보유 기준입니다. 미보유 상품은 가입을 권유하세요">
           상품 활용 현황
@@ -676,38 +685,47 @@ function ResultView({ data }) {
         </div>
       </section>
 
+      {strat.제안.length > 0 && (
+        <section>
+          <SectionTitle icon={Sparkles} sub="바로 권유·제안할 수 있는 판매 기회">
+            맞춤 상품 제안
+          </SectionTitle>
+          <ol className="space-y-2">
+            {strat.제안.map((s, i) => (
+              <StrategyItem key={i} item={s} />
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {/* 3) 보유 자산 · 거래 */}
       <DepositSection data={data} />
 
       <CardEligibilitySection no={data.customerNo} />
 
-      <section>
-        <SectionTitle icon={ShieldCheck}>맞춤 절세 전략 · 상품 제안</SectionTitle>
-        <div className="space-y-4">
-          {STRATEGY_GROUPS.map((g) => {
-            const rows = strategy.filter((s) => s.group === g.key);
-            if (rows.length === 0) return null;
-            return (
-              <div key={g.key}>
-                <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  {g.label}
-                </div>
-                <ol className="space-y-2">
-                  {rows.map((s, i) => (
-                    <StrategyItem key={i} item={s} />
-                  ))}
-                </ol>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      {/* 4) 소득 분산 · 이연 */}
+      {strat.분산.length > 0 && (
+        <section>
+          <SectionTitle icon={Split} sub="종합과세 대상·근접·이력 고객의 소득 분산·과세 이연 방법">
+            소득 분산 · 이연
+          </SectionTitle>
+          <ol className="space-y-2">
+            {strat.분산.map((s, i) => (
+              <StrategyItem key={i} item={s} />
+            ))}
+          </ol>
+        </section>
+      )}
 
+      {/* 5) 참고 — 계산 도구·이 고객 메모·자료 */}
       <section>
         <SectionTitle icon={BadgePercent} sub="총급여를 입력하면 소득공제 최저사용금액을 계산합니다">
           신용카드 소득공제
         </SectionTitle>
         <CardDeductionGuide />
       </section>
+
+      <CustomerFollowups no={data.customerNo} />
 
       <ReferenceGuide />
 
