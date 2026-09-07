@@ -18,9 +18,12 @@ import {
   MessageSquareText,
   Megaphone,
   CalendarClock,
+  CreditCard,
+  X,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { CardDeductionGuide } from "@card/components/CardDeductionGuide";
+import { queryEligibility } from "@card/data/cardEligibility";
 import { useFollowups } from "./followups/useFollowups";
 import { FollowupRow } from "./followups/parts";
 import { PrintReport } from "@shared/components/PrintReport";
@@ -67,11 +70,6 @@ const VerdictBanner = ({ data }) => {
             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
               <span className="text-[16px] font-bold text-slate-900">{data.name}</span>
               <span className="text-[12px] text-slate-500">{data.age}</span>
-              {data.profile && (
-                <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-500">
-                  {data.profile}
-                </span>
-              )}
             </div>
             <div className="mt-0.5 font-mono text-[12px] tabular-nums text-slate-400">{data.customerNo}</div>
           </div>
@@ -379,6 +377,60 @@ function CustomerFollowups({ no }) {
   );
 }
 
+/* 신용카드 발급 요건 — 넥스피아 4개 요건으로 「이 요건으로 발급 가능한지」만 표시.
+   실제 발급은 계정계 종합 심사 기준이며, 여기선 요건별 가능/불가만 보여 준다. */
+function CardEligibilitySection({ no }) {
+  const e = queryEligibility(no);
+  if (!e) return null;
+  return (
+    <section>
+      <SectionTitle icon={CreditCard} sub="넥스피아 4개 요건으로 발급 가능 여부만 표시 · 실제 발급은 계정계 종합 심사 기준">
+        신용카드 발급 요건
+      </SectionTitle>
+      <div className={cn(CARD, "overflow-hidden")}>
+        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+          <span className="text-[12.5px] font-semibold text-slate-500">발급 요건 조회 (4종)</span>
+          <span
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[12px] font-bold",
+              e.eligible ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"
+            )}
+          >
+            {e.eligible ? <ShieldCheck className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
+            {e.eligible ? `발급 가능 · ${e.metCount}개 충족` : "충족 요건 없음"}
+          </span>
+        </div>
+        <ul className="divide-y divide-slate-100">
+          {e.requirements.map((r) => (
+            <li key={r.id} className="flex items-center gap-3 px-5 py-3">
+              <span
+                className={cn(
+                  "flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full",
+                  r.met ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-300"
+                )}
+              >
+                {r.met ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="text-[13px] font-bold text-slate-900">{r.name}</div>
+                <div className="mt-0.5 text-[11px] text-slate-400">{r.criteria}</div>
+              </div>
+              <span
+                className={cn(
+                  "flex-shrink-0 rounded px-2 py-0.5 text-[11.5px] font-bold",
+                  r.met ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400"
+                )}
+              >
+                {r.met ? "가능" : "불가"}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 /* 참고 자료 — 접이식 */
 const ReferenceGuide = () => {
   const [open, setOpen] = useState(false);
@@ -550,6 +602,8 @@ function ResultView({ data }) {
           ))}
         </div>
       </section>
+
+      <CardEligibilitySection no={data.customerNo} />
 
       <section>
         <SectionTitle icon={ShieldCheck}>맞춤 절세 전략 · 상품 제안</SectionTitle>

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Newspaper } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { useMorningBriefing } from "./hooks/useMorningBriefing";
 import { MorningNews } from "./components/MorningNews";
@@ -18,6 +19,16 @@ export default function NewsPage() {
 
   return (
     <HubShell>
+      <div className="mb-5">
+        <div className="flex items-center gap-2">
+          <Newspaper className="h-5 w-5 text-im-600" />
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">뉴스</h1>
+        </div>
+        <p className="mt-1 text-[13px] text-slate-500">
+          매일 아침 창구에 영향을 줄 뉴스·시황과 다가오는 일정을 정리합니다.
+        </p>
+      </div>
+
       <MorningNews data={data} status={status} onReload={reload} full />
     </HubShell>
   );

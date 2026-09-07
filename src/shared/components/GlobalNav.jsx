@@ -60,7 +60,6 @@ const NAV = [
     children: [
       { to: "/card", label: "카드 탐색" },
       { to: "/card/promo", label: "가입 QR" },
-      { to: "/card/eligibility", label: "발급 요건" },
       { to: "/card/deduction", label: "소득공제" },
       { to: "/card/notices", label: "공지사항" },
     ],
@@ -73,7 +72,6 @@ const NAV = [
       { to: "/tools/name", label: "영문 이름 변환기" },
       { to: "/tools/address", label: "영문 주소 변환기" },
       { to: "/tools/qr", label: "QR코드 생성기" },
-      { to: "/tools/requests", label: "도구 요청 게시판" },
     ],
   },
   { to: "/news", label: "뉴스" },

@@ -42,7 +42,6 @@ const CUSTOMERS = {
     customerNo: "841023391",
     name: "김우디",
     age: "52세",
-    profile: "제조·도매업 대표 · 사업 20년차",
     jonghap: {
       taxYear: 2025,
       isTarget: true,
@@ -99,7 +98,6 @@ const CUSTOMERS = {
     customerNo: "772501180",
     name: "이단디",
     age: "48세",
-    profile: "맞벌이 근로소득자 · 총급여 6천만원대",
     jonghap: {
       taxYear: 2025,
       isTarget: false,
@@ -143,7 +141,6 @@ const CUSTOMERS = {
     customerNo: "904176624",
     name: "박똑디",
     age: "59세",
-    profile: "소매점 운영 · 내년 은퇴 준비",
     jonghap: {
       taxYear: 2025,
       isTarget: false,

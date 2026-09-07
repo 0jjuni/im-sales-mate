@@ -18,14 +18,12 @@ const NAV_ITEMS = [
   { id: "name", label: "영문 이름 변환기", icon: UserRound },
   { id: "address", label: "영문 주소 변환기", icon: MapPin },
   { id: "qr", label: "QR코드 생성기", icon: QrCode },
-  { id: "requests", label: "도구 요청", icon: Lightbulb },
 ];
 
 const TOOL_CARDS = [
   { id: "name", label: "영문 이름 변환기", desc: "한글 이름을 여권식 영문 표기로 변환", icon: UserRound },
   { id: "address", label: "영문 주소 변환기", desc: "도로명주소를 영문 표기로 변환", icon: MapPin },
   { id: "qr", label: "QR코드 생성기", desc: "링크를 QR 코드로 만들어 전표 인쇄", icon: QrCode },
-  { id: "requests", label: "도구 요청 게시판", desc: "필요한 도구를 요청·공감으로 모으기", icon: Lightbulb },
 ];
 
 const VALID_PAGES = NAV_ITEMS.map((i) => i.id);
@@ -58,6 +56,20 @@ const UtilityHome = ({ onNavigate }) => (
           </button>
         );
       })}
+    </div>
+
+    {/* 도구 요청 — 찾는 도구가 없으면 여기서 바로 요청 */}
+    <div className="mt-8">
+      <div className="mb-3 flex items-center gap-2.5">
+        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-700">
+          <Lightbulb className="h-[17px] w-[17px]" />
+        </div>
+        <div>
+          <h2 className="text-[15px] font-bold tracking-tight text-slate-900">도구 요청</h2>
+          <p className="text-[11.5px] text-slate-500">찾는 도구가 없나요? 필요한 도구를 요청하고 공감을 모아 보세요</p>
+        </div>
+      </div>
+      <ToolRequestBoard />
     </div>
   </div>
 );
@@ -111,8 +123,6 @@ export default function UtilityApp() {
         <UtilityHome onNavigate={navigate} />
       ) : page === "qr" ? (
         <QrConverter />
-      ) : page === "requests" ? (
-        <ToolRequestBoard />
       ) : page === "address" ? (
         <AddressConverter />
       ) : (
