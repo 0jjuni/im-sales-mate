@@ -568,7 +568,7 @@ function CardEligibilitySection({ no, embedded = false }) {
     return (
       <div className="mt-4">
         <div className="mb-2 flex flex-wrap items-center gap-1.5 text-[12.5px] font-bold text-slate-600">
-          <CreditCard className="h-3.5 w-3.5 text-slate-500" /> 신용카드 발급 요건
+          <CreditCard className="h-3.5 w-3.5 text-slate-500" /> 개인 신용카드 발급 요건
           <span className="font-normal text-slate-400">넥스피아 4요건 · 실제 발급은 계정계 심사</span>
         </div>
         {inner}
@@ -578,7 +578,7 @@ function CardEligibilitySection({ no, embedded = false }) {
   return (
     <section>
       <SectionTitle icon={CreditCard} sub="넥스피아 4개 요건으로 발급 가능 여부만 표시 · 실제 발급은 계정계 종합 심사 기준">
-        신용카드 발급 요건
+        개인 신용카드 발급 요건
       </SectionTitle>
       {inner}
     </section>
@@ -783,14 +783,12 @@ function ResultView({ data }) {
         </SectionTitle>
         {strat.제안.length > 0 ? (
           <ol className="space-y-2">
-            {(() => {
-              const firstCardIdx = strat.제안.findIndex((s) => s.cta?.to === "/card");
-              return strat.제안.map((s, i) => (
-                <StrategyItem key={i} item={s}>
-                  {i === firstCardIdx && <CardEligibilitySection no={data.customerNo} embedded />}
-                </StrategyItem>
-              ));
-            })()}
+            {strat.제안.map((s, i) => (
+              <StrategyItem key={i} item={s}>
+                {/* 발급 요건은 개인 신용카드 권유에만 — 개인사업자 기업카드는 요건이 다름 */}
+                {s.key === "cardPersonal" && <CardEligibilitySection no={data.customerNo} embedded />}
+              </StrategyItem>
+            ))}
           </ol>
         ) : (
           <div className={cn(CARD, "px-5 py-6 text-center text-[12.5px] text-slate-400")}>

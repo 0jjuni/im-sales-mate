@@ -447,6 +447,7 @@ export function deriveStrategy(data, manual) {
         group: "제안",
         tag: "판매 기회",
         kind: "sell",
+        key: p.key,
         title: `${cleanLabel(SOURCES[p.key]?.label ?? p.key)} 신규 가입 권유`,
         detail: p.note,
         cta: p.cta,
