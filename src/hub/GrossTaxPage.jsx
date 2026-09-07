@@ -191,6 +191,62 @@ const ManualControl = ({ field, manual, set }) => {
   return null;
 };
 
+/* 상담 중 확인한 값 표시·수정 — 확인란은 답하면 인라인에서 사라지지만,
+   여기 요약 칩으로 남겨 언제든 변경·지울 수 있게 한다(지우면 원래 질문이 다시 나타남). */
+const CONFIRM_FIELDS = ["incomeType", "homeless", "salaryUnder7000", "nontaxQual"];
+const confirmDisplay = (f, v) => {
+  if (v == null) return null;
+  if (f === "homeless" || f === "salaryUnder7000") return v ? "예" : "아니오";
+  return v;
+};
+
+const ConfirmedChips = ({ manual, onChange }) => {
+  const [editing, setEditing] = useState(null);
+  const set = (k, v) => onChange({ ...manual, [k]: v });
+  const answered = CONFIRM_FIELDS.filter((f) => manual[f] != null);
+  if (answered.length === 0) return null;
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+      <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+        <MessageSquareText className="h-3 w-3" />
+        상담 중 확인한 항목
+        <span className="font-normal text-slate-400">잘못 골랐다면 변경·지우기로 수정하세요</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {answered.map((f) =>
+          editing === f ? (
+            <div key={f} className="flex flex-wrap items-center gap-2 rounded-lg border border-im-300 bg-white px-2.5 py-2">
+              <span className="text-[11px] font-semibold text-slate-500">{FIELD_LABEL[f]}</span>
+              <ManualControl
+                field={f}
+                manual={manual}
+                set={(k, v) => {
+                  set(k, v);
+                  setEditing(null);
+                }}
+              />
+              <button onClick={() => setEditing(null)} className="rounded px-1.5 py-1 text-[11px] font-semibold text-slate-400 hover:text-slate-600">
+                취소
+              </button>
+            </div>
+          ) : (
+            <div key={f} className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white py-1 pl-2.5 pr-1.5">
+              <span className="text-[11px] text-slate-500">{FIELD_LABEL[f]}</span>
+              <span className="text-[12px] font-bold text-slate-800">{confirmDisplay(f, manual[f])}</span>
+              <button onClick={() => setEditing(f)} className="rounded px-1.5 py-0.5 text-[11px] font-semibold text-im-600 hover:bg-im-50">
+                변경
+              </button>
+              <button onClick={() => set(f, null)} aria-label="지우기" className="rounded p-0.5 text-slate-300 hover:bg-slate-100 hover:text-slate-500">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  );
+};
+
 /* 개인 신용카드 맥락에서 접어 쓰는 소득공제 계산 — 별도 섹션 대신 카드/제안 안에서 활용 */
 const CardDeductionCollapsible = () => (
   <details className="group mt-2.5">
@@ -583,7 +639,6 @@ function CardEligibilitySection({ no, embedded = false }) {
       <div className="mt-4">
         <div className="mb-2 flex flex-wrap items-center gap-1.5 text-[12.5px] font-bold text-slate-600">
           <CreditCard className="h-3.5 w-3.5 text-slate-500" /> 개인 신용카드 발급 요건
-          <span className="font-normal text-slate-400">넥스피아 4요건 · 실제 발급은 계정계 심사</span>
         </div>
         {inner}
       </div>
@@ -591,7 +646,7 @@ function CardEligibilitySection({ no, embedded = false }) {
 
   return (
     <section>
-      <SectionTitle icon={CreditCard} sub="넥스피아 4개 요건으로 발급 가능 여부만 표시 · 실제 발급은 계정계 종합 심사 기준">
+      <SectionTitle icon={CreditCard} sub="요건별 발급 가능 여부">
         개인 신용카드 발급 요건
       </SectionTitle>
       {inner}
@@ -761,6 +816,8 @@ function ResultView({ data }) {
       <VerdictBanner data={data} />
 
       {j.isTarget && <GuidanceForTarget data={data} />}
+
+      <ConfirmedChips manual={manual} onChange={setManual} />
 
       {strat.진단.length > 0 && (
         <ol className="space-y-2">
