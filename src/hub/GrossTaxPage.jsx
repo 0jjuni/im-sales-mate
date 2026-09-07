@@ -283,7 +283,7 @@ const ManualField = ({ label, hint, children }) => (
 );
 
 /* 상담 시 확인하는 값 — 소득 유형·무주택 세대주·비과세종합저축 자격 */
-const ManualPanel = ({ manual, onChange }) => {
+const ManualPanel = ({ manual, onChange, autoIncome = false }) => {
   const set = (k, v) => onChange({ ...manual, [k]: v });
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-3.5">
@@ -292,7 +292,7 @@ const ManualPanel = ({ manual, onChange }) => {
         고객에게 확인
       </div>
       <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
-        <ManualField label="소득 유형" hint="노란우산·연금·기업카드 자격 판단">
+        <ManualField label="소득 유형" hint={autoIncome ? "노란우산 보유 → 개인사업자 자동 분류" : "노란우산·연금·기업카드 자격 판단"}>
           <div className="flex flex-wrap gap-1">
             {INCOME_TYPES.map((t) => (
               <SegBtn key={t} active={manual.incomeType === t} onClick={() => set("incomeType", t)}>
@@ -613,10 +613,13 @@ const GuidanceForTarget = ({ data }) => (
 /* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
 function ResultView({ data }) {
   const j = data.jonghap;
-  /* 값을 미리 고정하지 않고 미확인으로 시작 — 상담하며 채운다 */
-  const blankManual = { incomeType: null, homeless: null, salaryUnder7000: null, nontaxQual: null };
-  const [manual, setManual] = useState(blankManual);
-  useEffect(() => setManual(blankManual), [data.customerNo]);
+  /* 노란우산공제(소기업·소상공인 전용) 보유 = 개인사업자로 자동 분류 */
+  const noranHeld = data.products.some((p) => p.key === "noran" && p.held);
+  /* 값을 미리 고정하지 않고 미확인으로 시작 — 상담하며 채운다.
+     단, 노란우산 보유면 소득 유형은 개인사업자로 자동 채운다. */
+  const initialManual = { incomeType: noranHeld ? "개인사업자" : null, homeless: null, salaryUnder7000: null, nontaxQual: null };
+  const [manual, setManual] = useState(initialManual);
+  useEffect(() => setManual(initialManual), [data.customerNo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const restricted = j.isTarget || j.restrictedByHistory;
   const products = data.products.map((p) => viewProduct(p, manual, restricted));
@@ -648,7 +651,7 @@ function ResultView({ data }) {
 
   return (
     <div className="space-y-6">
-      <ManualPanel manual={manual} onChange={setManual} />
+      <ManualPanel manual={manual} onChange={setManual} autoIncome={noranHeld} />
 
       <div className="flex justify-end">
         <button
