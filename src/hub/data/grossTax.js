@@ -267,26 +267,16 @@ export function viewProduct(product, manual, restricted = false) {
   }
 
   if (product.key === "housing") {
-    if (incomeType == null || homeless == null || salaryUnder7000 == null) {
+    /* 이미 보유(활용)면 권유 대상이 아니므로 소득공제 여부는 캐묻지 않고 유지 상태만 표시 */
+    if (product.held) {
       return {
         ...product,
         state: "active",
-        metrics: [{ label: "월 납입", value: product.monthly || "10만원" }, { label: "소득공제", value: "확인 필요" }],
-        note: "소득 유형·무주택 세대주·총급여(7천만원 이하)를 확인하세요.",
+        metrics: [{ label: "월 납입", value: product.monthly || "10만원" }],
+        note: "주택청약 유지 중 (청약 자격 유지).",
       };
     }
-    const deductible = incomeType === "근로소득자" && homeless && salaryUnder7000;
-    return {
-      ...product,
-      state: "active",
-      metrics: [
-        { label: "월 납입", value: product.monthly || "10만원" },
-        { label: "소득공제", value: deductible ? "대상(무주택·총급여 7천↓)" : "대상 아님" },
-      ],
-      note: deductible
-        ? "무주택 세대주 근로자(총급여 7천만원 이하) 소득공제 대상. 유지 권장."
-        : "청약 자격 유지 목적. 소득공제는 무주택·근로·총급여 7천만원 이하만.",
-    };
+    return { ...product, state: "none", metrics: [{ label: "월 납입", value: product.monthly || "—" }], note: "주택청약 미보유." };
   }
 
   if (product.key === "cardPersonal") {
@@ -435,8 +425,9 @@ export function deriveStrategy(data, manual) {
       group: "진단",
       tag: "확인",
       kind: "prompt",
+      manualField: "incomeType",
       title: "소득 유형을 확인하면 제안이 완성됩니다",
-      detail: "근로/사업 여부에 따라 노란우산·주택청약·세액공제 제안이 달라집니다. 위 「고객에게 확인」에서 선택하세요.",
+      detail: "근로/사업 여부에 따라 노란우산·연금·기업카드 제안이 달라집니다. 아래에서 선택하세요.",
     });
   }
 

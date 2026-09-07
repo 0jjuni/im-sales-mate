@@ -152,9 +152,6 @@ const VerdictBanner = ({ data }) => {
    그 상품 카드에서 필요한 것만 인라인으로 물어본다. 채우면 사라진다(전역 manual 공유). */
 const PRODUCT_MANUAL_NEEDS = {
   nontaxSavings: ["nontaxQual"],
-  noran: ["incomeType"],
-  housing: ["incomeType", "homeless", "salaryUnder7000"],
-  cardBiz: ["incomeType"],
 };
 const FIELD_LABEL = {
   incomeType: "소득 유형",
@@ -193,6 +190,20 @@ const ManualControl = ({ field, manual, set }) => {
     );
   return null;
 };
+
+/* 개인 신용카드 맥락에서 접어 쓰는 소득공제 계산 — 별도 섹션 대신 카드/제안 안에서 활용 */
+const CardDeductionCollapsible = () => (
+  <details className="group mt-2.5">
+    <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-md bg-slate-50 px-3 py-2 text-[12px] font-bold text-slate-600 transition-colors hover:bg-slate-100">
+      <BadgePercent className="h-3.5 w-3.5 text-slate-500" /> 신용카드 소득공제 계산
+      <span className="font-normal text-slate-400">총급여 기준 최저사용금액</span>
+      <ChevronDown className="ml-auto h-3.5 w-3.5 text-slate-400 transition-transform group-open:rotate-180" />
+    </summary>
+    <div className="mt-2">
+      <CardDeductionGuide />
+    </div>
+  </details>
+);
 
 const ProductCard = ({ product, manual, onManual }) => {
   const src = SOURCES[product.key];
@@ -268,6 +279,9 @@ const ProductCard = ({ product, manual, onManual }) => {
           ))}
         </div>
       )}
+
+      {/* 개인 신용카드 보유·활용 중이면 소득공제 계산을 여기서 바로 */}
+      {product.key === "cardPersonal" && product.held && <CardDeductionCollapsible />}
 
       {product.cta && (
         <Link
@@ -751,7 +765,13 @@ function ResultView({ data }) {
       {strat.진단.length > 0 && (
         <ol className="space-y-2">
           {strat.진단.map((s, i) => (
-            <StrategyItem key={i} item={s} />
+            <StrategyItem key={i} item={s}>
+              {s.manualField === "incomeType" && (
+                <div className="mt-2">
+                  <ManualControl field="incomeType" manual={manual} set={(k, v) => setManual({ ...manual, [k]: v })} />
+                </div>
+              )}
+            </StrategyItem>
           ))}
         </ol>
       )}
@@ -785,8 +805,13 @@ function ResultView({ data }) {
           <ol className="space-y-2">
             {strat.제안.map((s, i) => (
               <StrategyItem key={i} item={s}>
-                {/* 발급 요건은 개인 신용카드 권유에만 — 개인사업자 기업카드는 요건이 다름 */}
-                {s.key === "cardPersonal" && <CardEligibilitySection no={data.customerNo} embedded />}
+                {/* 개인 신용카드 권유: 발급 요건 + 소득공제 계산을 이 안에서 */}
+                {s.key === "cardPersonal" && (
+                  <>
+                    <CardEligibilitySection no={data.customerNo} embedded />
+                    <CardDeductionCollapsible />
+                  </>
+                )}
               </StrategyItem>
             ))}
           </ol>
@@ -811,14 +836,7 @@ function ResultView({ data }) {
         </section>
       )}
 
-      {/* 5) 참고 — 계산 도구·이 고객 메모·자료 */}
-      <section>
-        <SectionTitle icon={BadgePercent} sub="총급여를 입력하면 소득공제 최저사용금액을 계산합니다">
-          신용카드 소득공제
-        </SectionTitle>
-        <CardDeductionGuide />
-      </section>
-
+      {/* 5) 참고 — 이 고객 메모·자료 */}
       <CustomerFollowups no={data.customerNo} />
 
       <ReferenceGuide />
