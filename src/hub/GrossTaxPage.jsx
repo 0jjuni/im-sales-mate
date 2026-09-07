@@ -148,8 +148,56 @@ const VerdictBanner = ({ data }) => {
   );
 };
 
-const ProductCard = ({ product }) => {
+/* 각 상품이 상태 판단에 필요로 하는 확인 항목 — 상단에서 한꺼번에 캐묻지 않고
+   그 상품 카드에서 필요한 것만 인라인으로 물어본다. 채우면 사라진다(전역 manual 공유). */
+const PRODUCT_MANUAL_NEEDS = {
+  nontaxSavings: ["nontaxQual"],
+  noran: ["incomeType"],
+  housing: ["incomeType", "homeless", "salaryUnder7000"],
+  cardBiz: ["incomeType"],
+};
+const FIELD_LABEL = {
+  incomeType: "소득 유형",
+  homeless: "무주택 세대주",
+  salaryUnder7000: "총급여 7천만원 이하",
+  nontaxQual: "비과세종합저축 자격",
+};
+
+const ManualControl = ({ field, manual, set }) => {
+  if (field === "incomeType")
+    return (
+      <div className="flex flex-wrap gap-1">
+        {INCOME_TYPES.map((t) => (
+          <SegBtn key={t} active={manual.incomeType === t} onClick={() => set("incomeType", t)}>
+            {t}
+          </SegBtn>
+        ))}
+      </div>
+    );
+  if (field === "homeless") return <YesNo value={manual.homeless} onChange={(v) => set("homeless", v)} />;
+  if (field === "salaryUnder7000") return <YesNo value={manual.salaryUnder7000} onChange={(v) => set("salaryUnder7000", v)} />;
+  if (field === "nontaxQual")
+    return (
+      <select
+        value={manual.nontaxQual ?? ""}
+        onChange={(e) => set("nontaxQual", e.target.value || null)}
+        className="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 focus:border-im-500 focus:outline-none"
+      >
+        <option value="">선택</option>
+        {NONTAX_QUALS.map((q) => (
+          <option key={q} value={q}>
+            {q}
+          </option>
+        ))}
+      </select>
+    );
+  return null;
+};
+
+const ProductCard = ({ product, manual, onManual }) => {
   const src = SOURCES[product.key];
+  const set = (k, v) => onManual({ ...manual, [k]: v });
+  const needs = (PRODUCT_MANUAL_NEEDS[product.key] || []).filter((f) => manual[f] == null);
   const st = PRODUCT_STATE[product.state];
   const cls = STATE_CLASS[st.tone];
   const sell = st.sell;
@@ -206,6 +254,21 @@ const ProductCard = ({ product }) => {
         </p>
       )}
 
+      {needs.length > 0 && (
+        <div className="mt-2.5 space-y-2 rounded-lg border border-dashed border-slate-300 bg-slate-50/70 p-2.5">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+            <MessageSquareText className="h-3 w-3" />
+            고객에게 확인
+          </div>
+          {needs.map((f) => (
+            <div key={f}>
+              <div className="mb-1 text-[11px] font-semibold text-slate-600">{FIELD_LABEL[f]}</div>
+              <ManualControl field={f} manual={manual} set={set} />
+            </div>
+          ))}
+        </div>
+      )}
+
       {product.cta && (
         <Link
           to={product.cta.to}
@@ -227,7 +290,7 @@ const STRATEGY_KIND = {
   prompt: { wrap: "border-dashed border-slate-300 bg-slate-50/60", icon: Info, iconColor: "text-slate-400", tag: "bg-slate-100 text-slate-500" },
 };
 
-const StrategyItem = ({ item }) => {
+const StrategyItem = ({ item, children }) => {
   const k = STRATEGY_KIND[item.kind] || STRATEGY_KIND.action;
   const Icon = k.icon;
   return (
@@ -248,6 +311,7 @@ const StrategyItem = ({ item }) => {
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         )}
+        {children}
       </div>
     </li>
   );
@@ -454,14 +518,10 @@ function DepositSection({ data }) {
 
 /* 신용카드 발급 요건 — 넥스피아 4개 요건으로 「이 요건으로 발급 가능한지」만 표시.
    실제 발급은 계정계 종합 심사 기준이며, 여기선 요건별 가능/불가만 보여 준다. */
-function CardEligibilitySection({ no }) {
+function CardEligibilitySection({ no, embedded = false }) {
   const e = queryEligibility(no);
   if (!e) return null;
-  return (
-    <section>
-      <SectionTitle icon={CreditCard} sub="넥스피아 4개 요건으로 발급 가능 여부만 표시 · 실제 발급은 계정계 종합 심사 기준">
-        신용카드 발급 요건
-      </SectionTitle>
+  const inner = (
       <div className={cn(CARD, "overflow-hidden")}>
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
           <span className="text-[12.5px] font-semibold text-slate-500">발급 요건 조회 (4종)</span>
@@ -502,6 +562,25 @@ function CardEligibilitySection({ no }) {
           ))}
         </ul>
       </div>
+  );
+
+  if (embedded)
+    return (
+      <div className="mt-4">
+        <div className="mb-2 flex flex-wrap items-center gap-1.5 text-[12.5px] font-bold text-slate-600">
+          <CreditCard className="h-3.5 w-3.5 text-slate-500" /> 신용카드 발급 요건
+          <span className="font-normal text-slate-400">넥스피아 4요건 · 실제 발급은 계정계 심사</span>
+        </div>
+        {inner}
+      </div>
+    );
+
+  return (
+    <section>
+      <SectionTitle icon={CreditCard} sub="넥스피아 4개 요건으로 발급 가능 여부만 표시 · 실제 발급은 계정계 종합 심사 기준">
+        신용카드 발급 요건
+      </SectionTitle>
+      {inner}
     </section>
   );
 }
@@ -627,6 +706,9 @@ function ResultView({ data }) {
   const sortedProducts = [...products].sort(
     (a, b) => (PRODUCT_STATE[b.state].sell ? 1 : 0) - (PRODUCT_STATE[a.state].sell ? 1 : 0)
   );
+  /* 상품 활용 현황 = 실제 보유·사용 중인 상품만. 미보유·권유(recommend)는 「맞춤 상품 제안」으로 분리 */
+  const HELD_STATES = ["active", "available", "restricted"];
+  const heldProducts = sortedProducts.filter((p) => p.held === true || HELD_STATES.includes(p.state));
   const strategy = deriveStrategy(data, manual);
   /* 전략을 성격별로 분리해 각 섹션에 배치(진단→상단, 제안→상품 옆, 분산→하단) */
   const strat = {
@@ -651,8 +733,6 @@ function ResultView({ data }) {
 
   return (
     <div className="space-y-6">
-      <ManualPanel manual={manual} onChange={setManual} autoIncome={noranHeld} />
-
       <div className="flex justify-end">
         <button
           onClick={handlePrint}
@@ -676,35 +756,48 @@ function ResultView({ data }) {
         </ol>
       )}
 
-      {/* 2) 핵심 — 상품 활용 현황 · 제안 */}
+      {/* 2) 보유 현황 — 실제 활용 중인 상품 + 예금·수신 */}
       <section>
-        <SectionTitle icon={Layers} sub="당행 보유 기준입니다. 미보유 상품은 가입을 권유하세요">
+        <SectionTitle icon={Layers} sub="고객이 지금 보유·활용 중인 상품과 활용도 (당행 보유 기준)">
           상품 활용 현황
         </SectionTitle>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {sortedProducts.map((p) => (
-            <ProductCard key={p.key} product={p} />
-          ))}
-        </div>
+        {heldProducts.length > 0 ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {heldProducts.map((p) => (
+              <ProductCard key={p.key} product={p} manual={manual} onManual={setManual} />
+            ))}
+          </div>
+        ) : (
+          <div className={cn(CARD, "px-5 py-8 text-center text-[12.5px] text-slate-400")}>
+            당행 보유·활용 중인 절세 상품이 없습니다. 아래 「맞춤 상품 제안」에서 가입을 권유하세요.
+          </div>
+        )}
       </section>
 
-      {strat.제안.length > 0 && (
-        <section>
-          <SectionTitle icon={Sparkles} sub="바로 권유·제안할 수 있는 판매 기회">
-            맞춤 상품 제안
-          </SectionTitle>
-          <ol className="space-y-2">
-            {strat.제안.map((s, i) => (
-              <StrategyItem key={i} item={s} />
-            ))}
-          </ol>
-        </section>
-      )}
-
-      {/* 3) 보유 자산 · 거래 */}
       <DepositSection data={data} />
 
-      <CardEligibilitySection no={data.customerNo} />
+      {/* 3) 핵심 — 맞춤 상품 제안 (판매 기회 + 신용카드 발급 요건) */}
+      <section>
+        <SectionTitle icon={Sparkles} sub="바로 권유·제안할 수 있는 판매 기회">
+          맞춤 상품 제안
+        </SectionTitle>
+        {strat.제안.length > 0 ? (
+          <ol className="space-y-2">
+            {(() => {
+              const firstCardIdx = strat.제안.findIndex((s) => s.cta?.to === "/card");
+              return strat.제안.map((s, i) => (
+                <StrategyItem key={i} item={s}>
+                  {i === firstCardIdx && <CardEligibilitySection no={data.customerNo} embedded />}
+                </StrategyItem>
+              ));
+            })()}
+          </ol>
+        ) : (
+          <div className={cn(CARD, "px-5 py-6 text-center text-[12.5px] text-slate-400")}>
+            위 상품 활용 현황에서 확인 항목을 채우면 맞춤 제안이 나타납니다.
+          </div>
+        )}
+      </section>
 
       {/* 4) 소득 분산 · 이연 */}
       {strat.분산.length > 0 && (
