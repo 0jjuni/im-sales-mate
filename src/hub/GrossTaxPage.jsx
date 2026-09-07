@@ -860,12 +860,13 @@ const GuidanceForTarget = ({ data }) => (
 /* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
 function ResultView({ data }) {
   const j = data.jonghap;
-  /* 소득 유형 자동 분류: 노란우산(소기업·소상공인 전용) 보유 = 개인사업자,
+  /* 소득 유형 자동 분류: 노란우산(소기업·소상공인 전용) 보유 또는 가맹점 결제계좌 보유 = 개인사업자,
      그다음 카드 발급 요건의 '급여 소득자'가 충족되면 = 근로소득자(급여 입금 확인됨).
      둘 다 아니면 미확인으로 두고 상담하며 채운다. */
   const noranHeld = data.products.some((p) => p.key === "noran" && p.held);
+  const hasMerchant = !!data.merchantSettlement?.bank;
   const salaryEarner = queryEligibility(data.customerNo)?.requirements.find((r) => r.id === "salary")?.met;
-  const autoIncome = noranHeld ? "개인사업자" : salaryEarner ? "근로소득자" : null;
+  const autoIncome = noranHeld || hasMerchant ? "개인사업자" : salaryEarner ? "근로소득자" : null;
   const initialManual = { incomeType: autoIncome, homeless: null, salaryUnder7000: null, nontaxQual: null };
   const [manual, setManual] = useState(initialManual);
   useEffect(() => setManual(initialManual), [data.customerNo]); // eslint-disable-line react-hooks/exhaustive-deps

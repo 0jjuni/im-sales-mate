@@ -140,7 +140,7 @@ const CUSTOMERS = {
         metrics: [{ label: "비과세 한도(서민형)", value: "400만원", strong: true }],
         note: "비대상·가입 제한 없음 → 서민형 ISA로 순이익 비과세. 대표 판매 기회.",
       },
-      { key: "housing", held: true, monthly: "10만원" },
+      { key: "housing", held: false },
       { key: "noran", held: false },
       { key: "cardPersonal", held: false },
       { key: "cardBiz", held: false },
@@ -151,6 +151,8 @@ const CUSTOMERS = {
     customerNo: "904176624",
     name: "박똑디",
     age: "59세",
+    /* 가맹점 카드매출 대금을 타행으로 받는 개인사업자 — 결제계좌 당행 전환 유치 대상 */
+    merchantSettlement: { bank: "국민은행", monthlyCardSales: 3200 },
     deposits: [
       { name: "IM주거래우대예금", type: "정기예금", balance: 6000, rate: 3.3, maturityInDays: 40, maturityAction: "자동해지" },
       { name: "The드림 정기예금", type: "정기예금", balance: 4000, rate: 3.5, maturityInDays: 8, maturityAction: "자동재예치" },
@@ -183,7 +185,7 @@ const CUSTOMERS = {
         note: "직전 3년 대상 이력(2023) → 재가입·연장 및 신규 비과세상품 가입 제한.",
       },
       { key: "housing", held: true, monthly: "10만원" },
-      { key: "noran", held: true, monthly: "10만원" },
+      { key: "noran", held: false },
       {
         key: "cardPersonal",
         held: true,
@@ -274,6 +276,14 @@ export function viewProduct(product, manual, restricted = false) {
         state: "active",
         metrics: [{ label: "월 납입", value: product.monthly || "10만원" }],
         note: "주택청약 유지 중 (청약 자격 유지).",
+      };
+    }
+    if (incomeType === "근로소득자") {
+      return {
+        ...product,
+        state: "recommend",
+        metrics: [{ label: "혜택", value: "납입액 40% 소득공제", strong: true }],
+        note: "무주택 세대주·총급여 7천만원 이하 근로소득자는 주택청약 납입액의 40%를 소득공제(연 300만원 한도)받습니다. 내 집 마련과 절세를 함께 권유하세요.",
       };
     }
     return { ...product, state: "none", metrics: [{ label: "월 납입", value: product.monthly || "—" }], note: "주택청약 미보유." };
@@ -420,6 +430,20 @@ export function deriveStrategy(data, manual) {
     });
   }
 
+  /* 자동재예치 + 만기 임박 = 그냥 두면 저금리 재예치 → 상단 진단에 알림 */
+  const autoRollNear = (data.deposits || []).filter((d) => d.maturityInDays <= 30 && d.maturityAction === "자동재예치");
+  if (autoRollNear.length > 0) {
+    const sum = autoRollNear.reduce((s, d) => s + (d.balance || 0), 0);
+    items.push({
+      group: "진단",
+      tag: "만기 임박",
+      kind: "warn",
+      title: `자동재예치 임박 자금 ${autoRollNear.length}건 · ${won(sum)}만원`,
+      detail:
+        "만기가 임박했는데 자동재예치로 설정돼 있어 그대로 두면 저금리로 다시 묶입니다. 만기 처리를 바꾸고, 예치 기간에 맞는 상품(ISA·저축성보험 등)으로 이전하도록 상담하세요. 아래 「예금·수신 만기 관리」에서 확인하세요.",
+    });
+  }
+
   if (!incomeType) {
     items.push({
       group: "진단",
@@ -482,6 +506,20 @@ export function deriveStrategy(data, manual) {
         ? "가입 제한이 없는 소득공제(노란우산)·세액공제(IRP·연금저축)로 절세를 확보하게 하세요. 사업소득 규모에 맞춰 부금 증액을 제안합니다."
         : "IRP·연금저축 세액공제(합산 900만원 한도)로 종합소득세 부담을 줄이도록 제안하세요.",
       cta: { to: "/pension", label: "연금 세액공제 계산" },
+    });
+  }
+
+  /* 개인사업자가 카드매출 대금을 타행으로 받고 있으면 결제계좌 당행 전환(주거래 유치) 제안 */
+  if (data.merchantSettlement?.bank) {
+    const m = data.merchantSettlement;
+    items.push({
+      group: "제안",
+      tag: "주거래 전환",
+      kind: "sell",
+      title: "가맹점 카드매출 입금계좌 당행 전환",
+      detail: `카드 매출대금을 ${m.bank}(타행)로 받고 있습니다${
+        m.monthlyCardSales ? ` (월 카드매출 약 ${won(m.monthlyCardSales)}만원)` : ""
+      }. 입금계좌를 당행으로 전환하면 매출대금 유치·이체수수료 우대에 더해, 매출 데이터 기반 사업자 여신까지 주거래로 묶을 수 있습니다.`,
     });
   }
 
