@@ -375,10 +375,15 @@ const StrategyItem = ({ item, children }) => {
         {item.cta && (
           <Link
             to={item.cta.to}
-            className="mt-2 inline-flex items-center gap-1 rounded-md border border-im-300 bg-white px-2.5 py-1 text-[11.5px] font-bold text-im-700 transition-colors hover:bg-im-50"
+            className={cn(
+              "mt-2.5 inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-[13px] font-bold shadow-sm transition-colors",
+              item.kind === "sell"
+                ? "bg-im-600 text-white hover:bg-im-700"
+                : "border border-im-300 bg-white text-im-700 hover:bg-im-50"
+            )}
           >
             {item.cta.label}
-            <ArrowRight className="h-3.5 w-3.5" />
+            <ArrowRight className="h-4 w-4" />
           </Link>
         )}
         {children}
@@ -761,11 +766,13 @@ const GuidanceForTarget = ({ data }) => (
 /* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
 function ResultView({ data }) {
   const j = data.jonghap;
-  /* 노란우산공제(소기업·소상공인 전용) 보유 = 개인사업자로 자동 분류 */
+  /* 소득 유형 자동 분류: 노란우산(소기업·소상공인 전용) 보유 = 개인사업자,
+     그다음 카드 발급 요건의 '급여 소득자'가 충족되면 = 근로소득자(급여 입금 확인됨).
+     둘 다 아니면 미확인으로 두고 상담하며 채운다. */
   const noranHeld = data.products.some((p) => p.key === "noran" && p.held);
-  /* 값을 미리 고정하지 않고 미확인으로 시작 — 상담하며 채운다.
-     단, 노란우산 보유면 소득 유형은 개인사업자로 자동 채운다. */
-  const initialManual = { incomeType: noranHeld ? "개인사업자" : null, homeless: null, salaryUnder7000: null, nontaxQual: null };
+  const salaryEarner = queryEligibility(data.customerNo)?.requirements.find((r) => r.id === "salary")?.met;
+  const autoIncome = noranHeld ? "개인사업자" : salaryEarner ? "근로소득자" : null;
+  const initialManual = { incomeType: autoIncome, homeless: null, salaryUnder7000: null, nontaxQual: null };
   const [manual, setManual] = useState(initialManual);
   useEffect(() => setManual(initialManual), [data.customerNo]); // eslint-disable-line react-hooks/exhaustive-deps
 
