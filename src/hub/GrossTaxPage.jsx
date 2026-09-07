@@ -537,56 +537,151 @@ function DepositSection({ data }) {
   const near = rows.filter((d) => d.maturityInDays <= NEAR_DAYS);
   const nearTotal = near.reduce((s, d) => s + (d.balance || 0), 0);
   const restricted = data.jonghap.isTarget || data.jonghap.restrictedByHistory;
+  const total = rows.reduce((s, d) => s + (d.balance || 0), 0);
+  const [horizon, setHorizon] = useState(null); // 만기 자금 예치 가능 기간: short/mid/long
 
   return (
     <section>
-      <SectionTitle icon={Landmark} sub="정기예금·적금 만기·금리를 관리하고, 만기 임박 자금은 다른 상품으로 연계하세요">
+      <SectionTitle icon={Landmark} sub="정기예금·적금 만기·금리·만기처리를 관리하고, 만기 임박 자금은 예치 기간에 맞는 상품으로 연계하세요">
         예금·수신 만기 관리
       </SectionTitle>
       <div className={cn(CARD, "overflow-hidden")}>
-        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-3 border-b border-slate-100 bg-slate-50/70 px-4 py-2 text-[11px] font-semibold text-slate-400">
-          <span>상품</span>
-          <span className="text-right">잔액</span>
-          <span className="text-right">금리</span>
-          <span className="text-right">만기</span>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[640px] border-collapse text-left">
+            <thead>
+              <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-semibold text-slate-400">
+                <th className="px-4 py-2.5 font-semibold">상품</th>
+                <th className="px-4 py-2.5 text-right font-semibold">잔액</th>
+                <th className="px-4 py-2.5 text-right font-semibold">금리</th>
+                <th className="px-4 py-2.5 text-right font-semibold">만기일</th>
+                <th className="px-4 py-2.5 text-right font-semibold">잔여기간</th>
+                <th className="px-4 py-2.5 text-right font-semibold">만기처리</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {rows.map((d, i) => {
+                const isNear = d.maturityInDays <= NEAR_DAYS;
+                const autoRoll = d.maturityAction === "자동재예치";
+                return (
+                  <tr key={i} className={cn(isNear && "bg-amber-50/40")}>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span className="text-[13px] font-bold text-slate-800">{d.name || d.type}</span>
+                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">{d.type}</span>
+                        {isNear && (
+                          <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">만기 임박</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-right text-[13px] font-semibold tabular-nums text-slate-900">
+                      {d.balance.toLocaleString()}만원
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-right text-[12.5px] tabular-nums text-slate-600">{d.rate.toFixed(1)}%</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-right text-[12.5px] tabular-nums text-slate-600">{matDateStr(d.maturityInDays)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-right">
+                      <span
+                        className={cn(
+                          "inline-block rounded px-1.5 py-0.5 text-[11px] font-bold tabular-nums",
+                          isNear ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-500"
+                        )}
+                      >
+                        {ddayLabel(d.maturityInDays)}
+                      </span>
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-right">
+                      <span
+                        className={cn(
+                          "inline-block rounded px-1.5 py-0.5 text-[11px] font-semibold",
+                          autoRoll && isNear ? "bg-rose-100 text-rose-700" : "bg-slate-100 text-slate-500"
+                        )}
+                        title={autoRoll && isNear ? "만기 임박 + 자동재예치 — 그냥 두면 저금리로 재예치됩니다" : undefined}
+                      >
+                        {d.maturityAction || "미지정"}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-slate-200 bg-slate-50/70 text-[12px]">
+                <td className="px-4 py-2.5 font-semibold text-slate-500">합계 {rows.length}건</td>
+                <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold tabular-nums text-slate-900">{total.toLocaleString()}만원</td>
+                <td colSpan={4} />
+              </tr>
+            </tfoot>
+          </table>
         </div>
-        <ul className="divide-y divide-slate-100">
-          {rows.map((d, i) => {
-            const isNear = d.maturityInDays <= NEAR_DAYS;
-            return (
-              <li key={i} className={cn("grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-3 px-4 py-3", isNear && "bg-amber-50/40")}>
-                <div className="flex items-center gap-2">
-                  <span className="text-[13px] font-bold text-slate-800">{d.type}</span>
-                  {isNear && (
-                    <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">만기 임박</span>
-                  )}
-                </div>
-                <span className="text-right text-[13px] font-semibold tabular-nums text-slate-900">{d.balance.toLocaleString()}만원</span>
-                <span className="text-right text-[12.5px] tabular-nums text-slate-600">{d.rate.toFixed(1)}%</span>
-                <span className="text-right">
-                  <span className="block text-[12px] tabular-nums text-slate-700">{matDateStr(d.maturityInDays)}</span>
-                  <span className={cn("text-[11px] font-bold tabular-nums", isNear ? "text-amber-700" : "text-slate-400")}>
-                    {ddayLabel(d.maturityInDays)}
-                  </span>
-                </span>
-              </li>
-            );
-          })}
-        </ul>
 
         {near.length > 0 && (
-          <div className="flex flex-wrap items-start gap-2 border-t border-slate-100 bg-im-50/50 px-4 py-3">
-            <ArrowRight className="mt-0.5 h-4 w-4 flex-shrink-0 text-im-600" />
-            <p className="text-[12.5px] leading-relaxed text-slate-700">
-              <span className="font-bold text-im-700">만기 임박 {near.length}건 · 합계 {nearTotal.toLocaleString()}만원</span>{" "}
-              — {restricted
-                ? "재예치 대신 일시납 저축성보험(계약 10년 이상, 비과세)으로 이전해 과세 이자를 비과세 구조로 돌리도록 상담하세요."
-                : "만기 자금을 저축성보험·ISA 등으로 연계해 더 나은 조건으로 재설계하도록 상담하세요."}
-            </p>
+          <div className="border-t border-slate-100 bg-im-50/40 px-4 py-3.5">
+            <div className="flex items-start gap-2">
+              <ArrowRight className="mt-0.5 h-4 w-4 flex-shrink-0 text-im-600" />
+              <div className="min-w-0 flex-1">
+                <p className="text-[12.5px] leading-relaxed text-slate-700">
+                  <span className="font-bold text-im-700">
+                    만기 임박 {near.length}건 · 합계 {nearTotal.toLocaleString()}만원
+                  </span>{" "}
+                  — 만기 후 이 자금을 <b className="text-slate-800">얼마나 더 둘 수 있는지</b> 확인해 예치 기간에 맞는 상품으로 이전하세요.
+                </p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {[
+                    ["short", "3년 미만"],
+                    ["mid", "3~5년"],
+                    ["long", "5년 이상"],
+                  ].map(([k, l]) => (
+                    <SegBtn key={k} active={horizon === k} onClick={() => setHorizon(k)}>
+                      {l}
+                    </SegBtn>
+                  ))}
+                </div>
+                {horizon && <MaturityAdvice horizon={horizon} restricted={restricted} />}
+              </div>
+            </div>
           </div>
         )}
       </div>
     </section>
+  );
+}
+
+/* 만기 자금 예치 기간별 이전 상품 안내 — 3~5년→ISA, 5년+ (해약 없이)→저축성보험(10년 비과세). */
+function MaturityAdvice({ horizon, restricted }) {
+  let title, detail, cta;
+  if (horizon === "short") {
+    title = "단기 — 절세 상품보다 유동성·금리 우선";
+    detail =
+      "ISA(의무 3년)·저축성보험(10년) 모두 의무보유기간이 있어 3년 미만 자금엔 부적합합니다. 특판 정기예금 재예치나 파킹형 상품으로 금리를 비교해 관리하세요.";
+  } else if (horizon === "mid") {
+    if (restricted) {
+      title = "3~5년 — ISA 신규가입 제한 고객, 분리과세 상품으로 대체";
+      detail =
+        "종합과세 대상·이력으로 ISA 신규가입이 제한됩니다. 분리과세형 상품(채권·ELS 등)이나 만기 자금을 나눠 담는 방식으로 과세 이자를 낮추도록 설계하세요.";
+    } else {
+      title = "3~5년 — ISA로 이전";
+      detail =
+        "의무보유 3년인 ISA가 적합합니다. 서민형은 순이익 400만원까지 비과세, 초과분도 9.9% 분리과세라 만기 자금의 예치처로 유리합니다.";
+      cta = { to: "/isa", label: "ISA 상담 시작" };
+    }
+  } else {
+    title = "5년 이상 (해약 없이) — 저축성보험으로 이전";
+    detail =
+      "계약 10년 이상 유지 시 보험차익이 비과세되는 일시납 저축성보험이 적합합니다. 장기간 해약하지 않을 자금이라면 과세되는 예금 이자를 비과세 구조로 돌릴 수 있습니다.";
+  }
+  return (
+    <div className="mt-2.5 rounded-lg border border-im-200 bg-white p-3">
+      <p className="text-[12.5px] font-bold text-im-700">{title}</p>
+      <p className="mt-1 text-[12px] leading-relaxed text-slate-600">{detail}</p>
+      {cta && (
+        <Link
+          to={cta.to}
+          className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-im-300 bg-white px-3 py-1.5 text-[12px] font-bold text-im-700 transition-colors hover:border-im-400 hover:bg-im-50"
+        >
+          {cta.label}
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      )}
+    </div>
   );
 }
 

@@ -44,9 +44,9 @@ const CUSTOMERS = {
     age: "52세",
     /* 당행 보유 예금·수신 — 만기·금리 관리. maturityInDays: 오늘 기준 만기까지 일수(상대값) */
     deposits: [
-      { type: "정기예금", balance: 8000, rate: 3.6, maturityInDays: 18 },
-      { type: "정기예금", balance: 5000, rate: 3.4, maturityInDays: 95 },
-      { type: "적금", balance: 1200, rate: 3.8, maturityInDays: 240 },
+      { name: "IM주거래우대예금", type: "정기예금", balance: 8000, rate: 3.6, maturityInDays: 18, maturityAction: "자동재예치" },
+      { name: "The드림 정기예금", type: "정기예금", balance: 5000, rate: 3.4, maturityInDays: 95, maturityAction: "자동해지" },
+      { name: "내가만든 보너스적금", type: "적금", balance: 1200, rate: 3.8, maturityInDays: 240, maturityAction: "미지정" },
     ],
     jonghap: {
       taxYear: 2025,
@@ -105,8 +105,8 @@ const CUSTOMERS = {
     name: "이단디",
     age: "48세",
     deposits: [
-      { type: "정기예금", balance: 3000, rate: 3.5, maturityInDays: 12 },
-      { type: "적금", balance: 600, rate: 4.0, maturityInDays: 160 },
+      { name: "iM 스마트 정기예금", type: "정기예금", balance: 3000, rate: 3.5, maturityInDays: 12, maturityAction: "자동재예치" },
+      { name: "iM 첫만남 적금", type: "적금", balance: 600, rate: 4.0, maturityInDays: 160, maturityAction: "미지정" },
     ],
     jonghap: {
       taxYear: 2025,
@@ -152,8 +152,8 @@ const CUSTOMERS = {
     name: "박똑디",
     age: "59세",
     deposits: [
-      { type: "정기예금", balance: 6000, rate: 3.3, maturityInDays: 40 },
-      { type: "정기예금", balance: 4000, rate: 3.5, maturityInDays: 8 },
+      { name: "IM주거래우대예금", type: "정기예금", balance: 6000, rate: 3.3, maturityInDays: 40, maturityAction: "자동해지" },
+      { name: "The드림 정기예금", type: "정기예금", balance: 4000, rate: 3.5, maturityInDays: 8, maturityAction: "자동재예치" },
     ],
     jonghap: {
       taxYear: 2025,
