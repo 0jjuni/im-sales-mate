@@ -131,81 +131,54 @@ const PostImages = ({ images }) => (
   </div>
 );
 
-/* 글 카드 — 피드·채널 목록에서 글 하나를 독립된 카드로 뚜렷하게 구분해 보여 준다 */
-const PostCard = ({ post, channel, onOpen, showChannel }) => {
-  const cover = post.images?.[0];
-  return (
-    <button onClick={onOpen} className={cn(CARD_INTERACTIVE, "flex flex-col overflow-hidden text-left")}>
-      {cover && (
-        <div className="border-b border-slate-100 bg-slate-50">
-          <img src={cover} alt="" className="h-40 w-full object-cover" />
-        </div>
-      )}
-      <div className="flex flex-1 flex-col p-4">
-        {showChannel && channel && (
-          <div className="mb-2 flex items-center gap-1.5 text-[11px]">
-            <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} size="sm" className="!h-6 !w-6 rounded-md" />
-            <span className="font-bold text-im-700">{channel.name}</span>
-            <span className="text-slate-300">·</span>
-            <span className="text-slate-400">{fmtWhen(post.createdAt)}</span>
-          </div>
-        )}
-        <h3 className="line-clamp-2 text-[15px] font-bold leading-snug text-slate-900">{post.title}</h3>
-        <p className="mt-1.5 line-clamp-3 flex-1 text-[12.5px] leading-relaxed text-slate-500">{plain(post.body)}</p>
+/* 작성자 이니셜 아바타 — 채널 상세에서 글쓴이를 네이버 블로그 피드처럼 표시 */
+const AuthorAvatar = ({ name }) => (
+  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-600">
+    {(name || "?").trim().charAt(0)}
+  </span>
+);
 
-        {post.tags?.length > 0 && (
-          <div className="mt-2.5 flex flex-wrap gap-1">
-            {post.tags.slice(0, 3).map((t) => (
-              <span key={t} className="rounded-full bg-slate-100 px-2 py-0.5 text-[10.5px] font-semibold text-slate-500">#{t}</span>
-            ))}
-          </div>
-        )}
-
-        <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-2.5 text-[11px] text-slate-400">
-          {!showChannel && (
-            <>
-              <span>{post.author}</span>
-              <span className="text-slate-300">·</span>
-              <span>{fmtWhen(post.createdAt)}</span>
-            </>
-          )}
-          {post.images?.length > 0 && <span className="rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-500">이미지 {post.images.length}</span>}
-          {post.cards?.length > 0 && <span className="rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-500">카드뉴스</span>}
-          <ArrowRight className="ml-auto h-4 w-4 flex-shrink-0 text-slate-300" />
-        </div>
-      </div>
-    </button>
-  );
-};
-
-/* 구독 피드 아이템 — 읽는 스트림이라 가로형 한 줄(단일 컬럼)로. 썸네일은 좌측에 작게. */
-const FeedItem = ({ post, channel, onOpen }) => {
+/* 글 목록 아이템 — 네이버 블로그 피드식.
+   작성자(아바타·이름)·시간·분류 + 제목 + 2줄 미리보기, 우측 썸네일. 단일 컬럼으로 읽는다.
+   showChannel: 구독 피드(여러 채널 혼합)에서는 채널을, 채널 상세에서는 작성자를 앞세운다. */
+const PostListItem = ({ post, channel, onOpen, showChannel }) => {
   const cover = post.images?.[0];
   return (
     <button onClick={onOpen} className={cn(CARD_INTERACTIVE, "flex w-full items-start gap-4 p-4 text-left")}>
-      {cover && (
-        <img src={cover} alt="" className="hidden h-[88px] w-[120px] flex-shrink-0 rounded-lg border border-slate-200 object-cover sm:block" />
-      )}
-      <div className="min-w-0 flex-1">
-        <div className="mb-1 flex items-center gap-1.5 text-[11px]">
-          {channel && <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} size="sm" className="!h-5 !w-5 rounded-md" />}
-          <span className="font-bold text-im-700">{channel?.name}</span>
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* 상단: 작성자/채널 · 시간 + 우측 분류 */}
+        <div className="flex items-center gap-1.5">
+          {showChannel && channel ? (
+            <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} size="sm" className="!h-6 !w-6 rounded-md" />
+          ) : (
+            <AuthorAvatar name={post.author} />
+          )}
+          <span className="truncate text-[12px] font-bold text-slate-700">{showChannel ? channel?.name : post.author}</span>
           <span className="text-slate-300">·</span>
-          <span className="text-slate-400">{fmtWhen(post.createdAt)}</span>
+          <span className="flex-shrink-0 text-[11px] text-slate-400">{fmtWhen(post.createdAt)}</span>
+          {channel?.category && (
+            <span className="ml-auto flex-shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10.5px] font-semibold text-slate-500">
+              {channel.category}
+            </span>
+          )}
         </div>
-        <h3 className="line-clamp-1 text-[15px] font-bold text-slate-900">{post.title}</h3>
+
+        <h3 className="mt-2 line-clamp-1 text-[15.5px] font-bold text-slate-900">{post.title}</h3>
         <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-slate-500">{plain(post.body)}</p>
-        {(post.tags?.length > 0 || post.images?.length > 0 || post.cards?.length > 0) && (
-          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-400">
-            {post.tags?.slice(0, 3).map((t) => (
-              <span key={t} className="rounded-full bg-slate-100 px-2 py-0.5 text-[10.5px] font-semibold text-slate-500">#{t}</span>
-            ))}
-            {post.images?.length > 0 && <span className="rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-500">이미지 {post.images.length}</span>}
-            {post.cards?.length > 0 && <span className="rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-500">카드뉴스</span>}
-          </div>
-        )}
+
+        <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-400">
+          {showChannel && <span className="font-medium text-slate-500">{post.author}</span>}
+          {post.tags?.slice(0, 3).map((t) => (
+            <span key={t} className="rounded-full bg-slate-100 px-2 py-0.5 text-[10.5px] font-semibold text-slate-500">#{t}</span>
+          ))}
+          {post.images?.length > 0 && <span className="rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-500">이미지 {post.images.length}</span>}
+          {post.cards?.length > 0 && <span className="rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-500">카드뉴스</span>}
+        </div>
       </div>
-      <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-slate-300" />
+
+      {cover && (
+        <img src={cover} alt="" className="h-[92px] w-[116px] flex-shrink-0 rounded-lg border border-slate-200 object-cover" />
+      )}
     </button>
   );
 };
@@ -658,7 +631,7 @@ function PostDetail({ post, channel, isMine, onBack, onOpenChannel, onRemove }) 
 
 function ChannelDetail({ channel, posts, subCount, subscribed, onBack, onToggle, onWrite, onOpenPost }) {
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-3xl space-y-4">
       <button onClick={onBack} className="inline-flex items-center gap-1 text-[13px] font-semibold text-slate-500 hover:text-slate-800">
         <ArrowLeft className="h-4 w-4" /> 지식 라이브러리
       </button>
@@ -696,9 +669,9 @@ function ChannelDetail({ channel, posts, subCount, subscribed, onBack, onToggle,
           <p className="mt-1 text-[12px] text-slate-400">첫 글을 올려 구독자에게 발행해 보세요.</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="space-y-3">
           {posts.map((p) => (
-            <PostCard key={p.id} post={p} onOpen={() => onOpenPost(p.id)} showChannel={false} />
+            <PostListItem key={p.id} post={p} channel={channel} onOpen={() => onOpenPost(p.id)} showChannel={false} />
           ))}
         </div>
       )}
@@ -887,7 +860,7 @@ export default function LibraryPage() {
 
             <div className="space-y-3">
               {feed.map((p) => (
-                <FeedItem key={p.id} post={p} channel={lib.channelById(p.channelId)} onOpen={() => openPost(p.id)} />
+                <PostListItem key={p.id} post={p} channel={lib.channelById(p.channelId)} onOpen={() => openPost(p.id)} showChannel />
               ))}
             </div>
           </div>
