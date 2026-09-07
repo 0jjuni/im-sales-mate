@@ -178,34 +178,79 @@ const PostCard = ({ post, channel, onOpen, showChannel }) => {
   );
 };
 
-/* 전체 채널 카드 */
-const ChannelCard = ({ channel, count, subCount, subscribed, latest, onOpen, onToggle }) => (
-  <div className={cn(CARD, "flex flex-col p-4")}>
-    <div className="flex items-start gap-3">
-      <button onClick={onOpen} className="flex min-w-0 flex-1 items-start gap-3 text-left">
-        <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} />
-        <div className="min-w-0">
-          <h3 className="truncate text-[14.5px] font-bold text-slate-900">{channel.name}</h3>
-          <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-slate-400">
-            <span className="rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-500">{channel.category}</span>
-            <DeptTag dept={channel.dept} />
-          </div>
+/* 구독 피드 아이템 — 읽는 스트림이라 가로형 한 줄(단일 컬럼)로. 썸네일은 좌측에 작게. */
+const FeedItem = ({ post, channel, onOpen }) => {
+  const cover = post.images?.[0];
+  return (
+    <button onClick={onOpen} className={cn(CARD_INTERACTIVE, "flex w-full items-start gap-4 p-4 text-left")}>
+      {cover && (
+        <img src={cover} alt="" className="hidden h-[88px] w-[120px] flex-shrink-0 rounded-lg border border-slate-200 object-cover sm:block" />
+      )}
+      <div className="min-w-0 flex-1">
+        <div className="mb-1 flex items-center gap-1.5 text-[11px]">
+          {channel && <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} size="sm" className="!h-5 !w-5 rounded-md" />}
+          <span className="font-bold text-im-700">{channel?.name}</span>
+          <span className="text-slate-300">·</span>
+          <span className="text-slate-400">{fmtWhen(post.createdAt)}</span>
         </div>
-      </button>
-      <SubscribeButton on={subscribed} onClick={onToggle} size="sm" />
+        <h3 className="line-clamp-1 text-[15px] font-bold text-slate-900">{post.title}</h3>
+        <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-slate-500">{plain(post.body)}</p>
+        {(post.tags?.length > 0 || post.images?.length > 0 || post.cards?.length > 0) && (
+          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-400">
+            {post.tags?.slice(0, 3).map((t) => (
+              <span key={t} className="rounded-full bg-slate-100 px-2 py-0.5 text-[10.5px] font-semibold text-slate-500">#{t}</span>
+            ))}
+            {post.images?.length > 0 && <span className="rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-500">이미지 {post.images.length}</span>}
+            {post.cards?.length > 0 && <span className="rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-500">카드뉴스</span>}
+          </div>
+        )}
+      </div>
+      <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-slate-300" />
+    </button>
+  );
+};
+
+/* 전체 채널 카드 — 카드 전체를 누르면 채널로 진입(구독 버튼만 예외) */
+const ChannelCard = ({ channel, count, subCount, subscribed, latest, onOpen, onToggle }) => (
+  <div
+    onClick={onOpen}
+    role="button"
+    tabIndex={0}
+    onKeyDown={(e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        onOpen();
+      }
+    }}
+    className={cn(CARD_INTERACTIVE, "flex cursor-pointer flex-col p-4 hover:border-im-200")}
+  >
+    <div className="flex items-start gap-3">
+      <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} />
+      <div className="min-w-0 flex-1">
+        <h3 className="truncate text-[14.5px] font-bold text-slate-900">{channel.name}</h3>
+        <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-slate-400">
+          <span className="rounded bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-500">{channel.category}</span>
+          <DeptTag dept={channel.dept} />
+        </div>
+      </div>
+      <SubscribeButton
+        on={subscribed}
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggle();
+        }}
+        size="sm"
+      />
     </div>
 
     <p className="mt-3 line-clamp-2 text-[12px] leading-relaxed text-slate-500">{channel.desc}</p>
 
-    <button
-      onClick={onOpen}
-      className="mt-3 flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-left transition-colors hover:bg-slate-100"
-    >
+    <div className="mt-3 flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2">
       <span className="min-w-0 flex-1 truncate text-[12px] font-medium text-slate-600">
         {latest ? latest.title : "아직 올라온 글이 없습니다"}
       </span>
       {latest && <span className="flex-shrink-0 text-[10px] text-slate-400">{fmtWhen(latest.createdAt)}</span>}
-    </button>
+    </div>
 
     <div className="mt-3 flex items-center gap-3 border-t border-slate-100 pt-2.5 text-[11px] text-slate-400">
       <span className="inline-flex items-center gap-1">
@@ -825,7 +870,7 @@ export default function LibraryPage() {
             </button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="mx-auto max-w-3xl space-y-4">
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="text-[11.5px] font-semibold text-slate-400">구독 중</span>
               {subChannels.map((c) => (
@@ -840,9 +885,9 @@ export default function LibraryPage() {
               ))}
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="space-y-3">
               {feed.map((p) => (
-                <PostCard key={p.id} post={p} channel={lib.channelById(p.channelId)} onOpen={() => openPost(p.id)} showChannel />
+                <FeedItem key={p.id} post={p} channel={lib.channelById(p.channelId)} onOpen={() => openPost(p.id)} />
               ))}
             </div>
           </div>
