@@ -367,25 +367,24 @@ const StrategyItem = ({ item, children }) => {
     <li className={cn("flex gap-3 rounded-xl border p-3.5", k.wrap)}>
       <Icon className={cn("mt-0.5 h-4 w-4 flex-shrink-0", k.iconColor)} />
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", k.tag)}>{item.tag}</span>
-          <h4 className="text-[13.5px] font-bold text-slate-900">{item.title}</h4>
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-4">
+          <div className="min-w-0 sm:flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", k.tag)}>{item.tag}</span>
+              <h4 className="text-[13.5px] font-bold text-slate-900">{item.title}</h4>
+            </div>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-slate-600">{item.detail}</p>
+          </div>
+          {item.cta && (
+            <Link
+              to={item.cta.to}
+              className="inline-flex flex-shrink-0 items-center justify-center gap-1.5 self-start rounded-lg border border-im-300 bg-white px-4 py-2.5 text-[13px] font-bold text-im-700 shadow-sm transition-colors hover:border-im-400 hover:bg-im-50 sm:self-auto"
+            >
+              {item.cta.label}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          )}
         </div>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-slate-600">{item.detail}</p>
-        {item.cta && (
-          <Link
-            to={item.cta.to}
-            className={cn(
-              "mt-2.5 inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-[13px] font-bold shadow-sm transition-colors",
-              item.kind === "sell"
-                ? "bg-im-600 text-white hover:bg-im-700"
-                : "border border-im-300 bg-white text-im-700 hover:bg-im-50"
-            )}
-          >
-            {item.cta.label}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        )}
         {children}
       </div>
     </li>

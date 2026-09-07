@@ -485,6 +485,22 @@ export function deriveStrategy(data, manual) {
     });
   }
 
+  /* 여유 예금·수신 자금이 있으면 투자상품(펀드·ETF·신탁)으로 분산·수익 제고 제안.
+     비대상 고객 대상(대상·이력 고객은 아래 소득 분산에서 매매차익 비과세로 별도 안내). */
+  const depositTotal = (data.deposits || []).reduce((s, d) => s + (d.balance || 0), 0);
+  if (depositTotal > 0 && !restricted) {
+    items.push({
+      group: "제안",
+      tag: "투자상품",
+      kind: "action",
+      title: "예금 편중 자금을 펀드·ETF·신탁으로 분산",
+      detail: `예금·수신에 ${won(
+        depositTotal
+      )}만원이 묶여 있습니다. 일부를 펀드·ETF·신탁으로 분산해 기대수익을 높이고, ISA 계좌에 편입하면 순이익 비과세·분리과세로 세후 수익까지 챙기도록 제안하세요.`,
+      cta: { to: "/wealth", label: "투자상품 상담" },
+    });
+  }
+
   /* ── 소득 분산·이연 (대상·근접·이력 시) ── */
   if (j.isTarget || near || j.restrictedByHistory) {
     items.push({
@@ -502,6 +518,7 @@ export function deriveStrategy(data, manual) {
       title: "국내주식형 펀드·ETF로 이자·배당 → 매매차익(비과세) 전환",
       detail:
         "국내 상장주식·주식형 펀드·ETF의 매매차익은 비과세입니다(분배금·배당은 과세). 과세되는 이자·배당 자산 일부를 매매차익 중심으로 옮겨 금융소득을 낮출 수 있습니다.",
+      cta: { to: "/wealth", label: "투자상품 상담" },
     });
     items.push({
       group: "분산",
