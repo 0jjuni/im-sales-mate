@@ -143,14 +143,6 @@ const VerdictBanner = ({ data }) => {
           </span>
         )}
       </div>
-
-      {/* 이 고객은 어떤 사람인가 — 상담 방향 한눈에 */}
-      {data.persona && (
-        <div className="flex gap-2.5 border-t border-slate-100 bg-slate-50/60 px-5 py-3">
-          <UserRound className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-400" />
-          <p className="text-[12px] leading-relaxed text-slate-600">{data.persona}</p>
-        </div>
-      )}
     </div>
   );
 };

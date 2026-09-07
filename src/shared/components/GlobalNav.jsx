@@ -16,7 +16,8 @@ const NAV = [
     label: "투자상품",
     children: [
       { to: "/wealth", label: "상품 탐색" },
-      { to: "/wealth?tab=customers", label: "내 가입 고객" },
+      { to: "/wealth?tab=customers", label: "내 가입고객 관리" },
+      { to: "/wealth?tab=notices", label: "공지사항" },
     ],
   },
   {
@@ -30,6 +31,7 @@ const NAV = [
       { to: "/noran/guide", label: "업무별 가이드" },
       { to: "/noran/checklist", label: "구비서류 체크리스트" },
       { to: "/noran/faq", label: "FAQ" },
+      { to: "/noran/notices", label: "공지사항" },
     ],
   },
   {
@@ -39,6 +41,7 @@ const NAV = [
       { to: "/isa", label: "세제 한눈에" },
       { to: "/isa/calculator", label: "세제 절세 계산기" },
       { to: "/isa/faq", label: "FAQ" },
+      { to: "/isa/notices", label: "공지사항" },
     ],
   },
   {
@@ -48,6 +51,7 @@ const NAV = [
       { to: "/pension", label: "세제 한눈에" },
       { to: "/pension/calculator", label: "세액공제 계산기" },
       { to: "/pension/faq", label: "FAQ" },
+      { to: "/pension/notices", label: "공지사항" },
     ],
   },
   {
@@ -56,6 +60,9 @@ const NAV = [
     children: [
       { to: "/card", label: "카드 탐색" },
       { to: "/card/promo", label: "가입 QR" },
+      { to: "/card/eligibility", label: "발급 요건" },
+      { to: "/card/deduction", label: "소득공제" },
+      { to: "/card/notices", label: "공지사항" },
     ],
   },
   {

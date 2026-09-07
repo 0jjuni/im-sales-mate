@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { CreditCard, Search, QrCode, BadgePercent, Megaphone } from "lucide-react";
+import { CreditCard, Search, QrCode, BadgePercent, Megaphone, ClipboardCheck } from "lucide-react";
 import { HubShell } from "@hub/HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
 import { ModuleNoticeBoard } from "@shared/components/ModuleNoticeBoard";
@@ -9,6 +9,7 @@ import { CardCatalog } from "./pages/CardCatalog";
 import { CardDetail } from "./pages/CardDetail";
 import { PromoHandout } from "./pages/PromoHandout";
 import { CardDeduction } from "./pages/CardDeduction";
+import { CardEligibility } from "./pages/CardEligibility";
 
 /* 카드 모듈 — 상단 네비 + 본문 탭. rose 아이덴티티. "/card/*" 마운트.
    탐색(카탈로그)·상세·가입 안내문·공지사항을 한 모듈로 묶는다. */
@@ -18,6 +19,8 @@ export default function CardApp() {
   const { pathname } = useLocation();
   const activeId = pathname.startsWith("/card/promo")
     ? "promo"
+    : pathname.startsWith("/card/eligibility")
+    ? "eligibility"
     : pathname.startsWith("/card/deduction")
     ? "deduction"
     : pathname.startsWith("/card/notices")
@@ -27,6 +30,7 @@ export default function CardApp() {
   const navItems = [
     { id: "catalog", label: "카드 탐색", icon: Search },
     { id: "promo", label: "가입 QR", icon: QrCode },
+    { id: "eligibility", label: "발급 요건", icon: ClipboardCheck },
     { id: "deduction", label: "소득공제", icon: BadgePercent },
     { id: "notices", label: "공지사항", icon: Megaphone, count: noticesForModule("card").length },
   ];
@@ -43,6 +47,8 @@ export default function CardApp() {
     navigate(
       id === "promo"
         ? "/card/promo"
+        : id === "eligibility"
+        ? "/card/eligibility"
         : id === "deduction"
         ? "/card/deduction"
         : id === "notices"
@@ -67,6 +73,7 @@ export default function CardApp() {
       <Routes>
         <Route index element={<CardCatalog />} />
         <Route path="promo" element={<PromoHandout />} />
+        <Route path="eligibility" element={<CardEligibility />} />
         <Route path="deduction" element={<CardDeduction />} />
         <Route path="notices" element={<ModuleNoticeBoard moduleId="card" />} />
         <Route path=":id" element={<CardDetail />} />

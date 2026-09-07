@@ -441,7 +441,7 @@ export default function WealthPage() {
   /* 상세에서 '고객 가입' 등으로 넘어오면 고객 탭 + 상품 프리셋. ?tab=fund/etf/trust도 지원 */
   useEffect(() => {
     const t = params.get("tab");
-    if (["customers", "fund", "etf"].includes(t)) setTab(t);
+    if (["customers", "fund", "etf", "notices"].includes(t)) setTab(t);
     const en = params.get("enroll");
     if (en) setPresetProduct(en);
   }, [params]);
