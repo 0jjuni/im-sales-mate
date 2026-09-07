@@ -139,35 +139,35 @@ const AuthorAvatar = ({ name }) => (
 );
 
 /* 글 목록 아이템 — 네이버 블로그 피드식.
-   작성자(아바타·이름)·시간·분류 + 제목 + 2줄 미리보기, 우측 썸네일. 단일 컬럼으로 읽는다.
-   showChannel: 구독 피드(여러 채널 혼합)에서는 채널을, 채널 상세에서는 작성자를 앞세운다. */
+   작성자(아바타·이름)·시간을 앞세우고 제목 + 2줄 미리보기 + 우측 썸네일. 단일 컬럼으로 읽는다.
+   우측 상단 칩: 구독 피드에서는 채널(어느 채널 글인지), 채널 상세에서는 분류를 보여 준다. */
 const PostListItem = ({ post, channel, onOpen, showChannel }) => {
   const cover = post.images?.[0];
   return (
     <button onClick={onOpen} className={cn(CARD_INTERACTIVE, "flex w-full items-start gap-4 p-4 text-left")}>
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* 상단: 작성자/채널 · 시간 + 우측 분류 */}
+        {/* 상단: 작성자 · 시간 + 우측 채널/분류 칩 */}
         <div className="flex items-center gap-1.5">
-          {showChannel && channel ? (
-            <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} size="sm" className="!h-6 !w-6 rounded-md" />
-          ) : (
-            <AuthorAvatar name={post.author} />
-          )}
-          <span className="truncate text-[12px] font-bold text-slate-700">{showChannel ? channel?.name : post.author}</span>
+          <AuthorAvatar name={post.author} />
+          <span className="truncate text-[12px] font-bold text-slate-700">{post.author}</span>
           <span className="text-slate-300">·</span>
           <span className="flex-shrink-0 text-[11px] text-slate-400">{fmtWhen(post.createdAt)}</span>
-          {channel?.category && (
+          {showChannel && channel ? (
+            <span className="ml-auto flex flex-shrink-0 items-center gap-1 rounded-full bg-slate-100 py-0.5 pl-0.5 pr-2 text-[10.5px] font-semibold text-slate-600">
+              <ChannelAvatar icon={channel.icon} color={channel.color} image={channel.image} size="sm" className="!h-4 !w-4 rounded-full" />
+              {channel.name}
+            </span>
+          ) : channel?.category ? (
             <span className="ml-auto flex-shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10.5px] font-semibold text-slate-500">
               {channel.category}
             </span>
-          )}
+          ) : null}
         </div>
 
         <h3 className="mt-2 line-clamp-1 text-[15.5px] font-bold text-slate-900">{post.title}</h3>
         <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-slate-500">{plain(post.body)}</p>
 
         <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-400">
-          {showChannel && <span className="font-medium text-slate-500">{post.author}</span>}
           {post.tags?.slice(0, 3).map((t) => (
             <span key={t} className="rounded-full bg-slate-100 px-2 py-0.5 text-[10.5px] font-semibold text-slate-500">#{t}</span>
           ))}
