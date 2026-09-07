@@ -20,6 +20,7 @@ import {
   CalendarClock,
   CreditCard,
   X,
+  Landmark,
 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { CardDeductionGuide } from "@card/components/CardDeductionGuide";
@@ -377,6 +378,78 @@ function CustomerFollowups({ no }) {
   );
 }
 
+/* 예금·수신 만기 관리 — 고객이 보유한 정기예금·적금의 금리·만기를 관리하고,
+   만기 임박 자금은 저축성보험(비과세) 등 다른 상품으로 이전 상담을 연결한다. */
+const NEAR_DAYS = 30; // 만기 임박 기준(일)
+
+const matDateStr = (days) => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + days);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+};
+const ddayLabel = (days) => (days < 0 ? `만기 지남 ${-days}일` : days === 0 ? "오늘 만기" : `D-${days}`);
+
+function DepositSection({ data }) {
+  const deposits = data.deposits || [];
+  if (deposits.length === 0) return null;
+  const rows = [...deposits].sort((a, b) => a.maturityInDays - b.maturityInDays);
+  const near = rows.filter((d) => d.maturityInDays <= NEAR_DAYS);
+  const nearTotal = near.reduce((s, d) => s + (d.balance || 0), 0);
+  const restricted = data.jonghap.isTarget || data.jonghap.restrictedByHistory;
+
+  return (
+    <section>
+      <SectionTitle icon={Landmark} sub="정기예금·적금 만기·금리를 관리하고, 만기 임박 자금은 다른 상품으로 연계하세요">
+        예금·수신 만기 관리
+      </SectionTitle>
+      <div className={cn(CARD, "overflow-hidden")}>
+        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-3 border-b border-slate-100 bg-slate-50/70 px-4 py-2 text-[11px] font-semibold text-slate-400">
+          <span>상품</span>
+          <span className="text-right">잔액</span>
+          <span className="text-right">금리</span>
+          <span className="text-right">만기</span>
+        </div>
+        <ul className="divide-y divide-slate-100">
+          {rows.map((d, i) => {
+            const isNear = d.maturityInDays <= NEAR_DAYS;
+            return (
+              <li key={i} className={cn("grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-3 px-4 py-3", isNear && "bg-amber-50/40")}>
+                <div className="flex items-center gap-2">
+                  <span className="text-[13px] font-bold text-slate-800">{d.type}</span>
+                  {isNear && (
+                    <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">만기 임박</span>
+                  )}
+                </div>
+                <span className="text-right text-[13px] font-semibold tabular-nums text-slate-900">{d.balance.toLocaleString()}만원</span>
+                <span className="text-right text-[12.5px] tabular-nums text-slate-600">{d.rate.toFixed(1)}%</span>
+                <span className="text-right">
+                  <span className="block text-[12px] tabular-nums text-slate-700">{matDateStr(d.maturityInDays)}</span>
+                  <span className={cn("text-[11px] font-bold tabular-nums", isNear ? "text-amber-700" : "text-slate-400")}>
+                    {ddayLabel(d.maturityInDays)}
+                  </span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+
+        {near.length > 0 && (
+          <div className="flex flex-wrap items-start gap-2 border-t border-slate-100 bg-im-50/50 px-4 py-3">
+            <ArrowRight className="mt-0.5 h-4 w-4 flex-shrink-0 text-im-600" />
+            <p className="text-[12.5px] leading-relaxed text-slate-700">
+              <span className="font-bold text-im-700">만기 임박 {near.length}건 · 합계 {nearTotal.toLocaleString()}만원</span>{" "}
+              — {restricted
+                ? "재예치 대신 일시납 저축성보험(계약 10년 이상, 비과세)으로 이전해 과세 이자를 비과세 구조로 돌리도록 상담하세요."
+                : "만기 자금을 저축성보험·ISA 등으로 연계해 더 나은 조건으로 재설계하도록 상담하세요."}
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 /* 신용카드 발급 요건 — 넥스피아 4개 요건으로 「이 요건으로 발급 가능한지」만 표시.
    실제 발급은 계정계 종합 심사 기준이며, 여기선 요건별 가능/불가만 보여 준다. */
 function CardEligibilitySection({ no }) {
@@ -602,6 +675,8 @@ function ResultView({ data }) {
           ))}
         </div>
       </section>
+
+      <DepositSection data={data} />
 
       <CardEligibilitySection no={data.customerNo} />
 
