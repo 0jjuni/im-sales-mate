@@ -684,6 +684,7 @@ function ChannelDetail({ channel, posts, subCount, subscribed, onBack, onToggle,
 export default function LibraryPage() {
   const lib = useLibrary();
   const [tab, setTab] = useState("feed"); // feed | browse
+  const [feedFilter, setFeedFilter] = useState(null); // null=전체, 아니면 channelId
   const [channelId, setChannelId] = useState(null);
   const [postId, setPostId] = useState(null);
   const [composer, setComposer] = useState(null); // null | {mode:"post", channelId} | {mode:"channel"}
@@ -783,6 +784,9 @@ export default function LibraryPage() {
   /* 4) 메인 목록 (구독 피드 / 전체 채널) */
   const feed = lib.feedPosts;
   const subChannels = lib.channels.filter((c) => lib.isSubscribed(c.id));
+  /* 구독 중 칩은 「필터」 — 선택한 채널 글만 피드에 걸러 본다(채널로 이동 아님) */
+  const activeFilter = feedFilter && subChannels.some((c) => c.id === feedFilter) ? feedFilter : null;
+  const feedShown = activeFilter ? feed.filter((p) => p.channelId === activeFilter) : feed;
 
   return (
     <HubShell wide>
@@ -844,25 +848,46 @@ export default function LibraryPage() {
           </div>
         ) : (
           <div className="mx-auto max-w-3xl space-y-4">
+            {/* 구독 중 채널 필터 — 눌러서 그 채널 글만 보기, '전체'로 리셋 */}
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[11.5px] font-semibold text-slate-400">구독 중</span>
-              {subChannels.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => openChannel(c.id)}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white py-1 pl-1 pr-2.5 text-[11.5px] font-semibold text-slate-600 hover:border-im-300 hover:text-im-700"
-                >
-                  <ChannelAvatar icon={c.icon} color={c.color} image={c.image} size="sm" className="!h-5 !w-5 rounded-md" />
-                  {c.name}
-                </button>
-              ))}
+              <button
+                onClick={() => setFeedFilter(null)}
+                className={cn(
+                  "rounded-full border px-3 py-1 text-[11.5px] font-semibold transition-colors",
+                  !activeFilter ? "border-im-500 bg-im-500 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-im-300"
+                )}
+              >
+                전체
+              </button>
+              {subChannels.map((c) => {
+                const on = activeFilter === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setFeedFilter(on ? null : c.id)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-full border py-1 pl-1 pr-2.5 text-[11.5px] font-semibold transition-colors",
+                      on ? "border-im-500 bg-im-50 text-im-700" : "border-slate-200 bg-white text-slate-600 hover:border-im-300 hover:text-im-700"
+                    )}
+                  >
+                    <ChannelAvatar icon={c.icon} color={c.color} image={c.image} size="sm" className="!h-5 !w-5 rounded-md" />
+                    {c.name}
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="space-y-3">
-              {feed.map((p) => (
-                <PostListItem key={p.id} post={p} channel={lib.channelById(p.channelId)} onOpen={() => openPost(p.id)} showChannel />
-              ))}
-            </div>
+            {feedShown.length === 0 ? (
+              <div className={cn(CARD, "px-5 py-10 text-center text-[13px] text-slate-500")}>
+                이 채널에 아직 올라온 글이 없습니다.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {feedShown.map((p) => (
+                  <PostListItem key={p.id} post={p} channel={lib.channelById(p.channelId)} onOpen={() => openPost(p.id)} showChannel />
+                ))}
+              </div>
+            )}
           </div>
         )
       ) : (

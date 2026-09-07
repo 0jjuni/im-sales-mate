@@ -1,6 +1,6 @@
 /* 지식 라이브러리 시드 — 실제 사내 게시판 톤의 예시 채널과 글.
    사용자가 언급한 실제 운영 형태를 그대로 모델링:
-   · 모닝 브리핑(아침 시황)  · 문샷 데일리(전일 등락 카드뉴스)  · WM 코멘트(상담용 시장 의견)
+   · 모닝 브리핑(아침 시황)  · 마켓 데일리(전일 등락 카드뉴스)  · WM 코멘트(상담용 시장 의견)
    · 알기 쉬운 세무상식(WM사업부 세무전문위원)
 
    날짜는 오늘 기준 상대값으로 생성 — 항상 최근 글처럼 보인다.
@@ -24,7 +24,7 @@ const businessDaysAgo = (n) => {
 
 const fmtMD = (d) => `${d.getMonth() + 1}월 ${d.getDate()}일`;
 
-/* 문샷 데일리 카드뉴스 예시 이미지 — 실제 업로드처럼 보이도록 SVG를 data URL로 생성.
+/* 마켓 데일리 카드뉴스 예시 이미지 — 실제 업로드처럼 보이도록 SVG를 data URL로 생성.
    업로드 이미지 렌더 경로(post.images)를 시드에서 바로 보여 주기 위한 것. */
 const moonshotCardImage = (dateLabel) => {
   const movers = [
@@ -49,11 +49,11 @@ const moonshotCardImage = (dateLabel) => {
     <rect width='640' height='800' fill='#ffffff'/>
     <rect width='640' height='168' fill='#0f172a'/>
     <circle cx='566' cy='60' r='60' fill='#1e293b'/>
-    <text x='48' y='78' fill='#ffffff' font-size='42' font-weight='800'>문샷 데일리</text>
+    <text x='48' y='78' fill='#ffffff' font-size='42' font-weight='800'>마켓 데일리</text>
     <text x='48' y='122' fill='#94a3b8' font-size='24' font-weight='600'>${dateLabel} · 전일 시장 등락 요약</text>
     <text x='48' y='236' fill='#0f172a' font-size='26' font-weight='800'>전일 등락 TOP</text>
     ${rows}
-    <text x='48' y='756' fill='#cbd5e1' font-size='20' font-weight='700' letter-spacing='2'>MOONSHOT DAILY · iM</text>
+    <text x='48' y='756' fill='#cbd5e1' font-size='20' font-weight='700' letter-spacing='2'>MARKET DAILY · iM</text>
   </svg>`;
   return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
 };
@@ -78,13 +78,13 @@ export function buildLibrarySeed() {
     },
     {
       id: "ch_moonshot",
-      name: "문샷 데일리",
+      name: "마켓 데일리",
       icon: "trending",
       color: "rose",
       category: "데일리 리포트",
       dept: "WM사업부",
-      desc: "전일 시장에서 오른 종목·내린 종목을 카드뉴스로 짧게 정리합니다. (문상현 과장)",
-      author: "문상현 과장",
+      desc: "전일 시장에서 오른 종목·내린 종목을 카드뉴스로 짧게 정리합니다.",
+      author: "WM사업부 오세훈 대리",
       subscribers: 88,
       createdAt: now - 60 * DAY,
     },
@@ -141,25 +141,25 @@ export function buildLibrarySeed() {
         "<p>전일 코스피는 반도체 대형주 강세에 <strong>+0.9% 반등</strong> 마감했습니다. 외국인이 현·선물 동반 순매수로 지수를 끌어올렸습니다.</p>" +
         "<blockquote><strong>체크</strong> — 2차전지는 차익실현 매물로 약세. 업종별 온도차가 큰 장세이니, 목표수익률 관리 고객은 리밸런싱 시점을 점검해 주세요.</blockquote>",
     },
-    /* 문샷 데일리 — 카드뉴스 이미지(업로드형) */
+    /* 마켓 데일리 — 카드뉴스 이미지(업로드형) */
     {
       id: "p_moonshot_img",
       tags: ["카드뉴스", "전일등락", "반도체"],
       channelId: "ch_moonshot",
-      author: "문상현 과장",
+      author: "WM사업부 오세훈 대리",
       createdAt: d1.getTime() + 4200000,
-      title: `${fmtMD(d1)} 문샷 데일리`,
+      title: `${fmtMD(d1)} 마켓 데일리`,
       body:
         "<p>전일 <strong>코스피 +0.4%</strong> / <strong>코스닥 -0.2%</strong>. 반도체가 지수를 끌어올렸습니다. 오늘 등락은 카드뉴스로 정리했습니다.</p>",
       images: [moonshotCardImage(fmtMD(d1))],
     },
-    /* 문샷 데일리 — 텍스트형 등락 타일(카드 데이터) */
+    /* 마켓 데일리 — 텍스트형 등락 타일(카드 데이터) */
     {
       id: "p_moonshot_cards",
       channelId: "ch_moonshot",
-      author: "문상현 과장",
+      author: "WM사업부 오세훈 대리",
       createdAt: d2.getTime() + 3600000,
-      title: `${fmtMD(d2)} 문샷 데일리 | 전일 등락 한눈에`,
+      title: `${fmtMD(d2)} 마켓 데일리 | 전일 등락 한눈에`,
       body: "<p>반도체는 웃고, 2차전지는 쉬어간 하루였습니다.</p>",
       cards: [
         { name: "삼성전자", change: "+2.1%", dir: "up" },
@@ -217,7 +217,7 @@ export function buildLibrarySeed() {
   ];
 
   /* 기본 구독 — 모닝 브리핑·WM 코멘트·세무상식은 구독한 상태로 시작(구독 피드 체험),
-     문샷 데일리는 미구독으로 두어 「둘러보기 → 구독」 흐름을 보여 준다. */
+     마켓 데일리는 미구독으로 두어 「둘러보기 → 구독」 흐름을 보여 준다. */
   const subs = ["ch_morning", "ch_wm", "ch_tax"];
 
   return { channels, posts, subs };
