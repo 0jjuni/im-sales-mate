@@ -18,7 +18,7 @@ const normalizeUrl = (raw) => {
   return `https://${s}`;
 };
 
-const PURPOSE_PRESETS = ["카드 신청", "예금 가입", "대출 상담 신청", "앱 설치", "이벤트 응모"];
+const PURPOSE_PRESETS = ["마이데이터 가입", "예금 가입", "대출 상담 신청", "앱 설치", "이벤트 응모"];
 
 export const QrConverter = () => {
   const [input, setInput] = useState("");
@@ -56,10 +56,10 @@ export const QrConverter = () => {
       <div className="space-y-5 print:hidden">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-            링크 QR 변환기
+            QR코드 생성기
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            신청 링크를 QR로 만들어 전표로 인쇄합니다.
+            링크를 QR 코드로 만들어 전표로 인쇄합니다.
           </p>
         </div>
 
@@ -84,7 +84,7 @@ export const QrConverter = () => {
             <input
               value={purpose}
               onChange={(e) => setPurpose(e.target.value)}
-              placeholder="예: 카드 신청"
+              placeholder="예: 마이데이터 가입"
               className="w-full rounded-sm border border-slate-300 px-3 py-2.5 text-sm focus:border-sky-500 focus:outline-none"
             />
             <div className="mt-2 flex flex-wrap gap-1.5">
