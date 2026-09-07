@@ -26,14 +26,14 @@ const HOME_RECENT = 7; // 홈 위젯 기본 노출 기간(일)
    단, 「필수」로 표시된 건은 접힌 상태에서도 항상 노출한다(출근 브리핑 성격상 놓치면 안 됨). */
 const RECENT_PREVIEW = 3;
 
-const fmtDate = (iso) => {
+export const fmtDate = (iso) => {
   const d = new Date(iso + "T00:00:00");
   if (isNaN(d)) return iso;
   const day = ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
   return `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()} (${day})`;
 };
 
-const fmtShort = (iso) => {
+export const fmtShort = (iso) => {
   if (!iso) return null;
   const d = new Date(iso + "T00:00:00");
   if (isNaN(d)) return iso;
@@ -41,7 +41,7 @@ const fmtShort = (iso) => {
   return `${d.getMonth() + 1}.${d.getDate()} (${day})`;
 };
 
-const daysAgo = (iso) => {
+export const daysAgo = (iso) => {
   if (!iso) return 0;
   const d = new Date(iso + "T00:00:00");
   if (isNaN(d)) return 0;
@@ -60,7 +60,7 @@ const PRODUCTS_BY_CATEGORY = {
 
 /* 마켓 데이터 → 오늘의 시황 한 줄 + PB 관점 메모.
    규칙 기반(추정) — 내부 참고용이며 투자권유가 아니다(하단 고지). */
-const marketSummary = (markets) => {
+export const marketSummary = (markets) => {
   if (!Array.isArray(markets) || markets.length === 0) return null;
   const val = (label) => {
     const m = markets.find((x) => x.label === label);
@@ -102,15 +102,16 @@ const marketSummary = (markets) => {
   return { line: parts.join(" · "), note };
 };
 
-const NewsItem = ({ item }) => {
+export const NewsItem = ({ item, card = false }) => {
   const must = item.importance === "high";
   const dateText = fmtShort(item.date);
   const related = PRODUCTS_BY_CATEGORY[item.category] || [];
   return (
     <li
       className={cn(
-        "border-l-[3px] px-5 py-4",
-        must ? "border-im-500 bg-im-50/25" : "border-transparent"
+        card
+          ? cn(CARD, "px-5 py-4", must && "ring-1 ring-inset ring-im-200")
+          : cn("border-l-[3px] px-5 py-4", must ? "border-im-500 bg-im-50/25" : "border-transparent")
       )}
     >
       {/* 메타 라인 — 필수·카테고리·출처(링크)·보도날짜 */}
