@@ -267,6 +267,19 @@ const ProductCard = ({ product, manual, onManual, compact = false }) => {
   const cls = STATE_CLASS[st.tone];
   const sell = st.sell;
   const metrics = needs.length ? [] : (product.metrics || []).filter(m => !compact || !["혜택", "미보유"].includes(m.label));
+  if (compact) {
+    const primary = metrics.find(m=>m.strong) || metrics[0];
+    const secondary = metrics.filter(m=>m!==primary);
+    const emptyCard = ["cardPersonal", "cardBiz"].includes(product.key) && product.held === false;
+    return <div className="mt-4 border-t border-slate-100 pt-4">
+      {needs.length ? <div><p className="mb-3 text-sm font-semibold text-slate-600">가입 자격 확인</p>{needs.map(f=><div key={f}><ManualControl field={f} manual={manual} set={set}/></div>)}</div> : emptyCard ? <><p className="text-sm text-slate-500">당행 보유 카드</p><p className="mt-1 text-2xl font-bold text-slate-900">0개</p><p className="mt-3 text-sm text-slate-500">타행 카드 보유 여부는 별도 확인</p></> : <>
+        {primary&&<><p className="text-sm text-slate-500">{primary.label}</p><p className="mt-1 break-words text-2xl font-bold leading-8 text-slate-900">{primary.value}</p></>}
+        {!primary&&<p className="text-lg font-semibold text-slate-700">{st.label}</p>}
+        {secondary.length>0&&<dl className="mt-3 space-y-2">{secondary.map((m,i)=><div key={i} className="flex flex-wrap justify-between gap-x-3 gap-y-1 text-sm"><dt className="text-slate-500">{m.label}</dt><dd className="font-semibold text-slate-800">{m.value}</dd></div>)}</dl>}
+        {product.cards?.length>0&&<ul className="mt-3 space-y-2 border-t border-slate-100 pt-3">{product.cards.map((c,i)=><li key={i} className="flex flex-wrap justify-between gap-1 text-sm"><span className="font-medium text-slate-700">{c.name}</span><span className="font-semibold text-slate-800">월 {c.monthly.toLocaleString()}만원</span></li>)}</ul>}
+      </>}
+    </div>;
+  }
   const hero = metrics.find((m) => m.strong);
   const rest = metrics.filter((m) => !m.strong);
   return (
@@ -900,7 +913,7 @@ const GuidanceForTarget = ({ data }) => (
 function MerchantSettlementCard({ m }) {
   const state=settlementStatus(m);
   const label={own:"당행 이용 중",other:"타행 이용 중",unknown:"조회 정보 누락",unregistered:"POS 미등록"}[state];
-  return <div className="rounded-xl border border-slate-200 bg-white p-4"><h3 className="text-sm font-bold text-slate-900">가맹점 결제계좌</h3><span className={cn("mt-2 inline-block rounded px-2 py-1 text-xs font-semibold",state==="own"?"bg-im-50 text-im-700":state==="other"?"bg-amber-50 text-amber-800":"bg-slate-100 text-slate-600")}>{label}</span><p className="mt-3 text-base font-bold text-slate-800">{state==="unregistered" ? "가맹점 결제계좌 없음" : m?.bank || "결제은행 조회 필요"}</p></div>;
+  return <div className="rounded-xl border border-slate-200 bg-white p-4"><h3 className="text-base font-bold text-slate-900">가맹점 결제계좌</h3><span className={cn("mt-2 inline-block rounded px-2 py-1 text-xs font-semibold",state==="own"?"bg-im-50 text-im-700":state==="other"?"bg-amber-50 text-amber-800":"bg-slate-100 text-slate-600")}>{label}</span><p className="mt-4 border-t border-slate-100 pt-4 text-2xl font-bold leading-8 text-slate-800">{state==="unregistered" ? "가맹점 결제계좌 없음" : m?.bank || "결제은행 조회 필요"}</p></div>;
 }
 
 /* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
@@ -962,7 +975,7 @@ function ResultView({ data }) {
         <SectionTitle icon={Layers} sub="당행 조회 결과 · 타행 가입 여부와 합산 납입액은 상담 시 확인">
           상품 활용 현황
         </SectionTitle>
-        <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">{products.map(p=><article key={p.key} className="h-full min-h-[170px] rounded-xl border border-slate-200 bg-white p-4"><div className="text-sm"><span className="font-semibold text-slate-800">{SOURCES[p.key].label.replace(" 가입 여부", "")}</span><span className={cn("ml-2 inline-block rounded px-2 py-1 text-xs",STATE_CLASS[PRODUCT_STATE[p.state].tone].badge)}>{p.state==="unknown"?"확인 필요":p.state==="none"?"해당 없음":p.state==="restricted"?"가입·연장 제한":p.state==="available"?"추가 활용 가능":p.held===true||p.state==="active"?"보유 중":p.held===false||p.state==="recommend"?"당행 미보유":"확인 필요"}</span>{p.remaining&&<span className="mt-2 block text-sm font-bold text-im-700">추가 납입 여력 {p.remaining}</span>}</div><div className="mt-3"><ProductCard product={p} manual={manual} onManual={setManual} compact/></div></article>)}
+        <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">{products.map(p=><article key={p.key} className="h-full min-h-[210px] rounded-xl border border-slate-200 bg-white p-4"><div className="text-sm"><span className="text-base font-bold text-slate-800">{SOURCES[p.key].label.replace(" 가입 여부", "")}</span><span className={cn("ml-2 inline-block rounded px-2 py-1 text-xs",STATE_CLASS[PRODUCT_STATE[p.state].tone].badge)}>{p.state==="unknown"?"확인 필요":p.state==="none"?"해당 없음":p.state==="restricted"?"가입·연장 제한":p.state==="available"?"추가 활용 가능":p.held===true||p.state==="active"?"보유 중":p.held===false||p.state==="recommend"?"당행 미보유":"확인 필요"}</span></div><div><ProductCard product={p} manual={manual} onManual={setManual} compact/></div></article>)}
           {manual.incomeType === "개인사업자" && <MerchantSettlementCard m={data.merchantSettlement}/>}
         </div>
       </section>
