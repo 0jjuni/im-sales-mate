@@ -959,7 +959,7 @@ function ResultView({ data }) {
       )}
 
       {/* 2) 보유 현황 — 실제 활용 중인 상품 + 예금·수신 */}
-      <section id="diagnosis-products">
+      <section id="diagnosis-products" className="scroll-mt-24">
         <SectionTitle icon={Layers} sub="당행 조회 결과 · 타행 가입 여부와 합산 납입액은 상담 시 확인">
           상품 활용 현황
         </SectionTitle>
@@ -968,10 +968,10 @@ function ResultView({ data }) {
         </div>
       </section>
 
-      <div id="diagnosis-deposits"><DepositSection data={data} /><p className="mt-2 text-xs text-slate-500">상품명: iM뱅크 금융상품몰 확인 · 고객 잔액·금리·만기일은 데모 예시</p></div>
+      <div id="diagnosis-deposits" className="scroll-mt-24"><DepositSection data={data} /><p className="mt-2 text-xs text-slate-500">상품명: iM뱅크 금융상품몰 확인 · 고객 잔액·금리·만기일은 데모 예시</p></div>
 
       {/* 3) 핵심 — 맞춤 상품 제안 (판매 기회 + 신용카드 발급 요건) */}
-      <section id="diagnosis-proposals">
+      <section id="diagnosis-proposals" className="scroll-mt-24">
         <SectionTitle icon={Sparkles} sub="조회된 보유 상태와 상담 조건에 따른 제안 · 고객 목적에 맞춰 선택">
           맞춤 상품 제안
         </SectionTitle>
