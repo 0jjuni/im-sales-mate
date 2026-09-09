@@ -52,7 +52,7 @@ export function PrintPreviewModal({ title = "상담 자료 미리보기", onClos
         onClick={(e) => e.stopPropagation()}
       >
         <div
-          className="mx-auto w-full max-w-[210mm] rounded-sm bg-white shadow-2xl print:max-w-none print:rounded-none print:shadow-none"
+          className="mx-auto w-fit max-w-full rounded-sm bg-white shadow-2xl print:mx-0 print:w-auto print:max-w-none print:rounded-none print:shadow-none"
           onClick={(e) => e.stopPropagation()}
         >
           {children}
