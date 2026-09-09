@@ -153,7 +153,7 @@ const CUSTOMERS = {
     name: "박똑디",
     age: "59세",
     /* 가맹점 카드매출 대금을 타행으로 받는 개인사업자 — 결제계좌 당행 전환 유치 대상 */
-    merchantSettlement: { bank: "국민은행", monthlyCardSales: 3200 },
+    merchantSettlement: { bank: "국민은행" },
     deposits: [
       { name: "iM주거래우대예금(첫만남고객형)", type: "정기예금", balance: 6000, rate: 3.3, maturityInDays: 40, maturityAction: "자동해지" },
       { name: "iM함께예금", type: "정기예금", balance: 4000, rate: 3.5, maturityInDays: 8, maturityAction: "자동재예치" },
@@ -519,9 +519,7 @@ export function deriveStrategy(data, manual) {
       tag: "주거래 전환",
       kind: "sell",
       title: "가맹점 카드매출 입금계좌 당행 전환",
-      detail: `카드 매출대금을 ${m.bank}(타행)로 받고 있습니다${
-        m.monthlyCardSales ? ` (월 카드매출 약 ${won(m.monthlyCardSales)}만원)` : ""
-      }. 입금계좌를 당행으로 전환하면 매출대금 유치·이체수수료 우대에 더해, 매출 데이터 기반 사업자 여신까지 주거래로 묶을 수 있습니다.`,
+      detail: `카드 매출대금을 ${m.bank}(타행)로 받고 있습니다. 현재 이용 조건과 전환 의사를 확인하고 당행 결제계좌 이용을 제안하세요.`,
     });
   }
 
