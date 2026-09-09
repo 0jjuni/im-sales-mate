@@ -11,6 +11,7 @@ import { pct, retColor, won, TYPE_CLASS, RISK_CLASS } from "./wealth/ProductDeta
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 import { ModuleNoticeBoard } from "@shared/components/ModuleNoticeBoard";
+import { ModuleTabs } from "@shared/components/ModuleTabs";
 import { noticesForModule } from "@shared/data/notices";
 import { faqsForModule } from "@shared/data/faqs";
 
@@ -588,40 +589,18 @@ export default function WealthPage() {
 
   return (
     <HubShell>
-      <div className="mb-4">
-        <div className="flex items-center gap-2">
-          <LineChart className="h-5 w-5 text-im-600" />
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl">투자상품</h1>
+      {/* 모듈 헤더 — 다른 모듈과 통일(아이콘 사각형 + 제목) */}
+      <div className="mb-4 flex items-center gap-2.5">
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-im-50 text-im-700">
+          <LineChart className="h-5 w-5" />
         </div>
-        <p className="mt-1 text-[13px] text-slate-500">펀드·ETF·신탁을 검색·비교하고, 가입 고객의 목표수익률·알림을 관리합니다.</p>
+        <div>
+          <h1 className="text-[17px] font-black leading-tight text-slate-900 md:text-xl">투자상품</h1>
+          <p className="text-[11px] text-slate-500">펀드·ETF·신탁 · 검색·비교·가입 고객 관리</p>
+        </div>
       </div>
 
-      <div className="mb-4 flex items-center gap-1">
-        {TABS.map((t) => {
-          const Icon = t.icon;
-          const on = tab === t.id;
-          return (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12.5px] font-semibold transition-colors",
-                on ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900"
-              )}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {t.label}
-              {t.count != null && <span className={cn("tabular-nums", on ? "text-slate-300" : "text-slate-400")}>{t.count}</span>}
-            </button>
-          );
-        })}
-        {watchlist.length > 0 && (
-          <span className="ml-auto inline-flex items-center gap-1 text-[11px] font-semibold text-amber-500">
-            <Star className="h-3 w-3 fill-amber-400" />
-            관심 {watchlist.length}
-          </span>
-        )}
-      </div>
+      <ModuleTabs items={TABS} activeId={tab} onSelect={setTab} accent="im" />
 
       {tab === "home" ? (
         <section className="space-y-4">
