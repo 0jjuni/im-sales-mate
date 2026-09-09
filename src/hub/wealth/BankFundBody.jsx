@@ -26,10 +26,10 @@ export function BankFundBody({data}) {
         <p className="mt-2 text-lg font-bold leading-8 text-slate-900">{bankField(data,"투자대상") || "상품안내에서 투자 대상을 확인하세요."}</p>
         {data.code === "12032101000001023" || data.code === "12032101000001024" ? <p className="mt-3 text-sm leading-7 text-slate-700">국내 IT 기업의 주식에 투자하는 펀드입니다. IT 업황에 따라 수익률이 크게 달라질 수 있어요.</p> : null}
       </div>
+      {introRows(data).some(r=>r[0]?.text==="상품특징" && r[1]?.text) && <div className="mt-5"><h3 className="mb-2 text-sm font-bold text-slate-800">상품특징</h3>{introRows(data).filter(r=>r[0]?.text==="상품특징").map((r,i)=><p key={i} className="text-sm leading-7 text-slate-700">{r.slice(1).map(c=>c.text).join(" · ")}</p>)}</div>}
       <h3 className="mb-3 mt-6 font-bold text-slate-800">빠뜨리지 않고 설명할 위험</h3>
       <p className="mb-4 text-sm leading-7 text-slate-600">예금자보호 대상이 아니며, 원금 손실이 발생할 수 있습니다.</p>
       {risks.length ? <ul className="space-y-4">{risks.map((r,i)=><li key={i} className="border-l-2 border-amber-300 pl-4"><h4 className="text-sm font-bold text-slate-800">{r[0].text}</h4><p className="mt-1 text-sm leading-7 text-slate-700">{riskBrief(r[0].text,r[1].text)}</p><details className="mt-2"><summary className="min-h-8 cursor-pointer text-xs text-slate-500">은행 원문 확인</summary><p className="mt-2 rounded-lg bg-slate-50 p-3 text-xs leading-6 text-slate-600">{r[1].text}</p></details></li>)}</ul> : <p className="text-sm text-slate-500">상품별 투자위험은 투자설명서를 확인하세요.</p>}
-      <details className="mt-5 rounded-lg border border-slate-200 p-4"><summary className="cursor-pointer text-sm font-semibold text-slate-700">상품 특징 원문</summary><Pairs rows={introRows(data).filter(r=>r[0]?.text==="상품특징")}/></details>
     </Section>
     <Section id="cost" title="비용과 매입·환매">
       <div className="grid gap-3 sm:grid-cols-2">{["수수료","총보수"].map(label=><div key={label} className="rounded-xl border border-slate-200 bg-slate-50 p-4"><h3 className="text-xs font-semibold text-slate-500">{label === "총보수" ? "보유 중 부담하는 총보수" : "가입·환매 시 수수료"}</h3><p className="mt-2 text-sm font-bold leading-7 text-slate-900">{bankField(data,label)||"확인 필요"}</p></div>)}</div>
