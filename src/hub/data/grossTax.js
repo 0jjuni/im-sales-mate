@@ -288,7 +288,14 @@ export function viewProduct(product, manual, restricted = false) {
         note: "무주택 세대주·총급여 7천만원 이하 근로소득자는 주택청약 납입액의 40%를 소득공제(연 300만원 한도)받습니다. 내 집 마련과 절세를 함께 권유하세요.",
       };
     }
-    return { ...product, state: "none", metrics: [{ label: "월 납입", value: product.monthly || "—" }], note: "주택청약 미보유." };
+    /* 주택청약종합저축은 소득 유형 제한 없이 누구나 가입 가능 — 소득공제만 근로소득자 한정이므로,
+       개인사업자·기타도 청약 자격 확보·자유적립 목적으로 권유 대상에 포함한다. */
+    return {
+      ...product,
+      state: "recommend",
+      metrics: [{ label: "혜택", value: "청약 자격·자유적립" }],
+      note: "주택청약종합저축은 소득 유형과 무관하게 가입할 수 있습니다. 소득공제 대상은 아니지만 내 집 마련 청약 자격 확보·자유적립 목적으로 권유하세요.",
+    };
   }
 
   if (product.key === "cardPersonal") {

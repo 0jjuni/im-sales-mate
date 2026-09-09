@@ -999,7 +999,7 @@ function ResultView({ data }) {
       {/* 3) 핵심 — 맞춤 상품 제안 (판매 기회 + 신용카드 발급 요건) */}
       <section id="diagnosis-proposals" className="scroll-mt-24">
         <SectionTitle icon={Sparkles}>맞춤 상품 제안</SectionTitle>
-        {strat.제안.length > 0 ? <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white">
+        {strat.제안.length > 0 ? <ul className="space-y-3">
           {strat.제안.map((item,i)=>{
             const summary=proposalSummary(item,data,products,manual);
             const product=products.find(p=>p.key===item.key);
@@ -1007,19 +1007,22 @@ function ResultView({ data }) {
             /* '제안 가능'은 제안 목록에 오른 시점에서 당연하므로 배지 생략, 행동이 필요한 상태(추가 확인 필요·제한 등)만 표기 */
             const showBadge=item.tag!=="주거래 전환"&&status.label!=="제안 가능";
             const title=item.title.replace(" 신규 가입 검토", "").replace(/ 납입 여력\(.*\) 활용/, " 추가 납입").replace("가맹점 카드매출 입금계좌 당행 전환", "가맹점 결제계좌 전환");
-            return <li key={`${item.key||item.tag}-${i}`} className="p-4 sm:p-5">
-              <div className="flex flex-wrap items-start justify-between gap-2">
+            return <li key={`${item.key||item.tag}-${i}`} className="rounded-xl border border-slate-200 bg-white p-5">
+              <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <span className="text-xs font-semibold text-im-700">{item.tag}</span>
-                  <h3 className="mt-0.5 text-base font-bold leading-6 text-slate-900">{title}</h3>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">{summary.reason}</p>
+                  <span className="inline-block rounded-full bg-im-50 px-2.5 py-0.5 text-[11px] font-bold text-im-700">{item.tag}</span>
+                  <h3 className="mt-2 text-lg font-bold leading-7 text-slate-900">{title}</h3>
+                  <p className="mt-1 text-[13px] leading-6 text-slate-500">{summary.reason}</p>
                 </div>
-                {showBadge&&<span className={cn("shrink-0 rounded px-2 py-1 text-xs font-bold",status.badge)}>{status.label}</span>}
+                {showBadge&&<span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold",status.badge)}>{status.label}</span>}
               </div>
-              <p className="mt-3 text-sm leading-7 text-slate-800"><span className="mr-1.5 text-xs font-semibold text-slate-400">상담 질문</span>“{summary.question}”</p>
-              {item.key==="housing"&&<div className="mt-3 space-y-3">{["homeless","salaryUnder7000"].filter(f=>manual[f]==null).map(f=><div key={f}><p className="mb-2 text-sm text-slate-600">{FIELD_LABEL[f]}</p><ManualControl field={f} manual={manual} set={(k,v)=>setManual({...manual,[k]:v})}/></div>)}</div>}
+              <div className="mt-3 rounded-lg border-l-[3px] border-im-200 bg-slate-50/70 px-3.5 py-2.5">
+                <p className="text-[11px] font-semibold text-slate-400">상담 질문</p>
+                <p className="mt-0.5 text-sm leading-6 text-slate-800">“{summary.question}”</p>
+              </div>
+              {item.key==="housing"&&manual.incomeType==="근로소득자"&&<div className="mt-3 space-y-3">{["homeless","salaryUnder7000"].filter(f=>manual[f]==null).map(f=><div key={f}><p className="mb-2 text-sm text-slate-600">{FIELD_LABEL[f]}</p><ManualControl field={f} manual={manual} set={(k,v)=>setManual({...manual,[k]:v})}/></div>)}</div>}
               {item.key==="cardPersonal"&&<details className="mt-3 rounded-lg border border-slate-200 p-3"><summary className="cursor-pointer text-sm font-semibold text-slate-600">발급 요건·소득공제 확인</summary><CardEligibilitySection no={data.customerNo} embedded/><CardDeductionCollapsible/></details>}
-              {(item.cta||item.key==="housing")&&<div className="mt-3 flex flex-wrap items-center gap-2">
+              {(item.cta||item.key==="housing")&&<div className="mt-4 flex flex-wrap items-center gap-2">
                 {item.cta&&<Link to={item.cta.to} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-im-700 px-4 py-2 text-sm font-bold text-white">{item.cta.label}<ArrowRight className="h-4 w-4"/></Link>}
                 {item.key==="housing"&&<a href="/promo/housing.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">상품설명서</a>}
               </div>}
