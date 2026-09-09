@@ -140,7 +140,9 @@ const fetchOne = async (product) => {
 };
 
 /* ETF 시세 조회(조회 전용) — Yahoo(약 15분 지연). 실패 시 모의. 항상 {live, quotes} 반환 */
-export async function fetchEtfQuotes(etfs) {
+export async function fetchEtfQuotes(etfs, { source = "demo" } = {}) {
+  // Internal-network demo: never request an external quote unless explicitly configured.
+  if (source === "demo") return { live: false, quotes: mockQuotes(etfs || []) };
   if (!etfs || etfs.length === 0) return { live: false, quotes: {} };
   try {
     const entries = await Promise.all(etfs.map(async (p) => [p.id, await fetchOne(p)]));

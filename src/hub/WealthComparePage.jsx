@@ -95,7 +95,7 @@ export default function WealthComparePage() {
             {cols.map(({ p }) => (
               <div key={p.id} className="border-l border-slate-100 px-2 py-2">
                 <div className="overflow-x-auto">
-                  <p className="text-xs leading-6 text-slate-500">실제 기준가 이력 미등록</p>
+                  <p className="mb-2 text-xs text-slate-500">예시 데이터 · 1년 추이</p><MarketChart series={genSeries(p, "1y")} label={`${p.name} 예시`} width={260} height={110} interactive />
                 </div>
               </div>
             ))}
@@ -203,11 +203,12 @@ export default function WealthComparePage() {
               return (
                 <div key={p.id} className="flex flex-wrap gap-1.5 border-l border-slate-100 px-3 py-3">
                   <button
-                    onClick={() => window.open(url || KOFIA_DISCLOSURE_URL, "_blank", "noopener,noreferrer")}
+                    disabled={!url}
+                    onClick={() => url && window.open(url, "_blank", "noopener,noreferrer")}
                     className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[11.5px] font-bold text-slate-700 hover:bg-slate-50"
                   >
                     <FileText className="h-3.5 w-3.5" />
-                    간이투자설명서
+                    {url ? "간이투자설명서" : "설명서 연결 예정"}
                   </button>
                   <button
                     onClick={() => navigate(`/wealth?tab=customers&enroll=${p.id}`)}
@@ -223,7 +224,7 @@ export default function WealthComparePage() {
         </div>
       </div>
 
-      <p className="mt-2 text-[11px] text-slate-400">차트·변동성·최대낙폭은 상품 특성 기반 생성 데모입니다. 「높은 값」는 수익률 최고, 「낮은 보수」은 총보수 최저 상품을 표시합니다.</p>
+      <p className="mt-2 text-[11px] text-slate-400">차트는 예시 데이터입니다. 높은 값은 표시된 수익률 중 최고값, 낮은 보수는 총보수 중 최저값입니다. 상품 추천을 뜻하지 않습니다.</p>
     </HubShell>
   );
 }

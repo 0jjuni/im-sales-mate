@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, LineChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert, UserCheck, Flame, Globe, Megaphone, Home, ArrowRight, HelpCircle, ChevronDown, Settings2 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { Sparkline, MarketChart } from "./components/MarketChart";
+import { groupFunds, fundBaseName, classLabel, readRecent } from "./wealth/presentation";
 import { useWealth } from "./wealth/useWealth";
 import { useEtfLive } from "./wealth/useEtfLive";
 import { PRODUCTS, SOLD_RANK, riskMeta, riskName, pricingOf } from "./data/wealthProducts";
@@ -28,7 +29,7 @@ const RISK_DOT = {
 };
 
 const SORTS = [
-  { key: "sold", label: "인기순" },
+  { key: "sold", label: "판매순 예시" },
   { key: "return1y", label: "12개월 수익률" },
   { key: "return6m", label: "6개월 수익률" },
   { key: "return3m", label: "3개월 수익률" },
@@ -38,12 +39,12 @@ const SORTS = [
 
 /* 발견 테마 — 클릭 시 조건에 맞는 상품만 큐레이션 */
 const THEMES = [
-  { key: "us", label: "미국주식", match: (p) => p.category.includes("해외주식") && !p.category.includes("신흥") },
+  { key: "us", label: "미국주식", match: (p) => /미국/.test(p.category + p.name) },
   { key: "dividend", label: "고배당·월지급", match: (p) => p.category.includes("배당") },
-  { key: "stable", label: "안정형", match: (p) => p.risk >= 4 },
+  { key: "stable", label: "위험 4~6등급", match: (p) => p.risk >= 4 },
   { key: "growth", label: "성장·테마", match: (p) => p.risk <= 2 || p.category.includes("테마") || p.category.includes("신흥") },
   { key: "domestic", label: "국내주식", match: (p) => p.category.includes("국내주식") },
-  { key: "bond", label: "채권·안전자산", match: (p) => p.category.includes("채권") || p.category.includes("원자재") },
+  { key: "bond", label: "채권", match: (p) => /채권|MMF/.test(p.category) },
 ];
 
 /* 투자성향 → 판매 가능 위험등급 (iM 금융투자상품 투자위험지도 기준).
@@ -92,22 +93,24 @@ const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll, onCha
         checked={inCompare}
         disabled={!inCompare && compareFull}
         onChange={() => onCompare(product.id)}
-        title="비교 담기"
+        aria-label={`${product.name} 비교 담기`}
         className="h-3.5 w-3.5 flex-shrink-0 accent-sky-600 disabled:opacity-30"
       />
-      <span className={cn("w-6 flex-shrink-0 text-center text-[12px] font-bold tabular-nums", rank <= 3 ? "text-sky-600" : "text-slate-400")}>
+      <span className={cn("hidden w-6 flex-shrink-0 text-center sm:block text-[12px] font-bold tabular-nums", rank <= 3 ? "text-sky-600" : "text-slate-400")}>
         {rank}
       </span>
 
       <button onClick={() => onDetail(product.id)} className="min-w-0 flex-1 text-left">
         <div className="flex items-center gap-1.5">
-          <span className={cn("rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[product.type])}>{product.type}</span>
-          <span className="truncate text-[13px] font-bold text-slate-900">{product.name}</span>
+          <span className={cn("hidden shrink-0 rounded px-1 py-0.5 text-[9px] sm:inline font-bold", TYPE_CLASS[product.type])}>{product.type}</span>
+          <span className="break-words text-[15px] font-bold leading-6 text-slate-900">{fundBaseName(product.name)}</span>
         </div>
-        <div className="mt-0.5 flex items-center gap-1.5 text-[10.5px] text-slate-400">
+        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
           <span>{product.category}</span>
+          <span>{product.classes?.length || 1}개 클래스 · 표시 {classLabel(product)}</span>
           <span className={cn("rounded px-1 py-0.5 font-semibold", RISK_CLASS[rk.tone])}>{riskName(product.risk)}</span>
         </div>
+        <span className="mt-3 flex items-center justify-between gap-2 text-sm sm:hidden"><span className="text-slate-500">12개월 수익률</span><span className={cn("font-bold tabular-nums",retColor(product.return1y))}>{pct(product.return1y)}</span></span>
       </button>
 
       <div className="hidden w-14 flex-shrink-0 text-right lg:block">
@@ -118,17 +121,11 @@ const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll, onCha
         <div className={cn("text-[12px] font-semibold tabular-nums", retColor(product.return6m))}>{pct(product.return6m)}</div>
         <div className="text-[9px] text-slate-400">6개월</div>
       </div>
-      <div className="w-16 flex-shrink-0 text-right">
+      <div className="hidden w-16 flex-shrink-0 text-right sm:block">
         <div className={cn("text-[14px] font-bold tabular-nums", retColor(product.return1y))}>{pct(product.return1y)}</div>
         <div className="text-[9px] text-slate-400">12개월</div>
       </div>
-      <button
-        onClick={() => onChart(product)}
-        title="추이 그래프 보기"
-        className="hidden w-[52px] flex-shrink-0 rounded p-0.5 hover:bg-slate-100 sm:block"
-      >
-        <Sparkline series={genSeries(product, "6m")} width={52} height={22} />
-      </button>
+      <button onClick={() => onChart(product)} title="예시 차트 보기" className="hidden w-[52px] shrink-0 sm:block"><Sparkline series={genSeries(product,"6m")} width={52} height={22}/><span className="text-[10px] text-slate-500">예시</span></button>
       <div className="hidden w-12 flex-shrink-0 text-right md:block">
         <div className="text-[12px] font-semibold tabular-nums text-slate-600">{product.fee}%</div>
         <div className="text-[9px] text-slate-400">보수</div>
@@ -142,10 +139,10 @@ const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll, onCha
         <Star className={cn("h-4 w-4", watched && "fill-amber-400")} />
       </button>
       <button
-        onClick={() => onEnroll(product.id)}
+        onClick={() => onDetail(product.id)}
         className="hidden flex-shrink-0 rounded-md bg-sky-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-sky-700 sm:block"
       >
-        가입
+        상세
       </button>
     </div>
   );
@@ -157,8 +154,13 @@ const wonPrice = (v) => (v == null ? "—" : `${v.toLocaleString("ko-KR")}원`);
 const EtfRow = ({ product, rank, quote, watched, onWatch, onDetail, onEnroll, onChart, inCompare, onCompare, compareFull }) => {
   const rk = riskMeta(product.risk);
   const chg = quote?.changePct;
-  return (
-    <div className="flex items-center gap-2 border-b border-slate-100 px-3 py-2.5 last:border-b-0 hover:bg-slate-50">
+  return (<>
+    <div className="flex items-start gap-3 border-b border-slate-100 px-3 py-4 sm:hidden">
+      <input type="checkbox" checked={inCompare} disabled={!inCompare && compareFull} onChange={()=>onCompare(product.id)} aria-label={`${product.name} 비교 담기`} className="mt-1 h-4 w-4 shrink-0 accent-sky-700"/>
+      <button onClick={()=>onDetail(product.id)} className="min-w-0 flex-1 text-left"><span className="block text-base font-bold leading-6 text-slate-900">{product.name}</span><span className="mt-1 block text-xs leading-5 text-slate-500">{product.category} · {riskName(product.risk)}</span><span className="mt-3 flex flex-wrap items-center justify-between gap-2"><span className="text-base font-bold tabular-nums">{wonPrice(quote?.price)}</span><span className={cn("text-sm font-semibold tabular-nums",retColor(chg))}>{pct(chg)}</span></span></button>
+      <button onClick={()=>onWatch(product.id)} aria-label="관심" className="-mr-1 rounded-lg p-2"><Star className={cn("h-4 w-4",watched?"fill-amber-400 text-amber-500":"text-slate-300")}/></button>
+    </div>
+    <div className="hidden items-center gap-2 border-b border-slate-100 px-3 py-2.5 last:border-b-0 hover:bg-slate-50 sm:flex">
       <input
         type="checkbox"
         checked={inCompare}
@@ -171,8 +173,8 @@ const EtfRow = ({ product, rank, quote, watched, onWatch, onDetail, onEnroll, on
 
       <button onClick={() => onDetail(product.id)} className="min-w-0 flex-1 text-left">
         <div className="flex items-center gap-1.5">
-          <span className={cn("rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[product.type])}>{product.type}</span>
-          <span className="truncate text-[13px] font-bold text-slate-900">{product.name}</span>
+          <span className={cn("shrink-0 rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[product.type])}>{product.type}</span>
+          <span className="break-words text-[15px] font-bold leading-6 text-slate-900">{product.name}</span>
         </div>
         <div className="mt-0.5 flex items-center gap-1.5 text-[10.5px] text-slate-400">
           <span>{product.category}</span>
@@ -204,9 +206,9 @@ const EtfRow = ({ product, rank, quote, watched, onWatch, onDetail, onEnroll, on
         <Star className={cn("h-4 w-4", watched && "fill-amber-400")} />
       </button>
       <button onClick={() => onEnroll(product.id)} className="hidden flex-shrink-0 rounded-md bg-sky-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-sky-700 sm:block">
-        가입
+        고객 등록
       </button>
-    </div>
+    </div></>
   );
 };
 
@@ -226,7 +228,7 @@ const ChartModal = ({ product, onClose }) => {
       <div className="mobile-dialog-panel w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
           <div className="min-w-0">
-            <span className={cn("rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[product.type])}>{product.type}</span>
+            <span className={cn("shrink-0 rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[product.type])}>{product.type}</span>
             <span className="ml-1.5 text-[14px] font-bold text-slate-900">{product.name}</span>
           </div>
           <button onClick={onClose} aria-label="닫기" className="flex-shrink-0 rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
@@ -473,6 +475,8 @@ export default function WealthPage() {
   const [params] = useSearchParams();
   const { isWatched, toggleWatch, watchlist, enrollments, enroll, removeEnroll, setTarget } = useWealth();
   const [tab, setTab] = useState("home");
+  const [recentIds] = useState(readRecent);
+  const [visibleCount, setVisibleCount] = useState(30);
   const [riskFilter, setRiskFilter] = useState("전체");
   const [investorType, setInvestorType] = useState("전체");
   const [tagFilter, setTagFilter] = useState(null);
@@ -521,6 +525,8 @@ export default function WealthPage() {
     setTagFilter(null);
   }, [tab]);
 
+  useEffect(() => { setVisibleCount(30); }, [tab, query, riskFilter, investorType, tagFilter, region, theme, watchOnly, sort]);
+
   const investorRisks = investorRisksOf(investorType);
   /* 현재 유형에 실제 존재하는 인기 태그만 칩으로 노출(펀드에만 태그 있음) */
   const availableTags = useMemo(() => {
@@ -544,7 +550,8 @@ export default function WealthPage() {
         (!watchOnly || watchlist.includes(p.id)) &&
         (!q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.company.toLowerCase().includes(q))
     );
-    return sortProducts(filtered, sort);
+    const ordered = sortProducts(filtered, sort);
+    return catalogType === "펀드" ? groupFunds(ordered) : ordered;
   }, [catalogType, riskFilter, investorRisks, tagFilter, regionObj, themeObj, watchOnly, watchlist, sort, query]);
 
   /* ETF 탭에서만 실시간 시세 폴링(토스 프록시 → 실패 시 모의) */
@@ -581,7 +588,7 @@ export default function WealthPage() {
 
   const TABS = [
     { id: "home", label: "홈", icon: Home },
-    ...PRODUCT_TABS.map((t) => ({ ...t, count: PRODUCTS.filter((p) => p.type === t.type).length })),
+    ...PRODUCT_TABS.map((t) => ({ ...t, count: groupFunds(PRODUCTS.filter((p) => p.type === t.type)).length })),
     { id: "customers", label: "내 가입고객 관리", icon: Users, count: enrollments.length },
     { id: "faq", label: "FAQ", icon: HelpCircle, count: faqsForModule("wealth").length },
     { id: "notices", label: "공지사항", icon: Megaphone, count: noticesForModule("wealth").length },
@@ -596,7 +603,7 @@ export default function WealthPage() {
         </div>
         <div>
           <h1 className="text-[17px] font-black leading-tight text-slate-900 md:text-xl">투자상품</h1>
-          <p className="text-[11px] text-slate-500">펀드·ETF·신탁 · 검색·비교·가입 고객 관리</p>
+          <p className="text-[11px] text-slate-500">펀드·ETF를 찾고 상담 내용을 확인하세요</p>
         </div>
       </div>
 
@@ -604,6 +611,10 @@ export default function WealthPage() {
 
       {tab === "home" ? (
         <section className="space-y-4">
+          <div className="grid gap-4 lg:grid-cols-2">
+            {[{title:"관심상품", ids:watchlist, empty:"상품의 별표를 누르면 여기에 모입니다."}, {title:"최근 본 상품", ids:recentIds, empty:"펀드나 ETF 상세를 열면 최근 본 상품이 남습니다."}].map(({title,ids,empty}) => <div key={title} className={cn(CARD,"p-5")}><h2 className="mb-3 text-base font-bold text-slate-900">{title}</h2>{ids.filter(id=>PRODUCTS.some(p=>p.id===id)).length ? ids.slice(0,6).map(id=>PRODUCTS.find(p=>p.id===id)).filter(Boolean).map(p=><button key={p.id} onClick={()=>goDetail(p.id)} className="flex min-h-14 w-full items-center justify-between gap-3 border-t border-slate-100 py-3 text-left"><span className="min-w-0"><span className="block text-sm font-semibold text-slate-800">{fundBaseName(p.name)}</span><span className="mt-1 block text-xs text-slate-500">{p.category} · {classLabel(p)}</span></span><ArrowRight className="h-4 w-4 shrink-0 text-sky-700"/></button>):<p className="py-4 text-sm leading-7 text-slate-500">{empty}</p>}</div>)}
+          </div>
+          <button onClick={()=>setTab("customers")} className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-200 bg-sky-50 p-5 text-left"><span><span className="block text-base font-bold text-slate-900">확인할 고객 알림 {totals.alerts}건</span><span className="mt-1 block text-sm text-slate-600">목표수익률 도달·손실 알림 확인 · 데모 평가액 기준</span></span><span className="text-sm font-semibold text-sky-800">가입고객 관리 열기</span></button>
           {/* 스탯 */}
           <div className="grid grid-cols-3 gap-2 sm:gap-3">
             <SummaryStat label="전체 상품" value={`${PRODUCTS.length}개`} icon={Layers} />
@@ -613,8 +624,8 @@ export default function WealthPage() {
           {/* 바로가기 */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
-              { id: "fund", icon: Layers, title: "펀드", desc: `${PRODUCTS.filter((p) => p.type === "펀드").length}개 · 검색·비교` },
-              { id: "etf", icon: CandlestickChart, title: "ETF", desc: "실시간 시세·비교" },
+              { id: "fund", icon: Layers, title: "펀드", desc: `${groupFunds(PRODUCTS.filter((p) => p.type === "펀드")).length}개 펀드 · 클래스 묶음` },
+              { id: "etf", icon: CandlestickChart, title: "ETF", desc: "시세·상품 정보" },
               { id: "customers", icon: Users, title: "내 가입고객 관리", desc: "목표수익률·알림" },
               { id: "faq", icon: HelpCircle, title: "FAQ", desc: "매입·환매·적합성 문답" },
             ].map((n) => {
@@ -637,17 +648,17 @@ export default function WealthPage() {
           <div className={cn(CARD, "overflow-hidden")}>
             <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/60 px-4 py-2.5">
               <span className="text-[13px] font-bold text-slate-900">
-                인기 상품 <span className="ml-1 text-[11px] font-medium text-slate-400">당행 누적 판매순</span>
+                판매순 예시 <span className="ml-1 text-[11px] font-medium text-slate-400">데모 기준</span>
               </span>
               <button onClick={() => setTab("fund")} className="text-[11.5px] font-semibold text-sky-600 hover:text-sky-700">
                 전체 보기
               </button>
             </div>
-            {[...PRODUCTS].sort((a, b) => b.sold - a.sold).slice(0, 5).map((p, i) => (
+            {groupFunds([...PRODUCTS].sort((a, b) => b.sold - a.sold)).slice(0, 5).map((p, i) => (
               <button key={p.id} onClick={() => goDetail(p.id)} className="flex w-full items-center gap-2 border-b border-slate-100 px-4 py-2.5 text-left last:border-b-0 hover:bg-slate-50">
                 <span className={cn("w-5 flex-shrink-0 text-center text-[12px] font-bold tabular-nums", i < 3 ? "text-sky-600" : "text-slate-400")}>{i + 1}</span>
                 <span className={cn("flex-shrink-0 rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[p.type])}>{p.type}</span>
-                <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-slate-900">{p.name}</span>
+                <span className="min-w-0 flex-1 break-words text-[13px] font-semibold leading-6 text-slate-900">{fundBaseName(p.name)}</span>
                 <span className={cn("flex-shrink-0 text-[13px] font-bold tabular-nums", retColor(p.return1y))}>{pct(p.return1y)}</span>
               </button>
             ))}
@@ -677,7 +688,7 @@ export default function WealthPage() {
                 <button
                   key={k}
                   onClick={() => setInvestorType(k)}
-                  className={cn("rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors", investorType === k ? "bg-violet-600 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
+                  className={cn("rounded-md px-2.5 py-1 text-[12px] font-semibold transition-colors", investorType === k ? "bg-sky-700 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
                 >
                   {k}
                 </button>
@@ -685,6 +696,26 @@ export default function WealthPage() {
               {investorType !== "전체" && <span className="text-[10.5px] text-slate-400">판매 가능 등급만 표시</span>}
             </div>
 
+            {/* 지역·자산 */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex w-[4.75rem] flex-shrink-0 items-center gap-1 whitespace-nowrap text-[11px] font-bold text-slate-400">
+                <Globe className="h-3 w-3" />
+                지역·자산
+              </span>
+              {REGIONS.map((r) => (
+                <button
+                  key={r.key}
+                  onClick={() => setRegion((cur) => (cur === r.key ? null : r.key))}
+                  className={cn("rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-colors", region === r.key ? "bg-sky-600 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
+                >
+                  {r.key}
+                </button>
+              ))}
+            </div>
+
+            <details className="group border-t border-slate-200 pt-2">
+              <summary className="cursor-pointer py-2 text-sm font-semibold text-slate-700">상세 필터 {theme || tagFilter || riskFilter !== "전체" ? "· 선택됨" : ""}</summary>
+              <div className="space-y-3 py-2">
             {/* 인기 태그(펀드) */}
             {availableTags.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5">
@@ -722,23 +753,6 @@ export default function WealthPage() {
                 </button>
               ))}
             </div>
-            {/* 지역·자산 */}
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="inline-flex w-[4.75rem] flex-shrink-0 items-center gap-1 whitespace-nowrap text-[11px] font-bold text-slate-400">
-                <Globe className="h-3 w-3" />
-                지역·자산
-              </span>
-              {REGIONS.map((r) => (
-                <button
-                  key={r.key}
-                  onClick={() => setRegion((cur) => (cur === r.key ? null : r.key))}
-                  className={cn("rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-colors", region === r.key ? "bg-sky-600 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
-                >
-                  {r.key}
-                </button>
-              ))}
-            </div>
-
             {/* 위험등급 */}
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="inline-flex w-[4.75rem] flex-shrink-0 items-center gap-1 whitespace-nowrap text-[11px] font-bold text-slate-400">
@@ -773,8 +787,15 @@ export default function WealthPage() {
                 );
               })}
             </div>
+              </div>
+            </details>
           </div>
 
+          {anyFilter && <div className="mb-3 flex flex-wrap gap-2" aria-label="선택한 검색 조건">{[
+            [investorType !== "전체" && investorType, () => setInvestorType("전체")],
+            [region, () => setRegion(null)], [themeObj?.label, () => setTheme(null)],
+            [tagFilter, () => setTagFilter(null)], [riskFilter !== "전체" && riskName(riskFilter), () => setRiskFilter("전체")],
+          ].filter(([label]) => label).map(([label, clear]) => <button key={label} onClick={clear} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-sky-50 px-3 text-sm text-sky-800" aria-label={`${label} 필터 해제`}>{label}<X className="h-3 w-3"/></button>)}</div>}
           {/* 관심만 + 정렬 */}
           <div className="mb-3 flex flex-wrap items-center gap-1.5">
             <button
@@ -808,7 +829,7 @@ export default function WealthPage() {
                 {etfLive ? "시세 조회" : "모의 시세"}
               </span>
               <span className="text-slate-400">
-                {etfLive ? "Yahoo Finance · 약 15분 지연 · 조회 전용" : "시세 조회 실패 — 모의로 표시"}
+                {etfLive ? "사내 시세 · 조회 전용" : "내부망 데모 · 로컬 예시 데이터"}
               </span>
             </div>
           )}
@@ -821,8 +842,8 @@ export default function WealthPage() {
               <span className="flex-1">상품</span>
               {isEtf ? (
                 <>
-                  <span className="w-20 text-right">현재가</span>
-                  <span className="w-16 text-right">등락</span>
+                  <span className="hidden w-20 text-right sm:block">현재가</span>
+                  <span className="hidden w-16 text-right sm:block">등락</span>
                   <span className="hidden w-[52px] text-center sm:block">추이</span>
                   <span className="hidden w-12 text-right md:block">보수</span>
                 </>
@@ -830,8 +851,8 @@ export default function WealthPage() {
                 <>
                   <span className="hidden w-14 text-right lg:block">3개월</span>
                   <span className="hidden w-14 text-right sm:block">6개월</span>
-                  <span className="w-16 text-right">12개월</span>
-                  <span className="hidden w-[52px] text-center sm:block">추이</span>
+                  <span className="hidden w-16 text-right sm:block">12개월</span>
+                  <span className="hidden w-[52px] text-center sm:block">예시 추이</span>
                   <span className="hidden w-12 text-right md:block">보수</span>
                 </>
               )}
@@ -840,7 +861,7 @@ export default function WealthPage() {
             {products.length === 0 ? (
               <p className="px-3 py-12 text-center text-[13px] text-slate-400">{watchOnly ? "관심 등록한 상품이 없습니다." : "검색 결과가 없습니다."}</p>
             ) : (
-              products.map((p) =>
+              products.slice(0, visibleCount).map((p) =>
                 isEtf ? (
                   <EtfRow
                     key={p.id}
@@ -874,8 +895,9 @@ export default function WealthPage() {
               )
             )}
           </div>
+          {products.length > visibleCount && <button onClick={()=>setVisibleCount(n=>n+30)} className="mt-4 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700">상품 더 보기 · {visibleCount}/{products.length}</button>}
           <p className="mt-2 text-[11px] text-slate-400">
-            {isEtf ? "실시간 시세는 데모 표기입니다. 순위는 당행 누적 판매건수 기준. 왼쪽 체크로 최대 3개까지 비교." : "순위는 당행 누적 판매건수 기준(데모). 왼쪽 체크로 최대 3개까지 비교할 수 있습니다."}
+            {isEtf ? "시세 연결 상태는 위 표시를 확인하세요. 판매순위는 데모 예시이며 왼쪽 체크로 최대 3개까지 비교할 수 있습니다." : "펀드별로 묶어 표시합니다. 수익률·보수·비교는 각 행에 표시된 클래스 기준이며, 검색과 정렬에 따라 표시 클래스가 달라집니다. 판매순위는 데모 예시입니다."}
           </p>
         </section>
       ) : (
@@ -888,7 +910,7 @@ export default function WealthPage() {
           <div className={cn(CARD, "p-4")}>
             <div className="mb-3 flex items-center gap-1.5 text-[12.5px] font-bold text-slate-700">
               <Plus className="h-4 w-4 text-sky-600" />
-              가입 고객 추가
+              가입 고객 등록
             </div>
             <EnrollForm presetProductId={presetProduct} onAdd={enroll} />
           </div>
