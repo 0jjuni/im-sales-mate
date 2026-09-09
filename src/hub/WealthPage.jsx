@@ -1,4 +1,3 @@
-import { WealthPrintButton } from "./wealth/WealthPrintButton";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, LineChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert, UserCheck, Flame, Globe, Megaphone, Home, ArrowRight, HelpCircle, ChevronDown, Settings2 } from "lucide-react";
@@ -267,58 +266,26 @@ const mdShort = (d) => {
 const dDays = (d) => Math.max(0, Math.ceil(((d instanceof Date ? d : new Date(d)).getTime() - Date.now()) / 86400000));
 
 const EnrollmentRow = ({ e, onTarget, onRemove }) => {
+  const [confirmRemove, setConfirmRemove] = useState(false);
   const a = ALERT_META[e.alert];
   const pending = e.status === "대기";
-  return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-slate-100 px-3 py-3 last:border-b-0">
-      <div className="min-w-[9rem] flex-1">
-        <div className="flex items-center gap-1.5">
-          <span className="font-mono text-[12px] font-bold tabular-nums text-slate-800">{e.customerNo}</span>
-          <span className={cn("rounded px-1 py-0.5 text-[9px] font-bold", a.cls)}>{a.label}</span>
-        </div>
-        <div className="mt-0.5 flex items-center gap-1 text-[12px] text-slate-600">
-          {e.product?.name ?? "(상품 없음)"}
-          {e.pricing && <span className="rounded bg-slate-100 px-1 py-0.5 text-[9px] font-semibold text-slate-500">{e.pricing.chip}</span>}
-        </div>
-        <div className="text-[10px] text-slate-400">
-          신청 {e.joinedAt} · {won(e.principal)}
-          {!pending && e.entryNav != null && (
-            <> · {e.pricing?.priceLabel ?? "매입가"} {nav(e.entryNav)}{e.units != null && ` · ${e.units.toLocaleString()}좌`}</>
-          )}
-        </div>
-      </div>
-      {pending ? (
-        <div className="flex items-center gap-1.5 rounded-md bg-amber-50 px-2.5 py-1.5 text-[11px] font-semibold text-amber-700">
-          <Clock className="h-3.5 w-3.5" />
-          매입가 확정 {mdShort(e.confirmAt)} (D-{dDays(e.confirmAt)})
-        </div>
-      ) : (
-        <>
-          <div className="text-right">
-            <div className="text-[10px] text-slate-400">현재 기준가</div>
-            <div className="text-[13px] font-bold tabular-nums text-slate-900">{nav(e.nowNav)}</div>
-          </div>
-          <div className="text-right">
-            <div className="text-[10px] text-slate-400">평가금액</div>
-            <div className="text-[13px] font-bold tabular-nums text-slate-900">{won(e.currentValue)}</div>
-          </div>
-          <div className="text-right">
-            <div className="text-[10px] text-slate-400">수익률</div>
-            <div className={cn("text-[13px] font-bold tabular-nums", retColor(e.currentReturn))}>{pct(e.currentReturn)}</div>
-          </div>
-          <label className="flex items-center gap-1 text-[11px] text-slate-500">
-            <Target className="h-3 w-3" />
-            목표
-            <input type="number" value={e.targetReturn} onChange={(ev) => onTarget(e.id, ev.target.value)} className="w-14 rounded border border-slate-300 px-1.5 py-1 text-right text-[12px] tabular-nums focus:border-sky-500 focus:outline-none" />
-            %
-          </label>
-        </>
-      )}
-      <button onClick={() => onRemove(e.id)} aria-label="삭제" className="rounded p-1 text-slate-300 hover:bg-rose-50 hover:text-rose-500">
-        <Trash2 className="h-3.5 w-3.5" />
-      </button>
+  return <article className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center gap-2"><h3 className="text-base font-bold text-slate-900">고객 {e.customerNo}</h3><span className={cn("rounded-md px-2 py-1 text-xs font-semibold", a.cls)}>{a.label}</span></div>
+      <span className="text-xs text-slate-500">가입 {e.joinedAt}</span>
     </div>
-  );
+    {e.product ? <Link to={`/wealth/${e.productId}`} className="mt-3 block text-sm font-semibold leading-6 text-slate-800 hover:text-sky-700">{fundBaseName(e.product.name)}</Link> : <p className="mt-3 text-sm">상품 정보 없음</p>}
+    <p className="mt-1 text-xs text-slate-500">{e.product?.company}{e.product?.type === "펀드" && ` · 클래스 ${classLabel(e.product)}`}</p>
+    <dl className="my-4 grid grid-cols-2 gap-4 rounded-lg bg-slate-50 p-4 sm:grid-cols-4">
+      {[["가입금액",won(e.principal)],["평가금액",pending?"확정 대기":won(e.currentValue)],["평가손익",pending?"—":`${e.gain>0?"+":""}${won(e.gain)}`],["수익률",pending?"—":pct(e.currentReturn)]].map(([label,value],i)=><div key={label}><dt className="text-xs text-slate-500">{label}</dt><dd className={cn("mt-1 text-base font-bold tabular-nums",i>=2&&!pending?retColor(e.currentReturn):"text-slate-900")}>{value}</dd></div>)}
+    </dl>
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <label className="flex items-center gap-2 text-sm text-slate-600">목표수익률<input aria-label={`${e.customerNo} 목표수익률`} type="number" step="0.1" value={e.targetReturn} onChange={ev=>onTarget(e.id,ev.target.value)} className="min-h-11 w-20 rounded-lg border border-slate-300 px-2 text-right font-semibold"/>%</label>
+      <button type="button" onClick={()=>setConfirmRemove(!confirmRemove)} className="min-h-11 rounded-lg px-3 text-xs text-slate-500">등록 삭제</button>
+    </div>
+    {confirmRemove&&<div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg bg-rose-50 p-3 text-sm"><span className="mr-auto">이 가입 기록을 삭제할까요?</span><button onClick={()=>setConfirmRemove(false)} className="min-h-11 px-3">취소</button><button onClick={()=>onRemove(e.id)} className="min-h-11 rounded-lg bg-rose-700 px-3 font-semibold text-white">삭제 확인</button></div>}
+    <details className="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-500"><summary className="cursor-pointer py-1">매입 기준가 확인</summary><p className="mt-2 leading-6">{pending?`매입가 확정 예정 ${mdShort(e.confirmAt)} (D-${dDays(e.confirmAt)})`:`매입 기준가 ${nav(e.entryNav)} · 현재 기준가 ${nav(e.nowNav)}`}</p></details>
+  </article>;
 };
 
 const EnrollForm = ({ presetProductId, onAdd }) => {
@@ -345,20 +312,21 @@ const EnrollForm = ({ presetProductId, onAdd }) => {
     setPrincipal("");
   };
   return (
-    <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
+    <form onSubmit={submit} className="grid grid-cols-2 items-end gap-3 lg:grid-cols-6">
       <label className="flex flex-col gap-1">
-        <span className="text-[10px] font-semibold text-slate-500">고객번호</span>
-        <input value={customerNo} onChange={(e) => setCustomerNo(e.target.value.replace(/\D/g, "").slice(0, 9))} inputMode="numeric" maxLength={9} placeholder="9자리" className="w-28 rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] tabular-nums focus:border-sky-500 focus:outline-none" />
+        <span className="text-xs font-semibold text-slate-500">고객번호</span>
+        <input value={customerNo} onChange={(e) => setCustomerNo(e.target.value.replace(/\D/g, "").slice(0, 9))} inputMode="numeric" maxLength={9} placeholder="9자리" className="min-h-11 w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-[13px] tabular-nums focus:border-sky-500 focus:outline-none" />
       </label>
-      <div className="relative flex min-w-0 flex-1 flex-col gap-1">
-        <span className="text-[10px] font-semibold text-slate-500">상품 (검색)</span>
+      <div className="relative col-span-2 flex min-w-0 flex-col gap-1">
+        <span className="text-xs font-semibold text-slate-500">상품 (검색)</span>
         <input
           value={open ? pquery : selected ? `[${selected.type}] ${selected.name}` : ""}
           onChange={(e) => { setPquery(e.target.value); setOpen(true); }}
+          aria-label="가입 상품 검색"
           onFocus={() => { setPquery(""); setOpen(true); }}
-          onBlur={() => setTimeout(() => setOpen(false), 120)}
+          onBlur={(e) => { if (!e.currentTarget.parentElement.contains(e.relatedTarget)) setOpen(false); }}
           placeholder="상품명·운용사 검색"
-          className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[13px] focus:border-sky-500 focus:outline-none"
+          className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-[13px] focus:border-sky-500 focus:outline-none"
         />
         {open && matches.length > 0 && (
           <ul className="absolute left-0 top-full z-30 mt-1 max-h-72 w-[24rem] max-w-[85vw] overflow-auto rounded-md border border-slate-200 bg-white py-1 shadow-lg">
@@ -366,7 +334,7 @@ const EnrollForm = ({ presetProductId, onAdd }) => {
               <li key={p.id}>
                 <button
                   type="button"
-                  onMouseDown={() => { setProductId(p.id); setOpen(false); setPquery(""); }}
+                  onClick={() => { setProductId(p.id); setOpen(false); setPquery(""); }}
                   className="flex w-full items-center gap-1.5 px-3 py-1.5 text-left hover:bg-slate-50"
                 >
                   <span className={cn("flex-shrink-0 rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[p.type])}>{p.type}</span>
@@ -382,18 +350,18 @@ const EnrollForm = ({ presetProductId, onAdd }) => {
         )}
       </div>
       <label className="flex flex-col gap-1">
-        <span className="text-[10px] font-semibold text-slate-500">가입금액(만원)</span>
-        <input value={principal} onChange={(e) => setPrincipal(e.target.value.replace(/\D/g, ""))} inputMode="numeric" placeholder="1000" className="w-24 rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] tabular-nums focus:border-sky-500 focus:outline-none" />
+        <span className="text-xs font-semibold text-slate-500">가입금액(만원)</span>
+        <input value={principal} onChange={(e) => setPrincipal(e.target.value.replace(/\D/g, ""))} inputMode="numeric" placeholder="1000" className="min-h-11 w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-[13px] tabular-nums focus:border-sky-500 focus:outline-none" />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[10px] font-semibold text-slate-500">목표수익률</span>
-        <input value={target} onChange={(e) => setTarget(e.target.value.replace(/[^\d.]/g, ""))} inputMode="decimal" className="w-16 rounded-md border border-slate-300 px-2.5 py-1.5 text-right text-[13px] tabular-nums focus:border-sky-500 focus:outline-none" />
+        <span className="text-xs font-semibold text-slate-500">목표수익률</span>
+        <input value={target} onChange={(e) => setTarget(e.target.value.replace(/[^\d.]/g, ""))} inputMode="decimal" className="min-h-11 w-full rounded-lg border border-slate-300 px-2.5 py-1.5 text-right text-[13px] tabular-nums focus:border-sky-500 focus:outline-none" />
       </label>
-      <button type="submit" disabled={!canSubmit} className="rounded-md bg-sky-600 px-4 py-2 text-[13px] font-bold text-white transition-colors hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-40">
+      <button type="submit" disabled={!canSubmit} className="min-h-11 rounded-lg bg-sky-700 px-4 py-2 text-[13px] font-bold text-white transition-colors hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-40">
         가입 추가
       </button>
       {pricing.note && (
-        <p className="flex w-full items-center gap-1.5 text-[11px] text-slate-500">
+        <p className="col-span-2 flex w-full items-center gap-1.5 text-[11px] lg:col-span-6 text-slate-500">
           <span className={cn("rounded px-1.5 py-0.5 text-[9.5px] font-bold", TYPE_CLASS[selected?.type] ?? "bg-slate-100 text-slate-500")}>{pricing.chip}</span>
           {pricing.note}
         </p>
@@ -484,6 +452,10 @@ export default function WealthPage() {
   const [compare, setCompare] = useState([]);
   const [presetProduct, setPresetProduct] = useState(null);
   const [chartProduct, setChartProduct] = useState(null);
+  const [customerQuery, setCustomerQuery] = useState("");
+  const [customerFilter, setCustomerFilter] = useState("all");
+  const customerFilters = [["all", "전체"], ["target", "목표 도달"], ["loss", "손실 경고"], ["pending", "기준가 대기"], ["progress", "진행 중"]];
+  const filteredEnrollments = enrollments.filter(e => (customerFilter === "all" || e.alert === customerFilter) && `${e.customerNo} ${e.product?.name || ""} ${e.product?.company || ""}`.toLowerCase().includes(customerQuery.trim().toLowerCase()));
 
   useEffect(() => {
     const prev = document.title;
@@ -592,7 +564,6 @@ export default function WealthPage() {
 
   return (
     <HubShell>
-      <div className="mb-4 flex flex-wrap justify-end gap-2"><WealthPrintButton ids={compare.length ? compare : watchlist} label={compare.length ? "선택상품 상담자료 인쇄" : "관심상품 상담자료 인쇄"}/></div>
       {/* 모듈 헤더 — 다른 모듈과 통일(아이콘 사각형 + 제목) */}
       <div className="mb-4 flex items-center gap-2.5">
         <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
@@ -910,15 +881,11 @@ export default function WealthPage() {
             </div>
             <EnrollForm presetProductId={presetProduct} onAdd={enroll} />
           </div>
-          <div className={cn(CARD, "overflow-hidden")}>
-            <div className="border-b border-slate-100 px-3 py-2.5 text-[13px] font-bold text-slate-900">
-              가입 고객 <span className="ml-1 text-[11px] font-medium text-slate-400">{enrollments.length}건</span>
-            </div>
-            {enrollments.length === 0 ? (
-              <p className="px-3 py-10 text-center text-[12.5px] text-slate-400">가입 고객이 없습니다. 위에서 추가하세요.</p>
-            ) : (
-              enrollments.map((e) => <EnrollmentRow key={e.id} e={e} onTarget={setTarget} onRemove={removeEnroll} />)
-            )}
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-end justify-between gap-2"><h2 className="text-base font-bold text-slate-900">가입 내역 <span className="text-sm font-medium text-slate-500">{filteredEnrollments.length}건</span></h2><span className="text-xs text-slate-500">평가금액·수익률은 데모 추정치</span></div>
+            <input aria-label="가입고객 검색" value={customerQuery} onChange={e=>setCustomerQuery(e.target.value)} placeholder="고객번호·상품명·운용사 검색" className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm"/>
+            <div className="flex flex-wrap gap-2">{customerFilters.map(([key,label])=><button key={key} onClick={()=>setCustomerFilter(key)} aria-pressed={customerFilter===key} className={cn("min-h-11 rounded-lg border px-3 text-sm font-semibold",customerFilter===key?"border-sky-700 bg-sky-700 text-white":"border-slate-200 bg-white text-slate-600")}>{label} <span className="ml-1">{key==="all"?enrollments.length:enrollments.filter(e=>e.alert===key).length}</span></button>)}</div>
+            {filteredEnrollments.length ? <div className="grid gap-4 lg:grid-cols-2">{filteredEnrollments.map(e=><EnrollmentRow key={e.id} e={e} onTarget={setTarget} onRemove={removeEnroll}/>)}</div> : <p className="rounded-xl border border-dashed border-slate-300 p-10 text-center text-sm text-slate-500">{enrollments.length?"검색 조건에 맞는 가입 내역이 없습니다.":"등록된 가입 내역이 없습니다."}</p>}
           </div>
           <p className="text-[11px] text-slate-400">매입가는 상품 유형별 기준가 확정 방식(ETF 실시간 체결 · 펀드 T+1~2 · 신탁 설정일)을 반영합니다. 확정 전에는 「기준가 대기」로, 확정 후에는 매입 기준가 대비 보유기간 수익률로 계산합니다. 기준가·평가금액은 데모 추정치입니다.</p>
         </section>
