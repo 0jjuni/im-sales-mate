@@ -266,7 +266,7 @@ const ProductCard = ({ product, manual, onManual, compact = false }) => {
   const st = PRODUCT_STATE[product.state];
   const cls = STATE_CLASS[st.tone];
   const sell = st.sell;
-  const metrics = product.metrics || [];
+  const metrics = needs.length ? [] : (product.metrics || []).filter(m => !compact || !["혜택", "미보유"].includes(m.label));
   const hero = metrics.find((m) => m.strong);
   const rest = metrics.filter((m) => !m.strong);
   return (
@@ -315,7 +315,7 @@ const ProductCard = ({ product, manual, onManual, compact = false }) => {
         </ul>
       )}
 
-      {product.note && (
+      {product.note && !compact && (
         <p className="mt-2 border-t border-slate-200/70 pt-2 text-[11.5px] leading-relaxed text-slate-500">
           {product.note}
         </p>
@@ -338,7 +338,7 @@ const ProductCard = ({ product, manual, onManual, compact = false }) => {
 
       {/* 개인 신용카드 보유·활용 중이면 소득공제 계산을 여기서 바로 */}
 
-      {product.cta && (
+      {product.cta && !compact && (
         <Link
           to={product.cta.to}
           className="mt-2.5 inline-flex items-center gap-1 rounded-md bg-im-600 px-2.5 py-1.5 text-[11.5px] font-bold text-white transition-colors hover:bg-im-700"
@@ -900,7 +900,7 @@ const GuidanceForTarget = ({ data }) => (
 function MerchantSettlementCard({ m }) {
   const state=settlementStatus(m);
   const label={own:"당행 이용 중",other:"타행 이용 중",unknown:"조회 정보 누락",unregistered:"POS 미등록"}[state];
-  return <div className="rounded-xl border border-slate-200 bg-white p-4"><h3 className="text-sm font-bold text-slate-900">가맹점 결제계좌</h3><span className={cn("mt-2 inline-block rounded px-2 py-1 text-xs font-semibold",state==="own"?"bg-im-50 text-im-700":state==="other"?"bg-amber-50 text-amber-800":"bg-slate-100 text-slate-600")}>{label}</span><p className="mt-3 text-base font-bold text-slate-800">{state==="unregistered" ? "가맹점 결제계좌 없음" : m?.bank || "결제은행 조회 필요"}</p><p className="mt-3 text-xs leading-6 text-slate-600">{state==="own"?"당행으로 매출대금을 받고 있습니다. 현재 거래 조건과 이용 불편을 확인하세요.":state==="other"?"현재 이용 조건을 확인하고 당행 입금계좌 전환을 상담하세요.":state==="unregistered"?"POS가 등록되지 않은 고객입니다.":"POS 등록 여부와 BC 가맹점 결제은행 조회 결과를 확인하세요."}</p></div>;
+  return <div className="rounded-xl border border-slate-200 bg-white p-4"><h3 className="text-sm font-bold text-slate-900">가맹점 결제계좌</h3><span className={cn("mt-2 inline-block rounded px-2 py-1 text-xs font-semibold",state==="own"?"bg-im-50 text-im-700":state==="other"?"bg-amber-50 text-amber-800":"bg-slate-100 text-slate-600")}>{label}</span><p className="mt-3 text-base font-bold text-slate-800">{state==="unregistered" ? "가맹점 결제계좌 없음" : m?.bank || "결제은행 조회 필요"}</p></div>;
 }
 
 /* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
@@ -962,7 +962,7 @@ function ResultView({ data }) {
         <SectionTitle icon={Layers} sub="당행 조회 결과 · 타행 가입 여부와 합산 납입액은 상담 시 확인">
           상품 활용 현황
         </SectionTitle>
-        <div className="grid auto-rows-fr items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">{products.map(p=><article key={p.key} className="h-full min-h-[240px] rounded-xl border border-slate-200 bg-white p-4"><div className="text-sm"><span className="font-semibold text-slate-800">{SOURCES[p.key].label.replace(" 가입 여부", "")}</span><span className={cn("ml-2 inline-block rounded px-2 py-1 text-xs",STATE_CLASS[PRODUCT_STATE[p.state].tone].badge)}>{p.state==="restricted"?"가입·연장 제한":p.state==="available"?"추가 활용 가능":p.held===true||p.state==="active"?"보유 중":p.held===false||p.state==="recommend"?"당행 미보유":"확인 필요"}</span>{p.remaining&&<span className="mt-2 block text-sm font-bold text-im-700">추가 납입 여력 {p.remaining}</span>}</div><div className="mt-3"><ProductCard product={p} manual={manual} onManual={setManual} compact/></div></article>)}
+        <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">{products.map(p=><article key={p.key} className="h-full min-h-[170px] rounded-xl border border-slate-200 bg-white p-4"><div className="text-sm"><span className="font-semibold text-slate-800">{SOURCES[p.key].label.replace(" 가입 여부", "")}</span><span className={cn("ml-2 inline-block rounded px-2 py-1 text-xs",STATE_CLASS[PRODUCT_STATE[p.state].tone].badge)}>{p.state==="unknown"?"확인 필요":p.state==="none"?"해당 없음":p.state==="restricted"?"가입·연장 제한":p.state==="available"?"추가 활용 가능":p.held===true||p.state==="active"?"보유 중":p.held===false||p.state==="recommend"?"당행 미보유":"확인 필요"}</span>{p.remaining&&<span className="mt-2 block text-sm font-bold text-im-700">추가 납입 여력 {p.remaining}</span>}</div><div className="mt-3"><ProductCard product={p} manual={manual} onManual={setManual} compact/></div></article>)}
           {manual.incomeType === "개인사업자" && <MerchantSettlementCard m={data.merchantSettlement}/>}
         </div>
       </section>

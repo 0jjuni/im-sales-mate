@@ -218,13 +218,13 @@ export function viewProduct(product, manual, restricted = false) {
   if (product.key === "nontaxSavings") {
     const remain = { label: "남은 비과세 한도", value: "5,000만원", strong: true };
     if (nontaxQual == null) {
-      return { ...product, state: "unknown", metrics: [remain], note: "비과세종합저축 자격을 확인하세요." };
+      return { ...product, state: "unknown", metrics: [], note: "비과세종합저축 자격을 확인하세요." };
     }
     if (nontaxQual === "해당 없음") {
       return {
         ...product,
         state: "none",
-        metrics: [{ label: "비과세 한도", value: "5,000만원" }],
+        metrics: [],
         note: "만 65세 이상·장애인·기초생활수급자·독립유공자 등만 가입 가능.",
       };
     }
