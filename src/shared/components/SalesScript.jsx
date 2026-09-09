@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MessageSquareQuote, ChevronDown } from "lucide-react";
 import { cn } from "@shared/lib/format";
 
@@ -15,11 +15,20 @@ const ACCENTS = {
 export const SalesScript = ({ accent = "amber", opening, detail = [], objections = [] }) => {
   const ac = ACCENTS[accent] ?? ACCENTS.amber;
   const [openIdx, setOpenIdx] = useState(null);
+  /* 데스크톱(sm↑)에서는 상담 화법을 항상 펼쳐 두고, 모바일에서만 접어 화면을 아낀다. */
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(min-width: 640px)").matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 640px)");
+    const apply = () => setIsDesktop(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
-  return (
-    <details className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 print:hidden">
-      <summary className="cursor-pointer text-sm font-semibold text-slate-800">상담 문구와 질문 대응 보기</summary>
-      <div className="mt-4">
+  const body = (
+    <div className={cn(!isDesktop && "mt-4")}>
       <header className="mb-4 flex items-center gap-2.5">
         <span className={cn("flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg", ac.chip)}>
           <MessageSquareQuote className={cn("h-4 w-4", ac.icon)} />
@@ -73,6 +82,19 @@ export const SalesScript = ({ accent = "amber", opening, detail = [], objections
           </div>
         </div>
       )}
-    </div></details>
+    </div>
+  );
+
+  const wrapper = "rounded-xl border border-slate-200 bg-white p-5 sm:p-6 print:hidden";
+
+  if (isDesktop) {
+    return <section className={wrapper}>{body}</section>;
+  }
+
+  return (
+    <details className={wrapper}>
+      <summary className="cursor-pointer text-sm font-semibold text-slate-800">상담 문구와 질문 대응 보기</summary>
+      {body}
+    </details>
   );
 };
