@@ -23,7 +23,7 @@ import { noticesForModule } from "@shared/data/notices";
 /* 노란우산 모듈 — 상단 네비 + 본문 탭(사이드바 제거). amber 아이덴티티. "/noran/*" 마운트. */
 
 const NAV_ITEMS = [
-  { id: "dashboard", label: "대시보드", icon: Home },
+  { id: "dashboard", label: "홈", icon: Home },
   { id: "simulator", label: "상담 시뮬레이터", icon: MessageSquare },
   { id: "calculator", label: "계산기", icon: Calculator, highlight: true },
   { id: "guide", label: "업무별 가이드", icon: ClipboardList },

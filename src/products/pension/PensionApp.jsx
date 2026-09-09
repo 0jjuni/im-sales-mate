@@ -15,7 +15,7 @@ import { FaqPage } from "./pages/FaqPage";
 /* 연금계좌 모듈 — 상단 네비 + 본문 탭(사이드바 제거). violet 아이덴티티. "/pension/*" 마운트. */
 
 const NAV_ITEMS = [
-  { id: "overview", label: "세제 한눈에", icon: Home },
+  { id: "overview", label: "홈", icon: Home },
   { id: "calculator", label: "세액공제 계산기", icon: Coins, highlight: true },
   { id: "faq", label: "FAQ", icon: HelpCircle },
   { id: "notices", label: "공지사항", icon: Megaphone },

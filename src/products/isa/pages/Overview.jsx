@@ -1,4 +1,4 @@
-import { Percent, HelpCircle, PiggyBank, CalendarClock, Wallet, ArrowRight, FileText } from "lucide-react";
+import { Percent, HelpCircle, PiggyBank, CalendarClock, Wallet, ArrowRight, FileText, Megaphone } from "lucide-react";
 import { ISA_TYPES, ISA_RULES, ISA_ELIGIBILITY_NOTES, ISA_META, ISA_SOURCES } from "../data/isa";
 import { formatKRWShort } from "@shared/lib/format";
 
@@ -78,27 +78,32 @@ export const Overview = ({ onNavigate }) => (
       </div>
     </div>
 
-    {/* 계산기 유도 */}
-    <button
-      onClick={() => onNavigate("calculator")}
-      className="w-full text-left bg-fuchsia-50/50 border border-fuchsia-200 rounded-xl p-5 shadow-sm transition-all hover:border-fuchsia-300 hover:shadow-md group"
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-fuchsia-700 mb-1">
-            <Percent className="w-3.5 h-3.5" />
-            세일즈 계산기
-          </div>
-          <h3 className="text-base font-bold text-slate-900">
-            "일반 예금보다 얼마나 이득?" 절세액 즉시 계산
-          </h3>
-          <p className="text-[12px] text-slate-600 mt-1">
-            예금 원금·금리·기간을 넣으면 ISA 예금 vs 일반 예금의 세후 실수령·실효금리를 비교합니다. (펀드 등은 순이익 직접입력 모드)
-          </p>
-        </div>
-        <ArrowRight className="w-5 h-5 text-fuchsia-600 flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
-      </div>
-    </button>
+    {/* 바로가기 — 홈 대시보드 네비 */}
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      {[
+        { id: "calculator", icon: Percent, title: "세제 절세 계산기", desc: "ISA vs 일반 예금 절세액 즉시 계산" },
+        { id: "faq", icon: HelpCircle, title: "자주 묻는 질문", desc: "가입 자격·중도해지·만기 FAQ" },
+        { id: "notices", icon: Megaphone, title: "공지사항", desc: "ISA 관련 부서 공지" },
+      ].map((n) => {
+        const Icon = n.icon;
+        return (
+          <button
+            key={n.id}
+            onClick={() => onNavigate(n.id)}
+            className="text-left bg-white border border-slate-200 rounded-xl p-4 shadow-sm transition-all hover:border-fuchsia-300 hover:shadow-md group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-fuchsia-50 text-fuchsia-700">
+                <Icon className="w-5 h-5" />
+              </div>
+              <ArrowRight className="w-4 h-4 text-fuchsia-600 transition-transform group-hover:translate-x-0.5" />
+            </div>
+            <h3 className="mt-2.5 text-sm font-bold text-slate-900">{n.title}</h3>
+            <p className="mt-0.5 text-[12px] text-slate-600 leading-relaxed">{n.desc}</p>
+          </button>
+        );
+      })}
+    </div>
 
     {/* 가입 자격 확인 포인트 */}
     <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
@@ -121,14 +126,6 @@ export const Overview = ({ onNavigate }) => (
         신탁형 약관(계약조건·중도해지·부득이한 사유·만기)과 ISA 정기예금(금리·중도해지·예금자보호)은 반영됨. 신탁보수 확정 요율·운용 상품 라인업·일임형 조건은 추가 자료 확보 후 보강.
       </p>
     </div>
-
-    <button
-      onClick={() => onNavigate("faq")}
-      className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-fuchsia-700 hover:text-fuchsia-800"
-    >
-      <HelpCircle className="w-4 h-4" />
-      자주 묻는 질문 보기
-    </button>
 
     {/* 출처 */}
     <div className="border-t border-slate-200 pt-4">

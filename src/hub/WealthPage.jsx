@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, LineChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert, UserCheck, Flame, Globe, Megaphone } from "lucide-react";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, LineChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert, UserCheck, Flame, Globe, Megaphone, Home, ArrowRight, HelpCircle, ChevronDown, Settings2 } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { Sparkline, MarketChart } from "./components/MarketChart";
 import { useWealth } from "./wealth/useWealth";
@@ -12,6 +12,7 @@ import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 import { ModuleNoticeBoard } from "@shared/components/ModuleNoticeBoard";
 import { noticesForModule } from "@shared/data/notices";
+import { faqsForModule } from "@shared/data/faqs";
 
 /* 위험등급 필터 버튼 색 — riskMeta tone(rose/amber/slate)에 맞춤 */
 const RISK_ACTIVE = {
@@ -413,11 +414,64 @@ const SummaryStat = ({ label, value, sub, icon: Icon, tone }) => (
   </div>
 );
 
+/* 투자상품 FAQ — 매입·환매·적합성 등 상담 문답. 담당 부서가 /admin에서 관리(공용 FAQ 스토어). */
+const WealthFaq = () => {
+  const [query, setQuery] = useState("");
+  const [openIdx, setOpenIdx] = useState(0);
+  const items = faqsForModule("wealth");
+  const filtered = items.filter((f) => f.q.includes(query) || f.a.includes(query));
+  return (
+    <section className="space-y-4">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <p className="text-[13px] text-slate-500">매입 기준가·환매·적합성 등 상담 문답 · 담당 부서가 직접 관리</p>
+        <Link
+          to="/admin?mode=faq"
+          className="inline-flex flex-shrink-0 items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-[11.5px] font-semibold text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+        >
+          <Settings2 className="h-3.5 w-3.5" />
+          FAQ 관리
+        </Link>
+      </div>
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="질문 검색 (예: 기준가, 환매, ETF, 적합성)"
+          className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-3 text-[13px] focus:border-im-500 focus:outline-none"
+        />
+      </div>
+      <div className="space-y-2">
+        {filtered.length === 0 && <div className="py-8 text-center text-[13px] text-slate-400">검색 결과가 없습니다.</div>}
+        {filtered.map((f, i) => {
+          const isOpen = openIdx === i;
+          return (
+            <div key={f.id} className={cn(CARD, "overflow-hidden")}>
+              <button onClick={() => setOpenIdx(isOpen ? -1 : i)} className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-slate-50">
+                <span className="text-[13.5px] font-semibold text-slate-900">{f.q}</span>
+                <ChevronDown className={cn("h-4 w-4 flex-shrink-0 text-slate-400 transition-transform", isOpen && "rotate-180")} />
+              </button>
+              {isOpen && (
+                <div className="border-t border-slate-100 px-4 pb-3.5 pt-0.5">
+                  <p className="text-[13px] leading-relaxed text-slate-700">{f.a}</p>
+                  {f.ref && (
+                    <div className="mt-2 inline-flex items-center gap-1 rounded-sm border border-im-200 bg-im-50 px-2 py-0.5 text-[10px] font-semibold text-im-700">{f.ref}</div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+};
+
 export default function WealthPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { isWatched, toggleWatch, watchlist, enrollments, enroll, removeEnroll, setTarget } = useWealth();
-  const [tab, setTab] = useState("fund");
+  const [tab, setTab] = useState("home");
   const [riskFilter, setRiskFilter] = useState("전체");
   const [investorType, setInvestorType] = useState("전체");
   const [tagFilter, setTagFilter] = useState(null);
@@ -441,7 +495,7 @@ export default function WealthPage() {
   /* 상세에서 '고객 가입' 등으로 넘어오면 고객 탭 + 상품 프리셋. ?tab=fund/etf/trust도 지원 */
   useEffect(() => {
     const t = params.get("tab");
-    if (["customers", "fund", "etf", "notices"].includes(t)) setTab(t);
+    if (["home", "customers", "fund", "etf", "faq", "notices"].includes(t)) setTab(t);
     const en = params.get("enroll");
     if (en) setPresetProduct(en);
   }, [params]);
@@ -525,8 +579,10 @@ export default function WealthPage() {
   };
 
   const TABS = [
+    { id: "home", label: "홈", icon: Home },
     ...PRODUCT_TABS.map((t) => ({ ...t, count: PRODUCTS.filter((p) => p.type === t.type).length })),
     { id: "customers", label: "내 가입고객 관리", icon: Users, count: enrollments.length },
+    { id: "faq", label: "FAQ", icon: HelpCircle, count: faqsForModule("wealth").length },
     { id: "notices", label: "공지사항", icon: Megaphone, count: noticesForModule("wealth").length },
   ];
 
@@ -567,7 +623,60 @@ export default function WealthPage() {
         )}
       </div>
 
-      {tab === "notices" ? (
+      {tab === "home" ? (
+        <section className="space-y-4">
+          {/* 스탯 */}
+          <div className="grid grid-cols-3 gap-3">
+            <SummaryStat label="전체 상품" value={`${PRODUCTS.length}개`} icon={Layers} />
+            <SummaryStat label="내 관심" value={`${watchlist.length}개`} icon={Star} />
+            <SummaryStat label="가입 고객" value={`${enrollments.length}건`} icon={Users} />
+          </div>
+          {/* 바로가기 */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { id: "fund", icon: Layers, title: "펀드", desc: `${PRODUCTS.filter((p) => p.type === "펀드").length}개 · 검색·비교` },
+              { id: "etf", icon: CandlestickChart, title: "ETF", desc: "실시간 시세·비교" },
+              { id: "customers", icon: Users, title: "내 가입고객 관리", desc: "목표수익률·알림" },
+              { id: "faq", icon: HelpCircle, title: "FAQ", desc: "매입·환매·적합성 문답" },
+            ].map((n) => {
+              const Icon = n.icon;
+              return (
+                <button key={n.id} onClick={() => setTab(n.id)} className={cn(CARD, "group p-4 text-left transition-all hover:border-im-300 hover:shadow-md")}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-im-50 text-im-700">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-im-600 transition-transform group-hover:translate-x-0.5" />
+                  </div>
+                  <h3 className="mt-2.5 text-[13.5px] font-bold text-slate-900">{n.title}</h3>
+                  <p className="mt-0.5 text-[11.5px] leading-relaxed text-slate-500">{n.desc}</p>
+                </button>
+              );
+            })}
+          </div>
+          {/* 인기 상품 */}
+          <div className={cn(CARD, "overflow-hidden")}>
+            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/60 px-4 py-2.5">
+              <span className="text-[13px] font-bold text-slate-900">
+                인기 상품 <span className="ml-1 text-[11px] font-medium text-slate-400">당행 누적 판매순</span>
+              </span>
+              <button onClick={() => setTab("fund")} className="text-[11.5px] font-semibold text-im-600 hover:text-im-700">
+                전체 보기
+              </button>
+            </div>
+            {[...PRODUCTS].sort((a, b) => b.sold - a.sold).slice(0, 5).map((p, i) => (
+              <button key={p.id} onClick={() => goDetail(p.id)} className="flex w-full items-center gap-2 border-b border-slate-100 px-4 py-2.5 text-left last:border-b-0 hover:bg-slate-50">
+                <span className={cn("w-5 flex-shrink-0 text-center text-[12px] font-bold tabular-nums", i < 3 ? "text-im-600" : "text-slate-400")}>{i + 1}</span>
+                <span className={cn("flex-shrink-0 rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[p.type])}>{p.type}</span>
+                <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-slate-900">{p.name}</span>
+                <span className={cn("flex-shrink-0 text-[13px] font-bold tabular-nums", retColor(p.return1y))}>{pct(p.return1y)}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : tab === "faq" ? (
+        <WealthFaq />
+      ) : tab === "notices" ? (
         <ModuleNoticeBoard moduleId="wealth" />
       ) : !isCustomers ? (
         <section>

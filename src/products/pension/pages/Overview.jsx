@@ -1,4 +1,4 @@
-import { Coins, HelpCircle, PiggyBank, CalendarClock, Percent, ArrowRight, FileText } from "lucide-react";
+import { Coins, HelpCircle, PiggyBank, CalendarClock, Percent, ArrowRight, FileText, Megaphone } from "lucide-react";
 import {
   CREDIT_RULES,
   WITHDRAWAL_RULES,
@@ -106,28 +106,32 @@ export const Overview = ({ onNavigate }) => (
       </div>
     </div>
 
-    {/* 계산기 유도 */}
-    <button
-      onClick={() => onNavigate("calculator")}
-      className="w-full text-left bg-violet-50/50 border border-violet-200 rounded-xl p-5 shadow-sm transition-all hover:border-violet-300 hover:shadow-md group"
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-violet-700 mb-1">
-            <Coins className="w-3.5 h-3.5" />
-            세일즈 계산기
-          </div>
-          <h3 className="text-base font-bold text-slate-900">
-            "연말정산 때 얼마나 돌려받나요?" 즉시 계산
-          </h3>
-          <p className="text-[12px] text-slate-600 mt-1">
-            소득과 납입액을 넣으면 환급액이 바로 나옵니다. 타사 연금저축이 600만원을 넘으면 초과분을
-            IRP로 옮길 때의 추가 환급액까지 제시합니다.
-          </p>
-        </div>
-        <ArrowRight className="w-5 h-5 text-violet-600 flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
-      </div>
-    </button>
+    {/* 바로가기 — 홈 대시보드 네비 */}
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      {[
+        { id: "calculator", icon: Coins, title: "세액공제 계산기", desc: "연말정산 환급액 즉시 계산" },
+        { id: "faq", icon: HelpCircle, title: "자주 묻는 질문", desc: "세액공제·중도해지·연금수령 FAQ" },
+        { id: "notices", icon: Megaphone, title: "공지사항", desc: "연금 관련 부서 공지" },
+      ].map((n) => {
+        const Icon = n.icon;
+        return (
+          <button
+            key={n.id}
+            onClick={() => onNavigate(n.id)}
+            className="text-left bg-white border border-slate-200 rounded-xl p-4 shadow-sm transition-all hover:border-violet-300 hover:shadow-md group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
+                <Icon className="w-5 h-5" />
+              </div>
+              <ArrowRight className="w-4 h-4 text-violet-600 transition-transform group-hover:translate-x-0.5" />
+            </div>
+            <h3 className="mt-2.5 text-sm font-bold text-slate-900">{n.title}</h3>
+            <p className="mt-0.5 text-[12px] text-slate-600 leading-relaxed">{n.desc}</p>
+          </button>
+        );
+      })}
+    </div>
 
     {/* 연금저축 vs IRP */}
     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
@@ -170,14 +174,6 @@ export const Overview = ({ onNavigate }) => (
         원리금보장상품 라인업, 연금수령개시 신청 업무 절차는 자료 확보 후 보강.
       </p>
     </div>
-
-    <button
-      onClick={() => onNavigate("faq")}
-      className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-violet-700 hover:text-violet-800"
-    >
-      <HelpCircle className="w-4 h-4" />
-      자주 묻는 질문 보기
-    </button>
 
     {/* 출처 */}
     <div className="border-t border-slate-200 pt-4">

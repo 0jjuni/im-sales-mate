@@ -15,8 +15,10 @@ const NAV = [
     to: "/wealth",
     label: "투자상품",
     children: [
-      { to: "/wealth", label: "상품 탐색" },
+      { to: "/wealth", label: "홈" },
+      { to: "/wealth?tab=fund", label: "상품 탐색" },
       { to: "/wealth?tab=customers", label: "내 가입고객 관리" },
+      { to: "/wealth?tab=faq", label: "FAQ" },
       { to: "/wealth?tab=notices", label: "공지사항" },
     ],
   },
@@ -24,7 +26,7 @@ const NAV = [
     to: "/noran",
     label: "노란우산",
     children: [
-      { to: "/noran", label: "대시보드" },
+      { to: "/noran", label: "홈" },
       { to: "/noran/intro", label: "5분 입문" },
       { to: "/noran/simulator", label: "상담 시뮬레이터" },
       { to: "/noran/calculator", label: "계산기" },
@@ -38,7 +40,7 @@ const NAV = [
     to: "/isa",
     label: "ISA",
     children: [
-      { to: "/isa", label: "세제 한눈에" },
+      { to: "/isa", label: "홈" },
       { to: "/isa/calculator", label: "세제 절세 계산기" },
       { to: "/isa/faq", label: "FAQ" },
       { to: "/isa/notices", label: "공지사항" },
@@ -48,7 +50,7 @@ const NAV = [
     to: "/pension",
     label: "연금",
     children: [
-      { to: "/pension", label: "세제 한눈에" },
+      { to: "/pension", label: "홈" },
       { to: "/pension/calculator", label: "세액공제 계산기" },
       { to: "/pension/faq", label: "FAQ" },
       { to: "/pension/notices", label: "공지사항" },

@@ -16,7 +16,7 @@ import { FaqPage } from "./pages/FaqPage";
    상위 라우터의 "/isa/*"에 마운트. */
 
 const NAV_ITEMS = [
-  { id: "overview", label: "세제 한눈에", icon: Home },
+  { id: "overview", label: "홈", icon: Home },
   { id: "calculator", label: "세제 절세 계산기", icon: Percent, highlight: true },
   { id: "faq", label: "FAQ", icon: HelpCircle },
   { id: "notices", label: "공지사항", icon: Megaphone },
