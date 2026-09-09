@@ -1001,13 +1001,17 @@ function ResultView({ data }) {
             const title=item.title.replace(" 신규 가입 검토", "").replace(/ 납입 여력\(.*\) 활용/, " 추가 납입").replace("가맹점 카드매출 입금계좌 당행 전환", "가맹점 결제계좌 전환");
             const btn="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50";
             const cta=item.cta&&<Link to={item.cta.to} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-im-700 px-4 py-2 text-sm font-bold text-white">{item.cta.label}<ArrowRight className="h-4 w-4"/></Link>;
+            /* 주택청약(근로소득자)은 소득공제 요건 확인을 별도 버튼 대신 우상단 상태 배지 클릭으로 연다 */
+            const confirmAction = item.key==="housing" && manual.incomeType==="근로소득자" ? () => setModal({kind:"housing",title:"주택청약 소득공제 요건 확인"}) : null;
             const head=(<div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <span className="inline-block rounded-full bg-im-50 px-2.5 py-0.5 text-[11px] font-bold text-im-700">{item.tag}</span>
                 <h3 className="mt-2 text-lg font-bold leading-7 text-slate-900">{title}</h3>
                 <p className="mt-1 text-[13px] leading-6 text-slate-500">{summary.reason}</p>
               </div>
-              {showBadge&&<span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold",status.badge)}>{status.label}</span>}
+              {showBadge && (confirmAction
+                ? <button type="button" onClick={confirmAction} title="소득공제 요건 확인" className={cn("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold transition hover:brightness-95",status.badge)}>{status.label}</button>
+                : <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold",status.badge)}>{status.label}</span>)}
             </div>);
             const question=(<div className="mt-3 rounded-lg border-l-[3px] border-im-200 bg-slate-50/70 px-3.5 py-2.5">
               <p className="text-[11px] font-semibold text-slate-400">상담 질문</p>
@@ -1030,7 +1034,6 @@ function ResultView({ data }) {
               {head}{question}
               <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
                 {cta}
-                {item.key==="housing"&&manual.incomeType==="근로소득자"&&<button type="button" onClick={()=>setModal({kind:"housing",title:"주택청약 소득공제 요건 확인"})} className={btn}>소득공제 요건 확인하기</button>}
                 {item.key==="housing"&&<button type="button" onClick={()=>setModal({kind:"pdf",url:"/promo/housing.pdf",title:"주택청약종합저축 상품설명서"})} className={btn}>주택청약종합저축 설명서</button>}
                 {item.key==="housing"&&<button type="button" onClick={()=>setModal({kind:"pdf",url:"/promo/housing-cheongnyeon.pdf",title:"청년 주택드림 청약통장 상품설명서"})} className={btn}>청년 주택드림 설명서</button>}
               </div>
