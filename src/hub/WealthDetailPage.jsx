@@ -1,3 +1,4 @@
+import { WealthPrintButton } from "./wealth/WealthPrintButton";
 import { ProspectusButton } from "./wealth/ProspectusButton";
 import { useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
@@ -43,6 +44,7 @@ export default function WealthDetailPage() {
       <div className="min-w-0 rounded-2xl border border-slate-200 bg-white px-5 sm:px-7">{product.type === "펀드" ? bank.data ? <BankFundBody key={product.id} data={bank.data}/> : bank.loading ? <p role="status" className="py-8 text-sm text-slate-500">상품정보를 불러오고 있습니다.</p> : <><p className="mt-5 rounded-lg bg-amber-50 p-4 text-sm leading-6 text-amber-900">{bank.error ? "저장된 상품정보를 불러오지 못했습니다. 새로고침해 주세요." : "현재 수집 목록에 없는 상품입니다. 아래는 기존 카탈로그 정보입니다."}</p><ProductDetailBody key={product.id} product={product} quote={quotes[product.id]} live={live}/></> : <ProductDetailBody key={product.id} product={product} quote={quotes[product.id]} live={live}/>}</div>
       <aside aria-label="상품 상담 도구" className="rounded-xl border border-slate-200 bg-white p-4 lg:sticky lg:top-36">
         <h2 className="mb-3 text-sm font-bold text-slate-900">상담 도구</h2>
+        <div className="mb-3"><WealthPrintButton ids={[product.id]}/></div>
         <ProspectusButton product={product} className="mb-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-sky-700 px-3 py-3 text-sm font-bold text-white hover:bg-sky-800"/>
         <button onClick={()=>toggleWatch(product.id)} aria-pressed={watched} className="mb-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold"><Star className={cn("h-4 w-4",watched&&"fill-amber-400 text-amber-500")}/>{watched?"관심 등록됨":"관심 등록"}</button>
         <button onClick={()=>navigate(`/wealth?tab=customers&enroll=${product.id}`)} className="min-h-11 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700">가입 고객 등록</button>

@@ -1,3 +1,4 @@
+import { WealthPrintButton } from "./wealth/WealthPrintButton";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, LineChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert, UserCheck, Flame, Globe, Megaphone, Home, ArrowRight, HelpCircle, ChevronDown, Settings2 } from "lucide-react";
@@ -591,6 +592,7 @@ export default function WealthPage() {
 
   return (
     <HubShell>
+      <div className="mb-4 flex flex-wrap justify-end gap-2"><WealthPrintButton ids={compare.length ? compare : watchlist} label={compare.length ? "선택상품 상담자료 인쇄" : "관심상품 상담자료 인쇄"}/></div>
       {/* 모듈 헤더 — 다른 모듈과 통일(아이콘 사각형 + 제목) */}
       <div className="mb-4 flex items-center gap-2.5">
         <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
@@ -708,8 +710,7 @@ export default function WealthPage() {
               ))}
             </div>
 
-            <details className="group border-t border-slate-200 pt-2">
-              <summary className="cursor-pointer py-2 text-sm font-semibold text-slate-700">상세 필터 {theme || tagFilter || riskFilter !== "전체" ? "· 선택됨" : ""}</summary>
+            <div>
               <div className="space-y-3 py-2">
             {/* 인기 태그(펀드) */}
             {availableTags.length > 0 && (
@@ -783,7 +784,7 @@ export default function WealthPage() {
               })}
             </div>
               </div>
-            </details>
+            </div>
           </div>
 
           {anyFilter && <div className="mb-3 flex flex-wrap gap-2" aria-label="선택한 검색 조건">{[

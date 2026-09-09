@@ -1,3 +1,4 @@
+import { WealthPrintButton } from "./wealth/WealthPrintButton";
 import { ComparisonHoldings } from "./wealth/ComparisonHoldings";
 import { ProspectusButton } from "./wealth/ProspectusButton";
 import { useEffect } from "react";
@@ -72,6 +73,7 @@ export default function WealthComparePage() {
         <h1 className="text-xl font-bold tracking-tight text-slate-900">상품 비교 <span className="text-slate-400">({products.length})</span></h1>
       </div>
 
+      <div className="mb-4"><WealthPrintButton ids={products.map(p=>p.id)}/></div>
       <div className={cn(CARD, "overflow-x-auto")}>
         <div className="min-w-[640px]">
           {/* 헤더: 상품명 */}

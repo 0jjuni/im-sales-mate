@@ -109,3 +109,9 @@ body {
   .app-main input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   .app-main select, .app-main textarea, .mobile-dialog-panel input, .mobile-dialog-panel textarea { font-size: 16px; }
 }
+
+@media print {
+  .wealth-print-sheet { width: 100% !important; padding: 0 !important; break-after: page; }
+  .wealth-print-sheet:last-child { break-after: auto; }
+  .wealth-print-sheet dl > div, .wealth-print-sheet li, .wealth-print-sheet footer { break-inside: avoid; }
+}
