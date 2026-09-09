@@ -31,3 +31,22 @@ export function settlementStatus(merchant) {
   const name=merchant.bank.replace(/\s/g, "").toLowerCase();
   return ["im뱅크", "아이엠뱅크", "대구은행", "dgb대구은행"].includes(name) ? "own" : "other";
 }
+
+export function proposalSummary(item, data, products, manual) {
+  const product=products.find(p=>p.key===item.key);
+  const questions={
+    isa:"다른 금융기관에 ISA가 있으신가요? 이 자금은 언제 쓰실 예정인가요?",
+    housing:"주택 마련 계획이 있으신가요? 무주택 여부와 소득 조건도 함께 확인할게요.",
+    noran:"사업을 하시면서 매월 얼마 정도를 꾸준히 납입하실 수 있나요?",
+    cardPersonal:"주로 쓰시는 카드와 지출이 많은 항목은 무엇인가요?",
+    cardBiz:"사업 경비는 어떤 카드로 결제하고 계신가요?",
+    insMonthly:"매월 추가로 납입할 수 있는 금액과 유지 가능한 기간은 어느 정도인가요?",
+    insOther:"장기간 쓰지 않을 자금인가요? 다른 금융기관에도 보험 계약이 있으신가요?",
+    nontaxSavings:"다른 금융기관에서 이용 중인 비과세종합저축이 있으신가요?",
+  };
+  if(product) return {reason:product.remaining?`조회된 추가 납입 여력 ${product.remaining}`:product.held?"당행 보유 상품의 추가 활용 검토":"당행 미보유 상품",question:questions[item.key]||"현재 이용 중인 상품과 자금 사용 계획을 알려주시겠어요?"};
+  if(item.tag==="주거래 전환") return {reason:`가맹점 결제계좌 ${data.merchantSettlement?.bank} 이용 중`,question:"현재 결제계좌의 이용 조건은 어떠세요? 당행으로 옮기실 의향이 있으신가요?"};
+  if(item.cta?.to==="/pension") return {reason:`${manual.incomeType || "소득 유형"} · 연금계좌 납입 현황 확인`,question:"올해 연금계좌에 납입한 금액이 있나요? 앞으로 꾸준히 납입 가능한 금액은 얼마인가요?"};
+  if(item.cta?.to==="/wealth") return {reason:`당행 예금·수신 ${(data.deposits||[]).reduce((sum,d)=>sum+(d.balance||0),0).toLocaleString()}만원`,question:"예정된 지출을 제외하고 투자할 여유자금이 있나요? 투자 경험과 손실 감수 범위도 확인할게요."};
+  return {reason:item.detail,question:"현재 이용 목적과 거래 조건을 알려주시겠어요?"};
+}
