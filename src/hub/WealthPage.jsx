@@ -138,12 +138,7 @@ const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll, onCha
       >
         <Star className={cn("h-4 w-4", watched && "fill-amber-400")} />
       </button>
-      <button
-        onClick={() => onDetail(product.id)}
-        className="hidden flex-shrink-0 rounded-md bg-sky-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-sky-700 sm:block"
-      >
-        상세
-      </button>
+
     </div>
   );
 };

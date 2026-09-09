@@ -1,11 +1,13 @@
+import { ComparisonHoldings } from "./wealth/ComparisonHoldings";
+import { ProspectusButton } from "./wealth/ProspectusButton";
 import { useEffect } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, GitCompare, FileText, Plus, SearchX } from "lucide-react";
+import { ArrowLeft, GitCompare, Plus, SearchX } from "lucide-react";
 import { HubShell } from "./HubShell";
-import { PRODUCT_BY_ID, SOLD_RANK, riskMeta, riskName, tradingRules, keyRisks, prospectusUrlOf, KOFIA_DISCLOSURE_URL } from "./data/wealthProducts";
-import { genSeries, seriesMetrics, holdingsFor } from "./data/wealthDetail";
+import { PRODUCT_BY_ID, SOLD_RANK, riskMeta, riskName, keyRisks } from "./data/wealthProducts";
+import { genSeries } from "./data/wealthDetail";
 import { ETF_HOLDINGS } from "./data/wealthEtfLive";
-import { pct, retColor, won, eok, TYPE_CLASS, RISK_CLASS } from "./wealth/ProductDetail";
+import { pct, retColor, eok, TYPE_CLASS, RISK_CLASS } from "./wealth/ProductDetail";
 import { MarketChart } from "./components/MarketChart";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
@@ -40,7 +42,6 @@ export default function WealthComparePage() {
     p,
     
     holdings: (p.type === "ETF" && ETF_HOLDINGS[p.id]) || [],
-    rules: tradingRules(p),
     risks: keyRisks(p),
   }));
 
@@ -173,15 +174,8 @@ export default function WealthComparePage() {
             ))}
           </Row>
 
-          {/* 매입/환매 */}
-          <Row label="매입·환매">
-            {cols.map(({ p, rules }) => (
-              <div key={p.id} className="border-l border-slate-100 px-3 py-2 text-[11px] leading-relaxed text-slate-600">
-                <div><b className="text-slate-500">매입</b> 상품 설명서 확인</div>
-                <div><b className="text-slate-500">환매</b> 상품 설명서 확인</div>
-                <div><b className="text-slate-500">대금</b> 상품 설명서 확인</div>
-              </div>
-            ))}
+          <Row label="주요 보유종목">
+            {cols.map(({p})=><div key={p.id} className="min-w-0 border-l border-slate-100 px-3 py-4"><ComparisonHoldings product={p}/></div>)}
           </Row>
 
           {/* 주요 위험 */}
@@ -199,17 +193,9 @@ export default function WealthComparePage() {
           <div className="grid" style={gridCols}>
             <div className="bg-slate-50/70 px-3 py-3" />
             {cols.map(({ p }) => {
-              const url = prospectusUrlOf(p);
               return (
                 <div key={p.id} className="flex flex-wrap gap-1.5 border-l border-slate-100 px-3 py-3">
-                  <button
-                    disabled={!url}
-                    onClick={() => url && window.open(url, "_blank", "noopener,noreferrer")}
-                    className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[11.5px] font-bold text-slate-700 hover:bg-slate-50"
-                  >
-                    <FileText className="h-3.5 w-3.5" />
-                    {url ? "간이투자설명서" : "설명서 연결 예정"}
-                  </button>
+                  <ProspectusButton product={p} className="inline-flex min-h-11 items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50"/>
                   <button
                     onClick={() => navigate(`/wealth?tab=customers&enroll=${p.id}`)}
                     className="inline-flex items-center gap-1 rounded-md bg-sky-600 px-2.5 py-1.5 text-[11.5px] font-bold text-white hover:bg-sky-700"

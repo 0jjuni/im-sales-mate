@@ -1,3 +1,5 @@
+import { FundFacts, FundComposition } from "./FundHighlights.jsx";
+import { fundHighlights } from "./fundHighlightData";
 import { riskBrief, conditionLines } from "./counselBrief";
 import { MarketChart } from "../components/MarketChart";
 import { bankField, bankSeries, fundSection, introRows } from "./useBankFund";
@@ -12,11 +14,10 @@ function SourceTables({section}) {
 
 export function BankFundBody({data}) {
   const series=bankSeries(data);
+  const info=fundHighlights(data);
   const performance=fundSection(data,"성과분석");
   const returns=performance?.tables.find(t=>t.title==="기간누적성과")?.rows.filter(r=>["3개월","6개월","1년","3년","5년"].includes(r[0]?.text)) || [];
   const risks=data.bank.tables.flatMap(t=>t.rows).filter(r=>r.length===2 && /위험$/.test(r[0].text));
-  const holding=fundSection(data,"보유내역");
-  const stocks=holding?.tables.find(t=>t.title==="보유주식 리스트")?.rows.slice(1).filter(r=>r.length>2 && /^\d/.test(r[1].text)) || [];
   const date=data.retrievedAt.slice(0,10);
   return <div>
     <Section id="summary" title="상담 요점">
@@ -27,6 +28,8 @@ export function BankFundBody({data}) {
         {data.code === "12032101000001023" || data.code === "12032101000001024" ? <p className="mt-3 text-sm leading-7 text-slate-700">국내 IT 기업의 주식에 투자하는 펀드입니다. IT 업황에 따라 수익률이 크게 달라질 수 있어요.</p> : null}
       </div>
       {introRows(data).some(r=>r[0]?.text==="상품특징" && r[1]?.text) && <div className="mt-5"><h3 className="mb-2 text-sm font-bold text-slate-800">상품특징</h3>{introRows(data).filter(r=>r[0]?.text==="상품특징").map((r,i)=><p key={i} className="text-sm leading-7 text-slate-700">{r.slice(1).map(c=>c.text).join(" · ")}</p>)}</div>}
+      <FundFacts info={info}/>
+      <div className="mt-6"><FundComposition info={info} view="allocation"/></div>
       <h3 className="mb-3 mt-6 font-bold text-slate-800">빠뜨리지 않고 설명할 위험</h3>
       <p className="mb-4 text-sm leading-7 text-slate-600">예금자보호 대상이 아니며, 원금 손실이 발생할 수 있습니다.</p>
       {risks.length ? <ul className="space-y-4">{risks.map((r,i)=><li key={i} className="border-l-2 border-amber-300 pl-4"><h4 className="text-sm font-bold text-slate-800">{r[0].text}</h4><p className="mt-1 text-sm leading-7 text-slate-700">{riskBrief(r[0].text,r[1].text)}</p><details className="mt-2"><summary className="min-h-8 cursor-pointer text-xs text-slate-500">은행 원문 확인</summary><p className="mt-2 rounded-lg bg-slate-50 p-3 text-xs leading-6 text-slate-600">{r[1].text}</p></details></li>)}</ul> : <p className="text-sm text-slate-500">상품별 투자위험은 투자설명서를 확인하세요.</p>}
@@ -47,10 +50,8 @@ export function BankFundBody({data}) {
       <h3 className="mb-4 mt-7 text-sm font-semibold text-slate-700">기간 수익률</h3>
       {returns.length ? <dl className="grid grid-cols-2 gap-5 sm:grid-cols-3">{returns.map((r,i)=><div key={i}><dt className="text-sm text-slate-500">{r[0].text}</dt><dd className="mt-1 text-xl font-bold tabular-nums">{r[1]?.text && r[1].text!=="-" ? `${r[1].text}%` : "—"}</dd></div>)}</dl> : <p className="text-sm text-slate-500">수익률 자료가 없습니다.</p>}
       <p className="mt-3 text-xs leading-6 text-slate-500">{performance?.headings[0]} · 과거 수익률은 미래 수익을 보장하지 않습니다.</p>
-      <h3 className="mb-2 mt-7 text-sm font-semibold text-slate-700">주요 보유종목</h3>
-      <p className="mb-3 text-xs leading-6 text-slate-500">{holding?.headings[0]} · 펀드 내 비중</p>
-      {stocks.length ? <ul className="divide-y divide-slate-100">{stocks.map((r,i)=><li key={i} className="flex items-center justify-between gap-4 py-3 text-sm"><span className="min-w-0 break-words">{r[0].text}</span><span className="shrink-0 font-semibold tabular-nums">{r[1].text}%</span></li>)}</ul> : <p className="text-sm text-slate-500">표시할 주식 보유종목이 없습니다. 채권·기타자산은 아래 보유내역에서 확인하세요.</p>}
     </Section>
+    <Section id="holdings" title="보유종목"><FundComposition key={data.code} info={info} view="holdings"/></Section>
     <Section id="details" title="근거 자료 찾아보기">
       <div className="space-y-3">{data.sections.filter(s=>s.name!=="차트분석").map(section=><details key={section.name} className="min-w-0 rounded-lg border border-slate-200 p-4"><summary className="cursor-pointer text-sm font-semibold text-slate-800">{section.name}{section.status==="unavailable"?" · 자료 없음":""}</summary><div className="mt-4 min-w-0"><SourceTables section={section}/></div></details>)}</div>
       <p className="mt-4 text-xs leading-6 text-slate-500">출처: iM뱅크 및 연결된 펀드 정보 · {date} 수집. 항목별 기준일은 자료에 표시된 날짜를 확인하세요.</p>
