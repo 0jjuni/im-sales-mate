@@ -115,3 +115,15 @@ body {
   .wealth-print-sheet:last-child { break-after: auto; }
   .wealth-print-sheet dl > div, .wealth-print-sheet li, .wealth-print-sheet footer { break-inside: avoid; }
 }
+
+/* 비교표는 화면과 같은 열 배치·차트·강조색으로 출력한다. */
+.comparison-print .comparison-actions { display: none; }
+.comparison-print .overflow-x-auto { overflow: visible; }
+.comparison-print svg { max-width: 100%; }
+.comparison-print .comparison-row { break-inside: avoid; }
+@media print {
+  .comparison-print { padding: 0 !important; }
+  .comparison-print .min-w-\[640px\] { min-width: 0; }
+  .comparison-print button { color: inherit; }
+  .comparison-print .comparison-row > * { min-width: 0; overflow-wrap: anywhere; }
+}

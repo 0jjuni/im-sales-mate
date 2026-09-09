@@ -1,9 +1,9 @@
-import { WealthPrintButton } from "./wealth/WealthPrintButton";
+import { PrintPreviewModal } from "@shared/components/PrintPreviewModal";
 import { ComparisonHoldings } from "./wealth/ComparisonHoldings";
 import { ProspectusButton } from "./wealth/ProspectusButton";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, GitCompare, Plus, SearchX } from "lucide-react";
+import { ArrowLeft, GitCompare, Plus, SearchX, Printer } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { PRODUCT_BY_ID, SOLD_RANK, riskMeta, riskName, keyRisks } from "./data/wealthProducts";
 import { genSeries } from "./data/wealthDetail";
@@ -18,6 +18,7 @@ import { cn } from "@shared/lib/format";
 export default function WealthComparePage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const [printOpen, setPrintOpen] = useState(false);
   const ids = (params.get("ids") || "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 3);
   const products = ids.map((id) => PRODUCT_BY_ID[id]).filter(Boolean);
 
@@ -55,29 +56,17 @@ export default function WealthComparePage() {
 
   const gridCols = { gridTemplateColumns: `7rem repeat(${products.length}, minmax(0, 1fr))` };
   const Row = ({ label, children, className }) => (
-    <div className={cn("grid border-b border-slate-100", className)} style={gridCols}>
+    <div className={cn("comparison-row grid border-b border-slate-100", className)} style={gridCols}>
       <div className="bg-slate-50/70 px-3 py-2 text-[11px] font-semibold text-slate-500">{label}</div>
       {children}
     </div>
   );
 
-  return (
-    <HubShell>
-      <Link to="/wealth" className="mb-3 inline-flex items-center gap-1 text-[12px] font-semibold text-slate-500 hover:text-slate-800">
-        <ArrowLeft className="h-3.5 w-3.5" />
-        투자상품 목록
-      </Link>
-
-      <div className="mb-3 flex items-center gap-1.5">
-        <GitCompare className="h-5 w-5 text-sky-600" />
-        <h1 className="text-xl font-bold tracking-tight text-slate-900">상품 비교 <span className="text-slate-400">({products.length})</span></h1>
-      </div>
-
-      <div className="mb-4"><WealthPrintButton ids={products.map(p=>p.id)}/></div>
+  const comparison = <>
       <div className={cn(CARD, "overflow-x-auto")}>
         <div className="min-w-[640px]">
           {/* 헤더: 상품명 */}
-          <div className="grid border-b-2 border-slate-200" style={gridCols}>
+          <div className="comparison-row grid border-b-2 border-slate-200" style={gridCols}>
             <div className="bg-white px-3 py-3" />
             {cols.map(({ p }) => (
               <div key={p.id} className="border-l border-slate-100 px-3 py-3">
@@ -192,7 +181,7 @@ export default function WealthComparePage() {
           </Row>
 
           {/* 액션 */}
-          <div className="grid" style={gridCols}>
+          <div className="comparison-actions grid" style={gridCols}>
             <div className="bg-slate-50/70 px-3 py-3" />
             {cols.map(({ p }) => {
               return (
@@ -213,6 +202,23 @@ export default function WealthComparePage() {
       </div>
 
       <p className="mt-2 text-[11px] text-slate-400">차트는 예시 데이터입니다. 높은 값은 표시된 수익률 중 최고값, 낮은 보수는 총보수 중 최저값입니다. 상품 추천을 뜻하지 않습니다.</p>
+  </>;
+
+  return (
+    <HubShell>
+      <Link to="/wealth" className="mb-3 inline-flex items-center gap-1 text-[12px] font-semibold text-slate-500 hover:text-slate-800">
+        <ArrowLeft className="h-3.5 w-3.5" />
+        투자상품 목록
+      </Link>
+
+      <div className="mb-3 flex items-center gap-1.5">
+        <GitCompare className="h-5 w-5 text-sky-600" />
+        <h1 className="text-xl font-bold tracking-tight text-slate-900">상품 비교 <span className="text-slate-400">({products.length})</span></h1>
+      </div>
+
+      <button onClick={()=>setPrintOpen(true)} className="mb-4 inline-flex min-h-11 items-center gap-2 rounded-lg border border-sky-700 bg-white px-4 py-2 text-sm font-bold text-sky-700"><Printer className="h-4 w-4"/>상담자료 인쇄</button>
+      {comparison}
+      {printOpen && <PrintPreviewModal title="상품 비교 인쇄 미리보기" onClose={()=>setPrintOpen(false)}><section className="comparison-print p-5"><h1 className="mb-4 text-xl font-bold text-slate-900">상품 비교 <span className="text-slate-400">({products.length})</span></h1>{comparison}</section></PrintPreviewModal>}
     </HubShell>
   );
 }
