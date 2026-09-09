@@ -1091,7 +1091,6 @@ export default function GrossTaxPage() {
         </div>
         <p className="mt-1 text-[13px] text-slate-500">
           고객번호로 종합과세 여부·재무 상태를 진단하고, 미보유 상품을 상담으로 연결합니다.
-          <span className="text-slate-400"> · 당행 보유 기준(타행 조회 불가)</span>
         </p>
       </div>
 
