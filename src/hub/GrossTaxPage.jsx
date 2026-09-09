@@ -965,10 +965,8 @@ function ResultView({ data }) {
 
       <section className="rounded-xl border border-im-200 bg-im-50/40 p-4 sm:p-5">
         <h2 className="text-base font-bold text-slate-900">먼저 확인할 상담</h2>
-        <p className="mt-1 text-xs text-slate-500">가입 제한 → 30일 이내 만기 → 보유 상품 추가 활용 순으로 확인</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">{priorities.map((item,i)=><article key={item.key} className="rounded-lg border border-im-100 bg-white p-4"><h3 className="text-sm font-bold text-slate-900">{i+1}. {item.title}</h3><p className="mt-2 text-xs leading-6 text-slate-500">조회 결과 · {item.fact}</p><p className="mt-3 text-sm font-semibold leading-6 text-im-800">“{item.question}”</p><a href={item.href} className="mt-3 inline-flex min-h-11 items-center text-xs font-semibold text-im-700">{item.action} →</a></article>)}</div>
       </section>
-      {autoIncome&&<p className="text-xs text-slate-500">소득 유형은 {noranHeld ? "노란우산 보유" : hasMerchant ? "가맹점 입금계좌" : "급여 입금 요건 충족"}을 바탕으로 분류했습니다. 겸업·현재 소득 유형이 다르면 변경하세요.</p>}
       <ConfirmedChips manual={manual} onChange={setManual} />
 
       {strat.진단.length > 0 && (
@@ -990,14 +988,13 @@ function ResultView({ data }) {
         <SectionTitle icon={Layers} sub="당행 조회 결과 · 타행 가입 여부와 합산 납입액은 상담 시 확인">
           상품 활용 현황
         </SectionTitle>
-        <p className="mb-3 text-xs leading-5 text-slate-500">초록: 제안 가능 · 노랑: 추가 확인 · 빨강: 신규·연장 제한 · 회색: 유지 관리 또는 대상 아님. 제안 가능은 조회 기준의 상담 후보이며 가입 승인과는 다릅니다.</p>
         <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">{products.map(p=>{const status=productCounselStatus(p,manual,restricted);return <article key={p.key} className={cn("h-full min-h-[210px] rounded-xl border p-4",status.frame)}><div className="flex flex-wrap items-start justify-between gap-2"><h3 className="text-base font-bold text-slate-800">{SOURCES[p.key].label.replace(" 가입 여부", "")}</h3><span className={cn("rounded px-2 py-1 text-xs font-bold",status.badge)}>{status.label}</span></div><p className="mt-2 text-xs text-slate-500">{p.held===true||p.state==="active"||p.state==="available"?"당행 보유 중":p.held===false||p.state==="recommend"?"당행 미보유":"보유·가입 상태는 아래 조회 결과 참고"}</p><ProductCard product={p} manual={manual} onManual={setManual} compact/></article>;})}
 
           {manual.incomeType === "개인사업자" && <MerchantSettlementCard m={data.merchantSettlement}/>}
         </div>
       </section>
 
-      <div id="diagnosis-deposits" className="scroll-mt-24"><DepositSection data={data} /><p className="mt-2 text-xs text-slate-500">상품명: iM뱅크 금융상품몰 확인 · 고객 잔액·금리·만기일은 데모 예시</p></div>
+      <div id="diagnosis-deposits" className="scroll-mt-24"><DepositSection data={data} /></div>
 
       {/* 3) 핵심 — 맞춤 상품 제안 (판매 기회 + 신용카드 발급 요건) */}
       <section id="diagnosis-proposals" className="scroll-mt-24">
