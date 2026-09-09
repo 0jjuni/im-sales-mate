@@ -27,8 +27,10 @@ export const TaxCalculator = () => {
   const [showPrint, setShowPrint] = useState(false);
   const [mode, setMode] = useState("deposit"); // deposit | profit
   const [typeId, setTypeId] = useState("general");
-  // 예금 모드 입력 — ISA는 연 2,000만원 한도라 '연 납입액'으로 받는다(적립식)
-  const [annual, setAnnual] = useState(ISA_RULES.annualLimit);
+  // 예금 모드 입력 — 적립식(매년 납입) / 거치식(목돈을 정기예금으로 예치) 선택
+  const [depositStyle, setDepositStyle] = useState("recurring"); // recurring | lump
+  const [annual, setAnnual] = useState(ISA_RULES.annualLimit); // 적립식: 연 납입액(연 2천 한도)
+  const [lump, setLump] = useState(ISA_RULES.annualLimit); // 거치식: 예치 목돈
   const [rate, setRate] = useState(ISA_DEPOSIT_DEFAULTS.rate);
   const [years, setYears] = useState(ISA_DEPOSIT_DEFAULTS.years);
   // 순이익 직접입력 모드
@@ -36,6 +38,7 @@ export const TaxCalculator = () => {
 
   const type = ISA_TYPES.find((t) => t.id === typeId);
   const isDeposit = mode === "deposit";
+  const isLump = isDeposit && depositStyle === "lump";
 
   const result = useMemo(() => {
     // 예금(적립식): 연 납입액을 매년 초 넣고 월복리로 만기까지 굴린다.
@@ -43,15 +46,22 @@ export const TaxCalculator = () => {
     const monthlyRate = rate / 100 / 12;
     let totalContributed = 0;
     let interest = 0;
-    let wonYears = 0; // 원금×예치연수 합 — 적립식 실효금리 연환산용
-    for (let k = 0; k < years; k++) {
-      const room = ISA_RULES.totalLimit - totalContributed;
-      const c = Math.max(Math.min(annual, room), 0);
-      if (c <= 0) break;
-      totalContributed += c;
-      const months = (years - k) * 12; // 올해 납입분이 만기까지 굴러가는 개월수
-      interest += c * (Math.pow(1 + monthlyRate, months) - 1);
-      wonYears += c * (years - k);
+    let wonYears = 0; // 원금×예치연수 합 — 실효금리 연환산용
+    if (isLump) {
+      // 거치식: 목돈을 정기예금으로 넣고 만기까지 그대로 굴린다
+      totalContributed = Math.min(lump, ISA_RULES.totalLimit);
+      interest = totalContributed * (Math.pow(1 + monthlyRate, years * 12) - 1);
+      wonYears = totalContributed * years;
+    } else {
+      // 적립식: 연 납입액을 매년 초 넣고, 각 회차가 만기까지 남은 기간만큼 굴러간다
+      for (let k = 0; k < years; k++) {
+        const room = ISA_RULES.totalLimit - totalContributed;
+        const c = Math.max(Math.min(annual, room), 0);
+        if (c <= 0) break;
+        totalContributed += c;
+        interest += c * (Math.pow(1 + monthlyRate, (years - k) * 12) - 1);
+        wonYears += c * (years - k);
+      }
     }
     const netProfit = isDeposit ? interest : directProfit;
 
@@ -94,7 +104,7 @@ export const TaxCalculator = () => {
       isaEffective: netProfit > 0 ? isaTax / netProfit : 0,
       chartData,
     };
-  }, [isDeposit, type, annual, rate, years, directProfit]);
+  }, [isDeposit, isLump, type, annual, lump, rate, years, directProfit]);
 
   /* 고객에게 실제로 할 수 있는 말. 예금 모드는 「같은 예금인데 세금이 다르다」가 핵심. */
   const script = useMemo(() => {
@@ -115,9 +125,13 @@ export const TaxCalculator = () => {
 
     if (isDeposit) {
       return {
-        opening: `연 ${formatKRW(annual)}씩 ${years}년(총 ${formatKRW(
-          result.totalContributed
-        )})을 같은 금리로 예치하셔도, ISA로 하시면 세금 ${formatKRW(result.saving)}을 안 내십니다.`,
+        opening: isLump
+          ? `${formatKRW(lump)}을 ${years}년 정기예금으로 넣으셔도, ISA로 하시면 세금 ${formatKRW(
+              result.saving
+            )}을 안 내십니다.`
+          : `연 ${formatKRW(annual)}씩 ${years}년(총 ${formatKRW(
+              result.totalContributed
+            )})을 예치하셔도, ISA로 하시면 세금 ${formatKRW(result.saving)}을 안 내십니다.`,
         detail: [
           `일반 예금은 이자에서 15.4%를 떼지만 ISA는 ${formatKRW(
             result.taxFreeLimit
@@ -155,7 +169,7 @@ export const TaxCalculator = () => {
       ],
       objections: common,
     };
-  }, [isDeposit, result, annual, years, rate, type]);
+  }, [isDeposit, isLump, result, annual, lump, years, rate, type]);
 
   return (
     <div className="space-y-5">
@@ -221,30 +235,82 @@ export const TaxCalculator = () => {
 
             {isDeposit ? (
               <>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    연 납입액: {formatKRW(annual)}
-                    <span className="ml-1 font-normal text-slate-400">연 2천만원 한도</span>
-                  </label>
-                  <input
-                    type="range"
-                    min="1000000"
-                    max={ISA_RULES.annualLimit}
-                    step="1000000"
-                    value={annual}
-                    onChange={(e) => setAnnual(Number(e.target.value))}
-                    className="w-full accent-fuchsia-600"
-                  />
-                  <NumberSync value={annual} onChange={setAnnual} min={1000000} max={ISA_RULES.annualLimit} step={1000000} accent="fuchsia" suffix="원" />
-                  <div className="flex justify-between text-[11px] text-slate-500 mt-1">
-                    <span>100만원</span>
-                    <span>1천만원</span>
-                    <span>2천만원</span>
-                  </div>
-                  <div className="mt-1.5 rounded-sm bg-fuchsia-50 px-2.5 py-1.5 text-[11.5px] font-semibold text-fuchsia-800">
-                    {years}년간 총 {formatKRW(result.totalContributed)} 납입 (총 1억원 한도)
-                  </div>
+                {/* 납입 방식 — 매년 적립 vs 목돈 거치 */}
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: "recurring", label: "매년 납입", sub: "연 2천만원씩 적립" },
+                    { id: "lump", label: "목돈 거치", sub: "정기예금으로 예치" },
+                  ].map((o) => {
+                    const active = depositStyle === o.id;
+                    return (
+                      <button
+                        key={o.id}
+                        onClick={() => setDepositStyle(o.id)}
+                        className={cn(
+                          "rounded-xl border p-2.5 text-left transition-all",
+                          active
+                            ? "bg-fuchsia-700 text-white border-fuchsia-700 shadow-sm"
+                            : "bg-white text-slate-700 border-slate-200 hover:border-fuchsia-400"
+                        )}
+                      >
+                        <div className="text-[13px] font-bold">{o.label}</div>
+                        <div className={cn("text-[11px]", active ? "text-fuchsia-100" : "text-slate-500")}>{o.sub}</div>
+                      </button>
+                    );
+                  })}
                 </div>
+
+                {isLump ? (
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      예치 목돈: {formatKRW(lump)}
+                      <span className="ml-1 font-normal text-slate-400">{years}년 정기예금 거치</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="1000000"
+                      max={ISA_RULES.totalLimit}
+                      step="1000000"
+                      value={lump}
+                      onChange={(e) => setLump(Number(e.target.value))}
+                      className="w-full accent-fuchsia-600"
+                    />
+                    <NumberSync value={lump} onChange={setLump} min={1000000} max={ISA_RULES.totalLimit} step={1000000} accent="fuchsia" suffix="원" />
+                    <div className="flex justify-between text-[11px] text-slate-500 mt-1">
+                      <span>100만원</span>
+                      <span>5천만원</span>
+                      <span>1억원</span>
+                    </div>
+                    <div className="mt-1.5 rounded-sm bg-fuchsia-50 px-2.5 py-1.5 text-[11.5px] font-semibold text-fuchsia-800">
+                      {formatKRW(result.totalContributed)}을 {years}년 거치 (총 1억원 한도)
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      연 납입액: {formatKRW(annual)}
+                      <span className="ml-1 font-normal text-slate-400">연 2천만원 한도</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="1000000"
+                      max={ISA_RULES.annualLimit}
+                      step="1000000"
+                      value={annual}
+                      onChange={(e) => setAnnual(Number(e.target.value))}
+                      className="w-full accent-fuchsia-600"
+                    />
+                    <NumberSync value={annual} onChange={setAnnual} min={1000000} max={ISA_RULES.annualLimit} step={1000000} accent="fuchsia" suffix="원" />
+                    <div className="flex justify-between text-[11px] text-slate-500 mt-1">
+                      <span>100만원</span>
+                      <span>1천만원</span>
+                      <span>2천만원</span>
+                    </div>
+                    <div className="mt-1.5 rounded-sm bg-fuchsia-50 px-2.5 py-1.5 text-[11.5px] font-semibold text-fuchsia-800">
+                      {years}년간 총 {formatKRW(result.totalContributed)} 납입 (총 1억원 한도)
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1.5">
@@ -409,7 +475,10 @@ export const TaxCalculator = () => {
                   <span className="text-[12px] text-slate-500">
                     예상 이자
                     <span className="ml-1 text-[11px] text-slate-400">
-                      연 {formatKRWShort(annual)} × {years}년 · 연 {rate.toFixed(1)}% · 월복리
+                      {isLump
+                        ? `${formatKRWShort(lump)} 거치 · ${years}년`
+                        : `연 ${formatKRWShort(annual)} × ${years}년`}{" "}
+                      · 연 {rate.toFixed(1)}% · 월복리
                     </span>
                   </span>
                   <span className="flex-shrink-0 text-[15px] font-bold tabular-nums text-slate-900">
@@ -512,7 +581,9 @@ export const TaxCalculator = () => {
         title="ISA 세제 절세효과 추정 안내"
         subtitle={
           isDeposit
-            ? `${type.label} · 연 ${formatKRW(annual)} × ${years}년(총 ${formatKRW(result.totalContributed)}) · 연 ${rate.toFixed(1)}% 가정`
+            ? isLump
+              ? `${type.label} · ${formatKRW(lump)} ${years}년 거치 · 연 ${rate.toFixed(1)}% 가정`
+              : `${type.label} · 연 ${formatKRW(annual)} × ${years}년(총 ${formatKRW(result.totalContributed)}) · 연 ${rate.toFixed(1)}% 가정`
             : `${type.label} · 계좌 내 순이익(손익통산 후) ${formatKRW(result.netProfit)} 가정`
         }
         disclaimer={
@@ -524,7 +595,9 @@ export const TaxCalculator = () => {
           isDeposit
             ? [
                 { label: "ISA 유형", value: type.label },
-                { label: "연 납입액", value: `${formatKRW(annual)} × ${years}년` },
+                isLump
+                  ? { label: "예치 목돈", value: `${formatKRW(lump)} (${years}년 거치)` }
+                  : { label: "연 납입액", value: `${formatKRW(annual)} × ${years}년` },
                 { label: "총 납입액", value: formatKRW(result.totalContributed) },
                 { label: "예금 연 금리", value: `${rate.toFixed(1)}% (월복리)` },
                 { label: "비과세 한도", value: formatKRW(result.taxFreeLimit) },
