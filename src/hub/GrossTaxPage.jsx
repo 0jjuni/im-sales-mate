@@ -1,3 +1,4 @@
+import { counselPriorities, counselQuestion } from "./data/diagnosisCounsel";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -68,7 +69,7 @@ const VerdictBanner = ({ data }) => {
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-              <span className="text-[16px] font-bold text-slate-900">{data.name}</span>
+              <span className="text-[16px] font-bold text-slate-900">고객 {data.customerNo}</span>
               <span className="text-[12px] text-slate-500">{data.age}</span>
             </div>
             <div className="mt-0.5 font-mono text-[12px] tabular-nums text-slate-400">{data.customerNo}</div>
@@ -206,7 +207,7 @@ const ConfirmedChips = ({ manual, onChange }) => {
     <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
       <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
         <MessageSquareText className="h-3 w-3" />
-        상담 중 확인한 항목
+        상담에 적용한 항목
         <span className="font-normal text-slate-400">잘못 골랐다면 변경·지우기로 수정하세요</span>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -630,7 +631,7 @@ function DepositSection({ data }) {
                           "inline-block rounded px-1.5 py-0.5 text-[11px] font-semibold",
                           autoRoll && isNear ? "bg-rose-100 text-rose-700" : "bg-slate-100 text-slate-500"
                         )}
-                        title={autoRoll && isNear ? "만기 임박 + 자동재예치 — 그냥 두면 저금리로 재예치됩니다" : undefined}
+                        title={autoRoll && isNear ? "만기 임박 · 자동재예치 예정, 적용 금리와 고객 의사 확인" : undefined}
                       >
                         {d.maturityAction || "미지정"}
                       </span>
@@ -945,6 +946,7 @@ function ResultView({ data }) {
   const HELD_STATES = ["active", "available", "restricted"];
   const heldProducts = sortedProducts.filter((p) => p.held === true || HELD_STATES.includes(p.state));
   const strategy = deriveStrategy(data, manual);
+  const priorities = counselPriorities(data, products);
   /* 전략을 성격별로 분리해 각 섹션에 배치(진단→상단, 제안→상품 옆, 분산→하단) */
   const strat = {
     진단: strategy.filter((s) => s.group === "진단"),
@@ -959,6 +961,12 @@ function ResultView({ data }) {
 
       {j.isTarget && <GuidanceForTarget data={data} />}
 
+      <section className="rounded-xl border border-im-200 bg-im-50/40 p-4 sm:p-5">
+        <h2 className="text-base font-bold text-slate-900">먼저 확인할 상담</h2>
+        <p className="mt-1 text-xs text-slate-500">가입 제한 → 30일 이내 만기 → 보유 상품 추가 활용 순으로 확인</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">{priorities.map((item,i)=><article key={item.key} className="rounded-lg border border-im-100 bg-white p-4"><h3 className="text-sm font-bold text-slate-900">{i+1}. {item.title}</h3><p className="mt-2 text-xs leading-6 text-slate-500">조회 결과 · {item.fact}</p><p className="mt-3 text-sm font-semibold leading-6 text-im-800">“{item.question}”</p><a href={item.href} className="mt-3 inline-flex min-h-11 items-center text-xs font-semibold text-im-700">{item.action} →</a></article>)}</div>
+      </section>
+      {autoIncome&&<p className="text-xs text-slate-500">소득 유형은 {noranHeld ? "노란우산 보유" : hasMerchant ? "가맹점 입금계좌" : "급여 입금 요건 충족"}을 바탕으로 분류했습니다. 겸업·현재 소득 유형이 다르면 변경하세요.</p>}
       <ConfirmedChips manual={manual} onChange={setManual} />
 
       {strat.진단.length > 0 && (
@@ -976,10 +984,11 @@ function ResultView({ data }) {
       )}
 
       {/* 2) 보유 현황 — 실제 활용 중인 상품 + 예금·수신 */}
-      <section>
-        <SectionTitle icon={Layers} sub="고객이 지금 보유·활용 중인 상품과 활용도 (당행 보유 기준)">
+      <section id="diagnosis-products">
+        <SectionTitle icon={Layers} sub="당행 조회 결과 · 타행 가입 여부와 합산 납입액은 상담 시 확인">
           상품 활용 현황
         </SectionTitle>
+        <div className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{products.map(p=><div key={p.key} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white p-3"><span className="text-xs font-semibold text-slate-700">{SOURCES[p.key].label.replace(" 가입 여부", "")}</span><span className={cn("rounded px-2 py-1 text-xs",STATE_CLASS[PRODUCT_STATE[p.state].tone].badge)}>{p.state==="restricted"?"가입·연장 제한":p.state==="available"?"추가 활용 가능":p.held===true||p.state==="active"?"보유 중":p.held===false||p.state==="recommend"?"당행 미보유":"확인 필요"}</span></div>)}</div>
         {heldProducts.length > 0 || data.merchantSettlement?.bank ? (
           <div className="grid gap-3 sm:grid-cols-2">
             {heldProducts.map((p) => (
@@ -994,17 +1003,18 @@ function ResultView({ data }) {
         )}
       </section>
 
-      <DepositSection data={data} />
+      <div id="diagnosis-deposits"><DepositSection data={data} /><p className="mt-2 text-xs text-slate-500">상품명: iM뱅크 금융상품몰 확인 · 고객 잔액·금리·만기일은 데모 예시</p></div>
 
       {/* 3) 핵심 — 맞춤 상품 제안 (판매 기회 + 신용카드 발급 요건) */}
-      <section>
-        <SectionTitle icon={Sparkles} sub="바로 권유·제안할 수 있는 판매 기회">
+      <section id="diagnosis-proposals">
+        <SectionTitle icon={Sparkles} sub="조회된 보유 상태와 상담 조건에 따른 제안 · 고객 목적에 맞춰 선택">
           맞춤 상품 제안
         </SectionTitle>
         {strat.제안.length > 0 ? (
           <ol className="space-y-2">
             {strat.제안.map((s, i) => (
               <StrategyItem key={i} item={s}>
+                <p className="mt-3 rounded-lg bg-white/70 p-3 text-xs leading-6 text-slate-700"><b>상담 확인</b> · {counselQuestion(s)}</p>
                 {/* 개인 신용카드 권유: 발급 요건 + 소득공제 계산을 이 안에서 */}
                 {s.key === "cardPersonal" && (
                   <>
@@ -1126,7 +1136,7 @@ export default function GrossTaxPage() {
       ) : result === null ? (
         <NotFound no={queriedNo} onPick={(no) => { setInput(no); runQuery(no); }} />
       ) : (
-        <ResultView data={result} />
+        <ResultView key={result.customerNo} data={result} />
       )}
     </HubShell>
   );

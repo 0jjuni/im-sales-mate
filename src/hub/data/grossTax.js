@@ -26,7 +26,7 @@ export const SOURCES = {
    active=활용 중 · available=추가 납입 여력(추가 판매) · recommend=미보유·가입 권유(신규 판매)
    restricted=가입/연장 제한 · none=해당 없음 */
 export const PRODUCT_STATE = {
-  recommend: { label: "가입 권유", tone: "im", sell: true },
+  recommend: { label: "신규 상담", tone: "im", sell: true },
   available: { label: "추가 납입 여력", tone: "im", sell: true },
   active: { label: "활용 중", tone: "slate", sell: false },
   restricted: { label: "가입/연장 제한", tone: "rose", sell: false },
@@ -44,9 +44,9 @@ const CUSTOMERS = {
     age: "52세",
     /* 당행 보유 예금·수신 — 만기·금리 관리. maturityInDays: 오늘 기준 만기까지 일수(상대값) */
     deposits: [
-      { name: "IM주거래우대예금", type: "정기예금", balance: 8000, rate: 3.6, maturityInDays: 18, maturityAction: "자동재예치" },
-      { name: "The드림 정기예금", type: "정기예금", balance: 5000, rate: 3.4, maturityInDays: 95, maturityAction: "자동해지" },
-      { name: "내가만든 보너스적금", type: "적금", balance: 1200, rate: 3.8, maturityInDays: 240, maturityAction: "미지정" },
+      { name: "iM주거래우대예금(첫만남고객형)", type: "정기예금", balance: 8000, rate: 3.6, maturityInDays: 18, maturityAction: "자동재예치" },
+      { name: "iM함께예금", type: "정기예금", balance: 5000, rate: 3.4, maturityInDays: 95, maturityAction: "자동해지" },
+      { name: "新사업자우대적금(정기적립식)", type: "적금", balance: 1200, rate: 3.8, maturityInDays: 240, maturityAction: "미지정" },
     ],
     jonghap: {
       taxYear: 2025,
@@ -105,8 +105,8 @@ const CUSTOMERS = {
     name: "이단디",
     age: "48세",
     deposits: [
-      { name: "iM 스마트 정기예금", type: "정기예금", balance: 3000, rate: 3.5, maturityInDays: 12, maturityAction: "자동재예치" },
-      { name: "iM 첫만남 적금", type: "적금", balance: 600, rate: 4.0, maturityInDays: 160, maturityAction: "미지정" },
+      { name: "iM스마트예금", type: "정기예금", balance: 3000, rate: 3.5, maturityInDays: 12, maturityAction: "자동재예치" },
+      { name: "iM함께적금", type: "적금", balance: 600, rate: 4.0, maturityInDays: 160, maturityAction: "미지정" },
     ],
     jonghap: {
       taxYear: 2025,
@@ -137,8 +137,8 @@ const CUSTOMERS = {
         key: "isa",
         state: "recommend",
         cta: { to: "/isa", label: "ISA 상담 시작" },
-        metrics: [{ label: "비과세 한도(서민형)", value: "400만원", strong: true }],
-        note: "비대상·가입 제한 없음 → 서민형 ISA로 순이익 비과세. 대표 판매 기회.",
+        metrics: [{ label: "당행 ISA", value: "미보유", strong: true }],
+        note: "당행 ISA 미보유이며 조회된 종합과세 이력에 따른 제한은 없습니다. 타행 보유 여부와 소득 요건을 확인해 가입 유형을 안내하세요.",
       },
       { key: "housing", held: false },
       { key: "noran", held: false },
@@ -154,8 +154,8 @@ const CUSTOMERS = {
     /* 가맹점 카드매출 대금을 타행으로 받는 개인사업자 — 결제계좌 당행 전환 유치 대상 */
     merchantSettlement: { bank: "국민은행", monthlyCardSales: 3200 },
     deposits: [
-      { name: "IM주거래우대예금", type: "정기예금", balance: 6000, rate: 3.3, maturityInDays: 40, maturityAction: "자동해지" },
-      { name: "The드림 정기예금", type: "정기예금", balance: 4000, rate: 3.5, maturityInDays: 8, maturityAction: "자동재예치" },
+      { name: "iM주거래우대예금(첫만남고객형)", type: "정기예금", balance: 6000, rate: 3.3, maturityInDays: 40, maturityAction: "자동해지" },
+      { name: "iM함께예금", type: "정기예금", balance: 4000, rate: 3.5, maturityInDays: 8, maturityAction: "자동재예치" },
     ],
     jonghap: {
       taxYear: 2025,
@@ -415,7 +415,7 @@ export function deriveStrategy(data, manual) {
       title: "비대상 · 절세상품을 더 채울 여지",
       detail: `금융소득 ${won(
         j.financialIncome
-      )}만원으로 종합과세 대상이 아닙니다. 가입 제한이 없으므로 비과세·분리과세 상품을 적극 제안하기 좋은 고객입니다.`,
+      )}만원으로 종합과세 대상이 아닙니다. 조회된 과세 이력을 바탕으로 상품별 가입 요건과 보유 현황을 살펴보세요.`,
     });
   }
 
@@ -431,7 +431,7 @@ export function deriveStrategy(data, manual) {
   }
 
   /* 자동재예치 + 만기 임박 = 그냥 두면 저금리 재예치 → 상단 진단에 알림 */
-  const autoRollNear = (data.deposits || []).filter((d) => d.maturityInDays <= 30 && d.maturityAction === "자동재예치");
+  const autoRollNear = (data.deposits || []).filter((d) => d.maturityInDays >= 0 && d.maturityInDays <= 30 && d.maturityAction === "자동재예치");
   if (autoRollNear.length > 0) {
     const sum = autoRollNear.reduce((s, d) => s + (d.balance || 0), 0);
     items.push({
@@ -440,7 +440,7 @@ export function deriveStrategy(data, manual) {
       kind: "warn",
       title: `자동재예치 임박 자금 ${autoRollNear.length}건 · ${won(sum)}만원`,
       detail:
-        "만기가 임박했는데 자동재예치로 설정돼 있어 그대로 두면 저금리로 다시 묶입니다. 만기 처리를 바꾸고, 예치 기간에 맞는 상품(ISA·저축성보험 등)으로 이전하도록 상담하세요. 아래 「예금·수신 만기 관리」에서 확인하세요.",
+        "자동재예치가 예정돼 있습니다. 적용 예정 금리와 고객의 자금 사용 시점을 확인하고, 재예치 유지 여부를 상담하세요.",
     });
   }
 
@@ -460,10 +460,10 @@ export function deriveStrategy(data, manual) {
     if (p.state === "recommend") {
       items.push({
         group: "제안",
-        tag: "판매 기회",
+        tag: "신규 상담",
         kind: "sell",
         key: p.key,
-        title: `${cleanLabel(SOURCES[p.key]?.label ?? p.key)} 신규 가입 권유`,
+        title: `${cleanLabel(SOURCES[p.key]?.label ?? p.key)} 신규 가입 검토`,
         detail: p.note,
         cta: p.cta,
       });
@@ -475,10 +475,11 @@ export function deriveStrategy(data, manual) {
       const label = cleanLabel(SOURCES[p.key]?.label ?? p.key);
       items.push({
         group: "제안",
-        tag: "추가 판매",
+        tag: "추가 활용",
         kind: "action",
+        key: p.key,
         title: `${label} 납입 여력(${p.remaining}) 활용`,
-        detail: `보유 중인 ${label}의 남은 한도를 채워, 과세되는 예금 이자를 비과세 구조로 이전하도록 제안하세요.`,
+        detail: `${label}의 추가 납입 여력은 ${p.remaining}입니다. 유지 기간과 납입 조건을 확인해 추가 활용을 상담하세요.`,
       });
     }
   });
@@ -531,10 +532,10 @@ export function deriveStrategy(data, manual) {
       group: "제안",
       tag: "투자상품",
       kind: "action",
-      title: "예금 편중 자금을 펀드·ETF·신탁으로 분산",
+      title: "예금 만기 후 자금 운용 검토",
       detail: `예금·수신에 ${won(
         depositTotal
-      )}만원이 묶여 있습니다. 일부를 펀드·ETF·신탁으로 분산해 기대수익을 높이고, ISA 계좌에 편입하면 순이익 비과세·분리과세로 세후 수익까지 챙기도록 제안하세요.`,
+      )}만원이 조회됩니다. 투자 가능한 여유자금인지 먼저 확인하고, 투자성향과 사용 시점에 맞는 상품을 비교하세요.`,
       cta: { to: "/wealth", label: "투자상품 상담" },
     });
   }
