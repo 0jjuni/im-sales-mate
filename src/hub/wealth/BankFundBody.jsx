@@ -1,3 +1,4 @@
+import { riskBrief, conditionLines } from "./counselBrief";
 import { MarketChart } from "../components/MarketChart";
 import { bankField, bankSeries, fundSection, introRows } from "./useBankFund";
 
@@ -18,12 +19,27 @@ export function BankFundBody({data}) {
   const stocks=holding?.tables.find(t=>t.title==="보유주식 리스트")?.rows.slice(1).filter(r=>r.length>2 && /^\d/.test(r[1].text)) || [];
   const date=data.retrievedAt.slice(0,10);
   return <div>
-    <Section id="summary" title="상품 설명">
-      <p className="mb-4 text-xs leading-6 text-slate-500">iM뱅크 상품정보 · {date} 수집본</p>
-      <p className="rounded-lg bg-amber-50 px-4 py-3 text-sm font-semibold leading-6 text-amber-900">예금자보호법 비보호 · 실적배당 상품 · 원금손실 가능</p>
-      <Pairs rows={introRows(data).filter(r=>["상품특징","가입대상","가입금액"].includes(r[0]?.text))}/>
-      <h3 className="mb-3 mt-6 font-bold text-slate-800">주요 투자위험</h3>
-      {risks.length ? <div className="space-y-3">{risks.map((r,i)=><details key={i} className="rounded-lg border border-slate-200 p-4"><summary className="cursor-pointer text-sm font-semibold">{r[0].text}</summary><p className="mt-3 text-sm leading-7 text-slate-600">{r[1].text}</p></details>)}</div> : <p className="text-sm text-slate-500">상품별 투자위험은 투자설명서를 확인하세요.</p>}
+    <Section id="summary" title="상담 요점">
+      <p className="mb-4 text-xs leading-6 text-slate-500">iM뱅크 상품정보 · {date} 기준 수집본</p>
+      <div className="rounded-xl bg-sky-50 p-5 sm:p-6">
+        <p className="text-xs font-bold text-sky-700">먼저 설명할 투자 대상</p>
+        <p className="mt-2 text-lg font-bold leading-8 text-slate-900">{bankField(data,"투자대상") || "상품안내에서 투자 대상을 확인하세요."}</p>
+        {data.code === "12032101000001023" || data.code === "12032101000001024" ? <p className="mt-3 text-sm leading-7 text-slate-700">국내 IT 기업의 주식에 투자하는 펀드입니다. IT 업황에 따라 수익률이 크게 달라질 수 있어요.</p> : null}
+      </div>
+      <h3 className="mb-3 mt-6 font-bold text-slate-800">빠뜨리지 않고 설명할 위험</h3>
+      <p className="mb-4 text-sm leading-7 text-slate-600">예금자보호 대상이 아니며, 원금 손실이 발생할 수 있습니다.</p>
+      {risks.length ? <ul className="space-y-4">{risks.map((r,i)=><li key={i} className="border-l-2 border-amber-300 pl-4"><h4 className="text-sm font-bold text-slate-800">{r[0].text}</h4><p className="mt-1 text-sm leading-7 text-slate-700">{riskBrief(r[0].text,r[1].text)}</p><details className="mt-2"><summary className="min-h-8 cursor-pointer text-xs text-slate-500">은행 원문 확인</summary><p className="mt-2 rounded-lg bg-slate-50 p-3 text-xs leading-6 text-slate-600">{r[1].text}</p></details></li>)}</ul> : <p className="text-sm text-slate-500">상품별 투자위험은 투자설명서를 확인하세요.</p>}
+      <details className="mt-5 rounded-lg border border-slate-200 p-4"><summary className="cursor-pointer text-sm font-semibold text-slate-700">상품 특징 원문</summary><Pairs rows={introRows(data).filter(r=>r[0]?.text==="상품특징")}/></details>
+    </Section>
+    <Section id="cost" title="비용과 매입·환매">
+      <div className="grid gap-3 sm:grid-cols-2">{["수수료","총보수"].map(label=><div key={label} className="rounded-xl border border-slate-200 bg-slate-50 p-4"><h3 className="text-xs font-semibold text-slate-500">{label === "총보수" ? "보유 중 부담하는 총보수" : "가입·환매 시 수수료"}</h3><p className="mt-2 text-sm font-bold leading-7 text-slate-900">{bankField(data,label)||"확인 필요"}</p></div>)}</div>
+      <p className="mt-3 text-xs leading-6 text-slate-500">선택한 클래스 기준입니다. 총보수 외에 기타비용이 발생할 수 있습니다.</p>
+      <h3 className="mb-2 mt-6 text-sm font-bold text-slate-800">가입 전에 확인할 조건</h3>
+      <Pairs rows={introRows(data).filter(r=>["가입대상","가입금액"].includes(r[0]?.text))}/>
+      <h3 className="mb-2 mt-6 text-sm font-bold text-slate-800">언제 매입되고, 언제 받을 수 있나요?</h3>
+      <Pairs rows={introRows(data).filter(r=>/매입기준일|환매기준일|환매방법|매입방법/.test(r[0]?.text)).map(r=>r.map((c,i)=>i?{...c,text:conditionLines(c.text)}:c))}/>
+      <p className="mt-3 rounded-lg bg-sky-50 p-4 text-sm leading-7 text-slate-700">자금이 필요한 날짜와 환매대금 지급일을 함께 확인하세요. 신청 시간에 따라 적용 기준가와 지급일이 달라질 수 있습니다.</p>
+      <details className="mt-4 rounded-lg border border-slate-200 p-4"><summary className="cursor-pointer text-sm font-semibold text-slate-700">기타 가입 조건 원문</summary><Pairs rows={introRows(data).filter(r=>!['상품특징','가입대상','가입금액','선취판매수수료','총보수','매입기준일','환매기준일','환매방법','매입방법'].includes(r[0]?.text))}/></details>
     </Section>
     <Section id="performance" title="기준가와 운용 현황">
       <h3 className="text-sm font-semibold text-slate-700">기준가 추이</h3>
@@ -35,12 +51,7 @@ export function BankFundBody({data}) {
       <p className="mb-3 text-xs leading-6 text-slate-500">{holding?.headings[0]} · 펀드 내 비중</p>
       {stocks.length ? <ul className="divide-y divide-slate-100">{stocks.map((r,i)=><li key={i} className="flex items-center justify-between gap-4 py-3 text-sm"><span className="min-w-0 break-words">{r[0].text}</span><span className="shrink-0 font-semibold tabular-nums">{r[1].text}%</span></li>)}</ul> : <p className="text-sm text-slate-500">표시할 주식 보유종목이 없습니다. 채권·기타자산은 아래 보유내역에서 확인하세요.</p>}
     </Section>
-    <Section id="cost" title="비용과 매입·환매">
-      <Pairs rows={["수수료","총보수"].map(label=>[{text:label},{text:bankField(data,label)||"확인 필요"}])}/>
-      <Pairs rows={introRows(data).filter(r=>!['상품특징','가입대상','가입금액','선취판매수수료','총보수'].includes(r[0]?.text))}/>
-      <p className="mt-3 text-xs leading-6 text-slate-500">선택한 클래스의 정보입니다. 기타비용과 적용 조건은 해당 클래스의 투자설명서를 확인하세요.</p>
-    </Section>
-    <Section id="details" title="상세 자료">
+    <Section id="details" title="근거 자료 찾아보기">
       <div className="space-y-3">{data.sections.filter(s=>s.name!=="차트분석").map(section=><details key={section.name} className="min-w-0 rounded-lg border border-slate-200 p-4"><summary className="cursor-pointer text-sm font-semibold text-slate-800">{section.name}{section.status==="unavailable"?" · 자료 없음":""}</summary><div className="mt-4 min-w-0"><SourceTables section={section}/></div></details>)}</div>
       <p className="mt-4 text-xs leading-6 text-slate-500">출처: iM뱅크 및 연결된 펀드 정보 · {date} 수집. 항목별 기준일은 자료에 표시된 날짜를 확인하세요.</p>
     </Section>
