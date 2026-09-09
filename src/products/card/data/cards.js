@@ -307,10 +307,20 @@ const BIZ_CATALOG = [
   ["imc-green-biz.png", "그린기업체크카드", "check"],
 ];
 
+/* 코드 등록 eBiz 가입 링크(adCopy) — QR 전표·가입 안내에 사용(resolveAdCopy 우선순위 1).
+   parseUrl이 본문에서 첫 http 링크를 추출한다. 직원 개인 링크는 여전히 상세의 「가입 링크 추가」로 저장. */
+const AD_COPY = {
+  "im-travel": `■ "iM 트래블 카드" 상품가입
+☞ https://mbanking.imbank.co.kr/com_ebz_mbs_00001.act?svcId=com_ebz_sbs_30020_0001&sms_seqno=3030011875`,
+  "im-one": `■ "iM ONE카드" 상품가입
+☞ https://mbanking.imbank.co.kr/com_ebz_mbs_00001.act?svcId=com_ebz_sbs_30020_0001&sms_seqno=3030011876`,
+};
+
 const toCard = (segment) => ([file, name, type]) => {
   const id = file.replace(/\.(webp|png|jpg|jpeg)$/i, "");
   if (id === "im-seven-cashback") return SEVEN;
   const info = INFO[id] || {};
+  const adCopy = AD_COPY[id] || "";
   return {
     id,
     name,
@@ -325,9 +335,9 @@ const toCard = (segment) => ([file, name, type]) => {
     annualFee: FEE[id] || "",
     spendReq: "",
     note: "",
-    ebizLink: "",
+    ebizLink: (adCopy.match(/https?:\/\/[^\s]+/)?.[0]) || "",
     prospectusUrl: HAS_PDF.has(id) ? `/promo/cards/${id}.pdf` : "",
-    adCopy: "",
+    adCopy,
   };
 };
 
