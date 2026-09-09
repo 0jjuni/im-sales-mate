@@ -893,6 +893,34 @@ const GuidanceForTarget = ({ data }) => (
   </div>
 );
 
+/* 타행 가맹점 결제계좌 — 당행 상품은 아니지만 '지금 이용 중'인 현황이라 활용 현황에 함께 노출.
+   당행 전환 유치 대상임을 표시(아래 맞춤 제안과 연결). */
+function MerchantSettlementCard({ m }) {
+  return (
+    <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-4">
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-[14px] font-bold text-slate-900">가맹점 카드매출 입금계좌</h3>
+        <span className="flex-shrink-0 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">타행 이용 중</span>
+      </div>
+      <div className="mt-3">
+        <div className="text-[11px] text-slate-500">입금 은행</div>
+        <div className="text-[20px] font-bold leading-tight text-slate-900">{m.bank} <span className="text-[12px] font-semibold text-slate-500">(타행)</span></div>
+      </div>
+      {m.monthlyCardSales != null && (
+        <dl className="mt-2 space-y-1">
+          <div className="flex items-center justify-between gap-2 text-[12px]">
+            <dt className="text-slate-500">월 카드매출(추정)</dt>
+            <dd className="tabular-nums font-semibold text-slate-800">{m.monthlyCardSales.toLocaleString()}만원</dd>
+          </div>
+        </dl>
+      )}
+      <p className="mt-2 border-t border-amber-200/70 pt-2 text-[11.5px] leading-relaxed text-slate-600">
+        카드 매출대금을 타행으로 받고 있습니다. <b className="font-semibold text-amber-700">당행 전환 유치 대상</b> — 아래 「가맹점 카드매출 입금계좌 당행 전환」 제안 참고.
+      </p>
+    </div>
+  );
+}
+
 /* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
 function ResultView({ data }) {
   const j = data.jonghap;
@@ -952,11 +980,12 @@ function ResultView({ data }) {
         <SectionTitle icon={Layers} sub="고객이 지금 보유·활용 중인 상품과 활용도 (당행 보유 기준)">
           상품 활용 현황
         </SectionTitle>
-        {heldProducts.length > 0 ? (
+        {heldProducts.length > 0 || data.merchantSettlement?.bank ? (
           <div className="grid gap-3 sm:grid-cols-2">
             {heldProducts.map((p) => (
               <ProductCard key={p.key} product={p} manual={manual} onManual={setManual} />
             ))}
+            {data.merchantSettlement?.bank && <MerchantSettlementCard m={data.merchantSettlement} />}
           </div>
         ) : (
           <div className={cn(CARD, "px-5 py-8 text-center text-[12.5px] text-slate-400")}>
