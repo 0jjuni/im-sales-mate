@@ -1,6 +1,6 @@
 import { PrintPreviewModal } from "@shared/components/PrintPreviewModal";
 import { ComparisonHoldings } from "./wealth/ComparisonHoldings";
-import { ProspectusButton } from "./wealth/ProspectusButton";
+import { FundDocumentButtons } from "./wealth/ProspectusButton";
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, GitCompare, Plus, SearchX, Printer } from "lucide-react";
@@ -186,7 +186,7 @@ export default function WealthComparePage() {
             {cols.map(({ p }) => {
               return (
                 <div key={p.id} className="flex flex-wrap gap-1.5 border-l border-slate-100 px-3 py-3">
-                  <ProspectusButton product={p} className="inline-flex min-h-11 items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50"/>
+                  <FundDocumentButtons product={p} className="inline-flex min-h-11 items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50"/>
                   <button
                     onClick={() => navigate(`/wealth?tab=customers&enroll=${p.id}`)}
                     className="inline-flex items-center gap-1 rounded-md bg-sky-600 px-2.5 py-1.5 text-[11.5px] font-bold text-white hover:bg-sky-700"
