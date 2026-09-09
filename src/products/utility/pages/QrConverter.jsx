@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { Link2, Check, Copy, Printer, AlertTriangle, DownloadCloud } from "lucide-react";
+import { Link2, Check, Copy, Printer, AlertTriangle, DownloadCloud, X } from "lucide-react";
 import { QrSvg, buildQrPath } from "../components/QrCode";
 import { UtilitySlip } from "../components/UtilitySlip";
+import { PrintPreviewModal } from "@shared/components/PrintPreviewModal";
 import { cn } from "@shared/lib/format";
 
 /* 링크 → QR 변환기.
@@ -20,11 +21,18 @@ const normalizeUrl = (raw) => {
 
 const PURPOSE_PRESETS = ["마이데이터 가입", "예금 가입", "대출 상담 신청", "앱 설치", "이벤트 응모"];
 
+/* eBiz 링크 목록(데모) — 실서비스에서는 eBiz 조회 결과로 대체한다.
+   지금은 예시로 iM 세일즈메이트 접속 링크 하나를 담아 둔다. */
+const EBIZ_LINKS = [
+  { name: "iM 세일즈메이트", url: "https://im-sales-mate.vercel.app", desc: "영업점 상담 보조 플랫폼 접속" },
+];
+
 export const QrConverter = () => {
   const [input, setInput] = useState("");
   const [purpose, setPurpose] = useState("");
   const [copied, setCopied] = useState(false);
-  const [ebizTried, setEbizTried] = useState(false);
+  const [ebizOpen, setEbizOpen] = useState(false);
+  const [showPrint, setShowPrint] = useState(false);
 
   const url = useMemo(() => normalizeUrl(input), [input]);
 
@@ -70,7 +78,7 @@ export const QrConverter = () => {
               <label className="text-xs font-bold text-slate-700">링크</label>
               <button
                 type="button"
-                onClick={() => setEbizTried(true)}
+                onClick={() => setEbizOpen(true)}
                 className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1 text-[11.5px] font-semibold text-slate-600 transition-colors hover:border-im-400 hover:text-im-700"
               >
                 <DownloadCloud className="h-3.5 w-3.5" />
@@ -86,12 +94,6 @@ export const QrConverter = () => {
                 className="w-full rounded-sm border border-slate-300 py-2.5 pl-9 pr-3 text-sm focus:border-im-500 focus:outline-none"
               />
             </div>
-            {ebizTried && (
-              <p className="mt-1.5 flex items-start gap-1.5 text-[11.5px] leading-relaxed text-slate-500">
-                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
-                eBiz 링크 자동 불러오기는 준비 중입니다(연동 예정). 지금은 eBiz에서 발급한 링크를 복사해 위에 붙여넣어 주세요.
-              </p>
-            )}
           </div>
 
           <div>
@@ -171,7 +173,7 @@ export const QrConverter = () => {
                     링크 복사
                   </button>
                   <button
-                    onClick={() => window.print()}
+                    onClick={() => setShowPrint(true)}
                     className="inline-flex items-center gap-1.5 rounded-sm bg-slate-900 px-3.5 py-2 text-[12.5px] font-bold text-white transition-colors hover:bg-slate-700"
                   >
                     <Printer className="h-3.5 w-3.5" />
@@ -188,17 +190,63 @@ export const QrConverter = () => {
         )}
       </div>
 
-      {ready && (
-        <UtilitySlip
-          title={purpose ? `${purpose} 안내` : "신청 링크 안내"}
-          figure={<QrSvg text={url} size="32mm" logo />}
-          rows={[
-            ...(purpose ? [{ label: "용도", value: purpose }] : []),
-            { label: "연결 주소", value: url },
-            { label: "이용 방법", value: "휴대폰 카메라로 QR을 비추면 신청 화면으로 연결됩니다." },
-          ]}
-          note="QR이 읽히지 않으면 연결 주소를 직접 입력해 접속하실 수 있습니다."
-        />
+      {ready && showPrint && (
+        <PrintPreviewModal title="전표 미리보기" onClose={() => setShowPrint(false)}>
+          <UtilitySlip
+            preview
+            title={purpose ? `${purpose} 안내` : "신청 링크 안내"}
+            figure={<QrSvg text={url} size="32mm" logo />}
+            rows={[
+              ...(purpose ? [{ label: "용도", value: purpose }] : []),
+              { label: "연결 주소", value: url },
+              { label: "이용 방법", value: "휴대폰 카메라로 QR을 비추면 신청 화면으로 연결됩니다." },
+            ]}
+            note="QR이 읽히지 않으면 연결 주소를 직접 입력해 접속하실 수 있습니다."
+          />
+        </PrintPreviewModal>
+      )}
+
+      {/* eBiz 링크 선택 팝업 (데모) */}
+      {ebizOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 print:hidden" onClick={() => setEbizOpen(false)}>
+          <div className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
+              <div className="min-w-0">
+                <div className="text-[14px] font-bold text-slate-900">eBiz 링크 불러오기</div>
+                <div className="text-[11px] text-slate-500">불러올 링크를 선택하세요 (데모)</div>
+              </div>
+              <button onClick={() => setEbizOpen(false)} aria-label="닫기" className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <ul className="max-h-80 divide-y divide-slate-100 overflow-auto">
+              {EBIZ_LINKS.map((l) => (
+                <li key={l.url + l.name}>
+                  <button
+                    onClick={() => {
+                      setInput(l.url);
+                      setPurpose(l.desc || "");
+                      setEbizOpen(false);
+                    }}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
+                  >
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-im-50 text-im-700">
+                      <Link2 className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[13.5px] font-bold text-slate-900">{l.name}</div>
+                      <div className="truncate text-[11.5px] text-slate-500">{l.url}</div>
+                    </div>
+                    <DownloadCloud className="h-4 w-4 flex-shrink-0 text-im-600" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <p className="border-t border-slate-100 px-4 py-2.5 text-[11px] leading-relaxed text-slate-500">
+              실제로는 eBiz 조회 결과가 여기에 나열됩니다. 지금은 예시 링크만 표시됩니다.
+            </p>
+          </div>
+        </div>
       )}
     </>
   );

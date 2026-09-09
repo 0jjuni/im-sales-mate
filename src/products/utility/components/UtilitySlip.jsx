@@ -6,7 +6,7 @@
 
    화면에서는 숨기고 window.print() 시에만 나타난다. */
 /* figure — 항목 왼쪽에 붙는 그림(QR 등). 없으면 항목만 전체 폭으로 찍힌다 */
-export const UtilitySlip = ({ title, rows = [], note, figure }) => {
+export const UtilitySlip = ({ title, rows = [], note, figure, preview = false }) => {
   const now = new Date();
   const printedAt = `${now.getFullYear()}. ${String(now.getMonth() + 1).padStart(2, "0")}. ${String(
     now.getDate()
@@ -14,9 +14,9 @@ export const UtilitySlip = ({ title, rows = [], note, figure }) => {
 
   return (
     <div
-      className="hidden print:block print-slip bg-white text-slate-900"
+      className={`${preview ? "block" : "hidden print:block"} print-slip bg-white text-slate-900`}
       style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
-      aria-hidden="true"
+      aria-hidden={preview ? undefined : "true"}
     >
       <div
         className="border border-dashed border-slate-500 p-3"
