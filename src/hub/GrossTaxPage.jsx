@@ -259,6 +259,20 @@ const CardDeductionCollapsible = () => (
   </details>
 );
 
+const COUNSEL_STATUS = {
+  propose: { label: "제안 가능", frame: "border-im-300 bg-im-50/30", badge: "bg-im-700 text-white" },
+  check: { label: "추가 확인 필요", frame: "border-amber-300 bg-amber-50/30", badge: "bg-amber-100 text-amber-900" },
+  restricted: { label: "신규·연장 제한", frame: "border-rose-300 bg-rose-50/30", badge: "bg-rose-700 text-white" },
+  excluded: { label: "권유 대상 아님", frame: "border-slate-300 bg-slate-50", badge: "bg-slate-200 text-slate-700" },
+  held: { label: "유지 관리", frame: "border-slate-200 bg-white", badge: "bg-slate-100 text-slate-600" },
+};
+function productCounselStatus(p, manual, restricted) {
+  if(p.state === "restricted" || (p.key === "nontaxSavings" && restricted && !p.held)) return COUNSEL_STATUS.restricted;
+  if(p.state === "none") return COUNSEL_STATUS.excluded;
+  if(p.state === "unknown" || (p.key === "housing" && !p.held && (manual.homeless == null || manual.salaryUnder7000 == null))) return COUNSEL_STATUS.check;
+  return ["recommend", "available"].includes(p.state) ? COUNSEL_STATUS.propose : COUNSEL_STATUS.held;
+}
+
 const ProductCard = ({ product, manual, onManual, compact = false }) => {
   const src = SOURCES[product.key];
   const set = (k, v) => onManual({ ...manual, [k]: v });
@@ -912,8 +926,9 @@ const GuidanceForTarget = ({ data }) => (
    당행 전환 유치 대상임을 표시(아래 맞춤 제안과 연결). */
 function MerchantSettlementCard({ m }) {
   const state=settlementStatus(m);
+  const status=state==="other"?COUNSEL_STATUS.propose:state==="own"?COUNSEL_STATUS.held:state==="unregistered"?COUNSEL_STATUS.excluded:COUNSEL_STATUS.check;
   const label={own:"당행 이용 중",other:"타행 이용 중",unknown:"조회 정보 누락",unregistered:"POS 미등록"}[state];
-  return <div className="rounded-xl border border-slate-200 bg-white p-4"><h3 className="text-base font-bold text-slate-900">가맹점 결제계좌</h3><span className={cn("mt-2 inline-block rounded px-2 py-1 text-xs font-semibold",state==="own"?"bg-im-50 text-im-700":state==="other"?"bg-amber-50 text-amber-800":"bg-slate-100 text-slate-600")}>{label}</span><p className="mt-4 border-t border-slate-100 pt-4 text-2xl font-bold leading-8 text-slate-800">{state==="unregistered" ? "가맹점 결제계좌 없음" : m?.bank || "결제은행 조회 필요"}</p></div>;
+  return <div className={cn("h-full min-h-[210px] rounded-xl border p-4",status.frame)}><div className="flex flex-wrap items-start justify-between gap-2"><h3 className="text-base font-bold text-slate-900">가맹점 결제계좌</h3><span className={cn("rounded px-2 py-1 text-xs font-bold",status.badge)}>{state==="other"?"당행 전환 제안 가능":status.label}</span></div><p className="mt-2 text-xs text-slate-500">{label}</p><div className="mt-4 border-t border-slate-100 pt-4"><p className="text-sm text-slate-500">현재 카드매출 결제은행</p><p className="mt-1 text-2xl font-bold leading-8 text-slate-800">{state==="unregistered"?"등록 계좌 없음":m?.bank||"조회 필요"}</p></div></div>;
 }
 
 /* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
@@ -975,7 +990,9 @@ function ResultView({ data }) {
         <SectionTitle icon={Layers} sub="당행 조회 결과 · 타행 가입 여부와 합산 납입액은 상담 시 확인">
           상품 활용 현황
         </SectionTitle>
-        <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">{products.map(p=><article key={p.key} className="h-full min-h-[210px] rounded-xl border border-slate-200 bg-white p-4"><div className="text-sm"><span className="text-base font-bold text-slate-800">{SOURCES[p.key].label.replace(" 가입 여부", "")}</span><span className={cn("ml-2 inline-block rounded px-2 py-1 text-xs",STATE_CLASS[PRODUCT_STATE[p.state].tone].badge)}>{p.state==="unknown"?"확인 필요":p.state==="none"?"해당 없음":p.state==="restricted"?"가입·연장 제한":p.state==="available"?"추가 활용 가능":p.held===true||p.state==="active"?"보유 중":p.held===false||p.state==="recommend"?"당행 미보유":"확인 필요"}</span></div><div><ProductCard product={p} manual={manual} onManual={setManual} compact/></div></article>)}
+        <p className="mb-3 text-xs leading-5 text-slate-500">초록: 제안 가능 · 노랑: 추가 확인 · 빨강: 신규·연장 제한 · 회색: 유지 관리 또는 대상 아님. 제안 가능은 조회 기준의 상담 후보이며 가입 승인과는 다릅니다.</p>
+        <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">{products.map(p=>{const status=productCounselStatus(p,manual,restricted);return <article key={p.key} className={cn("h-full min-h-[210px] rounded-xl border p-4",status.frame)}><div className="flex flex-wrap items-start justify-between gap-2"><h3 className="text-base font-bold text-slate-800">{SOURCES[p.key].label.replace(" 가입 여부", "")}</h3><span className={cn("rounded px-2 py-1 text-xs font-bold",status.badge)}>{status.label}</span></div><p className="mt-2 text-xs text-slate-500">{p.held===true||p.state==="active"||p.state==="available"?"당행 보유 중":p.held===false||p.state==="recommend"?"당행 미보유":"보유·가입 상태는 아래 조회 결과 참고"}</p><ProductCard product={p} manual={manual} onManual={setManual} compact/></article>;})}
+
           {manual.incomeType === "개인사업자" && <MerchantSettlementCard m={data.merchantSettlement}/>}
         </div>
       </section>
