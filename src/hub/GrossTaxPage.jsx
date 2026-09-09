@@ -246,20 +246,6 @@ const ConfirmedChips = ({ manual, onChange }) => {
   );
 };
 
-/* 개인 신용카드 맥락에서 접어 쓰는 소득공제 계산 — 별도 섹션 대신 카드/제안 안에서 활용 */
-const CardDeductionCollapsible = () => (
-  <details className="group mt-2.5">
-    <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-md bg-slate-50 px-3 py-2 text-[12px] font-bold text-slate-600 transition-colors hover:bg-slate-100">
-      <BadgePercent className="h-3.5 w-3.5 text-slate-500" /> 신용카드 소득공제 계산
-      <span className="font-normal text-slate-400">총급여 기준 최저사용금액</span>
-      <ChevronDown className="ml-auto h-3.5 w-3.5 text-slate-400 transition-transform group-open:rotate-180" />
-    </summary>
-    <div className="mt-2">
-      <CardDeductionGuide />
-    </div>
-  </details>
-);
-
 const COUNSEL_STATUS = {
   propose: { label: "제안 가능", frame: "border-im-300 bg-im-50/30", badge: "bg-im-700 text-white" },
   check: { label: "추가 확인 필요", frame: "border-amber-300 bg-amber-50/30", badge: "bg-amber-100 text-amber-900" },
@@ -753,7 +739,7 @@ function MaturityAdvice({ horizon, restricted }) {
 
 /* 신용카드 발급 요건 — 넥스피아 4개 요건으로 「이 요건으로 발급 가능한지」만 표시.
    실제 발급은 계정계 종합 심사 기준이며, 여기선 요건별 가능/불가만 보여 준다. */
-function CardEligibilitySection({ no, embedded = false }) {
+function CardEligibilitySection({ no, embedded = false, bare = false }) {
   const e = queryEligibility(no);
   if (!e) return null;
   const inner = (
@@ -798,6 +784,8 @@ function CardEligibilitySection({ no, embedded = false }) {
         </ul>
       </div>
   );
+
+  if (bare) return inner;
 
   if (embedded)
     return (
@@ -1012,22 +1000,36 @@ function ResultView({ data }) {
             const showBadge=item.tag!=="주거래 전환"&&status.label!=="제안 가능";
             const title=item.title.replace(" 신규 가입 검토", "").replace(/ 납입 여력\(.*\) 활용/, " 추가 납입").replace("가맹점 카드매출 입금계좌 당행 전환", "가맹점 결제계좌 전환");
             const btn="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50";
-            return <article key={`${item.key||item.tag}-${i}`} className="flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <span className="inline-block rounded-full bg-im-50 px-2.5 py-0.5 text-[11px] font-bold text-im-700">{item.tag}</span>
-                  <h3 className="mt-2 text-lg font-bold leading-7 text-slate-900">{title}</h3>
-                  <p className="mt-1 text-[13px] leading-6 text-slate-500">{summary.reason}</p>
+            const cta=item.cta&&<Link to={item.cta.to} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-im-700 px-4 py-2 text-sm font-bold text-white">{item.cta.label}<ArrowRight className="h-4 w-4"/></Link>;
+            const head=(<div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <span className="inline-block rounded-full bg-im-50 px-2.5 py-0.5 text-[11px] font-bold text-im-700">{item.tag}</span>
+                <h3 className="mt-2 text-lg font-bold leading-7 text-slate-900">{title}</h3>
+                <p className="mt-1 text-[13px] leading-6 text-slate-500">{summary.reason}</p>
+              </div>
+              {showBadge&&<span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold",status.badge)}>{status.label}</span>}
+            </div>);
+            const question=(<div className="mt-3 rounded-lg border-l-[3px] border-im-200 bg-slate-50/70 px-3.5 py-2.5">
+              <p className="text-[11px] font-semibold text-slate-400">상담 질문</p>
+              <p className="mt-0.5 text-sm leading-6 text-slate-800">“{summary.question}”</p>
+            </div>);
+            /* 개인 신용카드는 한 줄(2칸) 폭 — 왼쪽 제안, 오른쪽에 발급 요건 인라인, 소득공제 계산은 팝업 버튼 */
+            if(item.key==="cardPersonal") return <article key={`${item.key||item.tag}-${i}`} className="rounded-xl border border-slate-200 bg-white p-5 lg:col-span-2">
+              <div className="grid gap-5 lg:grid-cols-2">
+                <div className="flex min-w-0 flex-col">
+                  {head}{question}
+                  <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
+                    {cta}
+                    <button type="button" onClick={()=>setModal({kind:"deduction",title:"신용카드 소득공제 계산"})} className={btn}>소득공제 계산</button>
+                  </div>
                 </div>
-                {showBadge&&<span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold",status.badge)}>{status.label}</span>}
+                <div className="min-w-0"><CardEligibilitySection no={data.customerNo} bare/></div>
               </div>
-              <div className="mt-3 rounded-lg border-l-[3px] border-im-200 bg-slate-50/70 px-3.5 py-2.5">
-                <p className="text-[11px] font-semibold text-slate-400">상담 질문</p>
-                <p className="mt-0.5 text-sm leading-6 text-slate-800">“{summary.question}”</p>
-              </div>
+            </article>;
+            return <article key={`${item.key||item.tag}-${i}`} className="flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-5">
+              {head}{question}
               <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
-                {item.cta&&<Link to={item.cta.to} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-im-700 px-4 py-2 text-sm font-bold text-white">{item.cta.label}<ArrowRight className="h-4 w-4"/></Link>}
-                {item.key==="cardPersonal"&&<button type="button" onClick={()=>setModal({kind:"card",title:"개인 신용카드 발급 요건·소득공제"})} className={btn}>발급 요건 확인하기</button>}
+                {cta}
                 {item.key==="housing"&&manual.incomeType==="근로소득자"&&<button type="button" onClick={()=>setModal({kind:"housing",title:"주택청약 소득공제 요건 확인"})} className={btn}>소득공제 요건 확인하기</button>}
                 {item.key==="housing"&&<button type="button" onClick={()=>setModal({kind:"pdf",url:"/promo/housing.pdf",title:"주택청약종합저축 상품설명서"})} className={btn}>주택청약종합저축 설명서</button>}
                 {item.key==="housing"&&<button type="button" onClick={()=>setModal({kind:"pdf",url:"/promo/housing-cheongnyeon.pdf",title:"청년 주택드림 청약통장 상품설명서"})} className={btn}>청년 주택드림 설명서</button>}
@@ -1064,8 +1066,8 @@ function ResultView({ data }) {
 
       {/* 상품설명서(PDF) 뷰어 · 발급요건/소득공제 확인 팝업 — 바로 다운로드가 아니라 먼저 띄워주고, PDF는 뷰어에서 저장·인쇄 선택 */}
       {modal && createPortal(
-        <div className="fixed inset-0 z-50 flex flex-col bg-black/60 p-3 sm:p-6 print:hidden" onClick={() => setModal(null)}>
-          <div className="mx-auto flex h-full w-full max-w-4xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 sm:p-6 print:hidden" onClick={() => setModal(null)}>
+          <div className={cn("flex max-h-full w-full flex-col overflow-hidden rounded-xl bg-white shadow-2xl", modal.kind === "pdf" ? "h-full max-w-4xl" : modal.kind === "deduction" ? "max-w-lg" : "max-w-md")} onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-shrink-0 items-center justify-between gap-3 border-b border-slate-200 px-4 py-2.5">
               <div className="truncate text-[14px] font-bold text-slate-900">{modal.title}</div>
               <div className="flex flex-shrink-0 items-center gap-2">
@@ -1075,9 +1077,9 @@ function ResultView({ data }) {
             </div>
             {modal.kind === "pdf"
               ? <iframe src={modal.url} title={modal.title} className="h-full w-full flex-1" />
-              : <div className="flex-1 overflow-auto p-5">
-                  {modal.kind === "card" && <><CardEligibilitySection no={data.customerNo} embedded /><CardDeductionCollapsible /></>}
+              : <div className="overflow-auto p-5">
                   {modal.kind === "housing" && <div className="space-y-4">{["homeless", "salaryUnder7000"].map(f => <div key={f}><p className="mb-2 text-sm font-semibold text-slate-700">{FIELD_LABEL[f]}</p><ManualControl field={f} manual={manual} set={(k, v) => setManual({ ...manual, [k]: v })} /></div>)}</div>}
+                  {modal.kind === "deduction" && <CardDeductionGuide />}
                 </div>}
           </div>
         </div>, document.body)}
