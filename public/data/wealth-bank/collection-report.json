@@ -1,0 +1,153 @@
+{
+  "products": 246,
+  "passed": 246,
+  "tables": 7626,
+  "rows": 56825,
+  "unavailable": [
+    {
+      "code": "12002101000001105",
+      "name": "미래에셋브라질업종대표증권자투자신탁1호(주식)Ae (클래스상세: 수수료선취-온라인)",
+      "section": "펀드개요",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fprofile.jsp?fund_cd=&panme_fund_cd=12002101000001105&gijun_ymd="
+    },
+    {
+      "code": "12002101000001105",
+      "name": "미래에셋브라질업종대표증권자투자신탁1호(주식)Ae (클래스상세: 수수료선취-온라인)",
+      "section": "일별기준가",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fgijunga.jsp?fund_cd=&panme_fund_cd=12002101000001105&gijun_ymd="
+    },
+    {
+      "code": "12002101000001105",
+      "name": "미래에셋브라질업종대표증권자투자신탁1호(주식)Ae (클래스상세: 수수료선취-온라인)",
+      "section": "차트분석",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fchart.jsp?fund_cd=&panme_fund_cd=12002101000001105&gijun_ymd="
+    },
+    {
+      "code": "12002101000001105",
+      "name": "미래에셋브라질업종대표증권자투자신탁1호(주식)Ae (클래스상세: 수수료선취-온라인)",
+      "section": "포트폴리오분석",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fportfolio.jsp?fund_cd=&panme_fund_cd=12002101000001105&gijun_ymd="
+    },
+    {
+      "code": "12001101000001044",
+      "name": "우리재팬증권자투자신탁(UH)(주식)CE (클래스상세: 수수료미징구-온라인)",
+      "section": "펀드개요",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fprofile.jsp?fund_cd=&panme_fund_cd=12001101000001044&gijun_ymd="
+    },
+    {
+      "code": "12001101000001044",
+      "name": "우리재팬증권자투자신탁(UH)(주식)CE (클래스상세: 수수료미징구-온라인)",
+      "section": "일별기준가",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fgijunga.jsp?fund_cd=&panme_fund_cd=12001101000001044&gijun_ymd="
+    },
+    {
+      "code": "12001101000001044",
+      "name": "우리재팬증권자투자신탁(UH)(주식)CE (클래스상세: 수수료미징구-온라인)",
+      "section": "차트분석",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fchart.jsp?fund_cd=&panme_fund_cd=12001101000001044&gijun_ymd="
+    },
+    {
+      "code": "12001101000001044",
+      "name": "우리재팬증권자투자신탁(UH)(주식)CE (클래스상세: 수수료미징구-온라인)",
+      "section": "포트폴리오분석",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fportfolio.jsp?fund_cd=&panme_fund_cd=12001101000001044&gijun_ymd="
+    },
+    {
+      "code": "12012202000001005",
+      "name": "하나글로벌리츠부동산자투자신탁(재간접형)C-e (클래스상세: 수수료미징구-온라인)",
+      "section": "펀드개요",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fprofile.jsp?fund_cd=&panme_fund_cd=12012202000001005&gijun_ymd="
+    },
+    {
+      "code": "12012202000001005",
+      "name": "하나글로벌리츠부동산자투자신탁(재간접형)C-e (클래스상세: 수수료미징구-온라인)",
+      "section": "일별기준가",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fgijunga.jsp?fund_cd=&panme_fund_cd=12012202000001005&gijun_ymd="
+    },
+    {
+      "code": "12012202000001005",
+      "name": "하나글로벌리츠부동산자투자신탁(재간접형)C-e (클래스상세: 수수료미징구-온라인)",
+      "section": "차트분석",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fchart.jsp?fund_cd=&panme_fund_cd=12012202000001005&gijun_ymd="
+    },
+    {
+      "code": "12012202000001005",
+      "name": "하나글로벌리츠부동산자투자신탁(재간접형)C-e (클래스상세: 수수료미징구-온라인)",
+      "section": "포트폴리오분석",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fportfolio.jsp?fund_cd=&panme_fund_cd=12012202000001005&gijun_ymd="
+    },
+    {
+      "code": "12032101000001015",
+      "name": "하나블루칩바스켓증권자투자신탁(V-1호)[주식]A-E (클래스상세: 수수료선취-온라인)",
+      "section": "펀드개요",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fprofile.jsp?fund_cd=&panme_fund_cd=12032101000001015&gijun_ymd="
+    },
+    {
+      "code": "12032101000001015",
+      "name": "하나블루칩바스켓증권자투자신탁(V-1호)[주식]A-E (클래스상세: 수수료선취-온라인)",
+      "section": "일별기준가",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fgijunga.jsp?fund_cd=&panme_fund_cd=12032101000001015&gijun_ymd="
+    },
+    {
+      "code": "12032101000001015",
+      "name": "하나블루칩바스켓증권자투자신탁(V-1호)[주식]A-E (클래스상세: 수수료선취-온라인)",
+      "section": "차트분석",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fchart.jsp?fund_cd=&panme_fund_cd=12032101000001015&gijun_ymd="
+    },
+    {
+      "code": "12032101000001015",
+      "name": "하나블루칩바스켓증권자투자신탁(V-1호)[주식]A-E (클래스상세: 수수료선취-온라인)",
+      "section": "포트폴리오분석",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fportfolio.jsp?fund_cd=&panme_fund_cd=12032101000001015&gijun_ymd="
+    },
+    {
+      "code": "12007101000001069",
+      "name": "한국투자삼성그룹리딩플러스증권자투자신탁1호(주식)A-e (클래스상세: 수수료선취-온라인)",
+      "section": "펀드개요",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fprofile.jsp?fund_cd=&panme_fund_cd=12007101000001069&gijun_ymd="
+    },
+    {
+      "code": "12007101000001069",
+      "name": "한국투자삼성그룹리딩플러스증권자투자신탁1호(주식)A-e (클래스상세: 수수료선취-온라인)",
+      "section": "일별기준가",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fgijunga.jsp?fund_cd=&panme_fund_cd=12007101000001069&gijun_ymd="
+    },
+    {
+      "code": "12007101000001069",
+      "name": "한국투자삼성그룹리딩플러스증권자투자신탁1호(주식)A-e (클래스상세: 수수료선취-온라인)",
+      "section": "차트분석",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fchart.jsp?fund_cd=&panme_fund_cd=12007101000001069&gijun_ymd="
+    },
+    {
+      "code": "12007101000001069",
+      "name": "한국투자삼성그룹리딩플러스증권자투자신탁1호(주식)A-e (클래스상세: 수수료선취-온라인)",
+      "section": "포트폴리오분석",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fportfolio.jsp?fund_cd=&panme_fund_cd=12007101000001069&gijun_ymd="
+    },
+    {
+      "code": "12007101000001066",
+      "name": "한국투자삼성그룹적립식증권투자신탁1호(주식)C-e (클래스상세: 수수료미징구-온라인)",
+      "section": "펀드개요",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fprofile.jsp?fund_cd=&panme_fund_cd=12007101000001066&gijun_ymd="
+    },
+    {
+      "code": "12007101000001066",
+      "name": "한국투자삼성그룹적립식증권투자신탁1호(주식)C-e (클래스상세: 수수료미징구-온라인)",
+      "section": "일별기준가",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fgijunga.jsp?fund_cd=&panme_fund_cd=12007101000001066&gijun_ymd="
+    },
+    {
+      "code": "12007101000001066",
+      "name": "한국투자삼성그룹적립식증권투자신탁1호(주식)C-e (클래스상세: 수수료미징구-온라인)",
+      "section": "차트분석",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fchart.jsp?fund_cd=&panme_fund_cd=12007101000001066&gijun_ymd="
+    },
+    {
+      "code": "12007101000001066",
+      "name": "한국투자삼성그룹적립식증권투자신탁1호(주식)C-e (클래스상세: 수수료미징구-온라인)",
+      "section": "포트폴리오분석",
+      "error": "HTTP 500: https://dgb.funddoctor.co.kr/2017/app/fund/fportfolio.jsp?fund_cd=&panme_fund_cd=12007101000001066&gijun_ymd="
+    }
+  ],
+  "failures": []
+}
