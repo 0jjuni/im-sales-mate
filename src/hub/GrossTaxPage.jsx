@@ -281,7 +281,7 @@ const ProductCard = ({ product, manual, onManual, compact = false }) => {
       </div>
       </>}
 
-      {hero && !compact && (
+      {hero && (!compact || !product.remaining) && (
         <div className="mt-3">
           <div className="text-[11px] text-slate-500">{hero.label}</div>
           <div className={cn("text-[20px] font-bold leading-tight tabular-nums", sell ? "text-im-700" : "text-slate-900")}>
@@ -963,7 +963,7 @@ function ResultView({ data }) {
         <SectionTitle icon={Layers} sub="당행 조회 결과 · 타행 가입 여부와 합산 납입액은 상담 시 확인">
           상품 활용 현황
         </SectionTitle>
-        <div className="grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">{products.map(p=><details key={p.key} className="rounded-xl border border-slate-200 bg-white p-3"><summary className="cursor-pointer text-sm"><span className="font-semibold text-slate-800">{SOURCES[p.key].label.replace(" 가입 여부", "")}</span><span className={cn("ml-2 inline-block rounded px-2 py-1 text-xs",STATE_CLASS[PRODUCT_STATE[p.state].tone].badge)}>{p.state==="restricted"?"가입·연장 제한":p.state==="available"?"추가 활용 가능":p.held===true||p.state==="active"?"보유 중":p.held===false||p.state==="recommend"?"당행 미보유":"확인 필요"}</span>{p.remaining&&<span className="mt-2 block text-sm font-bold text-im-700">추가 납입 여력 {p.remaining}</span>}</summary><div className="mt-3"><ProductCard product={p} manual={manual} onManual={setManual} compact/></div></details>)}
+        <div className="grid auto-rows-fr items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">{products.map(p=><article key={p.key} className="h-full min-h-[240px] rounded-xl border border-slate-200 bg-white p-4"><div className="text-sm"><span className="font-semibold text-slate-800">{SOURCES[p.key].label.replace(" 가입 여부", "")}</span><span className={cn("ml-2 inline-block rounded px-2 py-1 text-xs",STATE_CLASS[PRODUCT_STATE[p.state].tone].badge)}>{p.state==="restricted"?"가입·연장 제한":p.state==="available"?"추가 활용 가능":p.held===true||p.state==="active"?"보유 중":p.held===false||p.state==="recommend"?"당행 미보유":"확인 필요"}</span>{p.remaining&&<span className="mt-2 block text-sm font-bold text-im-700">추가 납입 여력 {p.remaining}</span>}</div><div className="mt-3"><ProductCard product={p} manual={manual} onManual={setManual} compact/></div></article>)}
           {manual.incomeType === "개인사업자" && <MerchantSettlementCard m={data.merchantSettlement}/>}
         </div>
       </section>
