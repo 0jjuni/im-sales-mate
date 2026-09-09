@@ -12,7 +12,6 @@ import {
   ShieldCheck,
   Layers,
   Info,
-  Printer,
   BadgePercent,
   MessageSquareText,
   Megaphone,
@@ -28,8 +27,6 @@ import { CardDeductionGuide } from "@card/components/CardDeductionGuide";
 import { queryEligibility } from "@card/data/cardEligibility";
 import { useFollowups } from "./followups/useFollowups";
 import { FollowupRow } from "./followups/parts";
-import { PrintReport } from "@shared/components/PrintReport";
-import { PrintPreviewModal } from "@shared/components/PrintPreviewModal";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 import {
@@ -888,20 +885,8 @@ function ResultView({ data }) {
     분산: strategy.filter((s) => s.group === "분산"),
   };
 
-  const [showPrint, setShowPrint] = useState(false);
-
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
-        <button
-          onClick={() => setShowPrint(true)}
-          className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3.5 py-1.5 text-[12px] font-bold text-white transition-colors hover:bg-slate-800"
-        >
-          <Printer className="h-3.5 w-3.5" />
-          A4 상담자료 인쇄
-        </button>
-      </div>
-
       {/* 1) 진단 — 판정·유의 */}
       <VerdictBanner data={data} />
 
@@ -993,53 +978,6 @@ function ResultView({ data }) {
         소득 전체와 세법 개정에 따라 달라지며, 신고·납부는 관할세무서·홈택스 기준으로 확인해야 합니다. 특정 상품의 투자권유가 아닙니다.
       </p>
 
-      {/* 상담 자료 미리보기 → 인쇄 (PrintPreviewModal이 body 포탈 + #root 격리) */}
-      {showPrint && (
-        <PrintPreviewModal onClose={() => setShowPrint(false)}>
-        <PrintReport
-          preview
-          title={`금융소득 종합과세 진단 · ${data.name}`}
-          subtitle={`${data.customerNo} · ${data.age} · ${manual.incomeType || "소득유형 미확인"} · ${j.taxYear}년 기준`}
-          disclaimer="본 자료는 당행 보유 기준 내부 조회를 통합한 상담 참고용입니다(데모, 표시 데이터는 예시). 타행 가입분은 조회되지 않으며, 실제 과세 여부·한도·세액은 소득 전체와 세법 개정에 따라 달라집니다. 신고·납부는 관할세무서·홈택스 기준으로 확인해야 하며, 특정 상품의 투자권유가 아닙니다."
-          inputs={[
-            { label: "고객번호", value: data.customerNo },
-            { label: "연령", value: data.age },
-            { label: "소득 유형", value: manual.incomeType || "미확인" },
-            { label: "무주택 세대주", value: manual.homeless == null ? "미확인" : manual.homeless ? "예" : "아니오" },
-            { label: "총급여 7천만원 이하", value: manual.salaryUnder7000 == null ? "미확인" : manual.salaryUnder7000 ? "예" : "아니오" },
-            { label: "비과세종합저축 자격", value: manual.nontaxQual || "미확인" },
-            { label: "기준 연도", value: `${j.taxYear}년` },
-            {
-              label: "직전 3년 이력",
-              value: j.history.map((h) => `${h.year} ${h.isTarget ? "대상" : "비대상"}`).join(" · "),
-            },
-          ]}
-          results={[
-            { label: "종합과세 대상 여부", value: j.isTarget ? "대상" : "비대상", emphasis: true },
-            {
-              label: "당해 금융소득 / 기준",
-              value: `${j.financialIncome.toLocaleString()}만원 / ${j.threshold.toLocaleString()}만원`,
-            },
-            { label: "소득 관할 세무서", value: j.taxOffice },
-            ...(j.restrictedByHistory
-              ? [{ label: "가입 제한", value: "비과세종합저축·ISA 신규가입·연장 제한" }]
-              : []),
-            ...products.map((p) => {
-              const hero = (p.metrics || []).find((m) => m.strong) || (p.metrics || [])[0];
-              return {
-                label: SOURCES[p.key]?.label ?? p.key,
-                value: `${PRODUCT_STATE[p.state].label}${hero ? ` · ${hero.label} ${hero.value}` : ""}`,
-              };
-            }),
-          ]}
-          notes={strategy.map((s) => `[${s.tag}] ${s.title}: ${s.detail}`)}
-          legalBasis="소득세법 제14조·제62조(금융소득 종합과세) · 조세특례제한법(비과세종합저축·ISA)"
-          sourceLine="당행 내부 조회 통합(0192-8·0192-1·0192-74/75 · ISA/주택청약/노란우산 가입여부). 데모이며 실서비스 시 실제 조회로 대체"
-          brandLabel="iM 세일즈메이트 · 종합과세 진단자료 · iM뱅크"
-          accent="amber"
-        />
-        </PrintPreviewModal>
-      )}
     </div>
   );
 }
