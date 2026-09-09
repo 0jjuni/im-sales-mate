@@ -12,7 +12,7 @@ import { PENSION_FAQS } from "@pension/data/pension";
 /* FAQ를 제공하는 모듈(관리자 화면·표시 대상) */
 export const FAQ_MODULES = ["noran", "isa", "pension", "wealth"];
 
-const KEY = "salesbridge.faqs.v2";
+const KEY = "salesbridge.faqs.v3";
 
 const SEED = [
   ...ISA_FAQS.map((f, i) => ({ id: `isa-faq-${i + 1}`, moduleId: "isa", q: f.q, a: f.a, ref: f.ref || "" })),
