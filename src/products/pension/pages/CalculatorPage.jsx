@@ -77,8 +77,7 @@ const PensionDisclaimer = ({ onAccept, onClose }) => {
 };
 
 export const CalculatorPage = () => {
-  const [accepted, setAccepted] = useState(false);
-  const [showDisclaimer, setShowDisclaimer] = useState(true);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -91,14 +90,12 @@ export const CalculatorPage = () => {
             "연말정산 때 얼마나 돌려받나요?"에 숫자로 답하고, IRP 권유 포인트를 함께 제시합니다.
           </p>
         </div>
-        {!accepted && (
-          <button
-            onClick={() => setShowDisclaimer(true)}
-            className="text-xs text-slate-600 hover:text-slate-900 underline"
-          >
-            사용 안내 다시 보기
-          </button>
-        )}
+        <button
+          onClick={() => setShowDisclaimer(true)}
+          className="text-xs text-slate-600 hover:text-slate-900 underline"
+        >
+          사용 안내
+        </button>
       </div>
 
       <div className="bg-violet-50/60 border-l-4 border-violet-500 px-4 py-2.5 rounded-r-sm flex items-start gap-2 print:hidden">
@@ -110,28 +107,11 @@ export const CalculatorPage = () => {
         </p>
       </div>
 
-      {accepted ? (
-        <TaxCreditCalculator />
-      ) : (
-        <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center print:hidden">
-          <p className="text-sm text-slate-500">
-            계산기는 사용 안내 확인 후 이용할 수 있습니다.
-          </p>
-          <button
-            onClick={() => setShowDisclaimer(true)}
-            className="mt-3 px-4 py-2 text-sm bg-slate-900 text-white hover:bg-slate-800 rounded-sm font-semibold"
-          >
-            사용 안내 보기
-          </button>
-        </div>
-      )}
+      <TaxCreditCalculator />
 
-      {!accepted && showDisclaimer && (
+      {showDisclaimer && (
         <PensionDisclaimer
-          onAccept={() => {
-            setAccepted(true);
-            setShowDisclaimer(false);
-          }}
+          onAccept={() => setShowDisclaimer(false)}
           onClose={() => setShowDisclaimer(false)}
         />
       )}

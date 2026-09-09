@@ -10,8 +10,7 @@ import { cn } from "@shared/lib/format";
    탭은 URL(/noran/calculator/:tab)로 제어된다 — 개별 계산기를 허브 「내 도구」에
    등록하고 딥링크로 바로 진입할 수 있게 하기 위함. (NoranApp이 activeTab을 내려줌) */
 export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }) => {
-  const [accepted, setAccepted] = useState(false);
-  const [showDisclaimer, setShowDisclaimer] = useState(true);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   const tabs = [
     {
@@ -48,14 +47,12 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
             소득공제 절세효과·해약환급금·상품 비교 추정치를 즉시 계산합니다.
           </p>
         </div>
-        {!accepted && (
-          <button
-            onClick={() => setShowDisclaimer(true)}
-            className="text-xs text-slate-600 hover:text-slate-900 underline"
-          >
-            사용 안내 다시 보기
-          </button>
-        )}
+        <button
+          onClick={() => setShowDisclaimer(true)}
+          className="text-xs text-slate-600 hover:text-slate-900 underline"
+        >
+          사용 안내
+        </button>
       </div>
 
       <div className="bg-amber-50/60 border-l-4 border-amber-500 px-4 py-2.5 rounded-r-sm flex items-start gap-2 print:hidden">
@@ -113,33 +110,16 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
         })}
       </div>
 
-      {/* 활성 계산기 — 사용 안내 동의 후에만 노출 (ISA 계산기와 동일한 게이트) */}
-      {accepted ? (
-        <div>
-          {activeTab === "tax" && <TaxSavingCalculator onOpenArticle={onOpenArticle} />}
-          {activeTab === "refund" && <RefundSimulator onOpenArticle={onOpenArticle} />}
-          {activeTab === "compare" && <ProductCompare />}
-        </div>
-      ) : (
-        <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center print:hidden">
-          <p className="text-sm text-slate-500">
-            계산기는 사용 안내 확인 후 이용할 수 있습니다.
-          </p>
-          <button
-            onClick={() => setShowDisclaimer(true)}
-            className="mt-3 px-4 py-2 text-sm bg-slate-900 text-white hover:bg-slate-800 rounded-sm font-semibold"
-          >
-            사용 안내 보기
-          </button>
-        </div>
-      )}
+      {/* 활성 계산기 */}
+      <div>
+        {activeTab === "tax" && <TaxSavingCalculator onOpenArticle={onOpenArticle} />}
+        {activeTab === "refund" && <RefundSimulator onOpenArticle={onOpenArticle} />}
+        {activeTab === "compare" && <ProductCompare />}
+      </div>
 
-      {!accepted && showDisclaimer && (
+      {showDisclaimer && (
         <CalculatorDisclaimer
-          onAccept={() => {
-            setAccepted(true);
-            setShowDisclaimer(false);
-          }}
+          onAccept={() => setShowDisclaimer(false)}
           onClose={() => setShowDisclaimer(false)}
         />
       )}

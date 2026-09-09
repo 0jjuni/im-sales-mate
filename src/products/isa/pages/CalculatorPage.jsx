@@ -63,8 +63,7 @@ const IsaDisclaimer = ({ onAccept, onClose }) => {
 };
 
 export const CalculatorPage = () => {
-  const [accepted, setAccepted] = useState(false);
-  const [showDisclaimer, setShowDisclaimer] = useState(true);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -77,14 +76,12 @@ export const CalculatorPage = () => {
             ISA와 일반계좌의 세부담을 비교해 추정 절세액을 즉시 계산합니다.
           </p>
         </div>
-        {!accepted && (
-          <button
-            onClick={() => setShowDisclaimer(true)}
-            className="text-xs text-slate-600 hover:text-slate-900 underline"
-          >
-            사용 안내 다시 보기
-          </button>
-        )}
+        <button
+          onClick={() => setShowDisclaimer(true)}
+          className="text-xs text-slate-600 hover:text-slate-900 underline"
+        >
+          사용 안내
+        </button>
       </div>
 
       <div className="bg-fuchsia-50/60 border-l-4 border-fuchsia-500 px-4 py-2.5 rounded-r-sm flex items-start gap-2 print:hidden">
@@ -94,14 +91,11 @@ export const CalculatorPage = () => {
         </p>
       </div>
 
-      {accepted && <TaxCalculator />}
+      <TaxCalculator />
 
-      {!accepted && showDisclaimer && (
+      {showDisclaimer && (
         <IsaDisclaimer
-          onAccept={() => {
-            setAccepted(true);
-            setShowDisclaimer(false);
-          }}
+          onAccept={() => setShowDisclaimer(false)}
           onClose={() => setShowDisclaimer(false)}
         />
       )}
