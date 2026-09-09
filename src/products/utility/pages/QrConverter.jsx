@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link2, Check, Copy, Printer, AlertTriangle } from "lucide-react";
+import { Link2, Check, Copy, Printer, AlertTriangle, DownloadCloud } from "lucide-react";
 import { QrSvg, buildQrPath } from "../components/QrCode";
 import { UtilitySlip } from "../components/UtilitySlip";
 import { cn } from "@shared/lib/format";
@@ -24,6 +24,7 @@ export const QrConverter = () => {
   const [input, setInput] = useState("");
   const [purpose, setPurpose] = useState("");
   const [copied, setCopied] = useState(false);
+  const [ebizTried, setEbizTried] = useState(false);
 
   const url = useMemo(() => normalizeUrl(input), [input]);
 
@@ -65,7 +66,17 @@ export const QrConverter = () => {
 
         <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
           <div>
-            <label className="mb-1.5 block text-xs font-bold text-slate-700">링크</label>
+            <div className="mb-1.5 flex items-center justify-between gap-2">
+              <label className="text-xs font-bold text-slate-700">링크</label>
+              <button
+                type="button"
+                onClick={() => setEbizTried(true)}
+                className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1 text-[11.5px] font-semibold text-slate-600 transition-colors hover:border-im-400 hover:text-im-700"
+              >
+                <DownloadCloud className="h-3.5 w-3.5" />
+                eBiz에서 불러오기
+              </button>
+            </div>
             <div className="relative">
               <Link2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
@@ -75,6 +86,12 @@ export const QrConverter = () => {
                 className="w-full rounded-sm border border-slate-300 py-2.5 pl-9 pr-3 text-sm focus:border-im-500 focus:outline-none"
               />
             </div>
+            {ebizTried && (
+              <p className="mt-1.5 flex items-start gap-1.5 text-[11.5px] leading-relaxed text-slate-500">
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
+                eBiz 링크 자동 불러오기는 준비 중입니다(연동 예정). 지금은 eBiz에서 발급한 링크를 복사해 위에 붙여넣어 주세요.
+              </p>
+            )}
           </div>
 
           <div>
@@ -121,7 +138,7 @@ export const QrConverter = () => {
           <div className="rounded-xl border border-slate-200 bg-white p-5">
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
               <div className="flex-shrink-0 rounded-sm border border-slate-200 bg-white p-3">
-                <QrSvg text={url} size="200px" />
+                <QrSvg text={url} size="200px" logo />
               </div>
 
               <div className="min-w-0 flex-1 space-y-3">
@@ -174,7 +191,7 @@ export const QrConverter = () => {
       {ready && (
         <UtilitySlip
           title={purpose ? `${purpose} 안내` : "신청 링크 안내"}
-          figure={<QrSvg text={url} size="32mm" />}
+          figure={<QrSvg text={url} size="32mm" logo />}
           rows={[
             ...(purpose ? [{ label: "용도", value: purpose }] : []),
             { label: "연결 주소", value: url },
