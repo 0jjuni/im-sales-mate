@@ -18,7 +18,7 @@ const seedFromId = (id) => {
 
 export const DETAIL_PERIODS = [
   { key: "1m", label: "1개월", points: 22, days: 30, ret: (p) => p.return1y / 12 },
-  { key: "6m", label: "6개월", points: 26, days: 182, ret: (p) => p.return1y / 2 },
+  { key: "6m", label: "6개월", points: 26, days: 182, ret: (p) => p.return6m ?? p.return1y / 2 },
   { key: "1y", label: "1년", points: 52, days: 365, ret: (p) => p.return1y },
   { key: "3y", label: "3년", points: 36, days: 365 * 3, ret: (p) => p.return3y ?? p.return1y * 2.4 },
   { key: "5y", label: "5년", points: 60, days: 365 * 5, ret: (p) => p.return5y ?? (p.return3y ?? p.return1y * 2.4) * 1.5 },

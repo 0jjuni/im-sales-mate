@@ -38,8 +38,8 @@ export default function WealthComparePage() {
 
   const cols = products.map((p) => ({
     p,
-    m: seriesMetrics(genSeries(p, "3y")),
-    holdings: (p.type === "ETF" && ETF_HOLDINGS[p.id]) || holdingsFor(p),
+    
+    holdings: (p.type === "ETF" && ETF_HOLDINGS[p.id]) || [],
     rules: tradingRules(p),
     risks: keyRisks(p),
   }));
@@ -95,7 +95,7 @@ export default function WealthComparePage() {
             {cols.map(({ p }) => (
               <div key={p.id} className="border-l border-slate-100 px-2 py-2">
                 <div className="overflow-x-auto">
-                  <MarketChart series={genSeries(p, "1y")} label={p.name} width={260} height={110} interactive />
+                  <p className="text-xs leading-6 text-slate-500">실제 기준가 이력 미등록</p>
                 </div>
               </div>
             ))}
@@ -123,7 +123,7 @@ export default function WealthComparePage() {
                   return (
                     <div key={p.id} className={cn("border-l border-slate-100 px-3 py-2 text-[13px] font-bold tabular-nums", retColor(v), isBest && "bg-emerald-50/60")}>
                       {pct(v)}
-                      {isBest && <span className="ml-1 text-[9px] font-bold text-emerald-600">▲우위</span>}
+                      {isBest && <span className="ml-1 text-[9px] font-bold text-emerald-600">높은 값</span>}
                     </div>
                   );
                 })}
@@ -131,25 +131,13 @@ export default function WealthComparePage() {
             );
           })}
 
-          {/* 변동성·최대낙폭 */}
-          <Row label="연 변동성">
-            {cols.map(({ p, m }) => (
-              <div key={p.id} className="border-l border-slate-100 px-3 py-2 text-[12.5px] font-semibold tabular-nums text-slate-700">{m.vol == null ? "—" : `${m.vol}%`}</div>
-            ))}
-          </Row>
-          <Row label="최대낙폭">
-            {cols.map(({ p, m }) => (
-              <div key={p.id} className="border-l border-slate-100 px-3 py-2 text-[12.5px] font-semibold tabular-nums text-blue-600">{m.mdd == null ? "—" : `${m.mdd}%`}</div>
-            ))}
-          </Row>
-
           {/* 총보수 (낮을수록 우위) */}
           <Row label="총보수(연)">
             {cols.map(({ p }) => {
               const isBest = p.fee === bestMinFee && products.length > 1;
               return (
                 <div key={p.id} className={cn("border-l border-slate-100 px-3 py-2 text-[13px] font-bold tabular-nums text-slate-800", isBest && "bg-emerald-50/60")}>
-                  {p.fee}%{isBest && <span className="ml-1 text-[9px] font-bold text-emerald-600">▼저비용</span>}
+                  {p.fee}%{isBest && <span className="ml-1 text-[9px] font-bold text-emerald-600">낮은 보수</span>}
                 </div>
               );
             })}
@@ -161,16 +149,18 @@ export default function WealthComparePage() {
               <div key={p.id} className="border-l border-slate-100 px-3 py-2 text-[12.5px] tabular-nums text-slate-700">{p.aum == null ? "—" : eok(p.aum)}</div>
             ))}
           </Row>
-          <Row label="당행 판매">
+          <Row label="판매순위 예시">
             {cols.map(({ p }) => (
               <div key={p.id} className="border-l border-slate-100 px-3 py-2 text-[12.5px] tabular-nums text-slate-700">{SOLD_RANK[p.id]}위</div>
             ))}
           </Row>
 
           {/* 편입 종목 */}
-          <Row label="편입 종목">
+          <Row label="투자 대상">
             {cols.map(({ p, holdings }) => (
               <div key={p.id} className="border-l border-slate-100 px-3 py-2">
+                <p className="mb-2 text-sm leading-6 text-slate-700">{p.desc}</p>
+                {holdings.length > 0 && <p className="mb-2 text-xs text-slate-500">참고용 근사 비중</p>}
                 <ul className="space-y-0.5 text-[11px] text-slate-700">
                   {holdings.slice(0, 5).map(([n, w]) => (
                     <li key={n} className="flex justify-between gap-2">
@@ -187,9 +177,9 @@ export default function WealthComparePage() {
           <Row label="매입·환매">
             {cols.map(({ p, rules }) => (
               <div key={p.id} className="border-l border-slate-100 px-3 py-2 text-[11px] leading-relaxed text-slate-600">
-                <div><b className="text-slate-500">매입</b> {rules.buy}</div>
-                <div><b className="text-slate-500">환매</b> {rules.sell}</div>
-                <div><b className="text-slate-500">대금</b> {rules.payout}</div>
+                <div><b className="text-slate-500">매입</b> 상품 설명서 확인</div>
+                <div><b className="text-slate-500">환매</b> 상품 설명서 확인</div>
+                <div><b className="text-slate-500">대금</b> 상품 설명서 확인</div>
               </div>
             ))}
           </Row>
@@ -224,7 +214,7 @@ export default function WealthComparePage() {
                     className="inline-flex items-center gap-1 rounded-md bg-sky-600 px-2.5 py-1.5 text-[11.5px] font-bold text-white hover:bg-sky-700"
                   >
                     <Plus className="h-3.5 w-3.5" />
-                    가입
+                    고객 등록
                   </button>
                 </div>
               );
@@ -233,7 +223,7 @@ export default function WealthComparePage() {
         </div>
       </div>
 
-      <p className="mt-2 text-[11px] text-slate-400">차트·변동성·최대낙폭은 상품 특성 기반 생성 데모입니다. 「▲우위」는 수익률 최고, 「▼저비용」은 총보수 최저 상품을 표시합니다.</p>
+      <p className="mt-2 text-[11px] text-slate-400">차트·변동성·최대낙폭은 상품 특성 기반 생성 데모입니다. 「높은 값」는 수익률 최고, 「낮은 보수」은 총보수 최저 상품을 표시합니다.</p>
     </HubShell>
   );
 }

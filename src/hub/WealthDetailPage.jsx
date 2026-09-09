@@ -1,128 +1,52 @@
 import { useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { Star, ArrowLeft, Plus, SearchX, FileText } from "lucide-react";
+import { Star, ArrowLeft, FileText } from "lucide-react";
 import { HubShell } from "./HubShell";
 import { useWealth } from "./wealth/useWealth";
 import { useEtfLive } from "./wealth/useEtfLive";
-import { PRODUCT_BY_ID, SOLD_RANK, prospectusUrlOf, KOFIA_DISCLOSURE_URL } from "./data/wealthProducts";
-import { ProductDetailBody, TYPE_CLASS, eok } from "./wealth/ProductDetail";
-import { CARD } from "@shared/lib/surface";
+import { PRODUCT_BY_ID, riskName, classSiblings, prospectusUrlOf, KOFIA_DISCLOSURE_URL } from "./data/wealthProducts";
+import { ProductDetailBody } from "./wealth/ProductDetail";
+import { shortName, classLabel, rememberProduct } from "./wealth/presentation";
 import { cn } from "@shared/lib/format";
 
 export default function WealthDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isWatched, toggleWatch } = useWealth();
   const product = PRODUCT_BY_ID[id];
-
+  const { isWatched, toggleWatch } = useWealth();
+  const { quotes, live } = useEtfLive(product?.type === "ETF" ? [product] : []);
   useEffect(() => {
     const prev = document.title;
     document.title = product ? `${product.name} · 투자상품` : "투자상품";
-    return () => {
-      document.title = prev;
-    };
-  }, [product]);
-
-  /* ETF면 실시간 시세 폴링(훅은 항상 호출 — 조건은 인자로) */
-  const { quotes, live } = useEtfLive(product && product.type === "ETF" ? [product] : []);
-
-  if (!product) {
-    return (
-      <HubShell>
-        <div className={cn(CARD, "flex flex-col items-center gap-2 px-5 py-16 text-center")}>
-          <SearchX className="h-7 w-7 text-slate-300" />
-          <p className="text-[13px] font-semibold text-slate-600">상품을 찾을 수 없습니다.</p>
-          <Link to="/wealth" className="mt-1 text-[12px] font-bold text-sky-700 hover:underline">
-            투자상품 목록으로
-          </Link>
-        </div>
-      </HubShell>
-    );
-  }
-
-  const watched = isWatched(product.id);
-  const rank = SOLD_RANK[product.id];
-
-  /* 간이투자설명서 — 상품별 실제 PDF를 새 탭으로 연다. 없으면 협회 전자공시로 안내 */
-  const prospectus = prospectusUrlOf(product);
-  const openProspectus = () => window.open(prospectus || KOFIA_DISCLOSURE_URL, "_blank", "noopener,noreferrer");
-
-  return (
-    <HubShell>
-      <Link to="/wealth" className="mb-3 inline-flex items-center gap-1 text-[12px] font-semibold text-slate-500 hover:text-slate-800">
-        <ArrowLeft className="h-3.5 w-3.5" />
-        투자상품 목록
-      </Link>
-
-      <div className={cn(CARD, "overflow-hidden")}>
-        {/* 헤더 */}
-        <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", TYPE_CLASS[product.type])}>{product.type}</span>
-              <span className="text-[11px] text-slate-400">{product.category}</span>
-              <span className="rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-bold text-sky-700">당행 판매 {rank}위</span>
-            </div>
-            <h1 className="mt-1 text-[18px] font-bold tracking-tight text-slate-900">{product.name}</h1>
-            <div className="mt-0.5 text-[11px] text-slate-400">
-              {[
-                product.company || null,
-                product.assetType
-                  ? `${product.assetType}${product.feeClass ? ` · 수수료${product.feeClass}` : ""}`
-                  : null,
-                product.nav != null
-                  ? `기준가 ${product.nav.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${
-                      product.navChg != null ? ` (${product.navChg > 0 ? "+" : ""}${product.navChg})` : ""
-                    }`
-                  : null,
-                product.since ? `설정 ${product.since}` : null,
-                product.aum != null ? `순자산 ${eok(product.aum)}` : null,
-                `총보수 연 ${product.fee}%`,
-                `누적 판매 ${product.sold.toLocaleString()}건`,
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-            </div>
-          </div>
-          <button
-            onClick={() => toggleWatch(product.id)}
-            aria-label="관심"
-            className={cn("flex-shrink-0 rounded-md p-2", watched ? "text-amber-400 hover:bg-amber-50" : "text-slate-300 hover:bg-slate-100")}
-          >
-            <Star className={cn("h-5 w-5", watched && "fill-amber-400")} />
-          </button>
-        </div>
-
-        {/* 본문 */}
-        <div className="px-5 py-5">
-          <ProductDetailBody product={product} quote={quotes[product.id]} live={live} />
-        </div>
-
-        {/* 액션 */}
-        <div className="flex items-center justify-end gap-2 border-t border-slate-100 bg-slate-50/60 px-5 py-3">
-          <button
-            onClick={openProspectus}
-            title={prospectus ? "간이투자설명서 PDF 열기" : "협회 전자공시(dis.kofia.or.kr)에서 조회"}
-            className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-4 py-2 text-[13px] font-bold text-slate-700 hover:bg-slate-50"
-          >
-            <FileText className="h-4 w-4" />
-            간이투자설명서{prospectus ? "" : " 조회"}
-          </button>
-          <button
-            onClick={() => navigate(`/wealth?tab=customers&enroll=${product.id}`)}
-            className="inline-flex items-center gap-1 rounded-md bg-sky-600 px-4 py-2 text-[13px] font-bold text-white hover:bg-sky-700"
-          >
-            <Plus className="h-4 w-4" />
-            고객 가입
-          </button>
-        </div>
-      </div>
-
-      <p className="mt-2 text-[11px] leading-relaxed text-slate-400">
-        {prospectus
-          ? "「간이투자설명서」 버튼은 해당 상품의 실제 간이투자설명서 PDF를 엽니다. 차트·지표는 데모 생성값이며, 정확한 내용은 간이투자설명서·집합투자규약을 확인하세요."
-          : "이 상품의 간이투자설명서는 데모에 포함돼 있지 않아 「조회」 시 협회 전자공시(dis.kofia.or.kr)로 이동합니다. 실서비스에서는 사내 시스템에서 상품별 PDF를 바로 엽니다."}
-      </p>
-    </HubShell>
-  );
+    if(product) rememberProduct(product.id);
+    return () => { document.title = prev; };
+  },[product]);
+  if (!product) return <HubShell><p className="py-10">상품을 찾을 수 없습니다.</p><Link to="/wealth?tab=fund">투자상품 목록으로</Link></HubShell>;
+  const siblings=classSiblings(product);
+  const prospectus=prospectusUrlOf(product);
+  const watched=isWatched(product.id);
+  const openProspectus=()=>window.open(prospectus||KOFIA_DISCLOSURE_URL,"_blank","noopener,noreferrer");
+  return <HubShell>
+    <Link to={`/wealth?tab=${product.type==="ETF"?"etf":"fund"}`} className="mb-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-slate-600"><ArrowLeft className="h-4 w-4"/>투자상품 목록</Link>
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-8">
+      <p className="text-sm font-semibold text-sky-700">{product.company} · {product.category}</p>
+      <h1 className="mt-3 break-words text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">{shortName(product)}</h1>
+      <p className="mt-3 max-w-3xl text-base leading-8 text-slate-700">{product.desc}</p>
+      <p className="mt-3 break-words text-xs leading-6 text-slate-500">정식 상품명: {product.name}</p>
+      <dl className="mt-6 grid grid-cols-2 gap-5 border-t border-slate-100 pt-5 sm:grid-cols-3"><div><dt className="text-sm text-slate-500">위험등급</dt><dd className="mt-2 font-bold text-slate-900">{product.risk}등급 · {riskName(product.risk)}</dd></div><div><dt className="text-sm text-slate-500">총보수 / 연</dt><dd className="mt-2 font-bold text-slate-900">{product.fee}%</dd></div><div><dt className="text-sm text-slate-500">환매대금 지급일</dt><dd className="mt-2 text-sm font-semibold text-slate-700">상품 설명서 확인</dd></div></dl>
+      {product.type==="펀드"&&<label className="mt-6 block max-w-lg text-sm font-semibold text-slate-700">클래스 선택<select value={product.id} onChange={(e)=>navigate(`/wealth/${e.target.value}`)} className="mt-2 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base">{siblings.map(s=><option key={s.id} value={s.id}>{classLabel(s)} · {s.feeClass||"기본"} · 총보수 연 {s.fee}%</option>)}</select></label>}
+    </div>
+    <nav aria-label="상품 상세 구역" className="sticky top-16 z-10 my-5 grid grid-cols-4 rounded-xl border border-slate-200 bg-white/95 p-1 shadow-sm backdrop-blur">{[["summary","요약"],["performance","수익률·구성"],["cost","비용·환매"],["calculator","계산"]].map(([key,label])=><a key={key} href={`#product-${key}`} className="flex min-h-11 items-center justify-center rounded-lg px-1 py-2 text-center text-xs font-semibold text-slate-700 hover:bg-sky-50 hover:text-sky-800 sm:text-sm">{label}</a>)}</nav>
+    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_240px]">
+      <div className="min-w-0 rounded-2xl border border-slate-200 bg-white px-5 sm:px-7"><ProductDetailBody key={product.id} product={product} quote={quotes[product.id]} live={live}/></div>
+      <aside aria-label="상품 상담 도구" className="rounded-xl border border-slate-200 bg-white p-4 lg:sticky lg:top-36">
+        <h2 className="mb-3 text-sm font-bold text-slate-900">상담 도구</h2>
+        <button onClick={openProspectus} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-sky-700 px-3 py-3 text-sm font-bold text-white hover:bg-sky-800"><FileText className="h-4 w-4"/>{prospectus?"간이투자설명서":"상품 공시 조회"}</button>
+        <p className="my-3 text-xs leading-6 text-slate-500">{prospectus?"이 상품의 PDF 설명서를 엽니다.":"금융투자협회 공시에서 정식 상품명으로 검색하세요."}</p>
+        <button onClick={()=>toggleWatch(product.id)} aria-pressed={watched} className="mb-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold"><Star className={cn("h-4 w-4",watched&&"fill-amber-400 text-amber-500")}/>{watched?"관심 등록됨":"관심 등록"}</button>
+        <button onClick={()=>navigate(`/wealth?tab=customers&enroll=${product.id}`)} className="min-h-11 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700">가입 고객 등록</button>
+        <p className="mt-3 text-xs leading-6 text-slate-500">선택 클래스 {classLabel(product)}로 관리 목록에 등록합니다. 실제 상품 매수는 진행하지 않습니다.</p>
+      </aside>
+    </div>
+  </HubShell>;
 }
