@@ -980,7 +980,7 @@ function ResultView({ data }) {
         <SectionTitle icon={Layers} sub="당행 조회 결과 · 타행 가입 여부와 합산 납입액은 상담 시 확인">
           상품 활용 현황
         </SectionTitle>
-        <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">{products.map(p=>{const status=productCounselStatus(p,manual,restricted);return <article key={p.key} className={cn("h-full min-h-[210px] rounded-xl border p-4",status.frame)}><div className="flex flex-wrap items-start justify-between gap-2"><h3 className="text-base font-bold text-slate-800">{SOURCES[p.key].label.replace(" 가입 여부", "")}</h3><span className={cn("rounded px-2 py-1 text-xs font-bold",status.badge)}>{status.label}</span></div><p className="mt-2 text-xs text-slate-500">{p.held===true||p.state==="active"||p.state==="available"?"당행 보유 중":p.held===false||p.state==="recommend"?"당행 미보유":"보유·가입 상태는 아래 조회 결과 참고"}</p><ProductCard product={p} manual={manual} onManual={setManual} compact/></article>;})}
+        <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">{products.map(p=>{const status=productCounselStatus(p,manual,restricted);return <article key={p.key} className={cn("h-full min-h-[210px] rounded-xl border p-4",status.frame)}><div className="flex flex-wrap items-start justify-between gap-2"><h3 className="text-base font-bold text-slate-800">{SOURCES[p.key].label.replace(" 가입 여부", "")}</h3><span className={cn("rounded px-2 py-1 text-xs font-bold",status.badge)}>{status.label}</span></div><p className="mt-2 text-xs text-slate-500">{p.held===true||p.state==="active"||p.state==="available"?"당행 보유 중":p.held===false||p.state==="recommend"?"당행 미보유":"보유·가입 상태는 아래 조회 결과 참고"}</p><ProductCard product={p} manual={manual} onManual={setManual} compact/>{p.key==="housing"&&manual.incomeType==="근로소득자"&&<button type="button" onClick={()=>setModal({kind:"housing",title:"주택청약 소득공제 요건 확인"})} className="mt-3 inline-flex min-h-10 w-full items-center justify-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">소득공제 요건 확인</button>}</article>;})}
 
           {manual.incomeType === "개인사업자" && <MerchantSettlementCard m={data.merchantSettlement}/>}
         </div>
@@ -1001,17 +1001,13 @@ function ResultView({ data }) {
             const title=item.title.replace(" 신규 가입 검토", "").replace(/ 납입 여력\(.*\) 활용/, " 추가 납입").replace("가맹점 카드매출 입금계좌 당행 전환", "가맹점 결제계좌 전환");
             const btn="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50";
             const cta=item.cta&&<Link to={item.cta.to} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-im-700 px-4 py-2 text-sm font-bold text-white">{item.cta.label}<ArrowRight className="h-4 w-4"/></Link>;
-            /* 주택청약(근로소득자)은 소득공제 요건 확인을 별도 버튼 대신 우상단 상태 배지 클릭으로 연다 */
-            const confirmAction = item.key==="housing" && manual.incomeType==="근로소득자" ? () => setModal({kind:"housing",title:"주택청약 소득공제 요건 확인"}) : null;
             const head=(<div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <span className="inline-block rounded-full bg-im-50 px-2.5 py-0.5 text-[11px] font-bold text-im-700">{item.tag}</span>
                 <h3 className="mt-2 text-lg font-bold leading-7 text-slate-900">{title}</h3>
                 <p className="mt-1 text-[13px] leading-6 text-slate-500">{summary.reason}</p>
               </div>
-              {showBadge && (confirmAction
-                ? <button type="button" onClick={confirmAction} title="소득공제 요건 확인" className={cn("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold transition hover:brightness-95",status.badge)}>{status.label}</button>
-                : <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold",status.badge)}>{status.label}</span>)}
+              {showBadge&&<span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold",status.badge)}>{status.label}</span>}
             </div>);
             const question=(<div className="mt-3 rounded-lg border-l-[3px] border-im-200 bg-slate-50/70 px-3.5 py-2.5">
               <p className="text-[11px] font-semibold text-slate-400">상담 질문</p>
