@@ -27,8 +27,8 @@ export const TaxCalculator = () => {
   const [showPrint, setShowPrint] = useState(false);
   const [mode, setMode] = useState("deposit"); // deposit | profit
   const [typeId, setTypeId] = useState("general");
-  // 예금 모드 입력
-  const [principal, setPrincipal] = useState(ISA_DEPOSIT_DEFAULTS.principal);
+  // 예금 모드 입력 — ISA는 연 2,000만원 한도라 '연 납입액'으로 받는다(적립식)
+  const [annual, setAnnual] = useState(ISA_RULES.annualLimit);
   const [rate, setRate] = useState(ISA_DEPOSIT_DEFAULTS.rate);
   const [years, setYears] = useState(ISA_DEPOSIT_DEFAULTS.years);
   // 순이익 직접입력 모드
@@ -38,10 +38,21 @@ export const TaxCalculator = () => {
   const isDeposit = mode === "deposit";
 
   const result = useMemo(() => {
-    // 예금 이자: 월단위 복리식, 만기일시지급 (iM뱅크 판매 ISA 정기예금 설명서 기준)
-    // 원금 × {(1+이율/12)^n − 1}, n = 경과월수
+    // 예금(적립식): 연 납입액을 매년 초 넣고 월복리로 만기까지 굴린다.
+    // ISA는 연 2,000만원·총 1억원 한도라, 목돈 일시납이 아니라 매년 납입을 반영한다.
     const monthlyRate = rate / 100 / 12;
-    const interest = principal * (Math.pow(1 + monthlyRate, years * 12) - 1);
+    let totalContributed = 0;
+    let interest = 0;
+    let wonYears = 0; // 원금×예치연수 합 — 적립식 실효금리 연환산용
+    for (let k = 0; k < years; k++) {
+      const room = ISA_RULES.totalLimit - totalContributed;
+      const c = Math.max(Math.min(annual, room), 0);
+      if (c <= 0) break;
+      totalContributed += c;
+      const months = (years - k) * 12; // 올해 납입분이 만기까지 굴러가는 개월수
+      interest += c * (Math.pow(1 + monthlyRate, months) - 1);
+      wonYears += c * (years - k);
+    }
     const netProfit = isDeposit ? interest : directProfit;
 
     const taxFreeLimit = type.taxFreeLimit;
@@ -52,11 +63,9 @@ export const TaxCalculator = () => {
     const isaNet = netProfit - isaTax;
     const normalNet = netProfit - normalTax;
 
-    // 예금 모드: 세후 실효 연금리
-    const isaEffRate =
-      isDeposit && principal > 0 && years > 0 ? (isaNet / principal / years) * 100 : null;
-    const normalEffRate =
-      isDeposit && principal > 0 && years > 0 ? (normalNet / principal / years) * 100 : null;
+    // 세후 실효 연금리 — 적립식은 납입 시점이 달라, 원금×예치연수(wonYears)로 연환산
+    const isaEffRate = isDeposit && wonYears > 0 ? (isaNet / wonYears) * 100 : null;
+    const normalEffRate = isDeposit && wonYears > 0 ? (normalNet / wonYears) * 100 : null;
 
     const chartData = isDeposit
       ? [
@@ -71,6 +80,7 @@ export const TaxCalculator = () => {
 
     return {
       interest,
+      totalContributed,
       netProfit,
       taxFreeLimit,
       taxableInIsa,
@@ -84,7 +94,7 @@ export const TaxCalculator = () => {
       isaEffective: netProfit > 0 ? isaTax / netProfit : 0,
       chartData,
     };
-  }, [isDeposit, type, principal, rate, years, directProfit]);
+  }, [isDeposit, type, annual, rate, years, directProfit]);
 
   /* 고객에게 실제로 할 수 있는 말. 예금 모드는 「같은 예금인데 세금이 다르다」가 핵심. */
   const script = useMemo(() => {
@@ -105,9 +115,9 @@ export const TaxCalculator = () => {
 
     if (isDeposit) {
       return {
-        opening: `같은 ${formatKRW(principal)}을 같은 금리로 예치하셔도, ISA로 하시면 세금 ${formatKRW(
-          result.saving
-        )}을 안 내십니다.`,
+        opening: `연 ${formatKRW(annual)}씩 ${years}년(총 ${formatKRW(
+          result.totalContributed
+        )})을 같은 금리로 예치하셔도, ISA로 하시면 세금 ${formatKRW(result.saving)}을 안 내십니다.`,
         detail: [
           `일반 예금은 이자에서 15.4%를 떼지만 ISA는 ${formatKRW(
             result.taxFreeLimit
@@ -145,7 +155,7 @@ export const TaxCalculator = () => {
       ],
       objections: common,
     };
-  }, [isDeposit, result, principal, rate, type]);
+  }, [isDeposit, result, annual, years, rate, type]);
 
   return (
     <div className="space-y-5">
@@ -213,22 +223,26 @@ export const TaxCalculator = () => {
               <>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    예치금액: {formatKRW(principal)}
+                    연 납입액: {formatKRW(annual)}
+                    <span className="ml-1 font-normal text-slate-400">연 2천만원 한도</span>
                   </label>
                   <input
                     type="range"
                     min="1000000"
-                    max="100000000"
+                    max={ISA_RULES.annualLimit}
                     step="1000000"
-                    value={principal}
-                    onChange={(e) => setPrincipal(Number(e.target.value))}
+                    value={annual}
+                    onChange={(e) => setAnnual(Number(e.target.value))}
                     className="w-full accent-fuchsia-600"
                   />
-                  <NumberSync value={principal} onChange={setPrincipal} min={1000000} max={100000000} step={1000000} accent="fuchsia" suffix="원" />
+                  <NumberSync value={annual} onChange={setAnnual} min={1000000} max={ISA_RULES.annualLimit} step={1000000} accent="fuchsia" suffix="원" />
                   <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                     <span>100만원</span>
-                    <span>5천만원</span>
-                    <span>1억원</span>
+                    <span>1천만원</span>
+                    <span>2천만원</span>
+                  </div>
+                  <div className="mt-1.5 rounded-sm bg-fuchsia-50 px-2.5 py-1.5 text-[11.5px] font-semibold text-fuchsia-800">
+                    {years}년간 총 {formatKRW(result.totalContributed)} 납입 (총 1억원 한도)
                   </div>
                 </div>
 
@@ -395,7 +409,7 @@ export const TaxCalculator = () => {
                   <span className="text-[12px] text-slate-500">
                     예상 이자
                     <span className="ml-1 text-[11px] text-slate-400">
-                      {formatKRWShort(principal)} · 연 {rate.toFixed(1)}% · {years}년 · 월복리
+                      연 {formatKRWShort(annual)} × {years}년 · 연 {rate.toFixed(1)}% · 월복리
                     </span>
                   </span>
                   <span className="flex-shrink-0 text-[15px] font-bold tabular-nums text-slate-900">
@@ -498,7 +512,7 @@ export const TaxCalculator = () => {
         title="ISA 세제 절세효과 추정 안내"
         subtitle={
           isDeposit
-            ? `${type.label} · 예금 ${formatKRW(principal)} · 연 ${rate.toFixed(1)}% · ${years}년(월복리·만기일시지급) 가정`
+            ? `${type.label} · 연 ${formatKRW(annual)} × ${years}년(총 ${formatKRW(result.totalContributed)}) · 연 ${rate.toFixed(1)}% 가정`
             : `${type.label} · 계좌 내 순이익(손익통산 후) ${formatKRW(result.netProfit)} 가정`
         }
         disclaimer={
@@ -510,9 +524,9 @@ export const TaxCalculator = () => {
           isDeposit
             ? [
                 { label: "ISA 유형", value: type.label },
-                { label: "예치금액", value: formatKRW(principal) },
-                { label: "예금 연 금리", value: `${rate.toFixed(1)}% (월복리·만기일시지급)` },
-                { label: "예치 기간", value: `${years}년` },
+                { label: "연 납입액", value: `${formatKRW(annual)} × ${years}년` },
+                { label: "총 납입액", value: formatKRW(result.totalContributed) },
+                { label: "예금 연 금리", value: `${rate.toFixed(1)}% (월복리)` },
                 { label: "비과세 한도", value: formatKRW(result.taxFreeLimit) },
               ]
             : [
