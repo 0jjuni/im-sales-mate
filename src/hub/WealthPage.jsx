@@ -93,9 +93,9 @@ const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll, onCha
         disabled={!inCompare && compareFull}
         onChange={() => onCompare(product.id)}
         title="비교 담기"
-        className="h-3.5 w-3.5 flex-shrink-0 accent-im-600 disabled:opacity-30"
+        className="h-3.5 w-3.5 flex-shrink-0 accent-sky-600 disabled:opacity-30"
       />
-      <span className={cn("w-6 flex-shrink-0 text-center text-[12px] font-bold tabular-nums", rank <= 3 ? "text-im-600" : "text-slate-400")}>
+      <span className={cn("w-6 flex-shrink-0 text-center text-[12px] font-bold tabular-nums", rank <= 3 ? "text-sky-600" : "text-slate-400")}>
         {rank}
       </span>
 
@@ -143,7 +143,7 @@ const ProductRow = ({ product, rank, watched, onWatch, onDetail, onEnroll, onCha
       </button>
       <button
         onClick={() => onEnroll(product.id)}
-        className="hidden flex-shrink-0 rounded-md bg-im-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-im-700 sm:block"
+        className="hidden flex-shrink-0 rounded-md bg-sky-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-sky-700 sm:block"
       >
         가입
       </button>
@@ -165,9 +165,9 @@ const EtfRow = ({ product, rank, quote, watched, onWatch, onDetail, onEnroll, on
         disabled={!inCompare && compareFull}
         onChange={() => onCompare(product.id)}
         title="비교 담기"
-        className="h-3.5 w-3.5 flex-shrink-0 accent-im-600 disabled:opacity-30"
+        className="h-3.5 w-3.5 flex-shrink-0 accent-sky-600 disabled:opacity-30"
       />
-      <span className={cn("w-6 flex-shrink-0 text-center text-[12px] font-bold tabular-nums", rank <= 3 ? "text-im-600" : "text-slate-400")}>{rank}</span>
+      <span className={cn("w-6 flex-shrink-0 text-center text-[12px] font-bold tabular-nums", rank <= 3 ? "text-sky-600" : "text-slate-400")}>{rank}</span>
 
       <button onClick={() => onDetail(product.id)} className="min-w-0 flex-1 text-left">
         <div className="flex items-center gap-1.5">
@@ -203,7 +203,7 @@ const EtfRow = ({ product, rank, quote, watched, onWatch, onDetail, onEnroll, on
       <button onClick={() => onWatch(product.id)} aria-label="관심" className={cn("flex-shrink-0 rounded p-1.5 transition-colors", watched ? "text-amber-400" : "text-slate-300 hover:text-slate-400")}>
         <Star className={cn("h-4 w-4", watched && "fill-amber-400")} />
       </button>
-      <button onClick={() => onEnroll(product.id)} className="hidden flex-shrink-0 rounded-md bg-im-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-im-700 sm:block">
+      <button onClick={() => onEnroll(product.id)} className="hidden flex-shrink-0 rounded-md bg-sky-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-sky-700 sm:block">
         가입
       </button>
     </div>
@@ -255,7 +255,7 @@ const ChartModal = ({ product, onClose }) => {
 };
 
 const ALERT_META = {
-  target: { label: "목표 도달", cls: "bg-im-100 text-im-700" },
+  target: { label: "목표 도달", cls: "bg-sky-100 text-sky-700" },
   loss: { label: "손실 경고", cls: "bg-rose-100 text-rose-700" },
   progress: { label: "진행 중", cls: "bg-slate-100 text-slate-500" },
   pending: { label: "기준가 대기", cls: "bg-amber-100 text-amber-700" },
@@ -311,7 +311,7 @@ const EnrollmentRow = ({ e, onTarget, onRemove }) => {
           <label className="flex items-center gap-1 text-[11px] text-slate-500">
             <Target className="h-3 w-3" />
             목표
-            <input type="number" value={e.targetReturn} onChange={(ev) => onTarget(e.id, ev.target.value)} className="w-14 rounded border border-slate-300 px-1.5 py-1 text-right text-[12px] tabular-nums focus:border-im-500 focus:outline-none" />
+            <input type="number" value={e.targetReturn} onChange={(ev) => onTarget(e.id, ev.target.value)} className="w-14 rounded border border-slate-300 px-1.5 py-1 text-right text-[12px] tabular-nums focus:border-sky-500 focus:outline-none" />
             %
           </label>
         </>
@@ -350,7 +350,7 @@ const EnrollForm = ({ presetProductId, onAdd }) => {
     <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
       <label className="flex flex-col gap-1">
         <span className="text-[10px] font-semibold text-slate-500">고객번호</span>
-        <input value={customerNo} onChange={(e) => setCustomerNo(e.target.value.replace(/\D/g, "").slice(0, 9))} inputMode="numeric" maxLength={9} placeholder="9자리" className="w-28 rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] tabular-nums focus:border-im-500 focus:outline-none" />
+        <input value={customerNo} onChange={(e) => setCustomerNo(e.target.value.replace(/\D/g, "").slice(0, 9))} inputMode="numeric" maxLength={9} placeholder="9자리" className="w-28 rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] tabular-nums focus:border-sky-500 focus:outline-none" />
       </label>
       <div className="relative flex min-w-0 flex-1 flex-col gap-1">
         <span className="text-[10px] font-semibold text-slate-500">상품 (검색)</span>
@@ -360,7 +360,7 @@ const EnrollForm = ({ presetProductId, onAdd }) => {
           onFocus={() => { setPquery(""); setOpen(true); }}
           onBlur={() => setTimeout(() => setOpen(false), 120)}
           placeholder="상품명·운용사 검색"
-          className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[13px] focus:border-im-500 focus:outline-none"
+          className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[13px] focus:border-sky-500 focus:outline-none"
         />
         {open && matches.length > 0 && (
           <ul className="absolute left-0 top-full z-30 mt-1 max-h-72 w-[24rem] max-w-[85vw] overflow-auto rounded-md border border-slate-200 bg-white py-1 shadow-lg">
@@ -385,13 +385,13 @@ const EnrollForm = ({ presetProductId, onAdd }) => {
       </div>
       <label className="flex flex-col gap-1">
         <span className="text-[10px] font-semibold text-slate-500">가입금액(만원)</span>
-        <input value={principal} onChange={(e) => setPrincipal(e.target.value.replace(/\D/g, ""))} inputMode="numeric" placeholder="1000" className="w-24 rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] tabular-nums focus:border-im-500 focus:outline-none" />
+        <input value={principal} onChange={(e) => setPrincipal(e.target.value.replace(/\D/g, ""))} inputMode="numeric" placeholder="1000" className="w-24 rounded-md border border-slate-300 px-2.5 py-1.5 text-[13px] tabular-nums focus:border-sky-500 focus:outline-none" />
       </label>
       <label className="flex flex-col gap-1">
         <span className="text-[10px] font-semibold text-slate-500">목표수익률</span>
-        <input value={target} onChange={(e) => setTarget(e.target.value.replace(/[^\d.]/g, ""))} inputMode="decimal" className="w-16 rounded-md border border-slate-300 px-2.5 py-1.5 text-right text-[13px] tabular-nums focus:border-im-500 focus:outline-none" />
+        <input value={target} onChange={(e) => setTarget(e.target.value.replace(/[^\d.]/g, ""))} inputMode="decimal" className="w-16 rounded-md border border-slate-300 px-2.5 py-1.5 text-right text-[13px] tabular-nums focus:border-sky-500 focus:outline-none" />
       </label>
-      <button type="submit" disabled={!canSubmit} className="rounded-md bg-im-600 px-4 py-2 text-[13px] font-bold text-white transition-colors hover:bg-im-700 disabled:cursor-not-allowed disabled:opacity-40">
+      <button type="submit" disabled={!canSubmit} className="rounded-md bg-sky-600 px-4 py-2 text-[13px] font-bold text-white transition-colors hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-40">
         가입 추가
       </button>
       {pricing.note && (
@@ -439,7 +439,7 @@ const WealthFaq = () => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="질문 검색 (예: 기준가, 환매, ETF, 적합성)"
-          className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-3 text-[13px] focus:border-im-500 focus:outline-none"
+          className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-3 text-[13px] focus:border-sky-500 focus:outline-none"
         />
       </div>
       <div className="space-y-2">
@@ -456,7 +456,7 @@ const WealthFaq = () => {
                 <div className="border-t border-slate-100 px-4 pb-3.5 pt-0.5">
                   <p className="text-[13px] leading-relaxed text-slate-700">{f.a}</p>
                   {f.ref && (
-                    <div className="mt-2 inline-flex items-center gap-1 rounded-sm border border-im-200 bg-im-50 px-2 py-0.5 text-[10px] font-semibold text-im-700">{f.ref}</div>
+                    <div className="mt-2 inline-flex items-center gap-1 rounded-sm border border-sky-200 bg-sky-50 px-2 py-0.5 text-[10px] font-semibold text-sky-700">{f.ref}</div>
                   )}
                 </div>
               )}
@@ -591,7 +591,7 @@ export default function WealthPage() {
     <HubShell>
       {/* 모듈 헤더 — 다른 모듈과 통일(아이콘 사각형 + 제목) */}
       <div className="mb-4 flex items-center gap-2.5">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-im-50 text-im-700">
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
           <LineChart className="h-5 w-5" />
         </div>
         <div>
@@ -600,7 +600,7 @@ export default function WealthPage() {
         </div>
       </div>
 
-      <ModuleTabs items={TABS} activeId={tab} onSelect={setTab} accent="im" />
+      <ModuleTabs items={TABS} activeId={tab} onSelect={setTab} accent="sky" />
 
       {tab === "home" ? (
         <section className="space-y-4">
@@ -620,12 +620,12 @@ export default function WealthPage() {
             ].map((n) => {
               const Icon = n.icon;
               return (
-                <button key={n.id} onClick={() => setTab(n.id)} className={cn(CARD, "group p-4 text-left transition-all hover:border-im-300 hover:shadow-md")}>
+                <button key={n.id} onClick={() => setTab(n.id)} className={cn(CARD, "group p-4 text-left transition-all hover:border-sky-300 hover:shadow-md")}>
                   <div className="flex items-center justify-between">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-im-50 text-im-700">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <ArrowRight className="h-4 w-4 text-im-600 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="h-4 w-4 text-sky-600 transition-transform group-hover:translate-x-0.5" />
                   </div>
                   <h3 className="mt-2.5 text-[13.5px] font-bold text-slate-900">{n.title}</h3>
                   <p className="mt-0.5 text-[11.5px] leading-relaxed text-slate-500">{n.desc}</p>
@@ -639,13 +639,13 @@ export default function WealthPage() {
               <span className="text-[13px] font-bold text-slate-900">
                 인기 상품 <span className="ml-1 text-[11px] font-medium text-slate-400">당행 누적 판매순</span>
               </span>
-              <button onClick={() => setTab("fund")} className="text-[11.5px] font-semibold text-im-600 hover:text-im-700">
+              <button onClick={() => setTab("fund")} className="text-[11.5px] font-semibold text-sky-600 hover:text-sky-700">
                 전체 보기
               </button>
             </div>
             {[...PRODUCTS].sort((a, b) => b.sold - a.sold).slice(0, 5).map((p, i) => (
               <button key={p.id} onClick={() => goDetail(p.id)} className="flex w-full items-center gap-2 border-b border-slate-100 px-4 py-2.5 text-left last:border-b-0 hover:bg-slate-50">
-                <span className={cn("w-5 flex-shrink-0 text-center text-[12px] font-bold tabular-nums", i < 3 ? "text-im-600" : "text-slate-400")}>{i + 1}</span>
+                <span className={cn("w-5 flex-shrink-0 text-center text-[12px] font-bold tabular-nums", i < 3 ? "text-sky-600" : "text-slate-400")}>{i + 1}</span>
                 <span className={cn("flex-shrink-0 rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[p.type])}>{p.type}</span>
                 <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-slate-900">{p.name}</span>
                 <span className={cn("flex-shrink-0 text-[13px] font-bold tabular-nums", retColor(p.return1y))}>{pct(p.return1y)}</span>
@@ -662,7 +662,7 @@ export default function WealthPage() {
           {/* 검색 */}
           <div className="relative mb-2">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="상품명·카테고리·운용사 검색" className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-3 text-[13px] focus:border-im-500 focus:outline-none" />
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="상품명·카테고리·운용사 검색" className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-3 text-[13px] focus:border-sky-500 focus:outline-none" />
           </div>
 
           {/* 검색 조건 — 검색창 바로 아래 한 곳에 모음 */}
@@ -715,7 +715,7 @@ export default function WealthPage() {
                   onClick={() => setTheme((cur) => (cur === t.key ? null : t.key))}
                   className={cn(
                     "rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-colors",
-                    theme === t.key ? "bg-im-600 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900"
+                    theme === t.key ? "bg-sky-600 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900"
                   )}
                 >
                   {t.label}
@@ -732,7 +732,7 @@ export default function WealthPage() {
                 <button
                   key={r.key}
                   onClick={() => setRegion((cur) => (cur === r.key ? null : r.key))}
-                  className={cn("rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-colors", region === r.key ? "bg-im-600 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
+                  className={cn("rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-colors", region === r.key ? "bg-sky-600 text-white" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900")}
                 >
                   {r.key}
                 </button>
@@ -792,7 +792,7 @@ export default function WealthPage() {
             )}
             <label className="ml-auto inline-flex items-center gap-1.5 text-[12px] text-slate-500">
               <ArrowUpDown className="h-3.5 w-3.5" />
-              <select value={sort} onChange={(e) => setSort(e.target.value)} className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[12px] font-semibold text-slate-700 focus:border-im-500 focus:outline-none">
+              <select value={sort} onChange={(e) => setSort(e.target.value)} className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[12px] font-semibold text-slate-700 focus:border-sky-500 focus:outline-none">
                 {SORTS.map((s) => (
                   <option key={s.key} value={s.key}>{s.label}</option>
                 ))}
@@ -887,7 +887,7 @@ export default function WealthPage() {
           </div>
           <div className={cn(CARD, "p-4")}>
             <div className="mb-3 flex items-center gap-1.5 text-[12.5px] font-bold text-slate-700">
-              <Plus className="h-4 w-4 text-im-600" />
+              <Plus className="h-4 w-4 text-sky-600" />
               가입 고객 추가
             </div>
             <EnrollForm presetProductId={presetProduct} onAdd={enroll} />
@@ -928,7 +928,7 @@ export default function WealthPage() {
             <button
               onClick={() => navigate(`/wealth/compare?ids=${compare.join(",")}`)}
               disabled={compare.length < 2}
-              className="inline-flex items-center gap-1 rounded-md bg-im-600 px-3.5 py-1.5 text-[12px] font-bold text-white hover:bg-im-700 disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-md bg-sky-600 px-3.5 py-1.5 text-[12px] font-bold text-white hover:bg-sky-700 disabled:opacity-40"
             >
               <GitCompare className="h-3.5 w-3.5" />
               비교하기

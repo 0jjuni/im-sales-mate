@@ -43,16 +43,16 @@ const UtilityHome = ({ onNavigate }) => (
           <button
             key={t.id}
             onClick={() => onNavigate(t.id)}
-            className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-[0_12px_28px_-12px_rgba(6,161,137,0.28)]"
+            className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-im-300 hover:shadow-[0_12px_28px_-12px_rgba(6,161,137,0.28)]"
           >
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-700 transition-transform group-hover:scale-105">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-im-50 text-im-700 transition-transform group-hover:scale-105">
               <Icon className="h-5 w-5" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-[14px] font-bold text-slate-900">{t.label}</div>
               <p className="mt-0.5 text-[11.5px] leading-relaxed text-slate-500">{t.desc}</p>
             </div>
-            <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-slate-200 transition-colors group-hover:text-sky-500" />
+            <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-slate-200 transition-colors group-hover:text-im-500" />
           </button>
         );
       })}
@@ -61,7 +61,7 @@ const UtilityHome = ({ onNavigate }) => (
     {/* 도구 요청 — 찾는 도구가 없으면 여기서 바로 요청 */}
     <div className="mt-8">
       <div className="mb-3 flex items-center gap-2.5">
-        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-700">
+        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-im-50 text-im-700">
           <Lightbulb className="h-[17px] w-[17px]" />
         </div>
         <div>
@@ -102,7 +102,7 @@ export default function UtilityApp() {
     <HubShell>
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-im-50 text-im-700">
             <Wrench className="h-5 w-5" />
           </div>
           <div>
@@ -117,7 +117,7 @@ export default function UtilityApp() {
         )}
       </div>
 
-      <ModuleTabs items={NAV_ITEMS} activeId={page} onSelect={navigate} accent="sky" />
+      <ModuleTabs items={NAV_ITEMS} activeId={page} onSelect={navigate} accent="im" />
 
       {page === "home" ? (
         <UtilityHome onNavigate={navigate} />

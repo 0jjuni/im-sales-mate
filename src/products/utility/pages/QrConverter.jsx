@@ -72,7 +72,7 @@ export const QrConverter = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="예: im-sales-mate.vercel.app 또는 https://…"
-                className="w-full rounded-sm border border-slate-300 py-2.5 pl-9 pr-3 text-sm focus:border-sky-500 focus:outline-none"
+                className="w-full rounded-sm border border-slate-300 py-2.5 pl-9 pr-3 text-sm focus:border-im-500 focus:outline-none"
               />
             </div>
           </div>
@@ -85,7 +85,7 @@ export const QrConverter = () => {
               value={purpose}
               onChange={(e) => setPurpose(e.target.value)}
               placeholder="예: 마이데이터 가입"
-              className="w-full rounded-sm border border-slate-300 px-3 py-2.5 text-sm focus:border-sky-500 focus:outline-none"
+              className="w-full rounded-sm border border-slate-300 px-3 py-2.5 text-sm focus:border-im-500 focus:outline-none"
             />
             <div className="mt-2 flex flex-wrap gap-1.5">
               {PURPOSE_PRESETS.map((p) => (
@@ -95,8 +95,8 @@ export const QrConverter = () => {
                   className={cn(
                     "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors",
                     purpose === p
-                      ? "border-sky-500 bg-sky-500 text-white"
-                      : "border-slate-300 bg-white text-slate-500 hover:border-sky-400 hover:text-sky-700"
+                      ? "border-im-500 bg-im-500 text-white"
+                      : "border-slate-300 bg-white text-slate-500 hover:border-im-400 hover:text-im-700"
                   )}
                 >
                   {p}
@@ -127,14 +127,14 @@ export const QrConverter = () => {
               <div className="min-w-0 flex-1 space-y-3">
                 {purpose && (
                   <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-sky-700">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-im-700">
                       용도
                     </div>
                     <div className="text-[15px] font-bold text-slate-900">{purpose}</div>
                   </div>
                 )}
                 <div>
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-sky-700">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-im-700">
                     연결 주소
                   </div>
                   <p className="break-all text-[13.5px] leading-relaxed text-slate-800">{url}</p>
@@ -146,8 +146,8 @@ export const QrConverter = () => {
                     className={cn(
                       "inline-flex items-center gap-1.5 rounded-sm border px-3 py-2 text-[12.5px] font-semibold transition-colors",
                       copied
-                        ? "border-sky-500 text-sky-700"
-                        : "border-slate-300 text-slate-600 hover:border-sky-400 hover:text-sky-700"
+                        ? "border-im-500 text-im-700"
+                        : "border-slate-300 text-slate-600 hover:border-im-400 hover:text-im-700"
                     )}
                   >
                     {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}

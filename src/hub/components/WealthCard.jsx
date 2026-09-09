@@ -17,7 +17,7 @@ const recent = (product) => {
 /* 홈 투자상품 위젯 — 카운트(허영 지표) 대신 「지금 챙길 고객」과 「제안할 상품」 중심.
    목표 도달 = 수익실현·재투자 상담 기회 / 손실 = 케어 연락. */
 const ALERT = {
-  target: { badge: "목표 도달", cls: "bg-im-100 text-im-700", action: "수익실현·재투자 제안" },
+  target: { badge: "목표 도달", cls: "bg-sky-100 text-sky-700", action: "수익실현·재투자 제안" },
   loss: { badge: "손실 경고", cls: "bg-rose-100 text-rose-700", action: "손실 케어 연락" },
 };
 
@@ -40,7 +40,7 @@ export function WealthCard() {
                   to="/wealth?tab=customers"
                   className={cn(
                     "flex items-center gap-2 rounded-lg border px-3 py-2 transition-colors hover:bg-slate-50",
-                    e.alert === "loss" ? "border-rose-100 bg-rose-50/30" : "border-im-100 bg-im-50/30"
+                    e.alert === "loss" ? "border-rose-100 bg-rose-50/30" : "border-sky-100 bg-sky-50/30"
                   )}
                 >
                   <span className={cn("flex-shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold", ALERT[e.alert].cls)}>{ALERT[e.alert].badge}</span>
@@ -59,7 +59,7 @@ export function WealthCard() {
         </div>
       ) : (
         <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-[12px] text-slate-500">
-          <CheckCircle2 className="h-4 w-4 text-im-500" />
+          <CheckCircle2 className="h-4 w-4 text-sky-500" />
           지금 챙길 알림이 없습니다.
         </div>
       )}
@@ -89,7 +89,7 @@ export function WealthCard() {
         </ul>
       </div>
 
-      <Link to="/wealth" className="mt-2.5 inline-flex items-center gap-1 text-[12px] font-bold text-im-700 hover:underline">
+      <Link to="/wealth" className="mt-2.5 inline-flex items-center gap-1 text-[12px] font-bold text-sky-700 hover:underline">
         투자상품 전체 보기
         <ArrowRight className="h-3.5 w-3.5" />
       </Link>

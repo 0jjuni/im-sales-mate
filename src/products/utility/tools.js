@@ -3,7 +3,7 @@
 export const UTILITY_MODULE = {
   id: "utility",
   name: "보조 도구",
-  accent: "sky",
+  accent: "im",
 };
 
 export const UTILITY_TOOLS = [

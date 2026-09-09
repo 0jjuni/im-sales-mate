@@ -30,8 +30,8 @@ const CopyChip = ({ value, label }) => {
       className={cn(
         "group inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-left transition-colors",
         copied
-          ? "border-sky-500 bg-sky-50"
-          : "border-slate-200 bg-white hover:border-sky-400"
+          ? "border-im-500 bg-im-50"
+          : "border-slate-200 bg-white hover:border-im-400"
       )}
     >
       <span className="min-w-0 flex-1">
@@ -41,7 +41,7 @@ const CopyChip = ({ value, label }) => {
         {label && <span className="block text-[11px] text-slate-500">{label}</span>}
       </span>
       {copied ? (
-        <Check className="h-4 w-4 flex-shrink-0 text-sky-600" />
+        <Check className="h-4 w-4 flex-shrink-0 text-im-600" />
       ) : (
         <Copy className="h-4 w-4 flex-shrink-0 text-slate-300 group-hover:text-slate-500" />
       )}
@@ -132,7 +132,7 @@ export const NameRomanizer = () => {
             onChange={(e) => setInput(e.target.value)}
             placeholder="예: 홍길동"
             autoFocus
-            className="w-full rounded-xl border border-slate-300 py-2.5 pl-9 pr-3 text-[15px] focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-200"
+            className="w-full rounded-xl border border-slate-300 py-2.5 pl-9 pr-3 text-[15px] focus:border-im-500 focus:outline-none focus:ring-1 focus:ring-im-200"
           />
         </div>
 
@@ -142,9 +142,9 @@ export const NameRomanizer = () => {
 
         {result && !result.error && (
           <div className="mt-4 space-y-4">
-            <div className="rounded-xl border-2 border-sky-300 bg-sky-50/50 p-4">
+            <div className="rounded-xl border-2 border-im-300 bg-im-50/50 p-4">
               <div className="flex items-baseline justify-between gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-im-700">
                   권장 표기
                 </span>
                 {/* 카드 각인은 글자 수 제한이 있어 미리 보여 준다 */}
@@ -195,7 +195,7 @@ export const NameRomanizer = () => {
                       className={cn(
                         "rounded-full px-3 py-1 text-[13px] font-bold",
                         i === 0
-                          ? "bg-sky-600 text-white"
+                          ? "bg-im-600 text-white"
                           : "border border-slate-300 bg-white text-slate-600"
                       )}
                     >

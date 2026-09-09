@@ -31,14 +31,14 @@ const CopyRow = ({ value, label, emphasis }) => {
       className={cn(
         "group flex w-full items-start gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors",
         emphasis
-          ? "border-2 border-sky-300 bg-sky-50/50"
-          : "border-slate-200 bg-white hover:border-sky-400",
-        copied && "border-sky-500"
+          ? "border-2 border-im-300 bg-im-50/50"
+          : "border-slate-200 bg-white hover:border-im-400",
+        copied && "border-im-500"
       )}
     >
       <span className="min-w-0 flex-1">
         {label && (
-          <span className="mb-0.5 block text-[11px] font-bold uppercase tracking-wider text-sky-700">
+          <span className="mb-0.5 block text-[11px] font-bold uppercase tracking-wider text-im-700">
             {label}
           </span>
         )}
@@ -53,7 +53,7 @@ const CopyRow = ({ value, label, emphasis }) => {
         </span>
       </span>
       {copied ? (
-        <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-sky-600" />
+        <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-im-600" />
       ) : (
         <Copy className="mt-0.5 h-4 w-4 flex-shrink-0 text-slate-300 group-hover:text-slate-500" />
       )}
@@ -96,7 +96,7 @@ export const AddressConverter = () => {
             onChange={(e) => setInput(e.target.value)}
             rows={2}
             placeholder="예: 서울특별시 강남구 테헤란로 152"
-            className="w-full resize-y rounded-xl border border-slate-300 py-2.5 pl-9 pr-3 text-[14px] leading-relaxed focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-200"
+            className="w-full resize-y rounded-xl border border-slate-300 py-2.5 pl-9 pr-3 text-[14px] leading-relaxed focus:border-im-500 focus:outline-none focus:ring-1 focus:ring-im-200"
           />
         </div>
 
@@ -106,7 +106,7 @@ export const AddressConverter = () => {
             <button
               key={ex}
               onClick={() => setInput(ex)}
-              className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] text-slate-600 transition-colors hover:border-sky-400 hover:text-sky-700"
+              className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] text-slate-600 transition-colors hover:border-im-400 hover:text-im-700"
             >
               {ex}
             </button>

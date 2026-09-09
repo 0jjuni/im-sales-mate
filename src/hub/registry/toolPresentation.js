@@ -42,6 +42,7 @@ export const getToolIcon = (name) => TOOL_ICONS[name] ?? Wrench;
 /* 프로페셔널 톤: 채도 높은 그라디언트 대신 옅은 틴트 + 같은 색 플랫 아이콘.
    MyTools 타일·UtilityGrid 카드가 이 icon 클래스를 공유한다. */
 export const TOOL_ACCENT = {
+  im: { chip: "bg-im-100 text-im-800", icon: "bg-im-50 text-im-700" },
   amber: { chip: "bg-amber-100 text-amber-800", icon: "bg-amber-50 text-amber-700" },
   fuchsia: { chip: "bg-fuchsia-100 text-fuchsia-800", icon: "bg-fuchsia-50 text-fuchsia-700" },
   violet: { chip: "bg-violet-100 text-violet-800", icon: "bg-violet-50 text-violet-700" },

@@ -23,7 +23,7 @@ export function UtilityGrid() {
             to={tool.to}
             className={cn(
               CARD_INTERACTIVE,
-              "flex items-start gap-3 p-4 hover:border-sky-300"
+              "flex items-start gap-3 p-4 hover:border-im-300"
             )}
           >
             <div
@@ -35,7 +35,7 @@ export function UtilityGrid() {
               <div className="text-[14px] font-bold text-slate-900">{tool.name}</div>
               <p className="mt-0.5 text-[11.5px] leading-relaxed text-slate-500">{tool.desc}</p>
             </div>
-            <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-slate-200 transition-colors group-hover:text-sky-500" />
+            <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-slate-200 transition-colors group-hover:text-im-500" />
           </Link>
         );
       })}

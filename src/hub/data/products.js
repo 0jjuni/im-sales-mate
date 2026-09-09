@@ -52,7 +52,7 @@ export const PRODUCTS = [
     desc: "실시간 시세로 상품 탐색 · 내 가입고객 목표수익률 관리",
     to: "/wealth",
     status: "active",
-    accent: "emerald",
+    accent: "sky",
     icon: "LineChart",
   },
 ];

@@ -3,7 +3,7 @@
 export const WEALTH_MODULE = {
   id: "wealth",
   name: "투자상품",
-  accent: "emerald",
+  accent: "sky",
 };
 
 export const WEALTH_TOOLS = [

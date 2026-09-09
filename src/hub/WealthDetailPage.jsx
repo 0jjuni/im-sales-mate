@@ -32,7 +32,7 @@ export default function WealthDetailPage() {
         <div className={cn(CARD, "flex flex-col items-center gap-2 px-5 py-16 text-center")}>
           <SearchX className="h-7 w-7 text-slate-300" />
           <p className="text-[13px] font-semibold text-slate-600">상품을 찾을 수 없습니다.</p>
-          <Link to="/wealth" className="mt-1 text-[12px] font-bold text-im-700 hover:underline">
+          <Link to="/wealth" className="mt-1 text-[12px] font-bold text-sky-700 hover:underline">
             투자상품 목록으로
           </Link>
         </div>
@@ -61,7 +61,7 @@ export default function WealthDetailPage() {
             <div className="flex flex-wrap items-center gap-1.5">
               <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", TYPE_CLASS[product.type])}>{product.type}</span>
               <span className="text-[11px] text-slate-400">{product.category}</span>
-              <span className="rounded bg-im-50 px-1.5 py-0.5 text-[10px] font-bold text-im-700">당행 판매 {rank}위</span>
+              <span className="rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-bold text-sky-700">당행 판매 {rank}위</span>
             </div>
             <h1 className="mt-1 text-[18px] font-bold tracking-tight text-slate-900">{product.name}</h1>
             <div className="mt-0.5 text-[11px] text-slate-400">
@@ -110,7 +110,7 @@ export default function WealthDetailPage() {
           </button>
           <button
             onClick={() => navigate(`/wealth?tab=customers&enroll=${product.id}`)}
-            className="inline-flex items-center gap-1 rounded-md bg-im-600 px-4 py-2 text-[13px] font-bold text-white hover:bg-im-700"
+            className="inline-flex items-center gap-1 rounded-md bg-sky-600 px-4 py-2 text-[13px] font-bold text-white hover:bg-sky-700"
           >
             <Plus className="h-4 w-4" />
             고객 가입

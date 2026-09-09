@@ -30,7 +30,7 @@ export default function WealthComparePage() {
         <div className={cn(CARD, "flex flex-col items-center gap-2 px-5 py-16 text-center")}>
           <SearchX className="h-7 w-7 text-slate-300" />
           <p className="text-[13px] font-semibold text-slate-600">비교할 상품이 부족합니다(2개 이상 선택).</p>
-          <Link to="/wealth" className="mt-1 text-[12px] font-bold text-im-700 hover:underline">투자상품 목록으로</Link>
+          <Link to="/wealth" className="mt-1 text-[12px] font-bold text-sky-700 hover:underline">투자상품 목록으로</Link>
         </div>
       </HubShell>
     );
@@ -67,7 +67,7 @@ export default function WealthComparePage() {
       </Link>
 
       <div className="mb-3 flex items-center gap-1.5">
-        <GitCompare className="h-5 w-5 text-im-600" />
+        <GitCompare className="h-5 w-5 text-sky-600" />
         <h1 className="text-xl font-bold tracking-tight text-slate-900">상품 비교 <span className="text-slate-400">({products.length})</span></h1>
       </div>
 
@@ -82,7 +82,7 @@ export default function WealthComparePage() {
                   <span className={cn("rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[p.type])}>{p.type}</span>
                   <span className={cn("rounded px-1 py-0.5 text-[9px] font-semibold", RISK_CLASS[riskMeta(p.risk).tone])}>{riskName(p.risk)}</span>
                 </div>
-                <button onClick={() => navigate(`/wealth/${p.id}`)} className="mt-1 block text-left text-[13px] font-bold leading-snug text-slate-900 hover:text-im-700">
+                <button onClick={() => navigate(`/wealth/${p.id}`)} className="mt-1 block text-left text-[13px] font-bold leading-snug text-slate-900 hover:text-sky-700">
                   {p.name}
                 </button>
                 <div className="mt-0.5 text-[10.5px] text-slate-400">{p.company} · {p.category}</div>
@@ -221,7 +221,7 @@ export default function WealthComparePage() {
                   </button>
                   <button
                     onClick={() => navigate(`/wealth?tab=customers&enroll=${p.id}`)}
-                    className="inline-flex items-center gap-1 rounded-md bg-im-600 px-2.5 py-1.5 text-[11.5px] font-bold text-white hover:bg-im-700"
+                    className="inline-flex items-center gap-1 rounded-md bg-sky-600 px-2.5 py-1.5 text-[11.5px] font-bold text-white hover:bg-sky-700"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     가입

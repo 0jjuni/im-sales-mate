@@ -160,7 +160,7 @@ export function ProductDetailBody({ product, quote, live }) {
               <div key={name} className="flex items-center gap-2">
                 <span className="w-28 flex-shrink-0 truncate text-[12px] text-slate-700">{name}</span>
                 <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
-                  <div className="h-full rounded-full bg-im-400" style={{ width: `${Math.min(100, (w / maxW) * 100)}%` }} />
+                  <div className="h-full rounded-full bg-sky-400" style={{ width: `${Math.min(100, (w / maxW) * 100)}%` }} />
                 </div>
                 <span className="w-12 flex-shrink-0 text-right text-[11.5px] font-semibold tabular-nums text-slate-600">{w}%</span>
               </div>
@@ -228,7 +228,7 @@ export function ProductDetailBody({ product, quote, live }) {
           </div>
           <div className="overflow-hidden rounded-lg border border-slate-200">
             {siblings.map((s) => (
-              <div key={s.id} className={cn("flex items-center gap-2 border-b border-slate-100 px-3 py-2 last:border-b-0", s.id === product.id && "bg-im-50/50")}>
+              <div key={s.id} className={cn("flex items-center gap-2 border-b border-slate-100 px-3 py-2 last:border-b-0", s.id === product.id && "bg-sky-50/50")}>
                 <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", s.feeClass === "선취" ? "bg-sky-50 text-sky-700" : "bg-violet-50 text-violet-700")}>
                   {s.feeClass === "선취" ? "선취(A)" : "미징구(C)"}
                 </span>
@@ -244,8 +244,8 @@ export function ProductDetailBody({ product, quote, live }) {
       )}
 
       {/* 적립식 시뮬레이터 */}
-      <section className="rounded-xl border border-im-200 bg-im-50/40 p-4">
-        <div className="mb-2.5 flex items-center gap-1.5 text-[12.5px] font-bold text-im-800">
+      <section className="rounded-xl border border-sky-200 bg-sky-50/40 p-4">
+        <div className="mb-2.5 flex items-center gap-1.5 text-[12.5px] font-bold text-sky-800">
           <Calculator className="h-4 w-4" />
           적립식 시뮬레이션
         </div>
@@ -256,7 +256,7 @@ export function ProductDetailBody({ product, quote, live }) {
               value={monthly}
               onChange={(e) => setMonthly(e.target.value.replace(/\D/g, "").slice(0, 4))}
               inputMode="numeric"
-              className="w-24 rounded-md border border-slate-300 px-2.5 py-1.5 text-right text-[13px] tabular-nums focus:border-im-500 focus:outline-none"
+              className="w-24 rounded-md border border-slate-300 px-2.5 py-1.5 text-right text-[13px] tabular-nums focus:border-sky-500 focus:outline-none"
             />
           </label>
           <label className="flex flex-col gap-1">
@@ -264,7 +264,7 @@ export function ProductDetailBody({ product, quote, live }) {
             <select
               value={years}
               onChange={(e) => setYears(Number(e.target.value))}
-              className="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[13px] focus:border-im-500 focus:outline-none"
+              className="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[13px] focus:border-sky-500 focus:outline-none"
             >
               {[3, 5, 10, 20].map((y) => (
                 <option key={y} value={y}>{y}년</option>
@@ -277,7 +277,7 @@ export function ProductDetailBody({ product, quote, live }) {
               value={assumed}
               onChange={(e) => setAssumed(e.target.value.replace(/[^\d.]/g, "").slice(0, 5))}
               inputMode="decimal"
-              className="w-20 rounded-md border border-slate-300 px-2.5 py-1.5 text-right text-[13px] tabular-nums focus:border-im-500 focus:outline-none"
+              className="w-20 rounded-md border border-slate-300 px-2.5 py-1.5 text-right text-[13px] tabular-nums focus:border-sky-500 focus:outline-none"
             />
           </label>
         </div>
@@ -286,9 +286,9 @@ export function ProductDetailBody({ product, quote, live }) {
             <div className="text-[10px] text-slate-400">원금</div>
             <div className="mt-0.5 text-[14px] font-bold tabular-nums text-slate-800">{won(sim.principal)}</div>
           </div>
-          <div className="rounded-lg bg-white px-3 py-2 text-center ring-1 ring-inset ring-im-100">
+          <div className="rounded-lg bg-white px-3 py-2 text-center ring-1 ring-inset ring-sky-100">
             <div className="text-[10px] text-slate-400">예상 평가액</div>
-            <div className="mt-0.5 text-[15px] font-bold tabular-nums text-im-700">{won(sim.futureValue)}</div>
+            <div className="mt-0.5 text-[15px] font-bold tabular-nums text-sky-700">{won(sim.futureValue)}</div>
           </div>
           <div className="rounded-lg bg-white px-3 py-2 text-center ring-1 ring-inset ring-slate-100">
             <div className="text-[10px] text-slate-400">예상 수익</div>
