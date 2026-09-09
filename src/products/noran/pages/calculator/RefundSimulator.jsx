@@ -1,3 +1,4 @@
+import { MobileResult } from "@shared/components/MobileResult";
 import { useState, useMemo } from "react";
 import { Info, Printer, AlertTriangle } from "lucide-react";
 import { REFUND_TABLE_GENERAL, REFUND_TABLE_DEEMED } from "../../data/tax";
@@ -66,6 +67,7 @@ const deemedRefund = (monthly, months, annualRatePct) => {
 
 /* B. 해약·공제금 시나리오 계산기 — 가입 단계 안내용 */
 export const RefundSimulator = ({ onOpenArticle }) => {
+  const [selectedReason, setSelectedReason] = useState("general");
   const [showPrint, setShowPrint] = useState(false);
   const [monthlyAmount, setMonthlyAmount] = useState(300000);
   const [paidMonths, setPaidMonths] = useState(60); // 5년 디폴트
@@ -200,6 +202,9 @@ export const RefundSimulator = ({ onOpenArticle }) => {
         <div className="lg:col-span-2 space-y-4 lg:sticky lg:top-20 lg:self-start">
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 space-y-4">
             <SectionTitle sub="가입 조건을 입력하세요">입력</SectionTitle>
+            <label className="block text-sm font-semibold">확인할 지급 사유
+              <select value={selectedReason} onChange={e => setSelectedReason(e.target.value)} className="mt-2 w-full rounded-lg border border-slate-300 p-2 text-sm">{result.cases.map(c => <option key={c.key} value={c.key}>{c.title}</option>)}</select>
+            </label>
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5">
@@ -214,7 +219,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
                 onChange={(e) => setMonthlyAmount(Number(e.target.value))}
                 className="w-full accent-amber-600"
               />
-              <NumberSync value={monthlyAmount} onChange={setMonthlyAmount} min={50000} max={1500000} step={10000} accent="amber" suffix="원" />
+              <NumberSync label="월 납입액" value={monthlyAmount} onChange={setMonthlyAmount} min={50000} max={1500000} step={10000} accent="amber" suffix="원" />
               <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                 <span>5만원</span>
                 <span>75만원</span>
@@ -235,7 +240,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
                 onChange={(e) => setPaidMonths(Number(e.target.value))}
                 className="w-full accent-amber-600"
               />
-              <NumberSync value={paidMonths} onChange={setPaidMonths} min={1} max={240} step={1} accent="amber" suffix="회" />
+              <NumberSync label="납입 개월 수" value={paidMonths} onChange={setPaidMonths} min={1} max={240} step={1} accent="amber" suffix="회" />
               <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                 <span>1회</span>
                 <span>10년 (120회)</span>
@@ -256,7 +261,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
                 onChange={(e) => setAssumedRate(Number(e.target.value))}
                 className="w-full accent-amber-600"
               />
-              <NumberSync value={assumedRate} onChange={setAssumedRate} min={1.0} max={5.0} step={0.1} accent="amber" suffix="%" />
+              <NumberSync label="가정 기준이율" value={assumedRate} onChange={setAssumedRate} min={1.0} max={5.0} step={0.1} accent="amber" suffix="%" />
               <p className="text-[11px] text-slate-500 mt-1">
                 실제 기준이율은 매 분기 변동 — 노란우산 홈페이지 공시 확인
               </p>
@@ -274,7 +279,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
                   임의해약에 특별해지사유 적용
                 </div>
                 <div className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                  120개월+ 경영악화, 천재지변, 해외이주, 3월+ 입원, 중앙회 해산, 재난 15일 입원 등 6종 충족 시 → 임의해약도 퇴직소득세 (기타소득세 16.5% → 약 8.8%로 완화)
+                  120개월+ 경영악화, 천재지변, 해외이주, 3월+ 입원, 중앙회 해산, 재난 15일 입원 등 6종 충족 시 → 임의해약도 퇴직소득세 (실제 퇴직소득세는 개별 산정)
                 </div>
               </div>
             </label>
@@ -282,12 +287,12 @@ export const RefundSimulator = ({ onOpenArticle }) => {
 
           <div className="bg-blue-50/40 border border-blue-200 rounded-xl p-3 text-xs text-slate-700 leading-relaxed">
             <Info className="w-3.5 h-3.5 inline-block mr-1 text-blue-600" />
-            연단위 복리 적립식 추정. 부가지급률·매 분기 변동 기준이율은 미반영이므로 실제 환급금과 ±5~10% 편차가 발생할 수 있습니다.
+            연단위 복리 적립식 추정. 부가지급률·매 분기 변동 기준이율은 미반영이므로 실제 환급금과 차이가 발생할 수 있습니다.
           </div>
         </div>
 
         {/* 결과부 */}
-        <div className="lg:col-span-3 space-y-4">
+        <div id="refund-result" className="lg:col-span-3 space-y-4 scroll-mt-24">
           {/* 헤더 — 입력 요약 */}
           <div className="bg-slate-900 text-white rounded-xl p-4">
             <div className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">
@@ -307,9 +312,11 @@ export const RefundSimulator = ({ onOpenArticle }) => {
             </p>
           </div>
           <div className="space-y-2.5">
-            {result.cases.map((c) => (
-              <CaseCard key={c.key} data={c} onOpenArticle={onOpenArticle} />
-            ))}
+            <CaseCard data={result.cases.find(c => c.key === selectedReason)} onOpenArticle={onOpenArticle} />
+            <details className="rounded-xl border border-slate-200 p-4">
+              <summary className="cursor-pointer text-sm font-semibold">다른 지급 사유와 비교</summary>
+              <div className="mt-3 space-y-3">{result.cases.filter(c => c.key !== selectedReason).map(c => <CaseCard key={c.key} data={c} onOpenArticle={onOpenArticle} />)}</div>
+            </details>
           </div>
 
           {/* 인쇄 버튼 */}
@@ -333,6 +340,8 @@ export const RefundSimulator = ({ onOpenArticle }) => {
         </div>
       </div>
 
+      <MobileResult amount={result.cases.find(c => c.key === selectedReason).refund} label="예상 지급액 · 세전" targetId="refund-result" />
+
       {/* 인쇄용 */}
       {showPrint && (
         <PrintPreviewModal onClose={() => setShowPrint(false)}>
@@ -341,7 +350,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
         slip
         title="가입 시 사유별 환급금 안내"
         subtitle={`월 ${formatKRW(monthlyAmount)} × ${paidMonths}회(${years}년) 가입 가정 · 세전 기준`}
-        disclaimer={`본 시뮬레이션은 가정 기준이율 ${assumedRate.toFixed(1)}%를 연단위 복리 적립식으로 적용한 추정치이며 모두 세전 기준입니다.\n부가지급률·매 분기 변동 기준이율은 미반영이므로 실제 환급금과 ±5~10% 편차가 발생할 수 있습니다.\n수령 시 과세는 사유·가입기간·다른 소득·소득공제 받은 정도 등에 따라 변수가 많아 본 시뮬에서는 별도 차감하지 않습니다. 정확한 실수령액은 중앙회 시스템(1666-9988) + 세무 전문가 상담으로 확인해 주세요.`}
+        disclaimer={`본 시뮬레이션은 가정 기준이율 ${assumedRate.toFixed(1)}%를 연단위 복리 적립식으로 적용한 추정치이며 모두 세전 기준입니다.\n부가지급률·매 분기 변동 기준이율은 미반영이므로 실제 환급금과 차이가 발생할 수 있습니다.\n수령 시 과세는 사유·가입기간·다른 소득·소득공제 받은 정도 등에 따라 변수가 많아 본 시뮬에서는 별도 차감하지 않습니다. 정확한 실수령액은 중앙회 시스템(1666-9988) + 세무 전문가 상담으로 확인해 주세요.`}
         inputs={[
           { label: "월 부금월액", value: formatKRW(monthlyAmount) },
           { label: "납입 기간", value: `${paidMonths}회 (${years}년)` },

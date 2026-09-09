@@ -18,21 +18,18 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
       label: "소득공제 절세효과",
       icon: Coins,
       description: "월 부금월액 기준 연간 추정 절세액",
-      sales: "★★★★★",
     },
     {
       id: "refund",
       label: "해약환급금 시나리오",
       icon: TrendingDown,
       description: "해약 시점별 환급금 추정 + 유지 시 비교",
-      sales: "★★★★",
     },
     {
       id: "compare",
       label: "상품 비교",
       icon: Scale,
       description: "노란우산 vs 적금 vs 연금저축 추정 비교",
-      sales: "★★★★",
     },
   ];
 
@@ -49,7 +46,7 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
         </div>
         <button
           onClick={() => setShowDisclaimer(true)}
-          className="text-xs text-slate-600 hover:text-slate-900 underline"
+          className="shrink-0 whitespace-nowrap text-sm text-slate-600 hover:text-slate-900 underline"
         >
           사용 안내
         </button>
@@ -63,16 +60,17 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
       </div>
 
       {/* 탭 */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 print:hidden">
+      <div className="grid grid-cols-3 gap-2 print:hidden">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
+              aria-pressed={isActive}
               onClick={() => onTabChange?.(tab.id)}
               className={cn(
-                "text-left p-4 border rounded-xl transition-all",
+                "text-left p-3 border rounded-xl transition-all",
                 isActive
                   ? "bg-slate-900 text-white border-slate-900 shadow-md"
                   : "bg-white border-slate-200 text-slate-700 hover:border-slate-400"
@@ -80,18 +78,10 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
             >
               <div className="flex items-center justify-between mb-2">
                 <Icon className="w-5 h-5" />
-                <span
-                  className={cn(
-                    "text-[10px] font-bold tracking-wider",
-                    isActive ? "text-amber-300" : "text-amber-600"
-                  )}
-                >
-                  {tab.sales}
-                </span>
               </div>
               <div
                 className={cn(
-                  "text-sm font-bold",
+                  "text-sm font-bold break-keep",
                   isActive ? "text-white" : "text-slate-900"
                 )}
               >
@@ -99,7 +89,7 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
               </div>
               <div
                 className={cn(
-                  "text-xs mt-1 leading-relaxed",
+                  "hidden sm:block text-sm mt-1 leading-relaxed",
                   isActive ? "text-slate-300" : "text-slate-500"
                 )}
               >

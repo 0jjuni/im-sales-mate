@@ -49,7 +49,7 @@ const PensionDisclaimer = ({ onAccept, onClose }) => {
               소득세법과 자사 상품설명서를 병행 확인해 주세요.
             </p>
             <p>
-              <strong>④ 데모 스캐폴드</strong> — 자사 연금저축·IRP 상품 조건 반영 전 단계입니다.
+              <strong>④ 상품 조건 확인</strong> — 가입 상품의 납입·수령 조건을 확인해 주세요.
             </p>
           </div>
           <div className="text-xs text-slate-500">
@@ -87,12 +87,12 @@ export const CalculatorPage = () => {
             IRP 세액공제 계산기
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            "연말정산 때 얼마나 돌려받나요?"에 숫자로 답하고, IRP 권유 포인트를 함께 제시합니다.
+            납입 조건에 따른 예상 세액공제액과 추가 납입 시 공제 여지를 확인합니다.
           </p>
         </div>
         <button
           onClick={() => setShowDisclaimer(true)}
-          className="text-xs text-slate-600 hover:text-slate-900 underline"
+          className="shrink-0 whitespace-nowrap text-sm text-slate-600 hover:text-slate-900 underline"
         >
           사용 안내
         </button>

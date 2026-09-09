@@ -39,7 +39,7 @@ const IsaDisclaimer = ({ onAccept, onClose }) => {
             <strong>③ 납입한도·비과세한도는 세법 개정으로 변경</strong>될 수 있습니다. 현행 조특법과 자사 상품설명서를 병행 확인해 주세요.
           </p>
           <p>
-            <strong>④ 데모 스캐폴드</strong> — 자사 ISA 상품 조건·최신 개정 반영 전 단계입니다.
+            <strong>④ 상품 조건 확인</strong> — 실제 적용 금리·보수와 최신 상품설명서를 확인해 주세요.
           </p>
         </div>
         <div className="text-xs text-slate-500">
@@ -78,7 +78,7 @@ export const CalculatorPage = () => {
         </div>
         <button
           onClick={() => setShowDisclaimer(true)}
-          className="text-xs text-slate-600 hover:text-slate-900 underline"
+          className="shrink-0 whitespace-nowrap text-sm text-slate-600 hover:text-slate-900 underline"
         >
           사용 안내
         </button>

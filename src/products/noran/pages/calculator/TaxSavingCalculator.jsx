@@ -1,3 +1,5 @@
+import { MobileResult } from "@shared/components/MobileResult";
+import { NumberSync } from "@shared/components/NumberSync";
 import { useState, useMemo } from "react";
 import { AlertTriangle, Coins, Info, Printer } from "lucide-react";
 import {
@@ -87,9 +89,9 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
     const netMonthly = monthlyAmount - result.monthlyTaxSaving;
 
     return {
-      opening: `월 ${formatKRW(monthlyAmount)}씩 넣으시면 연말정산 때 해마다 ${formatKRW(
+      opening: `월 ${formatKRW(monthlyAmount)}씩 넣으시면 해마다 세금이 약 ${formatKRW(
         result.taxSaving
-      )} 정도를 돌려받으십니다.`,
+      )} 정도 줄어드는 것으로 추정됩니다.`,
       detail: [
         `월로 나눠 보면 ${formatKRW(
           result.monthlyTaxSaving
@@ -202,19 +204,7 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
                 <span>75만원</span>
                 <span>150만원</span>
               </div>
-              <input
-                type="number"
-                value={monthlyAmount}
-                min="50000"
-                max="1500000"
-                step="10000"
-                onChange={(e) =>
-                  setMonthlyAmount(
-                    Math.max(50000, Math.min(1500000, Number(e.target.value)))
-                  )
-                }
-                className="mt-2 w-full px-3 py-2 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-amber-500"
-              />
+              <NumberSync value={monthlyAmount} onChange={setMonthlyAmount} min={50000} max={1500000} step={10000} suffix="원" label="월 부금" />
             </div>
           </div>
 
@@ -225,7 +215,7 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
         </div>
 
         {/* 결과부 */}
-        <div className="lg:col-span-3 space-y-4">
+        <div id="noran-result" className="lg:col-span-3 space-y-4 scroll-mt-24">
           {result.isBlocked ? (
             <div className="bg-red-50 border-2 border-red-300 rounded-xl p-6">
               <div className="flex items-start gap-3">
@@ -250,13 +240,13 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
-                      추정 절세액 · 연간
+                      추정 절세액 · 연간 · 간편 추정
                     </div>
-                    <div className="mt-1 text-[38px] font-black leading-none tracking-tight text-amber-700">
+                    <div className="mt-1 text-[30px] sm:text-[38px] font-black leading-none tracking-tight text-amber-700">
                       {formatKRW(result.taxSaving)}
                     </div>
                     <p className="mt-2 text-[13px] leading-relaxed text-slate-600">
-                      월 평균 약 {formatKRW(result.monthlyTaxSaving)} 돌려받는 셈입니다.
+                      절세액을 월로 환산하면 약 {formatKRW(result.monthlyTaxSaving)}입니다. 실제 월 납입액은 달라지지 않습니다.
                     </p>
                   </div>
                   <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-sm">
@@ -264,7 +254,6 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
                   </div>
                 </div>
               </div>
-
               {/* 월 부금 vs 실부담 */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -379,6 +368,8 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
           </div>
         </div>
       </div>
+
+      <MobileResult amount={result.taxSaving} label="연간 추정 절세액" targetId="noran-result" />
 
       {/* 인쇄용 — 화면에는 숨김, window.print() 호출 시에만 노출 */}
       {showPrint && !result.isBlocked && (

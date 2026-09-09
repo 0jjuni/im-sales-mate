@@ -17,7 +17,9 @@ export const SalesScript = ({ accent = "amber", opening, detail = [], objections
   const [openIdx, setOpenIdx] = useState(null);
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 print:hidden">
+    <details className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6 print:hidden">
+      <summary className="cursor-pointer text-sm font-semibold text-slate-800">상담 문구와 질문 대응 보기</summary>
+      <div className="mt-4">
       <header className="mb-4 flex items-center gap-2.5">
         <span className={cn("flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg", ac.chip)}>
           <MessageSquareQuote className={cn("h-4 w-4", ac.icon)} />
@@ -71,6 +73,6 @@ export const SalesScript = ({ accent = "amber", opening, detail = [], objections
           </div>
         </div>
       )}
-    </section>
+    </div></details>
   );
 };

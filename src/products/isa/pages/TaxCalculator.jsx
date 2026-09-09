@@ -1,3 +1,4 @@
+import { MobileResult } from "@shared/components/MobileResult";
 import { useState, useMemo } from "react";
 import { Percent, Info, Printer, PiggyBank, LineChart } from "lucide-react";
 import {
@@ -21,7 +22,7 @@ import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
 
 /* ISA 세제 절세효과 계산기.
    은행 ISA는 예금 예치가 많아 「예금 기준」 모드를 기본으로 한다:
-   원금·금리·기간으로 이자를 산정 → ISA 예금 vs 일반 예금의 세부담·세후 실수령을 비교.
+   원금·금리·기간으로 이자를 산정 → ISA 예금 vs 일반 예금의 세부담·세후 수익 (원금 제외)을 비교.
    「순이익 직접입력」 모드는 펀드 등 투자상품용(계좌 내 손익통산 후 순이익 직접 입력). */
 export const TaxCalculator = () => {
   const [showPrint, setShowPrint] = useState(false);
@@ -275,7 +276,7 @@ export const TaxCalculator = () => {
                       onChange={(e) => setLump(Number(e.target.value))}
                       className="w-full accent-fuchsia-600"
                     />
-                    <NumberSync value={lump} onChange={setLump} min={1000000} max={ISA_RULES.annualLimit} step={1000000} accent="fuchsia" suffix="원" />
+                    <NumberSync label="예치 목돈" value={lump} onChange={setLump} min={1000000} max={ISA_RULES.annualLimit} step={1000000} accent="fuchsia" suffix="원" />
                     <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                       <span>100만원</span>
                       <span>1천만원</span>
@@ -300,7 +301,7 @@ export const TaxCalculator = () => {
                       onChange={(e) => setAnnual(Number(e.target.value))}
                       className="w-full accent-fuchsia-600"
                     />
-                    <NumberSync value={annual} onChange={setAnnual} min={1000000} max={ISA_RULES.annualLimit} step={1000000} accent="fuchsia" suffix="원" />
+                    <NumberSync label="연 납입액" value={annual} onChange={setAnnual} min={1000000} max={ISA_RULES.annualLimit} step={1000000} accent="fuchsia" suffix="원" />
                     <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                       <span>100만원</span>
                       <span>1천만원</span>
@@ -325,7 +326,7 @@ export const TaxCalculator = () => {
                     onChange={(e) => setRate(Number(e.target.value))}
                     className="w-full accent-fuchsia-600"
                   />
-                  <NumberSync value={rate} onChange={setRate} min={ISA_DEPOSIT_DEFAULTS.rateMin} max={ISA_DEPOSIT_DEFAULTS.rateMax} step={ISA_DEPOSIT_DEFAULTS.rateStep} accent="fuchsia" suffix="%" />
+                  <NumberSync label="예금 연 금리" value={rate} onChange={setRate} min={ISA_DEPOSIT_DEFAULTS.rateMin} max={ISA_DEPOSIT_DEFAULTS.rateMax} step={ISA_DEPOSIT_DEFAULTS.rateStep} accent="fuchsia" suffix="%" />
                   <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                     <span>{ISA_DEPOSIT_DEFAULTS.rateMin.toFixed(1)}%</span>
                     <span>{ISA_DEPOSIT_DEFAULTS.rateMax.toFixed(1)}%</span>
@@ -377,17 +378,7 @@ export const TaxCalculator = () => {
                   <span>1천만원</span>
                   <span>2천만원</span>
                 </div>
-                <input
-                  type="number"
-                  value={directProfit}
-                  min="0"
-                  max="20000000"
-                  step="500000"
-                  onChange={(e) =>
-                    setDirectProfit(Math.max(0, Math.min(20000000, Number(e.target.value))))
-                  }
-                  className="mt-2 w-full px-3 py-2 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-fuchsia-500"
-                />
+                <NumberSync value={directProfit} onChange={setDirectProfit} min={0} max={20000000} step={10000} suffix="원" label="예상 순이익" />
               </div>
             )}
           </div>
@@ -401,7 +392,7 @@ export const TaxCalculator = () => {
         </div>
 
         {/* 결과부 */}
-        <div className="lg:col-span-3 space-y-4">
+        <div id="isa-result" className="lg:col-span-3 space-y-4 scroll-mt-24">
           {/* 핵심 결과 — 추정 절세액 */}
           <div className="rounded-xl border border-fuchsia-200 bg-fuchsia-50/60 p-5 shadow-sm">
             <div className="flex items-start justify-between gap-3">
@@ -409,7 +400,7 @@ export const TaxCalculator = () => {
                 <div className="text-[11px] font-bold uppercase tracking-wider text-fuchsia-700">
                   추정 절세액 · {isDeposit ? "일반 예금 대비" : "일반계좌 대비"}
                 </div>
-                <div className="mt-1 text-[38px] font-black leading-none tracking-tight text-fuchsia-700">
+                <div className="mt-1 text-[30px] sm:text-[38px] font-black leading-none tracking-tight text-fuchsia-700">
                   {formatKRW(result.saving)}
                 </div>
                 <p className="mt-2 text-[13px] leading-relaxed text-slate-600">
@@ -424,6 +415,7 @@ export const TaxCalculator = () => {
             </div>
           </div>
 
+          <p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">{isDeposit ? `계산 가정: 연 ${rate}% 동일 금리 · ${years}년 유지 · 월복리 · 만기 과세 · 신탁보수 차감 전. 실제 상품의 금리와 보수에 따라 결과가 달라집니다.` : "과세 대상 수익을 같은 금액으로 가정한 간편 비교입니다. 상품별 과세 여부와 일반계좌의 손실 처리 차이는 반영하지 않습니다."}</p>
           {/* 일반 vs ISA — 나란히 비교 */}
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -438,7 +430,7 @@ export const TaxCalculator = () => {
                   </div>
                 </div>
                 <div className="border-t border-slate-100 pt-2.5">
-                  <div className="text-[11px] text-slate-400">세후 실수령</div>
+                  <div className="text-[11px] text-slate-400">세후 수익 (원금 제외)</div>
                   <div className="text-[14px] font-semibold tabular-nums text-slate-600">
                     {formatKRW(result.normalNet)}
                   </div>
@@ -448,7 +440,7 @@ export const TaxCalculator = () => {
 
             <div className="relative rounded-xl border-2 border-fuchsia-400 bg-white p-4 shadow-sm">
               <span className="absolute -top-2 left-4 rounded-full bg-fuchsia-600 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-sm">
-                유리
+                {result.saving > 0 ? "추정 절세" : "세부담 동일"}
               </span>
               <div className="text-[12px] font-bold text-fuchsia-700">
                 ISA {isDeposit ? "예금" : "계좌"}
@@ -461,7 +453,7 @@ export const TaxCalculator = () => {
                   </div>
                 </div>
                 <div className="border-t border-fuchsia-100 pt-2.5">
-                  <div className="text-[11px] text-slate-400">세후 실수령</div>
+                  <div className="text-[11px] text-slate-400">세후 수익 (원금 제외)</div>
                   <div className="text-[14px] font-semibold tabular-nums text-slate-900">
                     {formatKRW(result.isaNet)}
                   </div>
@@ -531,7 +523,7 @@ export const TaxCalculator = () => {
 
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
             <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-              {isDeposit ? "세후 실수령 이자 비교" : "세부담 비교"}
+              {isDeposit ? "세후 이자 비교" : "세부담 비교"}
             </h4>
             <ResponsiveContainer width="100%" height={isDeposit ? 140 : 180}>
               <BarChart
@@ -576,6 +568,8 @@ export const TaxCalculator = () => {
       </div>
 
       {/* 상담 자료 미리보기 → 인쇄 */}
+      <MobileResult amount={result.saving} label="추정 절세액" targetId="isa-result" />
+
       {showPrint && (
         <PrintPreviewModal onClose={() => setShowPrint(false)}>
       <PrintReport
@@ -634,7 +628,7 @@ export const TaxCalculator = () => {
                   label: "추정 절세액",
                   value: formatKRW(result.saving),
                   emphasis: true,
-                  sub: `세후 실수령 이자: ISA ${formatKRW(result.isaNet)} vs 일반 ${formatKRW(result.normalNet)}`,
+                  sub: `세후 수익 (원금 제외) 이자: ISA ${formatKRW(result.isaNet)} vs 일반 ${formatKRW(result.normalNet)}`,
                 },
               ]
             : [

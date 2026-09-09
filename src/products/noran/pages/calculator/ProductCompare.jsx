@@ -1,3 +1,4 @@
+import { CREDIT_RULES } from "../../../pension/data/pension";
 import { useState, useMemo } from "react";
 import {
   Info,
@@ -60,8 +61,11 @@ export const ProductCompare = ({ onOpenArticle }) => {
   const [yumamRate, setYumamRate] = useState(3.0);
   const [savingsRate, setSavingsRate] = useState(3.5);
   const [pensionRate, setPensionRate] = useState(3.5);
-  const [withIncentive, setWithIncentive] = useState(true);
+  const [withIncentive, setWithIncentive] = useState(false);
   const [incentiveMonthly, setIncentiveMonthly] = useState(20000); // 월 적립 장려금 (지자체 평균)
+
+  const [pensionIncomeType, setPensionIncomeType] = useState("salary");
+  const [pensionUnderThreshold, setPensionUnderThreshold] = useState(true);
 
   const bracket = INCOME_BRACKETS.find((b) => b.id === bracketId);
 
@@ -71,7 +75,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
     const totalPrincipal = monthlyAmount * months;
 
     /* === 노란우산공제 — 2개 시나리오 동시 표시 === */
-    // (a) 폐업·법인해산·사망공제금 — 별표1 차등지급이율 +0.3% (가장 유리)
+    // (a) 폐업·법인해산·사망공제금 — 별표1 차등지급이율 +0.3% (세전 합계 최대)
     // (b) 노령급부 도달 — 별표1 기준이율 부리적립 (만 60세 + 120개월 충족)
     // 별표1 1~6회 납부는 납부부금만 (이자 미부리). 슬라이더가 1년~이라 항상 7회 이상.
     const yumamClosureRefund = months <= 6
@@ -88,7 +92,6 @@ export const ProductCompare = ({ onOpenArticle }) => {
 
     /* === 가입(희망)장려금 === */
     // 1년만 적립 (가입일로부터 12회) — 그 후 공제금 수령 시까지 연복리 부리
-    const incentiveYears = withIncentive ? years : 0;
     let incentiveTotal = 0;
     if (withIncentive) {
       // 첫 1년간 매월 적립
@@ -99,8 +102,6 @@ export const ProductCompare = ({ onOpenArticle }) => {
       incentiveTotal = r === 0
         ? incentivePrincipal
         : incentivePrincipal * Math.pow(1 + r, remainingYears);
-      // 임의해약(노령급부 조건 미충족) 시 장려금 미지급 가능성 있음 — 단순화: 노령급부 가정 시만 포함
-      if (!isNorengEligible) incentiveTotal = incentiveTotal * 0.5; // 미지급 위험 반영
     }
 
     /* === 일반 적금 === */
@@ -108,8 +109,8 @@ export const ProductCompare = ({ onOpenArticle }) => {
 
     /* === 연금저축 === */
     // 한도 600만원 — 사업/근로소득금액 ≤ 4천만(혹은 종합 4,500만 / 총급여 5,500만 이하)이면 16.5%, 외 13.2%
-    const pensionCreditRate = bracket.id === "under_40m" ? 0.165 : 0.132;
-    const pensionAnnualLimit = 6_000_000;
+    const pensionCreditRate = pensionUnderThreshold ? CREDIT_RULES.highRate : CREDIT_RULES.lowRate;
+    const pensionAnnualLimit = CREDIT_RULES.pensionSavingLimit;
     const pensionDeduction = Math.min(annualPayment, pensionAnnualLimit);
     const pensionTaxSavingAnnual = pensionDeduction * pensionCreditRate;
     const pensionTaxSavingTotal = pensionTaxSavingAnnual * years;
@@ -135,7 +136,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
         taxSavingLabel: "소득공제 절세액",
         incentive: incentiveTotal,
         total: yumamClosureTotal,
-        scenario: "별표1 차등지급이율 (15년간 기준이율 +0.3%) — 가장 유리한 사유",
+        scenario: "별표1 차등지급이율 (15년간 기준이율 +0.3%) — 폐업·사망 사유 가정",
         warning: false,
       },
       {
@@ -206,6 +207,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
     pensionRate,
     withIncentive,
     incentiveMonthly,
+    pensionUnderThreshold,
     bracket,
   ]);
 
@@ -273,7 +275,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
                 onChange={(e) => setMonthlyAmount(Number(e.target.value))}
                 className="w-full accent-amber-600"
               />
-              <NumberSync value={monthlyAmount} onChange={setMonthlyAmount} min={50000} max={1500000} step={10000} accent="amber" suffix="원" />
+              <NumberSync label="월 납입액" value={monthlyAmount} onChange={setMonthlyAmount} min={50000} max={1500000} step={10000} accent="amber" suffix="원" />
             </div>
 
             <div>
@@ -289,7 +291,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
                 onChange={(e) => setYears(Number(e.target.value))}
                 className="w-full accent-amber-600"
               />
-              <NumberSync value={years} onChange={setYears} min={1} max={20} step={1} accent="amber" suffix="년" />
+              <NumberSync label="가입 기간" value={years} onChange={setYears} min={1} max={20} step={1} accent="amber" suffix="년" />
               {!result.isNorengEligible && (
                 <div className="mt-2 flex items-start gap-1.5 text-[11px] text-amber-700 bg-amber-50/60 border border-amber-200 rounded-sm p-2">
                   <AlertTriangle className="w-3 h-3 mt-0.5 flex-shrink-0" />
@@ -314,7 +316,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
                 ))}
               </select>
               <p className="text-[11px] text-slate-500 mt-1">
-                연금저축 세액공제율 자동 분기: 4천만 이하 16.5%, 그 외 13.2%
+                노란우산 소득공제 한도·추정 세율 기준입니다. 연금저축 공제율은 아래에서 별도로 선택하세요.
               </p>
             </div>
 
@@ -335,7 +337,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
                   onChange={(e) => setYumamRate(Number(e.target.value))}
                   className="w-full accent-amber-600"
                 />
-                <NumberSync value={yumamRate} onChange={setYumamRate} min={1.0} max={5.0} step={0.1} accent="amber" suffix="%" />
+                <NumberSync label="노란우산 가정 이율" value={yumamRate} onChange={setYumamRate} min={1.0} max={5.0} step={0.1} accent="amber" suffix="%" />
               </div>
               <div>
                 <label className="block text-xs text-slate-700 mb-1">
@@ -350,7 +352,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
                   onChange={(e) => setSavingsRate(Number(e.target.value))}
                   className="w-full accent-slate-500"
                 />
-                <NumberSync value={savingsRate} onChange={setSavingsRate} min={1.0} max={6.0} step={0.1} accent="amber" suffix="%" />
+                <NumberSync label="적금 가정 이율" value={savingsRate} onChange={setSavingsRate} min={1.0} max={6.0} step={0.1} accent="amber" suffix="%" />
               </div>
               <div>
                 <label className="block text-xs text-slate-700 mb-1">
@@ -365,20 +367,32 @@ export const ProductCompare = ({ onOpenArticle }) => {
                   onChange={(e) => setPensionRate(Number(e.target.value))}
                   className="w-full accent-blue-500"
                 />
-                <NumberSync value={pensionRate} onChange={setPensionRate} min={1.0} max={6.0} step={0.1} accent="amber" suffix="%" />
+                <NumberSync label="연금저축 가정 이율" value={pensionRate} onChange={setPensionRate} min={1.0} max={6.0} step={0.1} accent="amber" suffix="%" />
               </div>
             </div>
 
-            <label className="flex items-start gap-2 p-3 bg-amber-50/40 border border-amber-200 rounded-sm cursor-pointer">
+            <fieldset className="rounded-lg border border-slate-200 p-3 space-y-2">
+              <legend className="px-1 text-sm font-bold">연금저축 공제율 기준</legend>
+              <select aria-label="연금저축 소득 유형" value={pensionIncomeType} onChange={e => setPensionIncomeType(e.target.value)} className="w-full rounded-lg border p-2 text-sm">
+                <option value="salary">근로소득만 있음 (총급여 기준)</option><option value="comprehensive">종합소득금액 기준</option>
+              </select>
+              <select aria-label="연금저축 소득 기준 충족 여부" value={String(pensionUnderThreshold)} onChange={e => setPensionUnderThreshold(e.target.value === "true")} className="w-full rounded-lg border p-2 text-sm">
+                <option value="true">{formatKRW(pensionIncomeType === "salary" ? CREDIT_RULES.salaryThreshold : CREDIT_RULES.comprehensiveThreshold)} 이하</option>
+                <option value="false">기준금액 초과</option>
+              </select>
+              <p className="text-sm text-slate-600">노란우산 소득 구간과 별도로 확인합니다. 산출세액이 충분한 경우를 가정합니다.</p>
+            </fieldset>
+            <div className="flex items-start gap-2 p-3 bg-amber-50/40 border border-amber-200 rounded-sm cursor-pointer">
               <input
                 type="checkbox"
+                aria-label="장려금 지급 조건 충족 시 포함"
                 checked={withIncentive}
                 onChange={(e) => setWithIncentive(e.target.checked)}
                 className="mt-0.5 w-4 h-4 accent-amber-600"
               />
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold text-slate-900">
-                  지자체 가입(희망)장려금 포함
+                  장려금 지급 조건 충족 시 포함
                 </div>
                 <div className="text-xs text-slate-600 mt-0.5 leading-relaxed">
                   월 {formatKRW(incentiveMonthly)} × 1년 적립 후 연복리. 임의해약 시 미지급/감액 위험.
@@ -398,16 +412,16 @@ export const ProductCompare = ({ onOpenArticle }) => {
                     onClick={(e) => e.stopPropagation()}
                     className="w-full mt-2 accent-amber-600"
                   />
-                  <NumberSync value={incentiveMonthly} onChange={setIncentiveMonthly} min={10000} max={30000} step={10000} accent="amber" suffix="원" />
+                  <NumberSync label="월 장려금" value={incentiveMonthly} onChange={setIncentiveMonthly} min={10000} max={30000} step={10000} accent="amber" suffix="원" />
                   </>
                 )}
               </div>
-            </label>
+            </div>
           </div>
 
           <div className="bg-blue-50/40 border border-blue-200 rounded-xl p-3 text-xs text-slate-700 leading-relaxed">
             <Info className="w-3.5 h-3.5 inline-block mr-1 text-blue-600" />
-            노란우산공제·연금저축은 연단위 복리 적립식 + 매월 평균 6개월 추가 적립 보정. 적금은 매월 단리. 모든 결과는 세전 추정치이며 ±5~10% 편차 가능.
+            노란우산공제·연금저축은 연단위 복리 적립식 + 매월 평균 6개월 추가 적립 보정. 적금은 매월 단리. 모든 결과는 세전 추정치이며 실제 지급액과 다를 수 있습니다.
           </div>
         </div>
 
@@ -424,12 +438,12 @@ export const ProductCompare = ({ onOpenArticle }) => {
             </div>
           </div>
 
-          {/* 가장 유리한 상품 — 대표 결과 */}
+          {/* 현재 가정에서 세전 합계가 가장 큰 시나리오 — 대표 결과 */}
           <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-5 shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
-                  가장 유리한 상품
+                  현재 가정에서 세전 합계가 가장 큰 시나리오
                 </div>
                 <div className="mt-1 text-[22px] font-black leading-tight tracking-tight text-amber-700">
                   {result.best.name}
@@ -533,7 +547,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
                   </tr>
                   <tr className="border-b border-slate-100">
                     <td className="py-2 px-1 font-semibold">정상 과세</td>
-                    <td className="py-2 px-2">퇴직소득세 (5~15%)</td>
+                    <td className="py-2 px-2">퇴직소득세 (개별 산정)</td>
                     <td className="py-2 px-2">이자소득세 15.4%</td>
                     <td className="py-2 px-2">연금소득세 3.3~5.5%</td>
                   </tr>
@@ -563,7 +577,7 @@ export const ProductCompare = ({ onOpenArticle }) => {
           <SalesScript accent="amber" {...script} />
 
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600 leading-relaxed">
-            <strong className="text-slate-800">계산 가정:</strong> 노란우산 만기 = 노령급부 도달(만 60세+120개월)·별표1 기준이율 부리적립. 퇴직소득세 8.8% 추정(실제 5~15%). 연금저축 = 적립식 미래가치, 세액공제율은 소득구간 분기, 연금소득세 5.5% 추정. 적금 = 매월 단리, 이자소득세 15.4%. 가입(희망)장려금은 첫 1년 적립 후 가정이율 복리. 모두 추정치이며 실제 상품의 약관·이율·수령 단계 과세는 직접 확인 필요.
+            <strong className="text-slate-800">계산 가정:</strong> 노란우산 만기 = 노령급부 도달(만 60세+120개월)·별표1 기준이율 부리적립. 수령 시 퇴직소득세는 차감하지 않습니다. 연금저축 = 적립식 미래가치, 세액공제율은 별도 소득 기준으로 선택하며 수령 시 과세는 차감하지 않습니다. 적금 = 매월 단리, 이자소득세 15.4%. 가입(희망)장려금은 지급 조건 충족을 선택한 경우에만 첫 1년 적립 후 가정이율 복리로 반영합니다. 모두 추정치이며 실제 상품의 약관·이율·수령 단계 과세는 직접 확인 필요.
           </div>
         </div>
       </div>
@@ -579,6 +593,8 @@ export const ProductCompare = ({ onOpenArticle }) => {
         yumamRate={yumamRate}
         savingsRate={savingsRate}
         pensionRate={pensionRate}
+        pensionIncomeType={pensionIncomeType}
+        pensionUnderThreshold={pensionUnderThreshold}
         withIncentive={withIncentive}
         incentiveMonthly={incentiveMonthly}
         result={result}
@@ -616,7 +632,7 @@ const ProductCard = ({ data, isBest }) => {
               {isBest && (
                 <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-wider font-bold text-emerald-700 bg-emerald-100 border border-emerald-300 px-1.5 py-0.5 rounded-sm">
                   <Sparkles className="w-2.5 h-2.5" />
-                  가장 유리
+                  세전 합계 최대
                 </span>
               )}
               {data.warning && (
@@ -694,6 +710,8 @@ const ProductComparePrint = ({
   yumamRate,
   savingsRate,
   pensionRate,
+  pensionIncomeType,
+  pensionUnderThreshold,
   withIncentive,
   incentiveMonthly,
   result,
@@ -761,6 +779,8 @@ const ProductComparePrint = ({
               <PRow label="월 납입액" value={formatKRW(monthlyAmount)} />
               <PRow label="가입(투자) 기간" value={`${years}년`} />
               <PRow label="소득금액 구간" value={bracket.rangeText} />
+              <PRow label="연금저축 공제율 기준" value={`${pensionIncomeType === "salary" ? "총급여" : "종합소득금액"} ${formatKRW(pensionIncomeType === "salary" ? CREDIT_RULES.salaryThreshold : CREDIT_RULES.comprehensiveThreshold)} ${pensionUnderThreshold ? "이하" : "초과"}`} />
+              <PRow label="장려금 가정" value={withIncentive ? "지급 조건 충족 시 포함" : "미포함"} />
               <PRow label="가정 이율 (노란우산)" value={`${yumamRate.toFixed(1)}% 연복리`} />
               <PRow label="가정 이율 (적금)" value={`${savingsRate.toFixed(1)}% 단리`} />
               <PRow
@@ -797,7 +817,7 @@ const ProductComparePrint = ({
                       )}
                     >
                       {p.name}
-                      {p.key === result.best.key && <span className="block text-[8px] mt-0.5">★ 가장 유리</span>}
+                      {p.key === result.best.key && <span className="block text-[8px] mt-0.5">★ 세전 합계 최대</span>}
                     </th>
                   ))}
                 </tr>
@@ -912,7 +932,7 @@ const ProductComparePrint = ({
               </tbody>
             </table>
             <p className="text-[10px] text-amber-900 font-bold mt-1.5 leading-snug">
-              💡 가장 유리한 상품 (세전): 「{result.best.name}」 — 총 혜택 약 {formatKRW(result.best.total)}{" "}
+              💡 현재 가정에서 세전 합계가 가장 큰 시나리오 (세전): 「{result.best.name}」 — 총 혜택 약 {formatKRW(result.best.total)}{" "}
               (납부원금 대비 +{totalPctBest}%)
             </p>
           </section>
@@ -1017,7 +1037,7 @@ const ProductComparePrint = ({
                 </tr>
                 <tr>
                   <td className="px-1.5 py-1 font-semibold">정상 과세</td>
-                  <td className="px-1.5 py-1">퇴직소득세 (5~15%)</td>
+                  <td className="px-1.5 py-1">퇴직소득세 (개별 산정)</td>
                   <td className="px-1.5 py-1">이자소득세 15.4%</td>
                   <td className="px-1.5 py-1">연금소득세 3.3~5.5%</td>
                 </tr>
