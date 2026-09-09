@@ -141,7 +141,7 @@ export function GlobalNav({ right = null }) {
     dialog.showModal();
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const wide = window.matchMedia("(min-width: 1280px)");
+    const wide = window.matchMedia("(min-width: 640px)");
     const closeOnWide = () => { if (wide.matches) setMenuOpen(false); };
     wide.addEventListener("change", closeOnWide);
     return () => { document.body.style.overflow = previous; wide.removeEventListener("change", closeOnWide); if (dialog.open) dialog.close(); menuButtonRef.current?.focus(); };
@@ -163,8 +163,8 @@ export function GlobalNav({ right = null }) {
           </span>
         </Link>
 
-        {/* PC 주 메뉴 — 좁은 화면에서는 전체 메뉴 버튼 사용 */}
-        <nav aria-label="주 메뉴" className="hidden min-w-0 flex-1 items-center gap-0 xl:flex">
+        {/* 주 메뉴 — 휴대폰(sm 미만)에서만 전체 메뉴 버튼 사용, 그 이상은 가로 메뉴(넘치면 가로 스크롤, lg↑ 드롭다운 표시) */}
+        <nav aria-label="주 메뉴" className="hidden min-w-0 flex-1 items-center gap-0 overflow-x-auto sm:flex lg:overflow-visible">
           {NAV.map((item) => (
             <NavItem key={item.to} item={item} pathname={pathname} />
           ))}
@@ -173,8 +173,8 @@ export function GlobalNav({ right = null }) {
         {/* 우측 — 알림 벨(공통) + 페이지별 액션 슬롯 */}
         <div className="ml-auto flex flex-shrink-0 items-center gap-2">
           <NotificationBell />
-          <div className="hidden xl:block">{right}</div>
-          <button ref={menuButtonRef} type="button" aria-label="전체 메뉴 열기" aria-haspopup="dialog" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)} className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 text-slate-700 xl:hidden"><Menu className="h-5 w-5" /></button>
+          <div className="hidden sm:block">{right}</div>
+          <button ref={menuButtonRef} type="button" aria-label="전체 메뉴 열기" aria-haspopup="dialog" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)} className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 text-slate-700 sm:hidden"><Menu className="h-5 w-5" /></button>
         </div>
       </div>
       <dialog ref={menuRef} aria-labelledby="mobile-menu-title" onCancel={() => setMenuOpen(false)} onClose={() => setMenuOpen(false)} onClick={e => { if (e.target === e.currentTarget) setMenuOpen(false); }} className="mobile-menu m-0 ml-auto h-dvh max-h-none w-full max-w-md border-0 bg-white p-0 backdrop:bg-slate-900/40">
