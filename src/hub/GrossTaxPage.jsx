@@ -337,7 +337,6 @@ const ProductCard = ({ product, manual, onManual, compact = false }) => {
       )}
 
       {/* 개인 신용카드 보유·활용 중이면 소득공제 계산을 여기서 바로 */}
-      {product.key === "cardPersonal" && product.held && <CardDeductionCollapsible />}
 
       {product.cta && (
         <Link
