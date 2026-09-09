@@ -194,7 +194,7 @@ export default function FollowupsPage() {
       {/* 날짜/기간 선택 → 지점 일정 추가 팝업 */}
       {picker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={() => setPicker(null)}>
-          <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <div className="mobile-dialog-panel w-full max-w-lg rounded-xl border border-slate-200 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
               <div className="text-[13px] font-bold text-slate-900">
                 지점 일정 추가
@@ -236,7 +236,7 @@ export default function FollowupsPage() {
           : "기한 없음";
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={() => setDetail(null)}>
-            <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mobile-dialog-panel w-full max-w-md rounded-xl border border-slate-200 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
                 <span className={cn("inline-flex items-center rounded-sm px-1.5 py-0.5 text-[11px] font-bold", isStaff ? staff.badge : cat === "note" ? "bg-violet-50 text-violet-600" : "bg-im-50 text-im-700")}>
                   {badge}
@@ -295,7 +295,7 @@ export default function FollowupsPage() {
       {/* 편집(내가 올린 항목) */}
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={() => setEditing(null)}>
-          <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <div className="mobile-dialog-panel w-full max-w-lg rounded-xl border border-slate-200 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
               <span className="text-[13px] font-bold text-slate-900">일정 편집</span>
               <button onClick={() => setEditing(null)} aria-label="닫기" className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">

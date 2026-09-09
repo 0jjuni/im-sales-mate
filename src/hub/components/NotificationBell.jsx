@@ -76,7 +76,7 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-[340px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl shadow-slate-900/10">
+        <div className="fixed left-4 right-4 top-16 z-50 w-auto sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[340px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl shadow-slate-900/10">
           <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
             <div className="flex items-center gap-1.5 text-[13px] font-bold text-slate-900">
               알림
@@ -98,7 +98,7 @@ export function NotificationBell() {
               <p className="text-[11px] text-slate-400">구독한 채널에 글이 올라오거나 지점 일정이 공유되면 여기에 표시됩니다.</p>
             </div>
           ) : (
-            <ul className="max-h-[420px] divide-y divide-slate-100 overflow-y-auto">
+            <ul className="max-h-[min(420px,70dvh)] divide-y divide-slate-100 overflow-y-auto">
               {notifs.map((n) => {
                 const unread = isUnread(n.id);
                 return (

@@ -281,7 +281,7 @@ export function ProductDetailBody({ product, quote, live }) {
             />
           </label>
         </div>
-        <div className="mt-3 grid grid-cols-3 gap-2">
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
           <div className="rounded-lg bg-white px-3 py-2 text-center ring-1 ring-inset ring-slate-100">
             <div className="text-[10px] text-slate-400">원금</div>
             <div className="mt-0.5 text-[14px] font-bold tabular-nums text-slate-800">{won(sim.principal)}</div>

@@ -21,7 +21,7 @@ const PensionDisclaimer = ({ onAccept, onClose }) => {
         role="dialog"
         aria-modal="true"
         aria-label="계산기 사용 안내"
-        className="bg-white max-w-md w-full rounded-xl shadow-2xl border border-slate-200"
+        className="mobile-dialog-panel bg-white max-w-md w-full rounded-xl shadow-2xl border border-slate-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-5 border-b border-slate-200">

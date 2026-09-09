@@ -223,7 +223,7 @@ const ChartModal = ({ product, onClose }) => {
   const ret = series.length >= 2 ? (series[series.length - 1].c / series[0].c - 1) * 100 : null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="mobile-dialog-panel w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
           <div className="min-w-0">
             <span className={cn("rounded px-1 py-0.5 text-[9px] font-bold", TYPE_CLASS[product.type])}>{product.type}</span>
@@ -605,7 +605,7 @@ export default function WealthPage() {
       {tab === "home" ? (
         <section className="space-y-4">
           {/* 스탯 */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             <SummaryStat label="전체 상품" value={`${PRODUCTS.length}개`} icon={Layers} />
             <SummaryStat label="내 관심" value={`${watchlist.length}개`} icon={Star} />
             <SummaryStat label="가입 고객" value={`${enrollments.length}건`} icon={Users} />
@@ -880,7 +880,7 @@ export default function WealthPage() {
         </section>
       ) : (
         <section className="space-y-4">
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <SummaryStat label="가입 건수" value={`${enrollments.length}건`} icon={Users} />
             <SummaryStat label="총 평가금액" value={won(totals.value)} icon={TrendingUp} sub={`원금 ${won(totals.principal)}`} />
             <SummaryStat label="알림" value={`${totals.alerts}건`} icon={Bell} tone={totals.alerts > 0 ? "alert" : "none"} sub={totals.pending > 0 ? `기준가 대기 ${totals.pending}건` : null} />

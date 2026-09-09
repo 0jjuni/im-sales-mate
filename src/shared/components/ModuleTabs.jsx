@@ -21,13 +21,16 @@ const BADGE = {
 
 export function ModuleTabs({ items, activeId, onSelect, accent = "im" }) {
   return (
-    <div className="mb-5 flex flex-wrap items-center gap-x-1 gap-y-0 border-b border-slate-200 print:hidden">
+    <>
+    <label className="mb-4 block print:hidden sm:hidden"><span className="sr-only">현재 메뉴</span><select value={activeId} onChange={e => onSelect(e.target.value)} className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-base font-semibold text-slate-800">{items.map(item => <option key={item.id} value={item.id}>{item.label}{item.count ? ` (${item.count})` : ""}</option>)}</select></label>
+    <div className="mb-5 hidden sm:flex flex-wrap items-center gap-x-1 gap-y-0 border-b border-slate-200 print:hidden">
       {items.map((item) => {
         const Icon = item.icon;
         const on = activeId === item.id;
         return (
           <button
             key={item.id}
+            aria-pressed={on}
             onClick={() => onSelect(item.id)}
             className={cn(
               "-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2 text-[13px] font-semibold transition-colors",
@@ -48,5 +51,6 @@ export function ModuleTabs({ items, activeId, onSelect, accent = "im" }) {
         );
       })}
     </div>
+    </>
   );
 }

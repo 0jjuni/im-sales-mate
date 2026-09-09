@@ -60,7 +60,7 @@ export const MarketChart = ({ series, width = 460, height = 150, label, interact
   if (!series || series.length < 2) {
     return (
       <div
-        style={{ width, height }}
+        style={{ width, maxWidth: "100%", height }}
         className="flex items-center justify-center rounded-lg bg-slate-50 text-[12px] text-slate-400"
       >
         시세 시계열이 없습니다
@@ -111,9 +111,9 @@ export const MarketChart = ({ series, width = 460, height = 150, label, interact
       viewBox={`0 0 ${width} ${height}`}
       role="img"
       aria-label={`${label} 추이`}
-      onMouseMove={interactive ? onMove : undefined}
-      onMouseLeave={interactive ? () => setHover(null) : undefined}
-      style={interactive ? { cursor: "crosshair" } : undefined}
+      onPointerMove={interactive ? onMove : undefined}
+      onPointerLeave={interactive ? () => setHover(null) : undefined}
+      style={{ maxWidth: "100%", height: "auto", touchAction: "pan-y", ...(interactive ? { cursor: "crosshair" } : {}) }}
     >
       <defs>
         <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">

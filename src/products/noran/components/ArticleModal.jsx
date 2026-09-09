@@ -39,7 +39,7 @@ export const ArticleModal = ({ articleNo, onClose }) => {
         role="dialog"
         aria-modal="true"
         aria-label={`${articleNo} ${article.title}`}
-        className="bg-white max-w-lg w-full max-h-[85vh] flex flex-col rounded-xl shadow-2xl border border-slate-200"
+        className="bg-white max-w-lg w-full max-h-[90dvh] flex flex-col rounded-xl shadow-2xl border border-slate-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between p-4 border-b border-slate-200 flex-shrink-0">

@@ -56,7 +56,7 @@ export const EditGuide = ({ onClose }) => {
         role="dialog"
         aria-modal="true"
         aria-label="대시보드 편집 안내"
-        className="w-full max-w-md rounded-lg border border-slate-200 bg-white shadow-2xl"
+        className="mobile-dialog-panel w-full max-w-md rounded-lg border border-slate-200 bg-white shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3 border-b border-slate-200 p-5">

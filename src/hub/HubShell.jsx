@@ -14,6 +14,7 @@ export function HubShell({ children, editMode = false, onToggleEdit, wide = fals
 
   const editButton = onToggleEdit ? (
     <button
+      aria-label={editMode ? "편집 완료" : "대시보드 편집"}
       onClick={onToggleEdit}
       className={cn(
         "flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-[12px] font-semibold transition-colors",
@@ -23,7 +24,7 @@ export function HubShell({ children, editMode = false, onToggleEdit, wide = fals
       )}
     >
       {editMode ? <Check className="h-3.5 w-3.5" /> : <Settings2 className="h-3.5 w-3.5" />}
-      <span className="hidden sm:inline">{editMode ? "편집 완료" : "대시보드 편집"}</span>
+      <span>{editMode ? "편집 완료" : "대시보드 편집"}</span>
     </button>
   ) : null;
 
@@ -33,7 +34,7 @@ export function HubShell({ children, editMode = false, onToggleEdit, wide = fals
       style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
     >
       <GlobalNav right={editButton} />
-      <main className={cn("mx-auto px-4 py-6 md:px-8 md:py-8", container)}>{children}</main>
+      <main className={cn("app-main mx-auto min-w-0 px-4 py-4 sm:py-6 md:px-8 md:py-8", container)}>{children}</main>
     </div>
   );
 }

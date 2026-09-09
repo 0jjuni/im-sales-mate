@@ -134,7 +134,7 @@ export default function NoranApp() {
         )}
       </div>
 
-      <GlobalWarning />
+      {page !== "calculator" && <GlobalWarning />}
 
       <ModuleTabs items={navItems} activeId={page} onSelect={(id) => navigate(id)} accent="amber" />
 

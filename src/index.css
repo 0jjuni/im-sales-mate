@@ -70,3 +70,42 @@ body {
     display: none !important;
   }
 }
+
+/* Mobile interaction rules are screen-only; report printing keeps its own sizing. */
+@media screen and (max-width: 639px) {
+  .app-main .grid > *, .app-main .flex > div { min-width: 0; }
+  .app-main { overflow-wrap: anywhere; padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
+  .app-main input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  .app-main select, .app-main textarea, .mobile-dialog-panel input, .mobile-dialog-panel select, .mobile-dialog-panel textarea { font-size: 16px; }
+  .app-main button, header button, .mobile-dialog-panel button, .preview-toolbar button { min-height: 44px; min-width: 44px; touch-action: manipulation; }
+  .app-main input[type="range"] { min-height: 36px; }
+  .app-main p[class*="text-xs"], .app-main p[class*="text-[11"], .app-main label[class*="text-xs"] { font-size: 13px; line-height: 1.6; }
+  .app-main .overflow-x-auto { overscroll-behavior-x: contain; }
+  .app-main .overflow-x-auto:has(> table)::before { content: "표를 좌우로 밀어 전체 내용을 확인하세요"; display: block; padding: 8px 12px; color: #64748b; font-size: 12px; }
+  .app-main .overflow-x-auto > table { min-width: 520px; }
+  .app-main pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .mobile-dialog-panel { max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; }
+  .mobile-menu { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+@media screen {
+  .preview-paper { width: var(--preview-width); zoom: var(--preview-scale); }
+}
+@media print {
+  .preview-paper { width: auto; zoom: 1; }
+}
+
+@media screen and (max-width: 639px) {
+  .app-main .mobile-calendar .grid button { min-width: 0; }
+  body:has(input:focus:not([type="range"]):not([type="checkbox"]), textarea:focus) .mobile-result { display: none; }
+  .mobile-result { bottom: max(12px, env(safe-area-inset-bottom)); }
+}
+
+@media screen {
+  .mobile-dialog-panel { max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; }
+}
+@media screen and (pointer: coarse) and (max-width: 1279px) {
+  .app-main button, header button, .mobile-dialog-panel button { min-height: 44px; touch-action: manipulation; }
+  .app-main input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  .app-main select, .app-main textarea, .mobile-dialog-panel input, .mobile-dialog-panel textarea { font-size: 16px; }
+}

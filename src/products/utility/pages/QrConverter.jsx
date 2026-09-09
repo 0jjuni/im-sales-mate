@@ -251,7 +251,7 @@ export const QrConverter = () => {
       {/* eBiz 링크 선택 팝업 (데모) */}
       {ebizOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 print:hidden" onClick={() => setEbizOpen(false)}>
-          <div className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="mobile-dialog-panel w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
               <div className="min-w-0">
                 <div className="text-[14px] font-bold text-slate-900">eBiz 링크 불러오기</div>

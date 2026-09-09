@@ -128,7 +128,7 @@ export function MarketDetailModal({ market, asOf, onClose }) {
           role="dialog"
           aria-modal="true"
           aria-label={`${label} 상세`}
-          className="w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+          className="w-full max-w-2xl max-h-[90dvh] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
           {/* 헤더 */}
@@ -159,7 +159,7 @@ export function MarketDetailModal({ market, asOf, onClose }) {
           </div>
 
           {/* 기간 선택 */}
-          <div className="flex items-center gap-1 border-b border-slate-100 px-5 py-2.5">
+          <div className="flex flex-wrap items-center gap-1 border-b border-slate-100 px-5 py-2.5">
             {PERIODS.map((p) => (
               <button
                 key={p.key}
@@ -186,7 +186,7 @@ export function MarketDetailModal({ market, asOf, onClose }) {
 
             {/* 요약 통계 — 기간 기준. 장기 구간이면 연평균 수익률(CAGR)도 함께 */}
             {hi != null && (
-              <div className={cn("mt-3 grid gap-2", cagr != null ? "grid-cols-4" : "grid-cols-3")}>
+              <div className={cn("mt-3 grid gap-2", cagr != null ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-1 sm:grid-cols-3")}>
                 <Stat
                   title={`${periodLabel} 수익률`}
                   value={periodReturn == null ? "—" : `${periodReturn > 0 ? "+" : ""}${periodReturn.toFixed(1)}%`}

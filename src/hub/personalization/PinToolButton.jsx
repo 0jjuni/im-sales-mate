@@ -10,6 +10,8 @@ export function PinToolButton({ toolId, className }) {
 
   return (
     <button
+      aria-label={pinned ? "내 도구에서 제거" : "내 도구에 추가"}
+      aria-pressed={pinned}
       onClick={() => togglePin(toolId)}
       title={pinned ? "홈 「내 도구」에서 빼기" : "이 도구를 홈 「내 도구」에 추가"}
       className={cn(
@@ -21,7 +23,7 @@ export function PinToolButton({ toolId, className }) {
       )}
     >
       <Star className={cn("h-3.5 w-3.5", pinned && "fill-amber-400 text-amber-400")} />
-      {pinned ? "내 도구에 추가됨" : "내 도구에 추가"}
+      <span className="hidden sm:inline">{pinned ? "내 도구에 추가됨" : "내 도구에 추가"}</span>
     </button>
   );
 }

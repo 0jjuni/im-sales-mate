@@ -50,7 +50,7 @@ const MARKDOWN = [
 function ShortcutHelp({ onClose }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 p-4" onClick={onClose}>
-      <div className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="mobile-dialog-panel w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5">
           <div className="flex items-center gap-2 text-[14px] font-bold text-slate-900">
             <Keyboard className="h-4 w-4 text-im-600" /> 단축키 · 마크다운

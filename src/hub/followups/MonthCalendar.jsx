@@ -43,6 +43,8 @@ export function MonthCalendar({ items, onPickRange, onEventClick }) {
   const today = new Date();
   const todayIso = toISO(today);
   const [view, setView] = useState({ y: today.getFullYear(), m: today.getMonth() });
+  const [selectedDay, setSelectedDay] = useState(todayIso);
+  useEffect(() => { setSelectedDay(view.y === today.getFullYear() && view.m === today.getMonth() ? todayIso : toISO(new Date(view.y, view.m, 1))); }, [view.y, view.m]);
   const [drag, setDrag] = useState(null); // { start, end }
 
   /* 드래그 종료(마우스 업) → 선택 기간으로 추가 팝업 열기 */
@@ -134,6 +136,21 @@ export function MonthCalendar({ items, onPickRange, onEventClick }) {
         </div>
       </div>
 
+      <div className="mobile-calendar p-3 lg:hidden">
+        <p className="mb-2 text-sm text-slate-600">날짜를 눌러 일정을 확인하거나 추가하세요.</p>
+        <div className="grid grid-cols-7 gap-0.5">{DOW.map(day => <span key={day} className="py-2 text-center text-xs text-slate-500">{day}</span>)}
+          {weeks.flat().map((iso, i) => iso ? <button key={iso} type="button" aria-label={`${iso} 일정 보기`} aria-pressed={selectedDay === iso} onClick={() => setSelectedDay(iso)} className={cn("flex min-h-11 flex-col items-center justify-center rounded-lg text-sm", selectedDay === iso ? "bg-im-600 font-bold text-white" : "text-slate-700 hover:bg-slate-100")}>
+            {Number(iso.slice(8))}<span className="h-1.5 text-[9px] leading-none">{events.some(e => iso >= e.start && iso <= e.end) ? "●" : ""}</span>
+          </button> : <span key={`empty-${i}`} />)}
+        </div>
+        <div className="mt-4 border-t border-slate-200 pt-3">
+          <div className="flex items-center justify-between gap-2"><h3 className="text-sm font-bold">{selectedDay} 일정</h3><button type="button" onClick={() => onPickRange?.(selectedDay, selectedDay)} className="rounded-lg bg-im-600 px-3 py-2 text-sm font-semibold text-white">일정 추가</button></div>
+          <div className="mt-2 space-y-2">{events.filter(e => selectedDay >= e.start && selectedDay <= e.end).map(e => <button key={e.item.id} type="button" onClick={() => onEventClick?.(e.item)} className={cn("block w-full rounded-lg p-3 text-left text-sm",barTone(e.item))}><span className="block font-semibold">{barLabel(e.item)}</span>{e.item.memo && e.item.memo !== barLabel(e.item) && <span className="mt-1 block break-words">{e.item.memo}</span>}</button>)}
+            {!events.some(e => selectedDay >= e.start && selectedDay <= e.end) && <p className="py-3 text-sm text-slate-500">등록된 일정이 없습니다.</p>}
+          </div>
+        </div>
+      </div>
+      <div className="hidden lg:block">
       <div className="grid grid-cols-7 border-b border-slate-100 bg-slate-50/60">
         {DOW.map((d, i) => (
           <div key={d} className={cn("py-2 text-center text-[11px] font-semibold tracking-wide", i === 0 ? "text-rose-400" : i === 6 ? "text-blue-400" : "text-slate-400")}>
@@ -220,6 +237,7 @@ export function MonthCalendar({ items, onPickRange, onEventClick }) {
             </div>
           );
         })}
+      </div>
       </div>
     </div>
   );

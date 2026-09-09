@@ -34,7 +34,7 @@ const ChangeBadge = ({ change }) => {
 };
 
 const SkeletonCell = () => (
-  <div className="min-w-[7.5rem] flex-1 px-4 py-3">
+  <div className="min-w-0 sm:min-w-[7.5rem] flex-1 px-4 py-3">
     <div className="h-2.5 w-12 animate-pulse rounded bg-slate-100" />
     <div className="mt-2 h-4 w-20 animate-pulse rounded bg-slate-100" />
     <div className="mt-1.5 h-2.5 w-14 animate-pulse rounded bg-slate-100" />
@@ -67,7 +67,7 @@ export function MarketBoard({ markets, status, live, asOf, stale }) {
         </span>
       </div>
 
-      <div className="flex divide-x divide-slate-100 overflow-x-auto">
+      <div className="grid grid-cols-2 divide-x divide-y divide-slate-100 sm:flex sm:divide-y-0 sm:overflow-x-auto">
         {status !== "ready"
           ? Array.from({ length: 6 }).map((_, i) => <SkeletonCell key={i} />)
           : markets.map((m) => {
@@ -92,12 +92,12 @@ export function MarketBoard({ markets, status, live, asOf, stale }) {
                   type="button"
                   onClick={() => setSelected(m)}
                   title={`${m.label} 추이 보기 · 상담자료 인쇄`}
-                  className="group min-w-[8rem] flex-1 px-4 py-3 text-left transition-colors hover:bg-slate-50"
+                  className="group min-w-0 sm:min-w-[8rem] flex-1 px-4 py-3 text-left transition-colors hover:bg-slate-50"
                 >
                   {cellBody}
                 </button>
               ) : (
-                <div key={m.label} className="min-w-[7.5rem] flex-1 px-4 py-3">
+                <div key={m.label} className="min-w-0 sm:min-w-[7.5rem] flex-1 px-4 py-3">
                   {cellBody}
                 </div>
               );
