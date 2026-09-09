@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { CreditCard, FileText, QrCode, Search, X, Heart, Plus } from "lucide-react";
 import { getCards, CARD_TYPES, SEGMENTS, ALL_TAGS, resolveAdCopy, loadStoredLinks } from "../data/cards";
 import { CARD_BENEFIT } from "../data/cardBenefits";
@@ -133,7 +133,9 @@ const CardRow = ({ card, fav, hasLink, onFav, onPdf, onQr }) => {
 };
 
 export const CardCatalog = () => {
-  const [segment, setSegment] = useState("personal");
+  const [params] = useSearchParams();
+  const initSeg = params.get("seg");
+  const [segment, setSegment] = useState(SEGMENTS.some((s) => s.id === initSeg) ? initSeg : "personal");
   const [type, setType] = useState("credit");
   const [query, setQuery] = useState("");
   const [activeTags, setActiveTags] = useState([]);

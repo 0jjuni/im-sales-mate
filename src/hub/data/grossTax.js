@@ -344,7 +344,7 @@ export function viewProduct(product, manual, restricted = false) {
     return {
       ...product,
       state: "recommend",
-      cta: { to: "/card", label: "기업카드 권유" },
+      cta: { to: "/card?seg=biz", label: "기업카드 권유" },
       metrics: [{ label: "미보유", value: "개인사업자 신용카드", strong: true }],
       note: "개인사업자이고 기업 신용카드 미보유. 사업지원·부가세환급·경비관리 카드 권유.",
     };
