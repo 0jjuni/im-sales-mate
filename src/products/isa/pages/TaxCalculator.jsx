@@ -48,8 +48,8 @@ export const TaxCalculator = () => {
     let interest = 0;
     let wonYears = 0; // 원금×예치연수 합 — 실효금리 연환산용
     if (isLump) {
-      // 거치식: 목돈을 정기예금으로 넣고 만기까지 그대로 굴린다
-      totalContributed = Math.min(lump, ISA_RULES.totalLimit);
+      // 거치식: 목돈을 정기예금으로 넣고 만기까지 그대로 굴린다(신규 첫 예치 = 연 2천 한도 내)
+      totalContributed = Math.min(lump, ISA_RULES.annualLimit);
       interest = totalContributed * (Math.pow(1 + monthlyRate, years * 12) - 1);
       wonYears = totalContributed * years;
     } else {
@@ -264,25 +264,25 @@ export const TaxCalculator = () => {
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1.5">
                       예치 목돈: {formatKRW(lump)}
-                      <span className="ml-1 font-normal text-slate-400">{years}년 정기예금 거치</span>
+                      <span className="ml-1 font-normal text-slate-400">연 2천만원 한도</span>
                     </label>
                     <input
                       type="range"
                       min="1000000"
-                      max={ISA_RULES.totalLimit}
+                      max={ISA_RULES.annualLimit}
                       step="1000000"
                       value={lump}
                       onChange={(e) => setLump(Number(e.target.value))}
                       className="w-full accent-fuchsia-600"
                     />
-                    <NumberSync value={lump} onChange={setLump} min={1000000} max={ISA_RULES.totalLimit} step={1000000} accent="fuchsia" suffix="원" />
+                    <NumberSync value={lump} onChange={setLump} min={1000000} max={ISA_RULES.annualLimit} step={1000000} accent="fuchsia" suffix="원" />
                     <div className="flex justify-between text-[11px] text-slate-500 mt-1">
                       <span>100만원</span>
-                      <span>5천만원</span>
-                      <span>1억원</span>
+                      <span>1천만원</span>
+                      <span>2천만원</span>
                     </div>
                     <div className="mt-1.5 rounded-sm bg-fuchsia-50 px-2.5 py-1.5 text-[11.5px] font-semibold text-fuchsia-800">
-                      {formatKRW(result.totalContributed)}을 {years}년 거치 (총 1억원 한도)
+                      {formatKRW(result.totalContributed)}을 {years}년 정기예금 거치 · 첫해 납입한도 2천만원 내
                     </div>
                   </div>
                 ) : (
@@ -333,9 +333,12 @@ export const TaxCalculator = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">예치 기간</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    예치 기간
+                    <span className="ml-1 font-normal text-slate-400">의무가입 3년 이상</span>
+                  </label>
                   <div className="grid grid-cols-3 gap-1.5">
-                    {[1, 2, 3].map((y) => (
+                    {[3, 4, 5].map((y) => (
                       <button
                         key={y}
                         onClick={() => setYears(y)}
@@ -351,7 +354,7 @@ export const TaxCalculator = () => {
                     ))}
                   </div>
                   <p className="text-[11px] text-slate-500 mt-1.5">
-                    ISA 의무가입기간은 3년입니다. 단리(만기일시지급) 가정.
+                    ISA 의무가입기간은 3년입니다(3년 경과 전 해지 시 세제 혜택 소멸). 월복리·만기일시지급 가정.
                   </p>
                 </div>
               </>
