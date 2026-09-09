@@ -1,3 +1,4 @@
+import { relevantProduct, settlementStatus } from "./diagnosisCounsel.js";
 /* 금융소득 종합과세 관리 — 데이터 계층.
 
    목적: 이 고객이 「지금 어떻게 절세하고 있는지」를 당행 보유 기준으로 진단하고,
@@ -383,7 +384,7 @@ export function deriveStrategy(data, manual) {
   const won = (v) => v.toLocaleString();
   /* 수기 값(소득유형·무주택·비과세자격)에 따라 자격이 달라지는 상품을 반영해 전략을 도출 */
   const restricted = j.isTarget || j.restrictedByHistory;
-  const products = data.products.map((p) => viewProduct(p, manual, restricted));
+  const products = data.products.filter(p=>relevantProduct(p, incomeType)).map((p) => viewProduct(p, manual, restricted));
   const items = [];
 
   /* ── 진단 ── */
@@ -511,7 +512,7 @@ export function deriveStrategy(data, manual) {
   }
 
   /* 개인사업자가 카드매출 대금을 타행으로 받고 있으면 결제계좌 당행 전환(주거래 유치) 제안 */
-  if (data.merchantSettlement?.bank) {
+  if (incomeType === "개인사업자" && settlementStatus(data.merchantSettlement) === "other") {
     const m = data.merchantSettlement;
     items.push({
       group: "제안",

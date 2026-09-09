@@ -20,3 +20,13 @@ export function counselQuestion(item) {
   if(item.cta?.to==="/wealth") return "자금 사용 시점, 투자 경험과 손실 감수 범위를 확인하세요.";
   return "고객의 이용 목적과 현재 거래 조건을 확인한 뒤 제안하세요.";
 }
+
+export function relevantProduct(product, incomeType) {
+  return incomeType !== "근로소득자" || !["noran", "cardBiz"].includes(product.key);
+}
+export function settlementStatus(merchant) {
+  if (!merchant?.bank?.trim()) return "unknown";
+  if (typeof merchant.isOwnBank === "boolean") return merchant.isOwnBank ? "own" : "other";
+  const name=merchant.bank.replace(/\s/g, "").toLowerCase();
+  return ["im뱅크", "아이엠뱅크", "대구은행", "dgb대구은행"].includes(name) ? "own" : "other";
+}

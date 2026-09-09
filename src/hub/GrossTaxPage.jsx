@@ -1,4 +1,4 @@
-import { counselPriorities, counselQuestion } from "./data/diagnosisCounsel";
+import { counselPriorities, counselQuestion, relevantProduct, settlementStatus } from "./data/diagnosisCounsel";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -259,7 +259,7 @@ const CardDeductionCollapsible = () => (
   </details>
 );
 
-const ProductCard = ({ product, manual, onManual }) => {
+const ProductCard = ({ product, manual, onManual, compact = false }) => {
   const src = SOURCES[product.key];
   const set = (k, v) => onManual({ ...manual, [k]: v });
   const needs = (PRODUCT_MANUAL_NEEDS[product.key] || []).filter((f) => manual[f] == null);
@@ -270,7 +270,8 @@ const ProductCard = ({ product, manual, onManual }) => {
   const hero = metrics.find((m) => m.strong);
   const rest = metrics.filter((m) => !m.strong);
   return (
-    <div className={cn("rounded-xl border p-4", cls.card, sell && "ring-1 ring-im-200")}>
+    <div className={compact ? "border-t border-slate-100 pt-3" : cn("rounded-xl border p-4", cls.card, sell && "ring-1 ring-im-200")}>
+      {!compact && <>
       <div className="flex items-start justify-between gap-2">
         <h3 className="text-[14px] font-bold text-slate-900">{src.label}</h3>
         <div className="flex flex-shrink-0 items-center gap-1">
@@ -278,8 +279,9 @@ const ProductCard = ({ product, manual, onManual }) => {
           <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-bold", cls.badge)}>{st.label}</span>
         </div>
       </div>
+      </>}
 
-      {hero && (
+      {hero && !compact && (
         <div className="mt-3">
           <div className="text-[11px] text-slate-500">{hero.label}</div>
           <div className={cn("text-[20px] font-bold leading-tight tabular-nums", sell ? "text-im-700" : "text-slate-900")}>
@@ -897,29 +899,9 @@ const GuidanceForTarget = ({ data }) => (
 /* 타행 가맹점 결제계좌 — 당행 상품은 아니지만 '지금 이용 중'인 현황이라 활용 현황에 함께 노출.
    당행 전환 유치 대상임을 표시(아래 맞춤 제안과 연결). */
 function MerchantSettlementCard({ m }) {
-  return (
-    <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-4">
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="text-[14px] font-bold text-slate-900">가맹점 카드매출 입금계좌</h3>
-        <span className="flex-shrink-0 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">타행 이용 중</span>
-      </div>
-      <div className="mt-3">
-        <div className="text-[11px] text-slate-500">입금 은행</div>
-        <div className="text-[20px] font-bold leading-tight text-slate-900">{m.bank} <span className="text-[12px] font-semibold text-slate-500">(타행)</span></div>
-      </div>
-      {m.monthlyCardSales != null && (
-        <dl className="mt-2 space-y-1">
-          <div className="flex items-center justify-between gap-2 text-[12px]">
-            <dt className="text-slate-500">월 카드매출(추정)</dt>
-            <dd className="tabular-nums font-semibold text-slate-800">{m.monthlyCardSales.toLocaleString()}만원</dd>
-          </div>
-        </dl>
-      )}
-      <p className="mt-2 border-t border-amber-200/70 pt-2 text-[11.5px] leading-relaxed text-slate-600">
-        카드 매출대금을 타행으로 받고 있습니다. <b className="font-semibold text-amber-700">당행 전환 유치 대상</b> — 아래 「가맹점 카드매출 입금계좌 당행 전환」 제안 참고.
-      </p>
-    </div>
-  );
+  const state=settlementStatus(m);
+  const label={own:"당행 이용 중",other:"타행 이용 중",unknown:"확인 필요"}[state];
+  return <div className="rounded-xl border border-slate-200 bg-white p-4"><h3 className="text-sm font-bold text-slate-900">가맹점 결제계좌</h3><span className={cn("mt-2 inline-block rounded px-2 py-1 text-xs font-semibold",state==="own"?"bg-im-50 text-im-700":state==="other"?"bg-amber-50 text-amber-800":"bg-slate-100 text-slate-600")}>{label}</span><p className="mt-3 text-base font-bold text-slate-800">{m?.bank || "입금 은행 미확인"}</p>{m?.monthlyCardSales!=null&&<p className="mt-2 text-xs text-slate-500">월 카드매출 {m.monthlyCardSales.toLocaleString()}만원</p>}<p className="mt-3 text-xs leading-6 text-slate-600">{state==="own"?"당행으로 매출대금을 받고 있습니다. 현재 거래 조건과 이용 불편을 확인하세요.":state==="other"?"현재 이용 조건을 확인하고 당행 입금계좌 전환을 상담하세요.":"조회된 결제계좌 정보가 없습니다. 카드매출 발생 여부와 입금 은행을 확인하세요."}</p></div>;
 }
 
 /* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
@@ -937,14 +919,7 @@ function ResultView({ data }) {
   useEffect(() => setManual(initialManual), [data.customerNo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const restricted = j.isTarget || j.restrictedByHistory;
-  const products = data.products.map((p) => viewProduct(p, manual, restricted));
-  /* 권유 대상(판매 기회)을 앞쪽에 모아 상담 시 먼저 보이게 */
-  const sortedProducts = [...products].sort(
-    (a, b) => (PRODUCT_STATE[b.state].sell ? 1 : 0) - (PRODUCT_STATE[a.state].sell ? 1 : 0)
-  );
-  /* 상품 활용 현황 = 실제 보유·사용 중인 상품만. 미보유·권유(recommend)는 「맞춤 상품 제안」으로 분리 */
-  const HELD_STATES = ["active", "available", "restricted"];
-  const heldProducts = sortedProducts.filter((p) => p.held === true || HELD_STATES.includes(p.state));
+  const products = data.products.filter(p=>relevantProduct(p, manual.incomeType)).map((p) => viewProduct(p, manual, restricted));
   const strategy = deriveStrategy(data, manual);
   const priorities = counselPriorities(data, products);
   /* 전략을 성격별로 분리해 각 섹션에 배치(진단→상단, 제안→상품 옆, 분산→하단) */
@@ -988,19 +963,9 @@ function ResultView({ data }) {
         <SectionTitle icon={Layers} sub="당행 조회 결과 · 타행 가입 여부와 합산 납입액은 상담 시 확인">
           상품 활용 현황
         </SectionTitle>
-        <div className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{products.map(p=><div key={p.key} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white p-3"><span className="text-xs font-semibold text-slate-700">{SOURCES[p.key].label.replace(" 가입 여부", "")}</span><span className={cn("rounded px-2 py-1 text-xs",STATE_CLASS[PRODUCT_STATE[p.state].tone].badge)}>{p.state==="restricted"?"가입·연장 제한":p.state==="available"?"추가 활용 가능":p.held===true||p.state==="active"?"보유 중":p.held===false||p.state==="recommend"?"당행 미보유":"확인 필요"}</span></div>)}</div>
-        {heldProducts.length > 0 || data.merchantSettlement?.bank ? (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {heldProducts.map((p) => (
-              <ProductCard key={p.key} product={p} manual={manual} onManual={setManual} />
-            ))}
-            {data.merchantSettlement?.bank && <MerchantSettlementCard m={data.merchantSettlement} />}
-          </div>
-        ) : (
-          <div className={cn(CARD, "px-5 py-8 text-center text-[12.5px] text-slate-400")}>
-            당행 보유·활용 중인 절세 상품이 없습니다. 아래 「맞춤 상품 제안」에서 가입을 권유하세요.
-          </div>
-        )}
+        <div className="grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">{products.map(p=><details key={p.key} className="rounded-xl border border-slate-200 bg-white p-3"><summary className="cursor-pointer text-sm"><span className="font-semibold text-slate-800">{SOURCES[p.key].label.replace(" 가입 여부", "")}</span><span className={cn("ml-2 inline-block rounded px-2 py-1 text-xs",STATE_CLASS[PRODUCT_STATE[p.state].tone].badge)}>{p.state==="restricted"?"가입·연장 제한":p.state==="available"?"추가 활용 가능":p.held===true||p.state==="active"?"보유 중":p.held===false||p.state==="recommend"?"당행 미보유":"확인 필요"}</span>{p.remaining&&<span className="mt-2 block text-sm font-bold text-im-700">추가 납입 여력 {p.remaining}</span>}</summary><div className="mt-3"><ProductCard product={p} manual={manual} onManual={setManual} compact/></div></details>)}
+          {manual.incomeType === "개인사업자" && <MerchantSettlementCard m={data.merchantSettlement}/>}
+        </div>
       </section>
 
       <div id="diagnosis-deposits"><DepositSection data={data} /><p className="mt-2 text-xs text-slate-500">상품명: iM뱅크 금융상품몰 확인 · 고객 잔액·금리·만기일은 데모 예시</p></div>
