@@ -63,4 +63,10 @@ body {
   html.printing-promo #root {
     display: none !important;
   }
+
+  /* 상담 자료 미리보기 인쇄 — 미리보기 모달(body 포탈)만 남기고 배경(#root) 숨김.
+     (PrintPreviewModal이 열려 있는 동안 html.printing-report를 붙여 둔다) */
+  html.printing-report #root {
+    display: none !important;
+  }
 }

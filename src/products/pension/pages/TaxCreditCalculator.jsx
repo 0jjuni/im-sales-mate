@@ -14,6 +14,7 @@ import { CREDIT_RULES } from "../data/pension";
 import { SectionTitle } from "@shared/components/SectionTitle";
 import { NumberSync } from "@shared/components/NumberSync";
 import { PrintReport } from "@shared/components/PrintReport";
+import { PrintPreviewModal } from "@shared/components/PrintPreviewModal";
 import { SalesScript } from "@shared/components/SalesScript";
 import { PENSION_PRINT_META } from "../printMeta";
 import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
@@ -31,6 +32,7 @@ const SLIDER_MAX = 9_000_000;
 const SLIDER_STEP = 100_000;
 
 export const TaxCreditCalculator = () => {
+  const [showPrint, setShowPrint] = useState(false);
   const [incomeType, setIncomeType] = useState("salary"); // salary | comprehensive
   const [income, setIncome] = useState(50_000_000);
   const [pensionSaving, setPensionSaving] = useState(6_000_000);
@@ -436,7 +438,7 @@ export const TaxCreditCalculator = () => {
           </div>
 
           <button
-            onClick={() => window.print()}
+            onClick={() => setShowPrint(true)}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold shadow-sm transition-all hover:shadow-md"
             title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
           >
@@ -491,7 +493,10 @@ export const TaxCreditCalculator = () => {
       </div>
 
       {/* 인쇄용 */}
+      {showPrint && (
+        <PrintPreviewModal onClose={() => setShowPrint(false)}>
       <PrintReport
+        preview
         title="연금계좌 세액공제 추정 안내"
         subtitle={`${isSalary ? "총급여" : "종합소득금액"} ${formatKRW(income)} · 연금저축 ${formatKRW(
           pensionSaving
@@ -542,6 +547,8 @@ export const TaxCreditCalculator = () => {
         legalBasis="소득세법 제59조의3 (연금계좌세액공제) · 소득세법 시행령 제40조의2 (연금수령 요건)"
         {...PENSION_PRINT_META}
       />
+        </PrintPreviewModal>
+      )}
     </div>
   );
 };

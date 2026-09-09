@@ -13,12 +13,14 @@ import {
 import { INCOME_BRACKETS } from "../../data/tax";
 import { SectionTitle } from "@shared/components/SectionTitle";
 import { PrintReport } from "@shared/components/PrintReport";
+import { PrintPreviewModal } from "@shared/components/PrintPreviewModal";
 import { SalesScript } from "@shared/components/SalesScript";
 import { NORAN_PRINT_META } from "../../printMeta";
 import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
 
 /* A. 소득공제 절세효과 계산기 */
 export const TaxSavingCalculator = ({ onOpenArticle }) => {
+  const [showPrint, setShowPrint] = useState(false);
   const [businessType, setBusinessType] = useState("individual"); // individual | corp_rep
   const [bracketId, setBracketId] = useState("40m_60m");
   const [salaryOver80m, setSalaryOver80m] = useState(false);
@@ -314,7 +316,7 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
 
               {/* 인쇄 */}
               <button
-                onClick={() => window.print()}
+                onClick={() => setShowPrint(true)}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold shadow-sm transition-all hover:shadow-md"
                 title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
               >
@@ -379,8 +381,10 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
       </div>
 
       {/* 인쇄용 — 화면에는 숨김, window.print() 호출 시에만 노출 */}
-      {!result.isBlocked && (
+      {showPrint && !result.isBlocked && (
+        <PrintPreviewModal onClose={() => setShowPrint(false)}>
         <PrintReport
+          preview
           title="소득공제 절세효과 추정 안내"
           subtitle="노란우산공제 가입에 따른 연간 추정 절세액"
           disclaimer={`본 절세액은 추정치이며, 다른 소득공제 항목, 추가 소득, 종합소득세율 변경 등에 따라 실제 절세액은 달라질 수 있습니다.\n적용 한계세율은 단일 추정치로 다른 소득·공제 합산 결과에 따라 달라질 수 있습니다.\n정확한 절세효과는 세무 전문가 또는 국세청 상담을 권해 드립니다.`}
@@ -435,6 +439,7 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
           legalBasis="조세특례제한법 제86조의3 (소기업·소상공인 공제부금에 대한 소득공제)"
           {...NORAN_PRINT_META}
         />
+        </PrintPreviewModal>
       )}
     </div>
   );

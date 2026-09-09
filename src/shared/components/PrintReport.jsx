@@ -49,6 +49,8 @@ export const PrintReport = ({
      심의를 받으면 「2025-025호」 같은 번호와 유효기간을 넘기고, 없으면 데모 표기가 나간다. */
   complianceReviewNo,
   complianceValidUntil,
+  /* preview=true면 화면(미리보기 모달)에도 보이게 렌더. 기본은 인쇄 시에만 노출. */
+  preview = false,
 }) => {
   const ac = ACCENTS[accent] ?? ACCENTS.amber;
   const now = new Date();
@@ -58,9 +60,9 @@ export const PrintReport = ({
 
   return (
     <div
-      className="hidden print:block print-report bg-white text-slate-900"
+      className={`${preview ? "block" : "hidden print:block"} print-report bg-white text-slate-900`}
       style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
-      aria-hidden="true"
+      aria-hidden={preview ? undefined : "true"}
     >
       <div className="px-2 py-2 max-w-3xl mx-auto leading-snug">
         {/* 헤더 */}

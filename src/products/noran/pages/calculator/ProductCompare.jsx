@@ -26,6 +26,7 @@ import { SectionTitle } from "@shared/components/SectionTitle";
 import { NumberSync } from "@shared/components/NumberSync";
 import { SalesScript } from "@shared/components/SalesScript";
 import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
+import { PrintPreviewModal } from "@shared/components/PrintPreviewModal";
 
 /* 공통 적립식 미래가치 — RefundSimulator와 같은 공식
    매월 P씩 N개월 납입 → 연단위 복리, 매월 평균 6개월 추가 적립 보정 (√(1+r) 가산) */
@@ -52,6 +53,7 @@ const simpleSavingsFV = (monthly, months, annualRatePct) => {
 
 /* C. 상품 비교 계산기 (가입 시 안내 톤 — RefundSimulator와 일관) */
 export const ProductCompare = ({ onOpenArticle }) => {
+  const [showPrint, setShowPrint] = useState(false);
   const [monthlyAmount, setMonthlyAmount] = useState(300000);
   const [years, setYears] = useState(10);
   const [bracketId, setBracketId] = useState("40m_60m");
@@ -454,9 +456,9 @@ export const ProductCompare = ({ onOpenArticle }) => {
             ))}
           </div>
 
-          {/* 인쇄 */}
+          {/* 인쇄 — 미리보기 모달 먼저 */}
           <button
-            onClick={() => window.print()}
+            onClick={() => setShowPrint(true)}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold transition-colors"
           >
             <Printer className="w-4 h-4" />
@@ -566,8 +568,11 @@ export const ProductCompare = ({ onOpenArticle }) => {
         </div>
       </div>
 
-      {/* 인쇄용 — 2페이지 양식 (페이지 1: 비교표 + 차트 / 페이지 2: 차별점 + 수령단계) */}
+      {/* 상담 자료 미리보기 → 인쇄 (2페이지 양식) */}
+      {showPrint && (
+        <PrintPreviewModal onClose={() => setShowPrint(false)}>
       <ProductComparePrint
+        preview
         monthlyAmount={monthlyAmount}
         years={years}
         bracket={bracket}
@@ -579,6 +584,8 @@ export const ProductCompare = ({ onOpenArticle }) => {
         result={result}
         chartData={chartData}
       />
+        </PrintPreviewModal>
+      )}
     </div>
   );
 };
@@ -691,6 +698,7 @@ const ProductComparePrint = ({
   incentiveMonthly,
   result,
   chartData,
+  preview = false,
 }) => {
   const now = new Date();
   const printedAt = `${now.getFullYear()}. ${String(now.getMonth() + 1).padStart(2, "0")}. ${String(now.getDate()).padStart(2, "0")}. ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
@@ -698,7 +706,7 @@ const ProductComparePrint = ({
 
   return (
     <div
-      className="hidden print:block print-report bg-white text-slate-900"
+      className={`${preview ? "block" : "hidden print:block"} print-report bg-white text-slate-900`}
       style={{ fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
       aria-hidden="true"
     >

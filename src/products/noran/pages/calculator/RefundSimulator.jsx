@@ -4,6 +4,7 @@ import { REFUND_TABLE_GENERAL, REFUND_TABLE_DEEMED } from "../../data/tax";
 import { SectionTitle } from "@shared/components/SectionTitle";
 import { NumberSync } from "@shared/components/NumberSync";
 import { PrintReport } from "@shared/components/PrintReport";
+import { PrintPreviewModal } from "@shared/components/PrintPreviewModal";
 import { SalesScript } from "@shared/components/SalesScript";
 import { NORAN_PRINT_META } from "../../printMeta";
 import { cn, formatKRW } from "@shared/lib/format";
@@ -65,6 +66,7 @@ const deemedRefund = (monthly, months, annualRatePct) => {
 
 /* B. 해약·공제금 시나리오 계산기 — 가입 단계 안내용 */
 export const RefundSimulator = ({ onOpenArticle }) => {
+  const [showPrint, setShowPrint] = useState(false);
   const [monthlyAmount, setMonthlyAmount] = useState(300000);
   const [paidMonths, setPaidMonths] = useState(60); // 5년 디폴트
   const [assumedRate, setAssumedRate] = useState(3.0);
@@ -312,7 +314,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
 
           {/* 인쇄 버튼 */}
           <button
-            onClick={() => window.print()}
+            onClick={() => setShowPrint(true)}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold transition-colors"
             title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
           >
@@ -332,7 +334,10 @@ export const RefundSimulator = ({ onOpenArticle }) => {
       </div>
 
       {/* 인쇄용 */}
+      {showPrint && (
+        <PrintPreviewModal onClose={() => setShowPrint(false)}>
       <PrintReport
+        preview
         title="가입 시 사유별 환급금 안내"
         subtitle={`월 ${formatKRW(monthlyAmount)} × ${paidMonths}회(${years}년) 가입 가정 · 세전 기준`}
         disclaimer={`본 시뮬레이션은 가정 기준이율 ${assumedRate.toFixed(1)}%를 연단위 복리 적립식으로 적용한 추정치이며 모두 세전 기준입니다.\n부가지급률·매 분기 변동 기준이율은 미반영이므로 실제 환급금과 ±5~10% 편차가 발생할 수 있습니다.\n수령 시 과세는 사유·가입기간·다른 소득·소득공제 받은 정도 등에 따라 변수가 많아 본 시뮬에서는 별도 차감하지 않습니다. 정확한 실수령액은 중앙회 시스템(1666-9988) + 세무 전문가 상담으로 확인해 주세요.`}
@@ -371,6 +376,8 @@ export const RefundSimulator = ({ onOpenArticle }) => {
         legalBasis="약관 제17조·제18조(공제금), 제24조(해약환급금), 별표1·별표2·별표3, 조세특례제한법 시행령 제80조의3"
         {...NORAN_PRINT_META}
       />
+        </PrintPreviewModal>
+      )}
     </div>
   );
 };

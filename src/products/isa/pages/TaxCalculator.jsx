@@ -14,6 +14,7 @@ import { ISA_TYPES, ISA_RULES, ISA_DEPOSIT_DEFAULTS } from "../data/isa";
 import { SectionTitle } from "@shared/components/SectionTitle";
 import { NumberSync } from "@shared/components/NumberSync";
 import { PrintReport } from "@shared/components/PrintReport";
+import { PrintPreviewModal } from "@shared/components/PrintPreviewModal";
 import { SalesScript } from "@shared/components/SalesScript";
 import { ISA_PRINT_META } from "../printMeta";
 import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
@@ -23,6 +24,7 @@ import { cn, formatKRW, formatKRWShort } from "@shared/lib/format";
    원금·금리·기간으로 이자를 산정 → ISA 예금 vs 일반 예금의 세부담·세후 실수령을 비교.
    「순이익 직접입력」 모드는 펀드 등 투자상품용(계좌 내 손익통산 후 순이익 직접 입력). */
 export const TaxCalculator = () => {
+  const [showPrint, setShowPrint] = useState(false);
   const [mode, setMode] = useState("deposit"); // deposit | profit
   const [typeId, setTypeId] = useState("general");
   // 예금 모드 입력
@@ -431,11 +433,11 @@ export const TaxCalculator = () => {
             )}
           </div>
 
-          {/* 인쇄 */}
+          {/* 인쇄 — 바로 인쇄창으로 넘기지 않고 미리보기 모달을 먼저 연다 */}
           <button
-            onClick={() => window.print()}
+            onClick={() => setShowPrint(true)}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold shadow-sm transition-all hover:shadow-md"
-            title="이 결과 전체를 디스클레이머·입력 조건 포함하여 인쇄"
+            title="상담 자료를 미리 보고 인쇄합니다"
           >
             <Printer className="w-4 h-4" />
             <span>상담 자료 인쇄</span>
@@ -487,8 +489,11 @@ export const TaxCalculator = () => {
         </div>
       </div>
 
-      {/* 인쇄용 */}
+      {/* 상담 자료 미리보기 → 인쇄 */}
+      {showPrint && (
+        <PrintPreviewModal onClose={() => setShowPrint(false)}>
       <PrintReport
+        preview
         title="ISA 세제 절세효과 추정 안내"
         subtitle={
           isDeposit
@@ -572,6 +577,8 @@ export const TaxCalculator = () => {
         legalBasis="조세특례제한법 제91조의18 (개인종합자산관리계좌에 대한 과세특례)"
         {...ISA_PRINT_META}
       />
+        </PrintPreviewModal>
+      )}
     </div>
   );
 };

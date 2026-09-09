@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   Search,
@@ -30,6 +29,7 @@ import { queryEligibility } from "@card/data/cardEligibility";
 import { useFollowups } from "./followups/useFollowups";
 import { FollowupRow } from "./followups/parts";
 import { PrintReport } from "@shared/components/PrintReport";
+import { PrintPreviewModal } from "@shared/components/PrintPreviewModal";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 import {
@@ -888,25 +888,13 @@ function ResultView({ data }) {
     분산: strategy.filter((s) => s.group === "분산"),
   };
 
-  useEffect(() => {
-    const cleanup = () => document.documentElement.classList.remove("printing-market");
-    window.addEventListener("afterprint", cleanup);
-    return () => {
-      window.removeEventListener("afterprint", cleanup);
-      cleanup();
-    };
-  }, []);
-
-  const handlePrint = () => {
-    document.documentElement.classList.add("printing-market");
-    setTimeout(() => window.print(), 30);
-  };
+  const [showPrint, setShowPrint] = useState(false);
 
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
         <button
-          onClick={handlePrint}
+          onClick={() => setShowPrint(true)}
           className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3.5 py-1.5 text-[12px] font-bold text-white transition-colors hover:bg-slate-800"
         >
           <Printer className="h-3.5 w-3.5" />
@@ -1005,9 +993,11 @@ function ResultView({ data }) {
         소득 전체와 세법 개정에 따라 달라지며, 신고·납부는 관할세무서·홈택스 기준으로 확인해야 합니다. 특정 상품의 투자권유가 아닙니다.
       </p>
 
-      {/* 인쇄 전용 A4 — body로 포탈해 대시보드(#root)와 분리 (html.printing-market 격리) */}
-      {createPortal(
+      {/* 상담 자료 미리보기 → 인쇄 (PrintPreviewModal이 body 포탈 + #root 격리) */}
+      {showPrint && (
+        <PrintPreviewModal onClose={() => setShowPrint(false)}>
         <PrintReport
+          preview
           title={`금융소득 종합과세 진단 · ${data.name}`}
           subtitle={`${data.customerNo} · ${data.age} · ${manual.incomeType || "소득유형 미확인"} · ${j.taxYear}년 기준`}
           disclaimer="본 자료는 당행 보유 기준 내부 조회를 통합한 상담 참고용입니다(데모, 표시 데이터는 예시). 타행 가입분은 조회되지 않으며, 실제 과세 여부·한도·세액은 소득 전체와 세법 개정에 따라 달라집니다. 신고·납부는 관할세무서·홈택스 기준으로 확인해야 하며, 특정 상품의 투자권유가 아닙니다."
@@ -1047,8 +1037,8 @@ function ResultView({ data }) {
           sourceLine="당행 내부 조회 통합(0192-8·0192-1·0192-74/75 · ISA/주택청약/노란우산 가입여부). 데모이며 실서비스 시 실제 조회로 대체"
           brandLabel="iM 세일즈메이트 · 종합과세 진단자료 · iM뱅크"
           accent="amber"
-        />,
-        document.body
+        />
+        </PrintPreviewModal>
       )}
     </div>
   );
