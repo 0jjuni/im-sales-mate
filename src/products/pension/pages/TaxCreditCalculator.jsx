@@ -34,7 +34,7 @@ const SLIDER_STEP = 100_000;
 export const TaxCreditCalculator = () => {
   const [showPrint, setShowPrint] = useState(false);
   const [incomeType, setIncomeType] = useState("salary"); // salary | comprehensive
-  const [income, setIncome] = useState(50_000_000);
+  const [underThreshold, setUnderThreshold] = useState(true); // 기준소득 이하 여부 (공제율만 결정)
   const [pensionSaving, setPensionSaving] = useState(6_000_000);
   const [irp, setIrp] = useState(3_000_000);
 
@@ -44,7 +44,7 @@ export const TaxCreditCalculator = () => {
     : CREDIT_RULES.comprehensiveThreshold;
 
   const result = useMemo(() => {
-    const rate = income <= threshold ? CREDIT_RULES.highRate : CREDIT_RULES.lowRate;
+    const rate = underThreshold ? CREDIT_RULES.highRate : CREDIT_RULES.lowRate;
 
     /* 현재 납입 기준 공제 — 연금저축은 600만원까지만 인정,
        IRP는 합산 900만원에서 연금저축 인정분을 뺀 나머지까지 인정 */
@@ -102,7 +102,7 @@ export const TaxCreditCalculator = () => {
       chartData,
       overContribution: Math.max(totalPaid - CREDIT_RULES.contributionLimit, 0),
     };
-  }, [income, threshold, pensionSaving, irp]);
+  }, [underThreshold, pensionSaving, irp]);
 
   /* 고객에게 실제로 할 수 있는 말. 상황에 따라 첫 마디가 달라진다.
      ① 한도 초과분이 있으면 그 손해부터 짚는다(IRP 유치 기회)
@@ -222,35 +222,37 @@ export const TaxCreditCalculator = () => {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                {isSalary ? "총급여" : "종합소득금액"}: {formatKRW(income)}
+                {isSalary ? "총급여가" : "종합소득금액이"} {formatKRWShort(threshold)} 이하인가요?
+                <span className="ml-1 font-normal text-slate-400">공제율만 달라집니다</span>
               </label>
-              <input
-                type="range"
-                min="10000000"
-                max="150000000"
-                step="1000000"
-                value={income}
-                onChange={(e) => setIncome(Number(e.target.value))}
-                className="w-full accent-violet-600"
-              />
-              <NumberSync value={income} onChange={setIncome} min={10000000} max={150000000} step={1000000} accent="violet" suffix="원" />
-              <div className="flex justify-between text-[11px] text-slate-500 mt-1">
-                <span>1천만원</span>
-                <span>1억원</span>
-                <span>1억 5천만원</span>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { v: true, label: `${formatKRWShort(threshold)} 이하`, rate: "16.5%" },
+                  { v: false, label: `${formatKRWShort(threshold)} 초과`, rate: "13.2%" },
+                ].map((o) => {
+                  const active = underThreshold === o.v;
+                  return (
+                    <button
+                      key={String(o.v)}
+                      onClick={() => setUnderThreshold(o.v)}
+                      className={cn(
+                        "rounded-xl border p-3 text-left transition-all",
+                        active
+                          ? "bg-violet-700 text-white border-violet-700 shadow-sm"
+                          : "bg-white text-slate-700 border-slate-200 hover:border-violet-400"
+                      )}
+                    >
+                      <div className="text-sm font-bold">{o.label}</div>
+                      <div className={cn("text-[11px]", active ? "text-violet-100" : "text-slate-500")}>
+                        공제율 {o.rate}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-              <div
-                className={cn(
-                  "mt-2 rounded-sm px-2.5 py-1.5 text-[11.5px] font-semibold",
-                  income <= threshold
-                    ? "bg-violet-50 text-violet-800"
-                    : "bg-slate-100 text-slate-600"
-                )}
-              >
-                공제율 {(result.rate * 100).toFixed(1)}% 적용 —{" "}
-                {income <= threshold
-                  ? `${formatKRWShort(threshold)} 이하`
-                  : `${formatKRWShort(threshold)} 초과`}
+              <div className="mt-2 rounded-sm bg-violet-50 px-2.5 py-1.5 text-[11.5px] font-semibold text-violet-800">
+                공제율 {(result.rate * 100).toFixed(1)}% 적용 — {isSalary ? "총급여" : "종합소득금액"}{" "}
+                {formatKRWShort(threshold)} {underThreshold ? "이하" : "초과"}
               </div>
             </div>
 
@@ -497,45 +499,21 @@ export const TaxCreditCalculator = () => {
         <PrintPreviewModal onClose={() => setShowPrint(false)}>
       <PrintReport
         preview
+        slip
         title="연금계좌 세액공제 추정 안내"
-        subtitle={`${isSalary ? "총급여" : "종합소득금액"} ${formatKRW(income)} · 연금저축 ${formatKRW(
+        subtitle={`${isSalary ? "총급여" : "종합소득금액"} ${formatKRWShort(threshold)} ${underThreshold ? "이하" : "초과"} · 연금저축 ${formatKRW(
           pensionSaving
         )} + IRP ${formatKRW(irp)} 납입 가정`}
-        disclaimer={`본 환급액은 추정치입니다. 실제 세액공제는 산출세액 범위 내에서 적용되며, 다른 소득공제·세액공제 항목과 세법 개정에 따라 달라집니다.\n중도해지 시 세액공제 받은 금액과 운용수익에 기타소득세 16.5%가 부과되어, 환급받은 금액보다 더 납부하게 될 수 있습니다.\n정확한 내용은 현행 소득세법과 자사 상품설명서로 확인해 주세요.`}
-        inputs={[
-          { label: isSalary ? "총급여" : "종합소득금액", value: formatKRW(income) },
-          { label: "연금저축 연 납입액", value: formatKRW(pensionSaving) },
-          { label: "IRP 연 납입액", value: formatKRW(irp) },
-          { label: "총 납입액", value: `${formatKRW(result.totalPaid)} (월 ${formatKRWShort(result.totalPaid / 12)})` },
-          { label: "적용 공제율", value: `${(result.rate * 100).toFixed(1)}% (지방소득세 포함)` },
-        ]}
+        disclaimer={`본 환급액은 추정치입니다. 중도해지 시 공제받은 금액·운용수익에 기타소득세 16.5%가 부과될 수 있습니다. 정확한 내용은 현행 소득세법·자사 상품설명서로 확인하세요.`}
         results={[
-          {
-            label: "연금저축 공제대상액",
-            value: formatKRW(result.savingEligible),
-            sub: "단독 한도 600만원",
-          },
-          {
-            label: "IRP 공제대상액",
-            value: formatKRW(result.irpEligible),
-            sub: "합산 한도 900만원 중 잔여분",
-          },
-          {
-            label: "세액공제 대상액 합계",
-            value: formatKRW(result.eligible),
-            sub: result.wasted > 0 ? `공제 제외 ${formatKRW(result.wasted)}` : undefined,
-          },
           {
             label: "예상 환급액",
             value: formatKRW(result.credit),
             emphasis: true,
-            sub:
-              result.reallocGain > 0
-                ? `연금저축 한도 초과분 ${formatKRW(result.moveToIrp)}을 IRP로 옮기면 ${formatKRW(result.optCredit)}까지 가능`
-                : result.roomToLimit > 0
-                ? `IRP에 ${formatKRW(result.roomToLimit)} 추가 납입 시 ${formatKRW(result.maxCredit)}까지 가능`
-                : "세액공제 한도 최대 활용",
+            sub: `공제 대상 ${formatKRW(result.eligible)} × ${(result.rate * 100).toFixed(1)}%`,
           },
+          { label: "총 납입액", value: `${formatKRW(result.totalPaid)} (연금저축 ${formatKRW(pensionSaving)} + IRP ${formatKRW(irp)})` },
+          { label: "적용 공제율", value: `${(result.rate * 100).toFixed(1)}% · ${isSalary ? "총급여" : "종합소득금액"} ${formatKRWShort(threshold)} ${underThreshold ? "이하" : "초과"}` },
         ]}
         notes={[
           "연금저축은 단독 600만원까지, 연금저축과 IRP를 합쳐 900만원까지 세액공제됩니다. 연금저축에만 900만원을 납입하면 300만원은 공제 대상에서 제외됩니다.",

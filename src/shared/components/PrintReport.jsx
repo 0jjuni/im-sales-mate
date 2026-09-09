@@ -51,12 +51,68 @@ export const PrintReport = ({
   complianceValidUntil,
   /* preview=true면 화면(미리보기 모달)에도 보이게 렌더. 기본은 인쇄 시에만 노출. */
   preview = false,
+  /* slip=true면 고객 교부용 전표(148mm)로 축소 — 핵심 결과·전제·짧은 주의만 담는다. */
+  slip = false,
 }) => {
   const ac = ACCENTS[accent] ?? ACCENTS.amber;
   const now = new Date();
   const printedAt = `${now.getFullYear()}. ${String(now.getMonth() + 1).padStart(2, "0")}. ${String(
     now.getDate()
   ).padStart(2, "0")}. ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+  /* ── 전표(slip) 모드 — 고객 교부용 148mm. 핵심 결과·전제·짧은 주의만. ── */
+  if (slip) {
+    const emph = results.filter((r) => r.emphasis);
+    const rest = results.filter((r) => !r.emphasis);
+    return (
+      <div
+        className={`${preview ? "block" : "hidden print:block"} print-report print-slip bg-white text-slate-900`}
+        style={{ width: "148mm", fontFamily: "'Noto Sans KR', 'Pretendard', system-ui, sans-serif" }}
+        aria-hidden={preview ? undefined : "true"}
+      >
+        <div className="border border-slate-400 p-4">
+          <div className="flex items-baseline justify-between gap-2">
+            <div className="text-[8px] font-bold tracking-widest text-slate-500">{brandLabel}</div>
+            <div className="text-[8.5px] text-slate-400">{printedAt}</div>
+          </div>
+          <h1 className="mt-1 text-[15px] font-black leading-tight tracking-tight text-slate-900">{title}</h1>
+          {subtitle && <p className="mt-0.5 text-[10px] leading-snug text-slate-600">{subtitle}</p>}
+
+          {emph.map((r, i) => (
+            <div key={i} className={`mt-2.5 border-2 ${ac.box} rounded-sm px-3 py-2`}>
+              <div className={`text-[9px] font-black tracking-wider ${ac.boxTitle}`}>{r.label}</div>
+              <div className={`text-[22px] font-black leading-tight ${ac.rowText}`}>{r.value}</div>
+              {r.sub && <div className="mt-0.5 text-[9px] leading-snug text-slate-600">{r.sub}</div>}
+            </div>
+          ))}
+
+          {rest.length > 0 && (
+            <dl className="mt-2 divide-y divide-slate-100 border-t border-slate-200">
+              {rest.map((r, i) => (
+                <div key={i} className="flex items-start justify-between gap-3 py-1">
+                  <dt className="text-[10px] text-slate-600">{r.label}</dt>
+                  <dd className="text-right text-[10.5px] font-semibold text-slate-900">
+                    {r.value}
+                    {r.sub && <div className="text-[8.5px] font-normal text-slate-500">{r.sub}</div>}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
+
+          <p className="mt-2.5 whitespace-pre-line border-t border-slate-300 pt-1.5 text-[9px] leading-snug text-slate-500">
+            {disclaimer}
+          </p>
+          <div className="mt-1.5 flex items-end justify-between text-[9px] text-slate-500">
+            <div>
+              상담 점포·담당자
+              <span className="ml-1 inline-block h-3 w-24 border-b border-slate-400 align-bottom" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

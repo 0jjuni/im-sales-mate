@@ -338,6 +338,7 @@ export const RefundSimulator = ({ onOpenArticle }) => {
         <PrintPreviewModal onClose={() => setShowPrint(false)}>
       <PrintReport
         preview
+        slip
         title="가입 시 사유별 환급금 안내"
         subtitle={`월 ${formatKRW(monthlyAmount)} × ${paidMonths}회(${years}년) 가입 가정 · 세전 기준`}
         disclaimer={`본 시뮬레이션은 가정 기준이율 ${assumedRate.toFixed(1)}%를 연단위 복리 적립식으로 적용한 추정치이며 모두 세전 기준입니다.\n부가지급률·매 분기 변동 기준이율은 미반영이므로 실제 환급금과 ±5~10% 편차가 발생할 수 있습니다.\n수령 시 과세는 사유·가입기간·다른 소득·소득공제 받은 정도 등에 따라 변수가 많아 본 시뮬에서는 별도 차감하지 않습니다. 정확한 실수령액은 중앙회 시스템(1666-9988) + 세무 전문가 상담으로 확인해 주세요.`}

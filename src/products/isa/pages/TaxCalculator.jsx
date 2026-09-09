@@ -494,6 +494,7 @@ export const TaxCalculator = () => {
         <PrintPreviewModal onClose={() => setShowPrint(false)}>
       <PrintReport
         preview
+        slip
         title="ISA 세제 절세효과 추정 안내"
         subtitle={
           isDeposit

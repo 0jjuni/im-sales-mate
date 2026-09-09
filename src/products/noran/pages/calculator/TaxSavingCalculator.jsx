@@ -385,6 +385,7 @@ export const TaxSavingCalculator = ({ onOpenArticle }) => {
         <PrintPreviewModal onClose={() => setShowPrint(false)}>
         <PrintReport
           preview
+          slip
           title="소득공제 절세효과 추정 안내"
           subtitle="노란우산공제 가입에 따른 연간 추정 절세액"
           disclaimer={`본 절세액은 추정치이며, 다른 소득공제 항목, 추가 소득, 종합소득세율 변경 등에 따라 실제 절세액은 달라질 수 있습니다.\n적용 한계세율은 단일 추정치로 다른 소득·공제 합산 결과에 따라 달라질 수 있습니다.\n정확한 절세효과는 세무 전문가 또는 국세청 상담을 권해 드립니다.`}
