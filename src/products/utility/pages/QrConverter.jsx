@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link2, Check, Copy, Printer, AlertTriangle, DownloadCloud, X } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { Link2, Check, Copy, Printer, AlertTriangle, DownloadCloud, X, ImageDown } from "lucide-react";
 import { QrSvg, buildQrPath } from "../components/QrCode";
 import { UtilitySlip } from "../components/UtilitySlip";
 import { PrintPreviewModal } from "@shared/components/PrintPreviewModal";
@@ -33,8 +33,38 @@ export const QrConverter = () => {
   const [copied, setCopied] = useState(false);
   const [ebizOpen, setEbizOpen] = useState(false);
   const [showPrint, setShowPrint] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const qrRef = useRef(null);
 
   const url = useMemo(() => normalizeUrl(input), [input]);
+
+  /* 화면의 QR(SVG)만 캔버스로 그려 JPG로 저장. JPG는 투명이 없으니 흰 배경을 깐다. */
+  const saveJpg = () => {
+    const svg = qrRef.current?.querySelector("svg");
+    if (!svg) return;
+    const xml = new XMLSerializer().serializeToString(svg);
+    const src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(xml);
+    const img = new Image();
+    img.onload = () => {
+      const size = 720;
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, size, size);
+      ctx.drawImage(img, 0, 0, size, size);
+      const a = document.createElement("a");
+      a.href = canvas.toDataURL("image/jpeg", 0.92);
+      a.download = `QR_${(purpose || "link").trim().replace(/\s+/g, "_")}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1200);
+    };
+    img.src = src;
+  };
 
   /* 모듈 수를 미리 구한다. 용량 초과 여부와 인쇄 시 촘촘함을 함께 판단한다 */
   const qrSize = useMemo(() => {
@@ -139,7 +169,7 @@ export const QrConverter = () => {
         {ready && (
           <div className="rounded-xl border border-slate-200 bg-white p-5">
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-              <div className="flex-shrink-0 rounded-sm border border-slate-200 bg-white p-3">
+              <div ref={qrRef} className="flex-shrink-0 rounded-sm border border-slate-200 bg-white p-3">
                 <QrSvg text={url} size="200px" logo />
               </div>
 
@@ -171,6 +201,18 @@ export const QrConverter = () => {
                   >
                     {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                     링크 복사
+                  </button>
+                  <button
+                    onClick={saveJpg}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-sm border px-3 py-2 text-[12.5px] font-semibold transition-colors",
+                      saved
+                        ? "border-im-500 text-im-700"
+                        : "border-slate-300 text-slate-600 hover:border-im-400 hover:text-im-700"
+                    )}
+                  >
+                    {saved ? <Check className="h-3.5 w-3.5" /> : <ImageDown className="h-3.5 w-3.5" />}
+                    이미지 저장(JPG)
                   </button>
                   <button
                     onClick={() => setShowPrint(true)}
