@@ -473,10 +473,12 @@ const SectionTitle = ({ icon: Icon, children, sub }) => (
   </div>
 );
 
-/* 이 고객의 일정·메모 — 일정 관리(할 일·고객 메모)에 기록된 것을 진단 화면에서 함께 본다.
-   상담 전 "이 고객과 무슨 약속을 했는지"를 바로 확인하고, 그 자리에서 완료·삭제도 가능. */
+/* 고객 메모 — 이 고객에게 남긴 메모·할 일을 진단 화면에서 바로 남기고 확인한다.
+   개인 메모(나만 보기)·지점 공유 메모를 그 자리에서 추가하고, 일정 관리와 그대로 연동된다. */
 function CustomerFollowups({ no }) {
-  const { items, toggleDone, update, remove } = useFollowups();
+  const { items, add, toggleDone, update, remove } = useFollowups();
+  const [memo, setMemo] = useState("");
+  const [scope, setScope] = useState("mine"); // mine | branch
   const mine = items
     .filter((i) => i.customerNo === no && (i.category === "todo" || i.category === "note"))
     .sort((a, b) => {
@@ -484,14 +486,51 @@ function CustomerFollowups({ no }) {
       return rank(a) - rank(b) || (a.followUpDate || "").localeCompare(b.followUpDate || "") || (b.createdAt ?? 0) - (a.createdAt ?? 0);
     });
 
+  const submit = () => {
+    const t = memo.trim();
+    if (!t) return;
+    add({ category: "note", scope, customerNo: no, memo: t });
+    setMemo("");
+  };
+
   return (
     <section>
-      <SectionTitle icon={CalendarClock} sub="일정 관리에 기록된 이 고객의 할 일·메모">
-        이 고객 일정·메모
+      <SectionTitle icon={MessageSquareText} sub="이 고객에게 남긴 메모·할 일 (일정 관리와 연동)">
+        고객 메모
       </SectionTitle>
+
+      {/* 빠른 메모 추가 — 개인/지점 공유 */}
+      <div className={cn(CARD, "mb-3 space-y-2.5 p-3")}>
+        <textarea
+          value={memo}
+          onChange={(e) => setMemo(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit();
+          }}
+          rows={2}
+          placeholder="이 고객 관련 메모를 남기세요 (상담 내용·특이사항 등)"
+          className="w-full resize-none rounded-md border border-slate-300 px-3 py-2 text-[13px] leading-relaxed focus:border-im-500 focus:outline-none"
+        />
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5">
+            <SegBtn active={scope === "mine"} onClick={() => setScope("mine")}>나만 보기</SegBtn>
+            <SegBtn active={scope === "branch"} onClick={() => setScope("branch")}>지점 공유</SegBtn>
+          </div>
+          <button
+            onClick={submit}
+            disabled={!memo.trim()}
+            className="inline-flex items-center gap-1.5 rounded-md bg-im-600 px-3.5 py-1.5 text-[12.5px] font-bold text-white transition-colors hover:bg-im-700 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <MessageSquareText className="h-3.5 w-3.5" />
+            메모 추가
+          </button>
+        </div>
+        <p className="text-[11px] text-slate-400">개인정보(이름·연락처)는 남기지 마세요. 고객번호 {no} 기준으로 기록됩니다.</p>
+      </div>
+
       {mine.length === 0 ? (
         <div className={cn(CARD, "flex flex-wrap items-center justify-between gap-2 px-4 py-3")}>
-          <span className="text-[12.5px] text-slate-500">이 고객으로 기록된 할 일·메모가 없습니다.</span>
+          <span className="text-[12.5px] text-slate-500">아직 이 고객으로 남긴 메모·할 일이 없습니다. 위에서 첫 메모를 남겨 보세요.</span>
           <Link to="/followups" className="inline-flex items-center gap-1 text-[12px] font-semibold text-im-700 hover:underline">
             일정 관리 열기 <ArrowRight className="h-3.5 w-3.5" />
           </Link>
