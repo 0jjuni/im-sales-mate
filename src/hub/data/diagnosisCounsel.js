@@ -25,6 +25,7 @@ export function relevantProduct(product, incomeType) {
   return incomeType !== "근로소득자" || !["noran", "cardBiz"].includes(product.key);
 }
 export function settlementStatus(merchant) {
+  if (merchant?.posRegistered === false) return "unregistered";
   if (!merchant?.bank?.trim()) return "unknown";
   if (typeof merchant.isOwnBank === "boolean") return merchant.isOwnBank ? "own" : "other";
   const name=merchant.bank.replace(/\s/g, "").toLowerCase();

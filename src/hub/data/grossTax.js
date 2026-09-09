@@ -43,6 +43,7 @@ const CUSTOMERS = {
     customerNo: "841023391",
     name: "김우디",
     age: "52세",
+    merchantSettlement: { posRegistered: true, bank: "신한은행" },
     /* 당행 보유 예금·수신 — 만기·금리 관리. maturityInDays: 오늘 기준 만기까지 일수(상대값) */
     deposits: [
       { name: "iM주거래우대예금(첫만남고객형)", type: "정기예금", balance: 8000, rate: 3.6, maturityInDays: 18, maturityAction: "자동재예치" },
@@ -153,7 +154,7 @@ const CUSTOMERS = {
     name: "박똑디",
     age: "59세",
     /* 가맹점 카드매출 대금을 타행으로 받는 개인사업자 — 결제계좌 당행 전환 유치 대상 */
-    merchantSettlement: { bank: "국민은행" },
+    merchantSettlement: { posRegistered: true, bank: "국민은행" },
     deposits: [
       { name: "iM주거래우대예금(첫만남고객형)", type: "정기예금", balance: 6000, rate: 3.3, maturityInDays: 40, maturityAction: "자동해지" },
       { name: "iM함께예금", type: "정기예금", balance: 4000, rate: 3.5, maturityInDays: 8, maturityAction: "자동재예치" },

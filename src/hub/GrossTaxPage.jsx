@@ -899,8 +899,8 @@ const GuidanceForTarget = ({ data }) => (
    당행 전환 유치 대상임을 표시(아래 맞춤 제안과 연결). */
 function MerchantSettlementCard({ m }) {
   const state=settlementStatus(m);
-  const label={own:"당행 이용 중",other:"타행 이용 중",unknown:"확인 필요"}[state];
-  return <div className="rounded-xl border border-slate-200 bg-white p-4"><h3 className="text-sm font-bold text-slate-900">가맹점 결제계좌</h3><span className={cn("mt-2 inline-block rounded px-2 py-1 text-xs font-semibold",state==="own"?"bg-im-50 text-im-700":state==="other"?"bg-amber-50 text-amber-800":"bg-slate-100 text-slate-600")}>{label}</span><p className="mt-3 text-base font-bold text-slate-800">{m?.bank || "입금 은행 미확인"}</p><p className="mt-3 text-xs leading-6 text-slate-600">{state==="own"?"당행으로 매출대금을 받고 있습니다. 현재 거래 조건과 이용 불편을 확인하세요.":state==="other"?"현재 이용 조건을 확인하고 당행 입금계좌 전환을 상담하세요.":"조회된 결제계좌 정보가 없습니다. 카드매출 발생 여부와 입금 은행을 확인하세요."}</p></div>;
+  const label={own:"당행 이용 중",other:"타행 이용 중",unknown:"조회 정보 누락",unregistered:"POS 미등록"}[state];
+  return <div className="rounded-xl border border-slate-200 bg-white p-4"><h3 className="text-sm font-bold text-slate-900">가맹점 결제계좌</h3><span className={cn("mt-2 inline-block rounded px-2 py-1 text-xs font-semibold",state==="own"?"bg-im-50 text-im-700":state==="other"?"bg-amber-50 text-amber-800":"bg-slate-100 text-slate-600")}>{label}</span><p className="mt-3 text-base font-bold text-slate-800">{state==="unregistered" ? "가맹점 결제계좌 없음" : m?.bank || "결제은행 조회 필요"}</p><p className="mt-3 text-xs leading-6 text-slate-600">{state==="own"?"당행으로 매출대금을 받고 있습니다. 현재 거래 조건과 이용 불편을 확인하세요.":state==="other"?"현재 이용 조건을 확인하고 당행 입금계좌 전환을 상담하세요.":state==="unregistered"?"POS가 등록되지 않은 고객입니다.":"POS 등록 여부와 BC 가맹점 결제은행 조회 결과를 확인하세요."}</p></div>;
 }
 
 /* 조회 결과 뷰 — 전략은 deriveStrategy(사실)로 도출, A4 상담자료 인쇄 포함 */
