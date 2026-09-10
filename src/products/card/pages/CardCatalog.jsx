@@ -1,3 +1,4 @@
+import { CardCompare } from "../components/CardCompare";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CreditCard, FileText, QrCode, Search, X, Heart, Plus } from "lucide-react";
@@ -39,7 +40,7 @@ const CardThumb = ({ card }) => {
   );
 };
 
-const CardRow = ({ card, fav, hasLink, onFav, onPdf, onQr }) => {
+const CardRow = ({ card, fav, hasLink, onFav, onPdf, onQr, search, selected, onCompare, compareFull }) => {
   return (
     <div className="relative flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 transition-shadow hover:shadow-[0_10px_30px_-16px_rgba(15,23,42,0.25)] sm:flex-row sm:items-center sm:p-5">
       <button
@@ -51,7 +52,7 @@ const CardRow = ({ card, fav, hasLink, onFav, onPdf, onQr }) => {
         <Heart className={cn("h-[18px] w-[18px]", fav && "fill-rose-500 text-rose-500")} />
       </button>
 
-      <Link to={`/card/${card.id}`} className="group flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
+      <Link to={`/card/${card.id}?${search}`} className="group flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
         <CardThumb card={card} />
         <div className="min-w-0">
           <h3 className="text-[17px] font-bold text-slate-900 group-hover:text-rose-700">{card.name}</h3>
@@ -98,6 +99,7 @@ const CardRow = ({ card, fav, hasLink, onFav, onPdf, onQr }) => {
       </Link>
 
       <div className="flex flex-shrink-0 items-center gap-2 sm:w-[168px] sm:flex-col sm:items-stretch">
+        <button type="button" aria-pressed={selected} disabled={!selected && compareFull} onClick={()=>onCompare(card.id)} className="min-h-11 rounded-lg border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 disabled:opacity-40">{selected?"비교 선택됨":"비교 담기"}</button>
         {/* 기업카드는 영업점 가입이라 eBiz QR 없음 — 상품설명서만 노출 */}
         {card.segment !== "biz" &&
           (hasLink ? (
@@ -133,12 +135,19 @@ const CardRow = ({ card, fav, hasLink, onFav, onPdf, onQr }) => {
 };
 
 export const CardCatalog = () => {
-  const [params] = useSearchParams();
-  const initSeg = params.get("seg");
-  const [segment, setSegment] = useState(SEGMENTS.some((s) => s.id === initSeg) ? initSeg : "personal");
-  const [type, setType] = useState("credit");
-  const [query, setQuery] = useState("");
-  const [activeTags, setActiveTags] = useState([]);
+  const [params, setParams] = useSearchParams();
+  const change = (patch) => setParams(prev=>{const next=new URLSearchParams(prev);Object.entries(patch).forEach(([k,v])=>v?next.set(k,v):next.delete(k));return next;},{replace:true});
+  const segment = SEGMENTS.some(s=>s.id===params.get("seg"))?params.get("seg"):"personal";
+  const type = CARD_TYPES.some(t=>t.id===params.get("type"))?params.get("type"):"credit";
+  const query = params.get("q") || "";
+  const activeTags = (params.get("tags")||"").split(",").filter(Boolean);
+  const setSegment = value => change({seg:value});
+  const setType = value => change({type:value});
+  const setQuery = value => change({q:value});
+  const setActiveTags = value => change({tags:(typeof value === "function" ? value(activeTags) : value).join(",")});
+  const selected = [...new Set((params.get("compare")||"").split(",").filter(id=>getCards().some(c=>c.id===id)))].slice(0,2);
+  const [compareOpen,setCompareOpen] = useState(false);
+  const toggleCompare = id => change({compare:(selected.includes(id)?selected.filter(x=>x!==id):selected.length<2?[...selected,id]:selected).join(",")});
   const [favs, setFavs] = useState(loadFavs);
   const [pdfCard, setPdfCard] = useState(null);
   const [qrCard, setQrCard] = useState(null);
@@ -295,6 +304,7 @@ export const CardCatalog = () => {
             <CardRow
               key={c.id}
               card={c}
+              search={params.toString()} selected={selected.includes(c.id)} onCompare={toggleCompare} compareFull={selected.length===2}
               fav={favs.has(c.id)}
               hasLink={hasLink(c)}
               onFav={toggleFav}
@@ -309,6 +319,8 @@ export const CardCatalog = () => {
         </div>
       )}
 
+      {selected.length>0 && <div className="sticky bottom-3 z-20 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rose-200 bg-white p-4 shadow-lg"><div className="flex flex-wrap gap-2">{selected.map(id=><button key={id} onClick={()=>toggleCompare(id)} className="min-h-11 rounded-lg bg-rose-50 px-3 text-sm text-rose-800">{getCards().find(c=>c.id===id)?.name} ×</button>)}</div><button disabled={selected.length!==2} onClick={()=>setCompareOpen(true)} className="min-h-11 rounded-lg bg-rose-700 px-4 text-sm font-bold text-white disabled:opacity-40">두 카드 비교</button></div>}
+      {compareOpen && selected.length===2 && <CardCompare ids={selected} onClose={()=>setCompareOpen(false)} />}
       {pdfCard && <PdfViewerModal card={pdfCard} onClose={() => setPdfCard(null)} />}
       {qrCard && <QrSlipModal card={qrCard} onClose={() => setQrCard(null)} />}
     </div>

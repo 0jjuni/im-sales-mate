@@ -1,5 +1,6 @@
+import { CardConditions } from "../components/CardCompare";
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { CreditCard, QrCode, FileText, ArrowLeft, Plus } from "lucide-react";
 import { findCard, typeLabel, resolveAdCopy, loadStoredLinks } from "../data/cards";
 import { CARD_BENEFIT } from "../data/cardBenefits";
@@ -29,6 +30,7 @@ const CardArt = ({ card }) => {
 /* 카드 상세 — 대표 혜택·연회비 요약 + 「가입 안내문 만들기」로 바로 연결. */
 export const CardDetail = () => {
   const { id } = useParams();
+  const [params] = useSearchParams();
   const card = findCard(id);
   const [pdfOpen, setPdfOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
@@ -39,7 +41,7 @@ export const CardDetail = () => {
   if (!card) {
     return (
       <div className="space-y-4">
-        <Link to="/card" className="inline-flex items-center gap-1 text-[13px] font-semibold text-rose-600">
+        <Link to={`/card?${params.toString()}`} className="inline-flex items-center gap-1 text-[13px] font-semibold text-rose-600">
           <ArrowLeft className="h-4 w-4" /> 카드 탐색으로
         </Link>
         <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
@@ -51,7 +53,7 @@ export const CardDetail = () => {
 
   return (
     <div className="space-y-5">
-      <Link to="/card" className="inline-flex items-center gap-1 text-[13px] font-semibold text-rose-600 hover:text-rose-700">
+      <Link to={`/card?${params.toString()}`} className="inline-flex items-center gap-1 text-[13px] font-semibold text-rose-600 hover:text-rose-700">
         <ArrowLeft className="h-4 w-4" /> 카드 탐색으로
       </Link>
 
@@ -145,6 +147,7 @@ export const CardDetail = () => {
         </div>
       </div>
 
+      <CardConditions card={card} />
       {(() => {
         /* 상품설명서의 법적·보일러플레이트 섹션은 제외하고 실제 혜택/서비스만 노출 */
         const HIDE = /수수료\s*안내|이용\s*안내|유의|과세|반환|제공\s*조건|제공\s*기준|전월\s*이용금액|회원님|안내\s*사항|리볼빙|발급|가족카드|연회비|문의처|기본\s*정보|해외\s*이용\s*안내|부가서비스|심의|확인\s*사항|기타\s*안내|알아두|참고\s*사항|상품\s*안내|이용\s*전|후불교통\s*안내|신청\s*안내/;
