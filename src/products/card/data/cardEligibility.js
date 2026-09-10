@@ -32,23 +32,23 @@ export const CARD_REQUIREMENTS = [
 /* 예시 고객 — 요건별 충족(met) 여부만. 고객번호는 고객 진단 3인과 통일 + 다양한 케이스 추가.
    met: { 요건id: true/false } */
 const CUSTOMERS = {
-  // 김우디 — 제조·도매업 대표: 예금·거래 활발, 사업자라 급여 없음
+  // 김단디 — 제조·도매업 대표: 예금·거래 활발, 사업자라 급여 없음
   "841023391": {
-    name: "김우디",
+    name: "김단디",
     age: "52세",
     profile: "제조·도매업 대표",
     met: { asset_txn: true, asset_hold: true, salary: false, check_card: false },
   },
-  // 이단디 — 맞벌이 근로소득자: 급여·입출금 활발
+  // 이똑디 — 맞벌이 근로소득자: 급여·입출금 활발
   "772501180": {
-    name: "이단디",
+    name: "이똑디",
     age: "48세",
     profile: "맞벌이 근로소득자",
     met: { asset_txn: true, asset_hold: false, salary: true, check_card: false },
   },
-  // 박똑디 — 소매점·은퇴 준비: 수신 잔액은 크지만 급여·거래는 적음
+  // 박우디 — 소매점·은퇴 준비: 수신 잔액은 크지만 급여·거래는 적음
   "904176624": {
-    name: "박똑디",
+    name: "박우디",
     age: "59세",
     profile: "소매점 운영",
     met: { asset_txn: false, asset_hold: true, salary: false, check_card: false },

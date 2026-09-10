@@ -1,3 +1,4 @@
+import { migrateDemoMemos } from "./demoMemoMigration";
 /* 고객 후속 관리(팔로업) 메모 저장소 어댑터.
    대시보드 개인화와 별도 키로 분리 — 고객 관련 데이터라 이후 서버 저장·암호화·접근통제를
    붙일 때 이 파일만 교체하면 되도록 격리한다. (데모는 localStorage)
@@ -53,7 +54,7 @@ export const followupStore = {
       if (state.items.length === 0) {
         return { ...state, items: buildSeedItems() };
       }
-      return { ...state, items: normalizeItems(state.items) };
+      return { ...state, items: migrateDemoMemos(normalizeItems(state.items)) };
     } catch {
       return { ...DEFAULT_STATE };
     }

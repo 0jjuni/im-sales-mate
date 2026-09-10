@@ -41,7 +41,8 @@ export const PRODUCT_STATE = {
 const CUSTOMERS = {
   "841023391": {
     customerNo: "841023391",
-    name: "김우디",
+    name: "김단디",
+    demoConcept: "기존 상품 관리",
     age: "52세",
     merchantSettlement: { posRegistered: true, bank: "신한은행" },
     /* 당행 보유 예금·수신 — 만기·금리 관리. maturityInDays: 오늘 기준 만기까지 일수(상대값) */
@@ -104,7 +105,8 @@ const CUSTOMERS = {
 
   "772501180": {
     customerNo: "772501180",
-    name: "이단디",
+    name: "이똑디",
+    demoConcept: "근로소득자 절세 상담",
     age: "48세",
     deposits: [
       { name: "iM스마트예금", type: "정기예금", balance: 3000, rate: 3.5, maturityInDays: 12, maturityAction: "자동재예치" },
@@ -151,7 +153,8 @@ const CUSTOMERS = {
 
   "904176624": {
     customerNo: "904176624",
-    name: "박똑디",
+    name: "박우디",
+    demoConcept: "개인사업자 신규 제안",
     age: "59세",
     /* 가맹점 카드매출 대금을 타행으로 받는 개인사업자 — 결제계좌 당행 전환 유치 대상 */
     merchantSettlement: { posRegistered: true, bank: "국민은행" },
@@ -371,11 +374,7 @@ export function queryGrossTax(customerNo) {
 export const SAMPLE_CUSTOMERS = Object.values(CUSTOMERS).map((c) => ({
   customerNo: c.customerNo,
   name: c.name,
-  tag: c.jonghap.isTarget
-    ? "종합과세 대상"
-    : c.jonghap.restrictedByHistory
-    ? "가입 제한(이력)"
-    : "비대상 · 판매 기회",
+  tag: c.demoConcept,
 }));
 
 const cleanLabel = (label) => label.replace(" 가입 여부", "");

@@ -70,7 +70,7 @@ const VerdictBanner = ({ data }) => {
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-              <span className="text-[16px] font-bold text-slate-900">고객 {data.customerNo}</span>
+              <span className="text-[16px] font-bold text-slate-900">{data.name || `고객 ${data.customerNo}`}</span>
               <span className="text-[12px] text-slate-500">{data.age}</span>
             </div>
             <div className="mt-0.5 font-mono text-[12px] tabular-nums text-slate-400">{data.customerNo}</div>
@@ -1088,7 +1088,7 @@ function ResultView({ data }) {
 }
 
 export default function GrossTaxPage() {
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const [input, setInput] = useState("");
   const [result, setResult] = useState(undefined); // undefined=미조회, null=결과없음, obj=조회됨
   const [queriedNo, setQueriedNo] = useState("");
@@ -1115,6 +1115,9 @@ export default function GrossTaxPage() {
     const clean = (no ?? input).replace(/\D/g, "");
     setQueriedNo(clean);
     setResult(queryGrossTax(clean));
+    const nextParams = new URLSearchParams(params);
+    nextParams.set("no", clean);
+    setParams(nextParams);
   };
 
   const onSubmit = (e) => {
@@ -1156,6 +1159,8 @@ export default function GrossTaxPage() {
         </button>
       </form>
 
+      {result && <div className="mb-5 flex flex-wrap gap-2">{SAMPLE_CUSTOMERS.map(c=><button key={c.customerNo} onClick={()=>{setInput(c.customerNo);runQuery(c.customerNo);}} aria-pressed={result.customerNo===c.customerNo} className={cn("min-h-11 rounded-lg border px-3 py-2 text-left text-sm",result.customerNo===c.customerNo?"border-im-600 bg-im-50 text-im-800":"border-slate-200 bg-white text-slate-600")}><span className="font-bold">{c.name}</span><span className="ml-2 text-xs">{c.tag}</span></button>)}</div>}
+
       {/* 결과 */}
       {result === undefined ? (
         <IdleState onPick={(no) => { setInput(no); runQuery(no); }} />
@@ -1187,7 +1192,7 @@ const IdleState = ({ onPick }) => (
             onClick={() => onPick(c.customerNo)}
             className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 transition-colors hover:border-im-300 hover:text-im-700"
           >
-            <span className="font-mono tabular-nums">{c.customerNo}</span>
+            <span>{c.name}</span><span className="font-mono tabular-nums">{c.customerNo}</span>
             <span className="text-[10px] font-medium text-slate-400">{c.tag}</span>
           </button>
         ))}
@@ -1214,7 +1219,7 @@ const NotFound = ({ no, onPick }) => (
           onClick={() => onPick(c.customerNo)}
           className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 hover:border-im-300 hover:text-im-700"
         >
-          <span className="font-mono tabular-nums">{c.customerNo}</span>
+          <span>{c.name}</span><span className="font-mono tabular-nums">{c.customerNo}</span>
           <span className="text-[10px] font-medium text-slate-400">{c.tag}</span>
         </button>
       ))}
