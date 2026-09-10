@@ -36,14 +36,6 @@ export const NORAN_TOOLS = [
     group: "세일즈 계산기",
   },
   {
-    id: "noran.calc.compare",
-    name: "상품 비교 계산기",
-    desc: "노란우산 vs 적금 vs 연금저축 추정 비교",
-    to: "/noran/calculator/compare",
-    icon: "Scale",
-    group: "세일즈 계산기",
-  },
-  {
     id: "noran.simulator",
     name: "상담 시뮬레이터",
     desc: "고객 상황 트리 분류 → 안내·구비서류 도달, 세일즈 코치 모드",

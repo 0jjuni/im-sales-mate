@@ -7,7 +7,6 @@ import {
   Calculator,
   TrendingDown,
   Coins,
-  Scale,
 } from "lucide-react";
 import { CATEGORIES } from "../data/categories";
 import { GUIDES } from "../data/guides";
@@ -52,9 +51,6 @@ export const Dashboard = ({ onNavigate, onOpenArticle }) => {
               </span>
               <span className="flex items-center gap-1">
                 <TrendingDown className="w-3 h-3" /> 해약환급금 시나리오
-              </span>
-              <span className="flex items-center gap-1">
-                <Scale className="w-3 h-3" /> 상품 비교
               </span>
             </div>
           </div>

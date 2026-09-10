@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, Coins, TrendingDown, Scale } from "lucide-react";
+import { AlertTriangle, Coins, TrendingDown } from "lucide-react";
 import { CalculatorDisclaimer } from "../../components/CalculatorDisclaimer";
 import { TaxSavingCalculator } from "./TaxSavingCalculator";
 import { RefundSimulator } from "./RefundSimulator";
@@ -12,6 +12,7 @@ import { cn } from "@shared/lib/format";
 export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }) => {
   const [showDisclaimer, setShowDisclaimer] = useState(false);
 
+  /* 상품 비교(compare)는 탭에서 숨김 — 라우트/렌더(/noran/calculator/compare)와 컴포넌트는 유지해 필요 시 되살릴 수 있게 둔다. */
   const tabs = [
     {
       id: "tax",
@@ -25,12 +26,6 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
       icon: TrendingDown,
       description: "해약 시점별 환급금 추정 + 유지 시 비교",
     },
-    {
-      id: "compare",
-      label: "상품 비교",
-      icon: Scale,
-      description: "노란우산 vs 적금 vs 연금저축 추정 비교",
-    },
   ];
 
   return (
@@ -41,7 +36,7 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
             세일즈 보조 계산기
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            소득공제 절세효과·해약환급금·상품 비교 추정치를 즉시 계산합니다.
+            소득공제 절세효과·해약환급금 추정치를 즉시 계산합니다.
           </p>
         </div>
         <button
@@ -60,7 +55,7 @@ export const CalculatorPage = ({ onOpenArticle, activeTab = "tax", onTabChange }
       </div>
 
       {/* 탭 */}
-      <div className="grid grid-cols-3 gap-2 print:hidden">
+      <div className="grid grid-cols-2 gap-2 print:hidden">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
