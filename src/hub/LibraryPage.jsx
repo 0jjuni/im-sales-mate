@@ -1,3 +1,4 @@
+import { useSearchParams } from "react-router-dom";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   Library,
@@ -555,7 +556,7 @@ function ChannelComposer({ onSubmit, onCancel }) {
 
 /* ── 글 상세 ───────────────────────────────────────── */
 
-function PostDetail({ post, channel, isMine, onBack, onOpenChannel, onRemove }) {
+function PostDetail({ post, channel, isMine, onBack, onOpenChannel, onRemove, saved, onSave }) {
   return (
     <div className="mx-auto max-w-3xl space-y-4">
       <button onClick={onBack} className="inline-flex items-center gap-1 text-[13px] font-semibold text-slate-500 hover:text-slate-800">
@@ -576,6 +577,7 @@ function PostDetail({ post, channel, isMine, onBack, onOpenChannel, onRemove }) 
         </button>
 
         <div className="px-5 py-5 sm:px-7">
+          <button type="button" aria-pressed={saved} onClick={onSave} className="mb-3 min-h-11 rounded-lg border border-im-200 px-3 py-2 text-sm font-semibold text-im-700">{saved ? "저장됨 · 해제" : "글 저장"}</button>
           <h1 className="text-[20px] font-bold leading-snug text-slate-900">{post.title}</h1>
           <div className="mt-1.5 flex items-center gap-1.5 text-[12px] text-slate-400">
             <span className="font-semibold text-slate-600">{post.author}</span>
@@ -683,10 +685,17 @@ function ChannelDetail({ channel, posts, subCount, subscribed, onBack, onToggle,
 
 export default function LibraryPage() {
   const lib = useLibrary();
-  const [tab, setTab] = useState("feed"); // feed | browse
+  const [params, setParams] = useSearchParams();
+  const updateView = (changes) => { const next = new URLSearchParams(params); Object.entries(changes).forEach(([key,value])=>value ? next.set(key,value) : next.delete(key)); setParams(next); };
+  const tab = params.get("tab") || "feed";
+  const setTab = (value) => updateView({tab:value});
+  const query = params.get("q") || "";
+  const [saved, setSaved] = useState(()=>{try {const value=JSON.parse(localStorage.getItem("salesbridge.library.saved")||"[]");return Array.isArray(value)?value:[];}catch{return [];}});
+  const toggleSaved = (id) => setSaved(previous=>{const next=previous.includes(id)?previous.filter(x=>x!==id):[...previous,id];try{localStorage.setItem("salesbridge.library.saved",JSON.stringify(next));}catch{}return next;}); // feed | browse
   const [feedFilter, setFeedFilter] = useState(null); // null=전체, 아니면 channelId
-  const [channelId, setChannelId] = useState(null);
-  const [postId, setPostId] = useState(null);
+  const channelId = params.get("channel");
+  const postId = params.get("post");
+  const setPostId = (id) => updateView({post:id});
   const [composer, setComposer] = useState(null); // null | {mode:"post", channelId} | {mode:"channel"}
 
   useEffect(() => {
@@ -697,15 +706,9 @@ export default function LibraryPage() {
     };
   }, []);
 
-  const openChannel = (id) => {
-    setChannelId(id);
-    setPostId(null);
-  };
+  const openChannel = (id) => updateView({channel:id,post:null});
   const openPost = (id) => setPostId(id);
-  const backToList = () => {
-    setPostId(null);
-    setChannelId(null);
-  };
+  const backToList = () => updateView({post:null,channel:null});
 
   const activePost = postId ? lib.posts.find((p) => p.id === postId) : null;
   const activeChannel = channelId ? lib.channelById(channelId) : null;
@@ -735,8 +738,7 @@ export default function LibraryPage() {
           onSubmit={(v) => {
             const post = lib.addPost({ channelId: ch.id, ...v });
             setComposer(null);
-            openChannel(ch.id);
-            setPostId(post.id);
+            updateView({channel:ch.id,post:post.id});
           }}
         />
       </HubShell>
@@ -749,6 +751,8 @@ export default function LibraryPage() {
     return (
       <HubShell wide>
         <PostDetail
+          saved={saved.includes(activePost.id)}
+          onSave={()=>toggleSaved(activePost.id)}
           post={activePost}
           channel={ch}
           isMine={activePost.author === lib.me}
@@ -808,11 +812,13 @@ export default function LibraryPage() {
         </button>
       </div>
 
+      <div className="mb-4 flex gap-2"><input aria-label="전체 글 검색" value={query} onChange={e=>{const next=new URLSearchParams(params);e.target.value?next.set("q",e.target.value):next.delete("q");setParams(next,{replace:true});}} placeholder="제목·본문·작성자·부서 검색" className="min-h-11 min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm" />{query && <button onClick={()=>updateView({q:null})} className="px-3 text-sm text-slate-600">지우기</button>}</div>
       {/* 탭 */}
       <div className="mb-5 flex items-center gap-1 border-b border-slate-200">
         {[
           { id: "feed", label: "구독 피드", count: feed.length },
           { id: "browse", label: "전체 채널", count: lib.channels.length },
+          { id: "saved", label: "저장한 글", count: lib.posts.filter(p=>saved.includes(p.id)).length },
         ].map((t) => (
           <button
             key={t.id}
@@ -829,7 +835,13 @@ export default function LibraryPage() {
         ))}
       </div>
 
-      {tab === "feed" ? (
+      {query.trim() || tab === "saved" ? (
+        <div className="mx-auto max-w-3xl space-y-3">
+          <p className="text-sm text-slate-500">{query.trim() ? "전체 채널 검색 결과" : "저장한 글"}</p>
+          {lib.posts.filter(p=>(tab!=="saved"||saved.includes(p.id)) && [p.title,plain(p.body),p.author,lib.channelById(p.channelId)?.dept,...(p.tags||[])].join(" ").toLowerCase().includes(query.trim().toLowerCase())).sort((a,b)=>b.createdAt-a.createdAt).map(p=><PostListItem key={p.id} post={p} channel={lib.channelById(p.channelId)} onOpen={()=>openPost(p.id)} showChannel />)}
+          {!lib.posts.some(p=>(tab!=="saved"||saved.includes(p.id)) && [p.title,plain(p.body),p.author,lib.channelById(p.channelId)?.dept,...(p.tags||[])].join(" ").toLowerCase().includes(query.trim().toLowerCase())) && <p className="rounded-xl border border-slate-200 p-6 text-center text-sm text-slate-500">{query.trim()?"검색 결과가 없습니다.":"글을 열어 저장하면 여기에 모입니다."}</p>}
+        </div>
+      ) : tab === "feed" ? (
         feed.length === 0 ? (
           <div className={cn(CARD, "flex flex-col items-center gap-3 px-5 py-12 text-center")}>
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-im-50 text-im-600">
