@@ -21,7 +21,7 @@ const NAV_ITEMS = [
 ];
 
 const TOOL_CARDS = [
-  { id: "name", label: "영문 이름 변환기", desc: "한글 이름을 여권식 영문 표기로 변환", icon: UserRound },
+  { id: "name", label: "영문 이름 변환기", desc: "한글 이름의 영문 표기 확인", icon: UserRound },
   { id: "address", label: "영문 주소 변환기", desc: "도로명주소를 영문 표기로 변환", icon: MapPin },
   { id: "qr", label: "QR코드 생성기", desc: "링크를 QR 코드로 만들어 전표 인쇄", icon: QrCode },
 ];

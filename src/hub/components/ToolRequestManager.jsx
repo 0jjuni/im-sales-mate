@@ -7,6 +7,8 @@ import {
   sortRequests,
   setRequestStatus,
   removeRequest,
+  REQUEST_TOOLS,
+  updateRequestResponse,
 } from "@utility/data/toolRequests";
 import { cn } from "@shared/lib/format";
 
@@ -51,9 +53,14 @@ export function ToolRequestManager() {
                   </div>
                   {r.detail && <p className="mt-1 text-[12.5px] leading-relaxed text-slate-600">{r.detail}</p>}
                   <div className="mt-1.5 text-[11px] text-slate-400">요청 {r.author}</div>
+                  <form className="mt-3 space-y-2" onSubmit={e=>{e.preventDefault();const fields=new FormData(e.currentTarget);setReqs(updateRequestResponse(r.id,fields.get("reply"),fields.get("toolPath")));e.currentTarget.querySelector('[role="status"]').textContent="답변을 저장했습니다.";}}>
+                    <label className="block text-xs font-semibold text-slate-600">담당자 답변<textarea name="reply" defaultValue={r.reply||""} maxLength={1500} rows={2} placeholder="검토 내용이나 반영한 내용을 알려주세요" className="mt-1 w-full rounded-lg border border-slate-300 p-3 text-sm font-normal" /></label>
+                    <label className="block text-xs font-semibold text-slate-600">완료 후 연결할 도구<select name="toolPath" defaultValue={r.toolPath||""} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 p-2 text-sm"><option value="">연결 안 함</option>{REQUEST_TOOLS.map(t=><option key={t.path} value={t.path}>{t.label}</option>)}</select></label>
+                    <button className="min-h-11 rounded-lg bg-im-600 px-3 py-2 text-sm font-bold text-white">답변 저장</button><span role="status" className="ml-2 text-xs text-im-700" />
+                  </form>
                 </div>
 
-                <div className="flex flex-shrink-0 items-center gap-1.5">
+                <div className="flex flex-shrink-0 flex-wrap items-center gap-1.5">
                   <select
                     value={r.status}
                     onChange={(e) => changeStatus(r.id, e.target.value)}

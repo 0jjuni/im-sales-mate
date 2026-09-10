@@ -6,6 +6,15 @@
 
 const KEY = "salesbridge.tools.requests";
 const VOTE_KEY = "salesbridge.tools.requests.voted";
+export const REQUEST_TOOLS = [
+  {path:"/tools/name",label:"영문 이름 변환기"},
+  {path:"/tools/address",label:"영문 주소 변환기"},
+  {path:"/tools/qr",label:"QR코드 생성기"},
+];
+const enrich = (list) => list.map(r => ({
+  ...({r1:{toolPath:"/tools/name",reply:"변환 결과를 전표로 인쇄할 수 있도록 반영했습니다."},r2:{toolPath:"/tools/address",reply:"영문 주소 변환기를 사용할 수 있습니다."},r3:{toolPath:"/tools/qr",reply:"링크를 QR 코드로 만들고 전표로 인쇄할 수 있습니다."}}[r.id] || {}),
+  ...r,
+}));
 
 export const REQUEST_STATUS = {
   review: { label: "검토중", cls: "bg-slate-100 text-slate-500" },
@@ -27,17 +36,17 @@ const SEED = [
 const canStore = () => typeof window !== "undefined" && !!window.localStorage;
 
 export const loadRequests = () => {
-  if (!canStore()) return SEED;
+  if (!canStore()) return enrich(SEED);
   try {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) {
       window.localStorage.setItem(KEY, JSON.stringify(SEED));
-      return SEED;
+      return enrich(SEED);
     }
     const p = JSON.parse(raw);
-    return Array.isArray(p) ? p : SEED;
+    return enrich(Array.isArray(p) ? p : SEED);
   } catch {
-    return SEED;
+    return enrich(SEED);
   }
 };
 
@@ -64,6 +73,9 @@ export const addRequest = ({ title, detail, author }) =>
 
 export const setRequestStatus = (id, status) =>
   write(loadRequests().map((r) => (r.id === id ? { ...r, status } : r)));
+
+export const updateRequestResponse = (id, reply, toolPath) =>
+  write(loadRequests().map(r => r.id === id ? {...r, reply:reply.trim(), toolPath:REQUEST_TOOLS.some(t=>t.path===toolPath)?toolPath:""} : r));
 
 export const setRequestVotes = (id, votes) =>
   write(loadRequests().map((r) => (r.id === id ? { ...r, votes: Math.max(0, votes) } : r)));
