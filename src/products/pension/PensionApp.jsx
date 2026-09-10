@@ -1,5 +1,6 @@
+import { queryGrossTax } from "@hub/data/grossTax";
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate, useParams } from "react-router-dom";
 import { Home, Coins, HelpCircle, Landmark, Megaphone } from "lucide-react";
 import { usePersonalization } from "@hub/personalization/PersonalizationContext";
 import { PinToolButton } from "@hub/personalization/PinToolButton";
@@ -36,6 +37,10 @@ const normalizeRoute = (r) => (VALID_PAGES.includes(r.page) ? r : { page: "overv
 export default function PensionApp() {
   const routerNavigate = useNavigate();
   const params = useParams();
+  const [search] = useSearchParams();
+  const no = search.get("no") || "";
+  const customer = /^\d{9}$/.test(no) ? queryGrossTax(no) : null;
+  const incomeType = customer ? search.get("income") : null;
   const route = normalizeRoute(parseSplat(params["*"]));
   const { page } = route;
 
@@ -55,7 +60,7 @@ export default function PensionApp() {
     };
   }, []);
 
-  const navigate = (p) => routerNavigate(buildPath(p));
+  const navigate = (p) => routerNavigate(buildPath(p) + (customer ? `?${search.toString()}` : ""));
 
   const renderPage = () => {
     switch (page) {
@@ -66,7 +71,7 @@ export default function PensionApp() {
       case "notices":
         return <ModuleNoticeBoard moduleId="pension" />;
       default:
-        return <Overview onNavigate={navigate} />;
+        return <Overview onNavigate={navigate} incomeType={incomeType} />;
     }
   };
 
@@ -95,6 +100,7 @@ export default function PensionApp() {
 
       <ModuleTabs items={navItems} activeId={page} onSelect={navigate} accent="violet" />
 
+      {customer && <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 p-4"><p className="text-sm font-bold text-slate-800">{customer.name} · {no}{incomeType && ` · ${incomeType}`}</p><Link to={`/tax?no=${no}`} className="inline-flex min-h-11 items-center text-sm font-semibold text-violet-700">고객 진단으로 돌아가기 →</Link></div>}
       {renderPage()}
     </HubShell>
   );

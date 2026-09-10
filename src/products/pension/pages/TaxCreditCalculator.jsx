@@ -1,3 +1,4 @@
+import { useSearchParams } from "react-router-dom";
 import { MobileResult } from "@shared/components/MobileResult";
 import { useState, useMemo } from "react";
 import { Briefcase, TrendingUp, AlertTriangle, Sparkles, Printer } from "lucide-react";
@@ -33,8 +34,10 @@ const SLIDER_MAX = 9_000_000;
 const SLIDER_STEP = 100_000;
 
 export const TaxCreditCalculator = () => {
+  const [search] = useSearchParams();
+  const [monthlyExtra, setMonthlyExtra] = useState(100000);
   const [showPrint, setShowPrint] = useState(false);
-  const [incomeType, setIncomeType] = useState("salary"); // salary | comprehensive
+  const [incomeType, setIncomeType] = useState(search.get("income") === "개인사업자" ? "comprehensive" : "salary"); // salary | comprehensive
   const [underThreshold, setUnderThreshold] = useState(true); // 기준소득 이하 여부 (공제율만 결정)
   const [pensionSaving, setPensionSaving] = useState(6_000_000);
   const [irp, setIrp] = useState(3_000_000);
@@ -381,6 +384,12 @@ export const TaxCreditCalculator = () => {
               </div>
             )}
 
+            <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50/40 p-4">
+              <h3 className="text-sm font-bold text-violet-900">매달 조금 더 납입한다면?</h3>
+              <label className="mt-3 block text-sm text-slate-700">IRP 월 추가 납입액 (원)<input type="number" min="0" max="1500000" step="10000" value={monthlyExtra} onChange={e=>setMonthlyExtra(Math.max(0,Math.min(1500000,Number(e.target.value)||0)))} className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2" /></label>
+              <p className="mt-3 text-sm text-slate-700">12개월 추가 납입 가정 · 예상 세액공제 증가 <strong className="text-lg text-violet-800">{formatKRW(Math.max(0,Math.min(monthlyExtra*12, CREDIT_RULES.totalLimit-result.eligible, CREDIT_RULES.contributionLimit-result.totalPaid))*result.rate)}</strong></p>
+              <p className="mt-1 text-xs text-slate-500">현재 입력액에 추가하는 가정이며, 납입·공제 한도 내에서 계산합니다. 실제 환급액과는 다릅니다.</p>
+            </div>
             <p className="mt-3 text-sm leading-relaxed text-slate-600">이 금액은 납입액 기준 예상 세액공제액입니다. 실제 적용액은 산출세액과 다른 공제에 따라 달라지며, 현금 환급액을 의미하지 않습니다.</p>
             {/* 최적화 제안 — 이 계산기의 핵심 */}
             {(result.reallocGain > 0 || result.roomToLimit > 0) && (

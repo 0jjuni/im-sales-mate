@@ -23,28 +23,24 @@ const StatCard = ({ icon: Icon, label, value, sub }) => (
   </div>
 );
 
-export const Overview = ({ onNavigate }) => (
+export const Overview = ({ onNavigate, incomeType }) => (
   <div className="space-y-6">
-    <div>
-      <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-        세제 한눈에
-      </h1>
-      <p className="text-sm text-slate-600 mt-1">
-        {PENSION_META.lawRef} 기준 · {PENSION_META.verifiedNote}
-      </p>
-    </div>
-
-    <div className="bg-amber-50/60 border-l-4 border-amber-500 px-4 py-2.5 rounded-r-sm text-xs text-slate-800 leading-relaxed">
-      세제는 소득세법, 수수료·상품 조건은 iM뱅크 공시자료(개인형IRP
-      수수료율·연금저축신탁 핵심설명서)를 반영했습니다. 판매 중인 연금저축보험·펀드 라인업 등 나머지
-      자사 상품 조건은 자료 확보 후 채워집니다.
-    </div>
-
+    <section className="rounded-xl border border-violet-100 bg-violet-50/50 p-5 sm:p-6">
+      <p className="text-sm font-bold text-violet-700">신규·추가 납입 상담</p>
+      <h2 className="mt-2 text-2xl font-bold text-slate-900">노후 준비와 올해 세액공제를 함께</h2>
+      <p className="mt-3 text-sm leading-relaxed text-slate-700">“{incomeType === "근로소득자" ? "연말정산" : incomeType === "개인사업자" ? "종합소득세 신고" : "세금 신고"} 때 세금 부담이 있으셨다면 연금으로 준비해보시는 건 어떠세요? 올해 이미 납입하신 금액을 반영해 추가 납입 효과를 계산해드릴게요.”</p>
+      <button onClick={()=>onNavigate("calculator")} className="mt-4 min-h-11 rounded-lg bg-violet-700 px-4 py-2 text-sm font-bold text-white">납입액으로 세액공제 계산 →</button>
+    </section>
+    <nav aria-label="연금 상담 목적" className="grid gap-3 sm:grid-cols-3">
+      <a href="#pension-new" className="rounded-xl border border-slate-200 p-4 text-sm font-bold text-slate-800">신규 납입 · 계좌 선택 ↓</a>
+      <a href="#pension-existing" className="rounded-xl border border-slate-200 p-4 text-sm font-bold text-slate-800">기존 계좌 · 가입 시기 확인 ↓</a>
+      <a href="#pension-withdrawal" className="rounded-xl border border-slate-200 p-4 text-sm font-bold text-slate-800">연금 수령 · 계획 확인 ↓</a>
+    </nav>
     {/* 세제 요약 */}
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       <StatCard
         icon={Coins}
-        label="세액공제 한도"
+        label="세액공제 대상 납입한도"
         value={`합산 ${formatKRWShort(CREDIT_RULES.totalLimit)}`}
         sub={`연금저축 단독 ${formatKRWShort(CREDIT_RULES.pensionSavingLimit)}`}
       />
@@ -68,48 +64,10 @@ export const Overview = ({ onNavigate }) => (
       />
     </div>
 
-    {/* ★ 가입 시기 3세대 판별 */}
-    <div className="bg-white border border-violet-200 rounded-xl overflow-hidden shadow-sm">
-      <div className="px-4 py-3 border-b border-violet-200 bg-violet-50/60">
-        <h2 className="text-sm font-bold text-slate-900">
-          ★ 가입 시기부터 확인하세요 — 세금이 완전히 다릅니다
-        </h2>
-        <p className="text-[11px] text-slate-600 mt-0.5">
-          같은 「연금저축」이라도 가입 시기에 따라 연금수령 시 과세가 달라집니다. 통장 개설일 조회가
-          상담의 출발점입니다.
-        </p>
-      </div>
-      <div className="divide-y divide-slate-100">
-        {PENSION_GENERATIONS.map((g) => (
-          <div key={g.id} className="px-4 py-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-bold text-violet-800">{g.label}</span>
-              <span className="text-[11px] font-semibold text-slate-500 tabular-nums">
-                {g.period}
-              </span>
-              <span
-                className={
-                  g.taxFree
-                    ? "rounded-sm bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800"
-                    : "rounded-sm bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600"
-                }
-              >
-                수령 시 {g.onWithdrawal}
-              </span>
-            </div>
-            <div className="mt-1 text-[12px] text-slate-600 leading-relaxed">
-              납입 시 혜택: {g.benefit}
-            </div>
-            <div className="mt-0.5 text-[11.5px] text-slate-500 leading-relaxed">{g.note}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-
     {/* 바로가기 — 홈 대시보드 네비 */}
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
       {[
-        { id: "calculator", icon: Coins, title: "세액공제 계산기", desc: "연말정산 환급액 즉시 계산" },
+        { id: "calculator", icon: Coins, title: "세액공제 계산기", desc: "납입액에 따른 예상 세액공제액 계산" },
         { id: "faq", icon: HelpCircle, title: "자주 묻는 질문", desc: "세액공제·중도해지·연금수령 FAQ" },
         { id: "notices", icon: Megaphone, title: "공지사항", desc: "연금 관련 부서 공지" },
       ].map((n) => {
@@ -133,6 +91,10 @@ export const Overview = ({ onNavigate }) => (
       })}
     </div>
 
+    <section id="pension-new" className="scroll-mt-24 rounded-xl border border-slate-200 p-5">
+      <h2 className="text-base font-bold text-slate-900">어느 계좌로 준비할까요?</h2>
+      <div className="mt-3 grid gap-3 sm:grid-cols-3">{[["자금 사용 계획","노후 전에 쓸 돈은 따로 두고, 중도 인출·해지 조건을 비교하세요."],["운용할 상품","고객이 원하는 운용 방식과 계좌별 편입 가능한 상품을 살펴보세요."],["비용 비교","가입 경로에 따른 계좌 수수료와 편입 상품 비용을 함께 비교하세요."]].map(([title,body])=><div key={title}><h3 className="text-sm font-bold text-violet-800">{title}</h3><p className="mt-1 text-sm leading-relaxed text-slate-600">{body}</p></div>)}</div>
+    </section>
     {/* 연금저축 vs IRP */}
     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
       <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/60">
@@ -163,20 +125,51 @@ export const Overview = ({ onNavigate }) => (
       </div>
     </div>
 
-    {/* 자사 상품 자리 placeholder */}
-    <div className="border-2 border-dashed border-slate-300 rounded-xl p-5 text-center">
-      <FileText className="w-6 h-6 text-slate-300 mx-auto mb-2" />
-      <div className="text-sm font-semibold text-slate-500">
-        자사 연금저축·IRP 상품 조건 (일부 준비 중)
+    {/* ★ 가입 시기 3세대 판별 */}
+    <div id="pension-existing" className="scroll-mt-24 bg-white border border-violet-200 rounded-xl overflow-hidden shadow-sm">
+      <div className="px-4 py-3 border-b border-violet-200 bg-violet-50/60">
+        <h2 className="text-sm font-bold text-slate-900">
+          기존 계좌는 가입 시기부터 확인
+        </h2>
+        <p className="text-[11px] text-slate-600 mt-0.5">
+          같은 「연금저축」이라도 가입 시기에 따라 연금수령 시 과세가 달라집니다. 통장 개설일 조회가
+          기존 계좌 상담의 출발점입니다.
+        </p>
       </div>
-      <p className="text-[12px] text-slate-500 mt-1 leading-relaxed">
-        개인형IRP 수수료율·연금저축신탁 조건은 반영됨. 판매 중인 연금저축보험 공시이율, IRP
-        원리금보장상품 라인업, 연금수령개시 신청 업무 절차는 자료 확보 후 보강.
-      </p>
+      <div className="divide-y divide-slate-100">
+        {PENSION_GENERATIONS.map((g) => (
+          <div key={g.id} className="px-4 py-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-bold text-violet-800">{g.label}</span>
+              <span className="text-[11px] font-semibold text-slate-500 tabular-nums">
+                {g.period}
+              </span>
+              <span
+                className={
+                  g.taxFree
+                    ? "rounded-sm bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800"
+                    : "rounded-sm bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600"
+                }
+              >
+                수령 시 {g.onWithdrawal}
+              </span>
+            </div>
+            <div className="mt-1 text-[12px] text-slate-600 leading-relaxed">
+              납입 시 혜택: {g.benefit}
+            </div>
+            <div className="mt-0.5 text-[11.5px] text-slate-500 leading-relaxed">{g.note}</div>
+          </div>
+        ))}
+      </div>
     </div>
 
+    <section id="pension-withdrawal" className="scroll-mt-24 rounded-xl border border-slate-200 p-5">
+      <h2 className="text-base font-bold text-slate-900">연금 수령 계획</h2>
+      <p className="mt-2 text-sm leading-relaxed text-slate-600">“언제부터 매월 얼마씩 받으실 계획인가요? 보유하신 계좌의 가입일과 퇴직금 입금 여부를 함께 살펴보고 수령 조건을 안내해드릴게요.”</p>
+      <button onClick={()=>onNavigate("faq")} className="mt-3 min-h-11 rounded-lg border border-violet-200 px-3 py-2 text-sm font-bold text-violet-700">연금 수령·중도해지 FAQ →</button>
+    </section>
     {/* 출처 */}
-    <div className="border-t border-slate-200 pt-4">
+    <details className="border-t border-slate-200 pt-4"><summary className="cursor-pointer text-sm font-semibold text-slate-600">근거 자료</summary>
       <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
         데이터 출처
       </div>
@@ -188,6 +181,6 @@ export const Overview = ({ onNavigate }) => (
           </li>
         ))}
       </ul>
-    </div>
+    </details>
   </div>
 );
