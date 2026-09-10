@@ -45,6 +45,7 @@ export const FaqPage = () => {
       </div>
 
       <div className="space-y-2">
+        <div className="mb-3 flex flex-wrap gap-2">{[["전체",""],["중간에 돈이 필요하면?","인출"],["다른 은행에 있다면?","이전"],["만기가 되면?","만기"]].map(([label,word])=><button type="button" key={label} aria-pressed={query===word} onClick={()=>{setQuery(word);setOpenIdx(0);}} className={cn("min-h-11 rounded-lg border px-3 py-2 text-sm",query===word?"border-fuchsia-300 bg-fuchsia-50 text-fuchsia-800":"border-slate-200 text-slate-600")}>{label}</button>)}</div>
         {filtered.length === 0 && (
           <div className="text-center text-sm text-slate-500 py-8">
             검색 결과가 없습니다.

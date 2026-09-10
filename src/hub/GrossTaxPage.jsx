@@ -1000,7 +1000,7 @@ function ResultView({ data }) {
             const showBadge=item.tag!=="주거래 전환"&&status.label!=="제안 가능";
             const title=item.title.replace(" 신규 가입 검토", "").replace(/ 납입 여력\(.*\) 활용/, " 추가 납입").replace("가맹점 카드매출 입금계좌 당행 전환", "가맹점 결제계좌 전환");
             const btn="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50";
-            const cta=item.cta&&<Link to={item.cta.to} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-im-700 px-4 py-2 text-sm font-bold text-white">{item.cta.label}<ArrowRight className="h-4 w-4"/></Link>;
+            const cta=item.cta&&<Link to={item.cta.to === "/isa" ? `/isa?no=${data.customerNo}` : item.cta.to} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-im-700 px-4 py-2 text-sm font-bold text-white">{item.cta.label}<ArrowRight className="h-4 w-4"/></Link>;
             const head=(<div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <span className="inline-block rounded-full bg-im-50 px-2.5 py-0.5 text-[11px] font-bold text-im-700">{item.tag}</span>

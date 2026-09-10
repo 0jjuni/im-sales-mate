@@ -17,20 +17,13 @@ const StatCard = ({ icon: Icon, label, value, sub }) => (
 
 export const Overview = ({ onNavigate }) => (
   <div className="space-y-6">
-    <div>
-      <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-        세제 한눈에
-      </h1>
-      <p className="text-sm text-slate-600 mt-1">
-        {ISA_META.lawRef} 기준 · {ISA_META.verifiedNote}
-      </p>
-    </div>
-
-    {/* 데모 안내 배너 */}
-    <div className="bg-amber-50/60 border-l-4 border-amber-500 px-4 py-2.5 rounded-r-sm text-xs text-slate-800 leading-relaxed">
-      세제는 조세특례제한법, 계약 조건(납입한도·중도해지·부득이한 사유·만기)은 iM뱅크 「개인종합자산관리계좌(신탁형) 약관」(2024.7.15), 예금 조건·금리는 iM뱅크 판매 ISA 정기예금 상품설명서를 반영했습니다. 신탁보수 확정 요율(약관에 요율 공란)·운용 라인업·일임형 조건은 추가 자료 확보 후 채워집니다.
-    </div>
-
+    <section className="rounded-xl border border-fuchsia-100 bg-fuchsia-50/50 p-5 sm:p-6">
+      <p className="text-sm font-bold text-fuchsia-700">예금 상담에서 ISA까지</p>
+      <h2 className="mt-2 text-2xl font-bold text-slate-900">같은 수익이라도 세금 차이를 비교해보세요</h2>
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600">“예금하실 자금 중 여유 있게 두실 금액이 있다면, ISA로 운용할 때 세금을 얼마나 줄일 수 있는지 함께 계산해드릴까요?”</p>
+      <button onClick={()=>onNavigate("calculator")} className="mt-4 min-h-11 rounded-lg bg-fuchsia-700 px-4 py-2 text-sm font-bold text-white">고객 금액으로 절세액 비교 →</button>
+      <p className="mt-3 text-xs text-slate-500">같은 금리 가정의 세금 비교 · 신탁보수 차감 전</p>
+    </section>
     {/* 세제 요약 스탯 */}
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       <StatCard
@@ -54,8 +47,8 @@ export const Overview = ({ onNavigate }) => (
       <StatCard
         icon={Wallet}
         label="연금 전환"
-        value="10% 세액공제"
-        sub={`전환금액의 10% (최대 ${formatKRWShort(ISA_RULES.pensionRolloverCap)})`}
+        value="공제 대상 한도 추가"
+        sub={`전환금액의 10% · 최대 ${formatKRWShort(ISA_RULES.pensionRolloverCap)}에 공제율 적용`}
       />
     </div>
 
@@ -67,7 +60,7 @@ export const Overview = ({ onNavigate }) => (
       </div>
       <div className="divide-y divide-slate-100">
         {ISA_TYPES.map((t) => (
-          <div key={t.id} className="flex items-center gap-3 px-4 py-3">
+          <div key={t.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
             <div className="flex-shrink-0 w-28 text-sm font-bold text-fuchsia-700">{t.label}</div>
             <div className="flex-shrink-0 text-base font-black text-slate-900 tabular-nums">
               {formatKRWShort(t.taxFreeLimit)}
@@ -118,17 +111,8 @@ export const Overview = ({ onNavigate }) => (
       </ul>
     </div>
 
-    {/* 자사 상품 자리 placeholder */}
-    <div className="border-2 border-dashed border-slate-300 rounded-xl p-5 text-center">
-      <FileText className="w-6 h-6 text-slate-300 mx-auto mb-2" />
-      <div className="text-sm font-semibold text-slate-500">자사 신탁형 ISA 자료 (일부 준비 중)</div>
-      <p className="text-[12px] text-slate-500 mt-1 leading-relaxed">
-        신탁형 약관(계약조건·중도해지·부득이한 사유·만기)과 ISA 정기예금(금리·중도해지·예금자보호)은 반영됨. 신탁보수 확정 요율·운용 상품 라인업·일임형 조건은 추가 자료 확보 후 보강.
-      </p>
-    </div>
-
     {/* 출처 */}
-    <div className="border-t border-slate-200 pt-4">
+    <details className="border-t border-slate-200 pt-4"><summary className="cursor-pointer text-sm font-semibold text-slate-600">근거 자료</summary>
       <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
         데이터 출처
       </div>
@@ -140,6 +124,6 @@ export const Overview = ({ onNavigate }) => (
           </li>
         ))}
       </ul>
-    </div>
+    </details>
   </div>
 );
