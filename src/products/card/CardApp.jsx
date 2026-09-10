@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import { Routes, Route, useNavigate, useLocation, useSearchParams, Link } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { CreditCard, Search, QrCode, BadgePercent, Megaphone } from "lucide-react";
-import { queryGrossTax } from "@hub/data/grossTax";
 import { HubShell } from "@hub/HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
+import { ConsultReturnButton } from "@shared/components/ConsultReturnButton";
 import { ModuleNoticeBoard } from "@shared/components/ModuleNoticeBoard";
 import { noticesForModule } from "@shared/data/notices";
 import { CardCatalog } from "./pages/CardCatalog";
@@ -19,8 +19,7 @@ export default function CardApp() {
   const { pathname } = useLocation();
   const [search] = useSearchParams();
   const no = search.get("no") || "";
-  const customer = /^\d{9}$/.test(no) ? queryGrossTax(no) : null;
-  const incomeType = customer ? search.get("income") : null;
+  const incomeType = search.get("income") || "";
   const activeId = pathname.startsWith("/card/promo")
     ? "promo"
     : pathname.startsWith("/card/deduction")
@@ -69,7 +68,7 @@ export default function CardApp() {
 
       <ModuleTabs items={navItems} activeId={activeId} onSelect={onSelect} accent="rose" />
 
-      {customer && <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 p-4"><p className="text-sm font-bold text-slate-800">{customer.name} · {no}{incomeType && ` · ${incomeType}`}</p><Link to={`/tax?no=${no}`} className="inline-flex min-h-11 items-center text-sm font-semibold text-rose-700">고객 진단으로 돌아가기 →</Link></div>}
+      <ConsultReturnButton no={no} income={incomeType} />
 
       <Routes>
         <Route index element={<CardCatalog />} />

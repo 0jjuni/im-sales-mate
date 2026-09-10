@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { queryGrossTax } from "@hub/data/grossTax";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Home, Percent, HelpCircle, PiggyBank, Megaphone } from "lucide-react";
 import { usePersonalization } from "@hub/personalization/PersonalizationContext";
 import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
 import { HubShell } from "@hub/HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
+import { ConsultReturnButton } from "@shared/components/ConsultReturnButton";
 import { ModuleNoticeBoard } from "@shared/components/ModuleNoticeBoard";
 import { noticesForModule } from "@shared/data/notices";
 import { Overview } from "./pages/Overview";
@@ -40,7 +40,6 @@ export default function IsaApp() {
   const params = useParams();
   const [search] = useSearchParams();
   const customerNo = search.get("no") || "";
-  const customer = /^\d{9}$/.test(customerNo) ? queryGrossTax(customerNo) : null;
   const route = normalizeRoute(parseSplat(params["*"]));
   const { page } = route;
 
@@ -101,7 +100,7 @@ export default function IsaApp() {
 
       <ModuleTabs items={navItems} activeId={page} onSelect={navigate} accent="fuchsia" />
 
-      {customer && <section className="mb-4 rounded-xl border border-slate-200 bg-white p-4"><div className="flex flex-wrap items-center justify-between gap-2"><p className="text-sm font-bold text-slate-800">{customer.name} · {customerNo}</p><Link className="min-h-11 inline-flex items-center text-sm font-semibold text-fuchsia-700" to={`/tax?no=${customerNo}`}>고객 진단으로 돌아가기 →</Link></div><p className="text-sm text-slate-600">{customer.jonghap.isTarget || customer.jonghap.restrictedByHistory ? "종합과세 이력에 따른 가입 제한이 조회되었습니다. 신규 가입 권유 전 보유 계좌 처리 조건을 확인하세요." : "종합과세 제한 이력 없음 · 타행 ISA 보유 여부와 가입 유형은 별도 확인"}</p></section>}
+      <ConsultReturnButton no={customerNo} income={search.get("income") || ""} />
 
       {renderPage()}
     </HubShell>

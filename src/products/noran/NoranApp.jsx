@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Home, ClipboardList, HelpCircle, CheckSquare, MessageSquare, Calculator, Lightbulb, Megaphone } from "lucide-react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { queryGrossTax } from "@hub/data/grossTax";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { GUIDES } from "./data/guides";
 import { ArticleModal } from "./components/ArticleModal";
 import { GlobalWarning } from "./components/GlobalWarning";
@@ -18,6 +17,7 @@ import { PinToolButton } from "@hub/personalization/PinToolButton";
 import { findToolByPath } from "@hub/registry/toolRegistry";
 import { HubShell } from "@hub/HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
+import { ConsultReturnButton } from "@shared/components/ConsultReturnButton";
 import { ModuleNoticeBoard } from "@shared/components/ModuleNoticeBoard";
 import { noticesForModule } from "@shared/data/notices";
 
@@ -64,8 +64,7 @@ export default function NoranApp() {
   const params = useParams();
   const [search] = useSearchParams();
   const no = search.get("no") || "";
-  const customer = /^\d{9}$/.test(no) ? queryGrossTax(no) : null;
-  const incomeType = customer ? search.get("income") : null;
+  const incomeType = search.get("income") || "";
   const route = normalizeRoute(parseSplat(params["*"]));
   const [openArticle, setOpenArticle] = useState(null);
 
@@ -143,7 +142,7 @@ export default function NoranApp() {
 
       <ModuleTabs items={navItems} activeId={page} onSelect={(id) => navigate(id)} accent="amber" />
 
-      {customer && <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 p-4"><p className="text-sm font-bold text-slate-800">{customer.name} · {no}{incomeType && ` · ${incomeType}`}</p><Link to={`/tax?no=${no}`} className="inline-flex min-h-11 items-center text-sm font-semibold text-amber-700">고객 진단으로 돌아가기 →</Link></div>}
+      <ConsultReturnButton no={no} income={incomeType} />
 
       {renderPage()}
 
