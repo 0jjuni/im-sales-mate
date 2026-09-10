@@ -41,7 +41,7 @@ export function proposalSummary(item, data, products, manual) {
     cardPersonal:"주로 쓰시는 카드와 지출이 많은 항목은 무엇인가요?",
     cardBiz:"사업 경비는 어떤 카드로 결제하고 계신가요?",
     insMonthly:"매월 추가로 납입할 수 있는 금액과 유지 가능한 기간은 어느 정도인가요?",
-    insOther:"장기간 쓰지 않을 자금인가요? 다른 금융기관에도 보험 계약이 있으신가요?",
+    insOther:"예금하실 자금 중 일부는 나눠서 오래 두실 여유가 있으실까요? 그중 얼마 정도를 장기간 두실 수 있을까요?",
     nontaxSavings:"다른 금융기관에서 이용 중인 비과세종합저축이 있으신가요?",
   };
   if(product) return {reason:product.remaining?`조회된 추가 납입 여력 ${product.remaining}`:product.held?"당행 보유 상품의 추가 활용 검토":(item.detail||"신규 가입 검토 대상"),question:questions[item.key]||"현재 이용 중인 상품과 자금 사용 계획을 알려주시겠어요?"};
