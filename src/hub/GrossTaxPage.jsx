@@ -1030,6 +1030,7 @@ function ResultView({ data }) {
               {head}{question}
               <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
                 {cta}
+                {item.tag === "주거래 전환" && <button type="button" onClick={()=>setModal({kind:"nconnect",title:"Npay 커넥트 단말기 안내"})} className={btn}>Npay 커넥트 혜택 보기</button>}
                 {item.key==="housing"&&<button type="button" onClick={()=>setModal({kind:"pdf",url:"/promo/housing.pdf",title:"주택청약종합저축 상품설명서"})} className={btn}>주택청약종합저축 설명서</button>}
                 {item.key==="housing"&&<button type="button" onClick={()=>setModal({kind:"pdf",url:"/promo/housing-cheongnyeon.pdf",title:"청년 주택드림 청약통장 상품설명서"})} className={btn}>청년 주택드림 설명서</button>}
               </div>
@@ -1079,6 +1080,17 @@ function ResultView({ data }) {
               : <div className="overflow-auto p-5">
                   {modal.kind === "housing" && <div className="space-y-4">{["homeless", "salaryUnder7000"].map(f => <div key={f}><p className="mb-2 text-sm font-semibold text-slate-700">{FIELD_LABEL[f]}</p><ManualControl field={f} manual={manual} set={(k, v) => setManual({ ...manual, [k]: v })} /></div>)}</div>}
                   {modal.kind === "deduction" && <CardDeductionGuide />}
+                  {modal.kind === "nconnect" && <div className="space-y-5">
+                    <div className="rounded-xl bg-im-50 p-4"><p className="text-xs font-bold text-im-700">가맹점 결제계좌 전환 혜택</p><h3 className="mt-2 text-xl font-bold text-slate-900">Npay 커넥트 단말기 제공</h3><p className="mt-2 text-sm leading-relaxed text-slate-600">결제할 때 리뷰·쿠폰·적립까지 함께 안내할 수 있어요.</p></div>
+                    {/* 기능 근거: NAVER 공식 보도자료 seq=33567, seq=33597. 계좌 전환 제공 혜택은 사용자 확인 사항. */}
+                    <div className="grid gap-3 sm:grid-cols-2">{[
+                      ["다양한 결제수단", "카드·QR·간편결제·NFC와 얼굴인식 결제 페이스사인을 지원해요."],
+                      ["네이버 리뷰 연결", "매장에서 네이버 리뷰를 안내하고 고객의 방문 경험을 남길 수 있어요."],
+                      ["쿠폰으로 재방문 안내", "네이버 쿠폰을 매장에서도 연결해 다음 방문 혜택을 안내할 수 있어요."],
+                      ["포인트 적립", "결제와 함께 적립을 안내해 단골 고객을 관리하기 좋아요."],
+                    ].map(([title,body])=><div key={title} className="rounded-xl border border-slate-200 p-4"><h4 className="text-sm font-bold text-slate-900">{title}</h4><p className="mt-2 text-sm leading-relaxed text-slate-600">{body}</p></div>)}</div>
+                    <p className="border-t border-slate-100 pt-4 text-sm leading-relaxed text-slate-700">“결제계좌를 당행으로 옮기시면 단말기 제공 혜택도 함께 살펴보실 수 있어요. 지금 매장에서 쓰시는 단말기는 어떤 제품인가요?”</p>
+                  </div>}
                 </div>}
           </div>
         </div>, document.body)}
