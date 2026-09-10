@@ -1089,7 +1089,7 @@ function ResultView({ data }) {
                       ["쿠폰으로 재방문 안내", "네이버 쿠폰을 매장에서도 연결해 다음 방문 혜택을 안내할 수 있어요."],
                       ["포인트 적립", "결제와 함께 적립을 안내해 단골 고객을 관리하기 좋아요."],
                     ].map(([title,body])=><div key={title} className="rounded-xl border border-slate-200 p-4"><h4 className="text-sm font-bold text-slate-900">{title}</h4><p className="mt-2 text-sm leading-relaxed text-slate-600">{body}</p></div>)}</div>
-                    <p className="border-t border-slate-100 pt-4 text-sm leading-relaxed text-slate-700">“결제계좌를 당행으로 옮기시면 단말기 제공 혜택도 함께 살펴보실 수 있어요. 지금 매장에서 쓰시는 단말기는 어떤 제품인가요?”</p>
+                    <p className="border-t border-slate-100 pt-4 text-sm leading-relaxed text-slate-700">“가맹점 결제계좌를 당행으로 옮기시면 30만원 상당의 Npay 커넥트 POS 기기를 드리고 있어요. 지금 매장에서 쓰시는 단말기는 어떤 제품인가요?”</p>
                   </div>}
                 </div>}
           </div>
