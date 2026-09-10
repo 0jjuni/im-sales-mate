@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { useState } from "react";
 import {
   UserRound,
@@ -322,7 +321,6 @@ export const FollowupRow = ({
               )}
               <ScopeBadge item={item} />
               <CustomerNo no={item.customerNo} onSearch={onSearch} />
-              {/^\d{9}$/.test(item.customerNo || "") && <Link to={`/tax?no=${item.customerNo}`} className="inline-flex min-h-10 items-center rounded-md border border-im-200 px-2 text-xs font-semibold text-im-700">고객 진단 →</Link>}
             </>
           )}
         </div>

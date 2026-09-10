@@ -84,7 +84,7 @@ export default function FollowupsPage() {
   }, [visibleItems]);
 
   const hasList =
-    groups.overdue.length + groups.today.length + groups.week.length + groups.later.length + groups.memo.length + notes.length > 0;
+    groups.overdue.length + groups.today.length + groups.week.length + groups.later.length + groups.memo.length + notes.length + (scope === "branch" ? staffOpen.length : 0) > 0;
 
   return (
     <HubShell wide={tab === "calendar"}>
@@ -171,6 +171,7 @@ export default function FollowupsPage() {
           <Group title="예정" tone="slate" items={groups.later} rowProps={rowProps} />
           <Group title="기한 없음" tone="slate" items={groups.memo} rowProps={rowProps} />
           <Group title="고객 메모" tone="violet" items={notes} rowProps={rowProps} />
+          {scope === "branch" && <Group title="지점 일정 · 휴가 · 연수" tone="teal" items={staffOpen} rowProps={rowProps} />}
 
           {!hasList && (
             <p className={cn(CARD, "px-4 py-14 text-center text-[13px] text-slate-400")}>
