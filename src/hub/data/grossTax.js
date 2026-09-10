@@ -140,7 +140,7 @@ const CUSTOMERS = {
       {
         key: "isa",
         state: "recommend",
-        cta: { to: "/isa", label: "ISA 상담 시작" },
+        cta: { to: "/isa/calculator", label: "ISA 상담 시작" },
         metrics: [{ label: "당행 ISA", value: "미보유", strong: true }],
         note: "당행 ISA 미보유이며 조회된 종합과세 이력에 따른 제한은 없습니다. 타행 보유 여부와 소득 요건을 확인해 가입 유형을 안내하세요.",
       },
@@ -186,8 +186,9 @@ const CUSTOMERS = {
       {
         key: "isa",
         state: "restricted",
-        metrics: [{ label: "당행 ISA", value: "보유(일반형)" }],
-        note: "직전 3년 대상 이력(2023) → 재가입·연장 및 신규 비과세상품 가입 제한.",
+        held: false,
+        metrics: [{ label: "당행 ISA", value: "미보유" }],
+        note: "직전 3년 대상 이력(2023) → 신규 가입·연장 및 신규 비과세상품 가입 제한. 종합과세 기준 근접 여부도 함께 안내하세요.",
       },
       { key: "housing", held: true, monthly: "10만원" },
       { key: "noran", held: false },
@@ -265,7 +266,7 @@ export function viewProduct(product, manual, restricted = false) {
       return {
         ...product,
         state: "recommend",
-        cta: { to: "/noran", label: "노란우산 상담" },
+        cta: { to: "/noran/calculator", label: "노란우산 상담" },
         metrics: [{ label: "혜택", value: "소득공제 + 폐업 대비", strong: true }],
         note: "사업소득자 소득공제 핵심 상품입니다. 미보유 상태라 가입을 권유하세요.",
       };
@@ -503,7 +504,7 @@ export function deriveStrategy(data, manual) {
       detail: housingDeduct
         ? "연말정산에서 연금계좌 세액공제(IRP·연금저축 합산 900만원)와 무주택 세대주 주택청약 소득공제(총급여 7천만원 이하)를 함께 챙기도록 제안하세요."
         : "연말정산 연금계좌 세액공제(IRP·연금저축 합산 900만원)로 환급을 늘리도록 제안하세요.",
-      cta: { to: "/pension", label: "연금 세액공제 계산" },
+      cta: { to: "/pension/calculator", label: "연금 세액공제 계산" },
     });
   } else if (incomeType) {
     items.push({
@@ -514,7 +515,7 @@ export function deriveStrategy(data, manual) {
       detail: noranActive
         ? "가입 제한이 없는 소득공제(노란우산)·세액공제(IRP·연금저축)로 절세를 확보하게 하세요. 사업소득 규모에 맞춰 부금 증액을 제안합니다."
         : "IRP·연금저축 세액공제(합산 900만원 한도)로 종합소득세 부담을 줄이도록 제안하세요.",
-      cta: { to: "/pension", label: "연금 세액공제 계산" },
+      cta: { to: "/pension/calculator", label: "연금 세액공제 계산" },
     });
   }
 

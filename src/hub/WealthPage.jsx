@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Star, TrendingUp, Search, Bell, Target, Trash2, Plus, Layers, CandlestickChart, LineChart, Users, ArrowUpDown, GitCompare, X, Sparkles, Clock, ShieldAlert, UserCheck, Flame, Globe, Megaphone, Home, ArrowRight, HelpCircle, ChevronDown, Settings2 } from "lucide-react";
 import { HubShell } from "./HubShell";
+import { queryGrossTax } from "./data/grossTax";
 import { Sparkline, MarketChart } from "./components/MarketChart";
 import { groupFunds, fundBaseName, classLabel, readRecent } from "./wealth/presentation";
 import { useWealth } from "./wealth/useWealth";
@@ -437,6 +438,9 @@ const WealthFaq = () => {
 export default function WealthPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const ctxNo = params.get("no") || "";
+  const ctxCustomer = /^\d{9}$/.test(ctxNo) ? queryGrossTax(ctxNo) : null;
+  const ctxIncome = ctxCustomer ? params.get("income") : null;
   const { isWatched, toggleWatch, watchlist, enrollments, enroll, removeEnroll, setTarget } = useWealth();
   const [tab, setTab] = useState("home");
   const [recentIds] = useState(readRecent);
@@ -576,6 +580,8 @@ export default function WealthPage() {
       </div>
 
       <ModuleTabs items={TABS} activeId={tab} onSelect={setTab} accent="sky" />
+
+      {ctxCustomer && <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 p-4"><p className="text-sm font-bold text-slate-800">{ctxCustomer.name} · {ctxNo}{ctxIncome && ` · ${ctxIncome}`}</p><Link to={`/tax?no=${ctxNo}`} className="inline-flex min-h-11 items-center text-sm font-semibold text-sky-700">고객 진단으로 돌아가기 →</Link></div>}
 
       {tab === "home" ? (
         <section className="space-y-4">
