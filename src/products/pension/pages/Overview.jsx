@@ -31,11 +31,6 @@ export const Overview = ({ onNavigate, incomeType }) => (
       <p className="mt-3 text-sm leading-relaxed text-slate-700">“{incomeType === "근로소득자" ? "연말정산" : incomeType === "개인사업자" ? "종합소득세 신고" : "세금 신고"} 때 세금 부담이 있으셨다면 연금으로 준비해보시는 건 어떠세요? 올해 이미 납입하신 금액을 반영해 추가 납입 효과를 계산해드릴게요.”</p>
       <button onClick={()=>onNavigate("calculator")} className="mt-4 min-h-11 rounded-lg bg-violet-700 px-4 py-2 text-sm font-bold text-white">납입액으로 세액공제 계산 →</button>
     </section>
-    <nav aria-label="연금 상담 목적" className="grid gap-3 sm:grid-cols-3">
-      <a href="#pension-new" className="rounded-xl border border-slate-200 p-4 text-sm font-bold text-slate-800">신규 납입 · 계좌 선택 ↓</a>
-      <a href="#pension-existing" className="rounded-xl border border-slate-200 p-4 text-sm font-bold text-slate-800">기존 계좌 · 가입 시기 확인 ↓</a>
-      <a href="#pension-withdrawal" className="rounded-xl border border-slate-200 p-4 text-sm font-bold text-slate-800">연금 수령 · 계획 확인 ↓</a>
-    </nav>
     {/* 세제 요약 */}
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       <StatCard
