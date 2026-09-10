@@ -4,7 +4,7 @@ import { HubShell } from "../HubShell";
 import { ModuleTabs } from "@shared/components/ModuleTabs";
 import { useFollowups, ddayOf, ME } from "./useFollowups";
 import { MonthCalendar } from "./MonthCalendar";
-import { FollowupRow, FollowupForm, PrivacyNotice, fmtDate, fmtTime, STAFF_META } from "./parts";
+import { FollowupRow, FollowupForm, PrivacyNotice, fmtDate, fmtTime, STAFF_META, PRODUCT_TAGS } from "./parts";
 import { CARD } from "@shared/lib/surface";
 import { cn } from "@shared/lib/format";
 
@@ -37,6 +37,9 @@ const Group = ({ title, tone, items, rowProps }) => {
 
 export default function FollowupsPage() {
   const { items, add, update, remove, toggleDone } = useFollowups();
+  const [showForm, setShowForm] = useState(false);
+  const [scope, setScope] = useState("all");
+  const visibleItems = useMemo(()=>items.filter(i=>scope === "all" || (scope === "mine" ? (i.author || ME) === ME : i.scope === "branch")),[items,scope]);
   const [tab, setTab] = useState("list");
   const [query, setQuery] = useState("");
   const [showDone, setShowDone] = useState(false);
@@ -57,11 +60,11 @@ export default function FollowupsPage() {
   const q = query.trim();
   const searchResults = useMemo(() => {
     if (!q) return null;
-    return items.filter((i) => (i.customerNo || "").includes(q)).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
-  }, [items, q]);
+    return visibleItems.filter((i) => [i.customerNo,i.memo,i.author,i.staffName,...(i.products || []).map(id=>PRODUCT_TAGS.find(p=>p.id===id)?.label || id)].join(" ").toLowerCase().includes(q.toLowerCase())).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+  }, [visibleItems, q]);
 
   const { groups, notes, staffOpen, doneItems, summary } = useMemo(() => {
-    const open = items.filter((i) => i.status === "open");
+    const open = visibleItems.filter((i) => i.status === "open");
     const todos = open.filter((i) => i.category === "todo");
     const noteList = open.filter((i) => i.category === "note").sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
     const staff = open.filter(isStaffItem).sort((a, b) => (a.startDate || "").localeCompare(b.startDate || ""));
@@ -76,9 +79,9 @@ export default function FollowupsPage() {
       else if (d <= 7) g.week.push(i);
       else g.later.push(i);
     });
-    const done = items.filter((i) => i.category === "todo" && i.status === "done").sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+    const done = visibleItems.filter((i) => i.category === "todo" && i.status === "done").sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
     return { groups: { ...g, memo: undated }, notes: noteList, staffOpen: staff, doneItems: done, summary: { overdue, today, openCount: todos.length } };
-  }, [items]);
+  }, [visibleItems]);
 
   const hasList =
     groups.overdue.length + groups.today.length + groups.week.length + groups.later.length + groups.memo.length + notes.length > 0;
@@ -108,13 +111,15 @@ export default function FollowupsPage() {
 
       <ModuleTabs items={NAV} activeId={tab} onSelect={setTab} accent="im" />
 
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><div className="flex gap-2">{[["all","전체"],["mine","내 기록"],["branch","지점 공유"]].map(([key,label])=><button type="button" key={key} aria-pressed={scope===key} onClick={()=>setScope(key)} className={cn("min-h-11 rounded-lg px-3 py-2 text-sm font-semibold",scope===key?"bg-im-50 text-im-800":"bg-slate-100 text-slate-600")}>{label}</button>)}</div>{tab==="list" && <button type="button" aria-expanded={showForm} onClick={()=>{setShowForm(!showForm);setQuery("");}} className="min-h-11 rounded-lg bg-im-700 px-4 py-2 text-sm font-bold text-white">{showForm?"작성 닫기":"일정 추가"}</button>}</div>
       {/* 검색 */}
       <div className="relative mb-3">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="고객번호로 검색"
+          aria-label="일정 검색"
+          placeholder="고객번호·메모·작성자 검색"
           className="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-9 text-[13px] focus:border-im-500 focus:outline-none"
         />
         {q && (
@@ -130,7 +135,7 @@ export default function FollowupsPage() {
             「<span className="font-bold text-slate-900">{q}</span>」 검색 결과 <span className="font-bold text-im-700">{searchResults.length}건</span>
           </div>
           {searchResults.length === 0 ? (
-            <p className="px-3 py-8 text-center text-[12.5px] text-slate-400">이 고객번호로 남긴 기록이 없습니다.</p>
+            <p className="px-3 py-8 text-center text-[12.5px] text-slate-400">검색 조건에 맞는 기록이 없습니다.</p>
           ) : (
             <ul className="divide-y divide-slate-100 py-1">
               {searchResults.map((item) => (
@@ -141,13 +146,13 @@ export default function FollowupsPage() {
         </div>
       ) : tab === "calendar" ? (
         <div className="space-y-3">
-          <MonthCalendar items={items} onPickRange={(start, end) => setPicker({ start, end })} onEventClick={setDetail} />
+          <MonthCalendar items={visibleItems} onPickRange={(start, end) => setPicker({ start, end })} onEventClick={setDetail} />
           {staffOpen.length > 0 && <Group title="지점 일정 목록" tone="teal" items={staffOpen} rowProps={rowProps} />}
         </div>
       ) : (
         <div className="space-y-3">
           {/* 빠른 기록 — 할 일·고객 메모 */}
-          <div className={cn(CARD, "overflow-hidden")}>
+          {showForm && <div className={cn(CARD, "overflow-hidden")}>
             <div className="flex items-center gap-2 border-b border-slate-100 bg-im-50/50 px-3.5 py-2.5">
               <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-im-600 text-white">
                 <PlusCircle className="h-3.5 w-3.5" />
@@ -156,20 +161,20 @@ export default function FollowupsPage() {
               <span className="text-[11px] text-slate-400">연락일을 비우면 기한 없음으로 저장됩니다</span>
             </div>
             <div className="p-3.5">
-              <FollowupForm onAdd={add} allowed={["todo", "note"]} />
+              <FollowupForm onAdd={v=>{add(v);setShowForm(false);}} allowed={["todo", "note"]} />
             </div>
-          </div>
+          </div>}
 
-          <Group title="지남" tone="rose" items={groups.overdue} rowProps={rowProps} />
+          <Group title="기한 지남" tone="rose" items={groups.overdue} rowProps={rowProps} />
           <Group title="오늘" tone="amber" items={groups.today} rowProps={rowProps} />
-          <Group title="이번 주" tone="im" items={groups.week} rowProps={rowProps} />
+          <Group title="앞으로 7일" tone="im" items={groups.week} rowProps={rowProps} />
           <Group title="예정" tone="slate" items={groups.later} rowProps={rowProps} />
           <Group title="기한 없음" tone="slate" items={groups.memo} rowProps={rowProps} />
           <Group title="고객 메모" tone="violet" items={notes} rowProps={rowProps} />
 
           {!hasList && (
             <p className={cn(CARD, "px-4 py-14 text-center text-[13px] text-slate-400")}>
-              기록된 일정이 없습니다. 위 「빠른 기록」으로 첫 일정을 남겨보세요.
+              기록된 일정이 없습니다. 「일정 추가」로 첫 일정을 남겨보세요.
             </p>
           )}
 
