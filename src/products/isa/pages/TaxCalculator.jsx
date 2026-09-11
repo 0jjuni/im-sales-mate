@@ -189,7 +189,7 @@ export const TaxCalculator = () => {
               className={cn(
                 "flex items-center gap-2.5 p-3 border rounded-xl transition-all text-left",
                 active
-                  ? "bg-fuchsia-700 text-white border-fuchsia-700 shadow-sm"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
                   : "bg-white text-slate-700 border-slate-200 hover:border-fuchsia-400"
               )}
             >
@@ -221,7 +221,7 @@ export const TaxCalculator = () => {
                     className={cn(
                       "px-3 py-2 text-sm rounded-sm border transition-colors",
                       typeId === t.id
-                        ? "bg-fuchsia-700 text-white border-fuchsia-700 font-semibold"
+                        ? "bg-slate-900 text-white border-slate-900 font-semibold"
                         : "bg-white text-slate-700 border-slate-300 hover:border-fuchsia-400"
                     )}
                   >
@@ -250,7 +250,7 @@ export const TaxCalculator = () => {
                         className={cn(
                           "rounded-xl border p-2.5 text-left transition-all",
                           active
-                            ? "bg-fuchsia-700 text-white border-fuchsia-700 shadow-sm"
+                            ? "bg-slate-900 text-white border-slate-900 shadow-sm"
                             : "bg-white text-slate-700 border-slate-200 hover:border-fuchsia-400"
                         )}
                       >
@@ -346,7 +346,7 @@ export const TaxCalculator = () => {
                         className={cn(
                           "px-3 py-2 text-sm rounded-sm border transition-colors",
                           years === y
-                            ? "bg-fuchsia-700 text-white border-fuchsia-700 font-semibold"
+                            ? "bg-slate-900 text-white border-slate-900 font-semibold"
                             : "bg-white text-slate-700 border-slate-300 hover:border-fuchsia-400"
                         )}
                       >
