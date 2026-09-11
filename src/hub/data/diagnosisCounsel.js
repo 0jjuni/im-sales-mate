@@ -16,7 +16,7 @@ export function counselQuestion(item) {
   if(item.key==="noran") return "사업 현황과 매월 납입 가능한 금액을 확인하세요.";
   if(item.key?.startsWith("card")) return "주로 쓰는 카드와 월 지출 항목을 확인하세요.";
   if(item.key?.startsWith("ins")) return "장기 유지 가능 여부와 타행 계약을 포함한 납입 현황을 확인하세요.";
-  if(item.cta?.to==="/pension") return "기존 연금계좌 납입액과 장기 유지 가능 여부를 확인하세요.";
+  if(item.cta?.to?.startsWith("/pension")) return "기존 연금계좌 납입액과 장기 유지 가능 여부를 확인하세요.";
   if(item.cta?.to==="/wealth") return "자금 사용 시점, 투자 경험과 손실 감수 범위를 확인하세요.";
   return "고객의 이용 목적과 현재 거래 조건을 확인한 뒤 제안하세요.";
 }
@@ -52,7 +52,7 @@ export function proposalSummary(item, data, products, manual) {
   };
   if(product) return {reason:product.remaining?`조회된 추가 납입 여력 ${product.remaining}`:product.held?"당행 보유 상품의 추가 활용 검토":(item.detail||"신규 가입 검토 대상"),question:questions[item.key]||"현재 이용 중인 상품과 자금 사용 계획을 알려주시겠어요?"};
   if(item.tag==="주거래 전환") return {reason:`가맹점 결제계좌 ${data.merchantSettlement?.bank} 이용 중`,question:"가맹점 결제계좌를 당행으로 옮기시면 30만원 상당의 Npay 커넥트 POS 기기를 드리고 있어요. 이번에 결제계좌를 옮겨보시는 건 어떠세요?"};
-  if(item.cta?.to==="/pension") return {reason:`${manual.incomeType || "소득 유형"} · 연금계좌 납입 현황 확인`,question:`${manual.incomeType === "근로소득자" ? "연말정산" : "종합소득세 신고"} 때 세금 부담이 있으셨다면 노후 준비와 세액공제를 함께 챙겨보시면 좋겠어요. 올해 이미 넣으신 연금저축·IRP 금액을 반영해서, 추가 납입 시 공제액을 계산해드릴까요?`};
+  if(item.cta?.to?.startsWith("/pension")) return {reason:`${manual.incomeType || "소득 유형"} · 연금계좌 납입 현황 확인`,question:`${manual.incomeType === "근로소득자" ? "연말정산" : "종합소득세 신고"} 때 세금 부담이 있으셨다면 노후 준비와 세액공제를 함께 챙겨보시면 좋겠어요. 올해 이미 넣으신 연금저축·IRP 금액을 반영해서, 추가 납입 시 공제액을 계산해드릴까요?`};
   if(item.cta?.to==="/wealth") return {reason:`당행 예금·수신 ${(data.deposits||[]).reduce((sum,d)=>sum+(d.balance||0),0).toLocaleString()}만원`,question:"예금하실 돈 중 당장 쓰지 않을 일부는 투자상품과 비교해보실까요? 원금 손실이 생길 수 있으니, 투자성향과 자금 사용 시점에 맞는 상품부터 살펴보겠습니다."};
   return {reason:item.detail,question:"이 제안이 자금 계획에 맞으시는지 함께 살펴볼까요?"};
 }

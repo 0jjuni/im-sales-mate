@@ -931,8 +931,15 @@ function ResultView({ data }) {
   const salaryEarner = queryEligibility(data.customerNo)?.requirements.find((r) => r.id === "salary")?.met;
   const autoIncome = noranHeld || hasMerchant ? "개인사업자" : salaryEarner ? "근로소득자" : null;
   const initialManual = { incomeType: autoIncome, homeless: null, salaryUnder7000: null, nontaxQual: null };
-  const [manual, setManual] = useState(initialManual);
-  useEffect(() => setManual(initialManual), [data.customerNo]); // eslint-disable-line react-hooks/exhaustive-deps
+  const manualKey = `salesmate.diagnosis.confirmed.${data.customerNo}`;
+  const [manual, setManual] = useState(() => {
+    try {
+      return { ...initialManual, ...JSON.parse(sessionStorage.getItem(manualKey) || "null") };
+    } catch { return initialManual; }
+  });
+  useEffect(() => {
+    try { sessionStorage.setItem(manualKey, JSON.stringify(manual)); } catch { /* 저장 제한 시 현재 화면에서만 유지 */ }
+  }, [manualKey, manual]);
   /* 상품설명서(PDF)·발급요건 확인은 카드를 키우지 않고 팝업으로. {kind:'pdf'|'card'|'housing', url?, title} */
   const [modal, setModal] = useState(null);
   useEffect(() => { if (!modal) return; const onKey = (e) => e.key === "Escape" && setModal(null); window.addEventListener("keydown", onKey); return () => window.removeEventListener("keydown", onKey); }, [modal]);
