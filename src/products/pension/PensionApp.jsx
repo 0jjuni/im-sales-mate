@@ -59,7 +59,7 @@ export default function PensionApp() {
     };
   }, []);
 
-  const navigate = (p) => routerNavigate(buildPath(p) + (customer ? `?${search.toString()}` : ""));
+  const navigate = (p) => routerNavigate(buildPath(p) + (no ? `?${search.toString()}` : ""));
 
   const renderPage = () => {
     switch (page) {

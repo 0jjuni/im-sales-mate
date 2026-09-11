@@ -59,7 +59,7 @@ export default function IsaApp() {
     };
   }, []);
 
-  const navigate = (p) => routerNavigate(buildPath(p) + (customer ? `?no=${customerNo}` : ""));
+  const navigate = (p) => routerNavigate(buildPath(p) + (customerNo ? `?no=${customerNo}` : ""));
 
   const renderPage = () => {
     switch (page) {
