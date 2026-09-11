@@ -202,14 +202,14 @@ export const TaxCreditCalculator = () => {
               className={cn(
                 "flex items-center gap-2.5 p-3 border rounded-xl transition-all text-left",
                 active
-                  ? "bg-violet-700 text-white border-violet-700 shadow-sm"
-                  : "bg-white text-slate-700 border-slate-200 hover:border-violet-400"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                  : "bg-white text-slate-700 border-slate-200 hover:border-slate-400"
               )}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
               <div>
                 <div className="text-sm font-bold">{m.label}</div>
-                <div className={cn("text-[11px]", active ? "text-violet-100" : "text-slate-500")}>
+                <div className={cn("text-[11px]", active ? "text-slate-300" : "text-slate-500")}>
                   {m.sub}
                 </div>
               </div>
@@ -242,12 +242,12 @@ export const TaxCreditCalculator = () => {
                       className={cn(
                         "rounded-xl border p-3 text-left transition-all",
                         active
-                          ? "bg-violet-700 text-white border-violet-700 shadow-sm"
-                          : "bg-white text-slate-700 border-slate-200 hover:border-violet-400"
+                          ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                          : "bg-white text-slate-700 border-slate-200 hover:border-slate-400"
                       )}
                     >
                       <div className="text-sm font-bold">{o.label}</div>
-                      <div className={cn("text-[11px]", active ? "text-violet-100" : "text-slate-500")}>
+                      <div className={cn("text-[11px]", active ? "text-slate-300" : "text-slate-500")}>
                         공제율 {o.rate}
                       </div>
                     </button>
