@@ -190,13 +190,13 @@ export const TaxCalculator = () => {
                 "flex items-center gap-2.5 p-3 border rounded-xl transition-all text-left",
                 active
                   ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                  : "bg-white text-slate-700 border-slate-200 hover:border-fuchsia-400"
+                  : "bg-white text-slate-700 border-slate-200 hover:border-slate-400"
               )}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
               <div>
                 <div className="text-sm font-bold">{m.label}</div>
-                <div className={cn("text-[11px]", active ? "text-fuchsia-100" : "text-slate-500")}>
+                <div className={cn("text-[11px]", active ? "text-slate-300" : "text-slate-500")}>
                   {m.sub}
                 </div>
               </div>
@@ -222,7 +222,7 @@ export const TaxCalculator = () => {
                       "px-3 py-2 text-sm rounded-sm border transition-colors",
                       typeId === t.id
                         ? "bg-slate-900 text-white border-slate-900 font-semibold"
-                        : "bg-white text-slate-700 border-slate-300 hover:border-fuchsia-400"
+                        : "bg-white text-slate-700 border-slate-300 hover:border-slate-400"
                     )}
                   >
                     {t.label}
@@ -251,11 +251,11 @@ export const TaxCalculator = () => {
                           "rounded-xl border p-2.5 text-left transition-all",
                           active
                             ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                            : "bg-white text-slate-700 border-slate-200 hover:border-fuchsia-400"
+                            : "bg-white text-slate-700 border-slate-200 hover:border-slate-400"
                         )}
                       >
                         <div className="text-[13px] font-bold">{o.label}</div>
-                        <div className={cn("text-[11px]", active ? "text-fuchsia-100" : "text-slate-500")}>{o.sub}</div>
+                        <div className={cn("text-[11px]", active ? "text-slate-300" : "text-slate-500")}>{o.sub}</div>
                       </button>
                     );
                   })}
@@ -347,7 +347,7 @@ export const TaxCalculator = () => {
                           "px-3 py-2 text-sm rounded-sm border transition-colors",
                           years === y
                             ? "bg-slate-900 text-white border-slate-900 font-semibold"
-                            : "bg-white text-slate-700 border-slate-300 hover:border-fuchsia-400"
+                            : "bg-white text-slate-700 border-slate-300 hover:border-slate-400"
                         )}
                       >
                         {y}년
