@@ -141,8 +141,6 @@ export const CardCatalog = () => {
   const type = CARD_TYPES.some(t=>t.id===params.get("type"))?params.get("type"):"credit";
   const query = params.get("q") || "";
   const activeTags = (params.get("tags")||"").split(",").filter(Boolean);
-  const setSegment = value => change({seg:value});
-  const setType = value => change({type:value});
   const setQuery = value => change({q:value});
   const setActiveTags = value => change({tags:(typeof value === "function" ? value(activeTags) : value).join(",")});
   const selected = [...new Set((params.get("compare")||"").split(",").filter(id=>getCards().some(c=>c.id===id)))].slice(0,2);
@@ -214,8 +212,7 @@ export const CardCatalog = () => {
             <button
               key={s.id}
               onClick={() => {
-                setSegment(s.id);
-                setActiveTags([]);
+                change({seg:s.id, tags:""});
               }}
               className={cn(
                 "rounded-md px-4 py-1.5 text-[13px] font-bold transition-colors",
@@ -231,8 +228,7 @@ export const CardCatalog = () => {
             <button
               key={t.id}
               onClick={() => {
-                setType(t.id);
-                setActiveTags([]);
+                change({type:t.id, tags:""});
               }}
               className={cn(
                 "rounded-md px-4 py-1.5 text-[13px] font-bold transition-colors",
