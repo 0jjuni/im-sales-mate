@@ -25,7 +25,7 @@ export const STATUS_ORDER = ["review", "building", "done"];
 
 /* 시드 — 모두 이 사이트에서 만들 수 있는 도구 요청. 이미 있는 3종은 반영완료로 표시. */
 const SEED = [
-  { id: "r1", title: "영문 이름을 전표로 출력", detail: "고객 영문 이름 변환 결과를 전표 형태로 바로 인쇄할 수 있으면 좋겠어요.", author: "이현수 계장", status: "done", votes: 24 },
+  { id: "r1", title: "영문 이름을 전표로 출력", detail: "고객 영문 이름 변환 결과를 전표 형태로 바로 인쇄할 수 있으면 좋겠어요.", author: "허영준 계장", status: "done", votes: 24 },
   { id: "r2", title: "도로명주소 영문 변환", detail: "해외 송금·서류용으로 도로명주소를 영문 표기로 바꿔주는 도구요.", author: "김하늘 대리", status: "done", votes: 18 },
   { id: "r3", title: "링크를 QR 코드로 만들기", detail: "가입 링크나 안내 페이지를 QR 코드로 만들어 전표로 건네고 싶어요.", author: "박준호 대리", status: "done", votes: 15 },
   { id: "r4", title: "여러 예적금 만기·예상 이자 한 번에 계산", detail: "고객이 가입한 여러 예적금의 만기일·예상 이자를 한 화면에서 계산하고 싶어요.", author: "최민재 주임", status: "review", votes: 31 },

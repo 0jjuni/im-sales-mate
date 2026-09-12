@@ -16,7 +16,7 @@ export const ddayOf = (dateStr) => {
 export const isStaffCat = (c) => c === "leave" || c === "training" || c === "branch";
 
 /* 현재 로그인 직원(가정). 내가 올린 항목 식별·편집 권한 기준. 실서비스에선 세션 사용자로 대체. */
-export const ME = "이현수 계장";
+export const ME = "허영준 계장";
 
 /* 고객 후속·지점 일정 상태 관리 훅. localStorage 어댑터에 자동 저장.
    category: "todo"(할 일) | "note"(고객 메모) | "leave"(휴가 계획) | "training"(연수 계획) */

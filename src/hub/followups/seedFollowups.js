@@ -172,7 +172,7 @@ export function buildSeedItems() {
       id: `seed_${seq}`,
       category: base.category ?? "todo",
       scope: base.scope === "branch" ? "branch" : "mine",
-      author: base.author ?? "이현수 계장",
+      author: base.author ?? "허영준 계장",
       customerNo: base.customerNo ?? "",
       staffName: base.staffName ?? "",
       memo: base.memo,
