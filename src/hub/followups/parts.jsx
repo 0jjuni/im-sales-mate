@@ -66,6 +66,14 @@ export const fmtDate = (iso) => {
   return `${d.getMonth() + 1}.${d.getDate()}(${day})`;
 };
 
+/* epoch ms(작성 시각) → "10.15(수)" 형태 날짜 */
+export const fmtStamp = (ms) => {
+  if (!ms) return null;
+  const d = new Date(ms);
+  if (isNaN(d)) return null;
+  return fmtDate(toISO(d));
+};
+
 /* HH:MM → 오전/오후 h:mm */
 export const fmtTime = (hhmm) => {
   if (!hhmm) return "";
@@ -242,6 +250,7 @@ export const FollowupRow = ({
   onRemove,
   onSearch,
   onEdit,
+  allowInlineEdit,
   compact,
   highlight,
 }) => {
@@ -251,6 +260,18 @@ export const FollowupRow = ({
   const done = cat === "todo" && item.status === "done";
   const staff = STAFF_META[cat];
   const StaffIcon = staff?.icon;
+  const mine = (item.author || ME) === ME;
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(item.memo || "");
+  const saveEdit = () => {
+    const t = draft.trim();
+    if (t) onUpdate?.(item.id, { memo: t });
+    setEditing(false);
+  };
+  const cancelEdit = () => {
+    setDraft(item.memo || "");
+    setEditing(false);
+  };
   return (
     <li
       className={cn(
@@ -324,18 +345,39 @@ export const FollowupRow = ({
             </>
           )}
         </div>
-        <p
-          className={cn(
-            "mt-0.5 whitespace-pre-wrap break-words text-[12.5px] leading-relaxed text-slate-700",
-            done && "line-through",
-            compact && "line-clamp-2"
-          )}
-        >
-          {item.memo}
-        </p>
+        {editing ? (
+          <div className="mt-1">
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) saveEdit();
+                if (e.key === "Escape") cancelEdit();
+              }}
+              rows={2}
+              autoFocus
+              className="w-full resize-y rounded-md border border-im-300 px-2 py-1.5 text-[12.5px] leading-relaxed focus:border-im-500 focus:outline-none"
+            />
+            <div className="mt-1 flex gap-1.5">
+              <button onClick={saveEdit} disabled={!draft.trim()} className="rounded-md bg-im-600 px-2.5 py-1 text-[11px] font-bold text-white transition-colors hover:bg-im-700 disabled:opacity-40">저장</button>
+              <button onClick={cancelEdit} className="rounded-md px-2 py-1 text-[11px] font-semibold text-slate-400 hover:bg-slate-100 hover:text-slate-600">취소</button>
+            </div>
+          </div>
+        ) : (
+          item.memo && <p
+            className={cn(
+              "mt-0.5 whitespace-pre-wrap break-words text-[12.5px] leading-relaxed text-slate-700",
+              done && "line-through",
+              compact && "line-clamp-2"
+            )}
+          >
+            {item.memo}
+          </p>
+        )}
         <div className="mt-1 text-[11px] text-slate-400">
           작성 <span className="font-semibold text-slate-500">{item.author || ME}</span>
-          {(item.author || ME) === ME && <span className="text-slate-300"> (나)</span>}
+          {mine && <span className="text-slate-300"> (나)</span>}
+          {item.createdAt && <span className="text-slate-300"> · {fmtStamp(item.createdAt)}</span>}
         </div>
       </div>
 
@@ -369,12 +411,15 @@ export const FollowupRow = ({
               <RotateCcw className="h-3.5 w-3.5" />
             </button>
           )}
-          {/* 내가 올린 항목만 편집 */}
-          {onEdit && (item.author || ME) === ME && !compact && (
+          {/* 내가 올린 항목만 편집 — allowInlineEdit면 그 자리에서, 아니면 편집 폼 열기 */}
+          {(allowInlineEdit || onEdit) && mine && !compact && (
             <button
-              onClick={() => onEdit(item)}
-              title="편집"
-              className="rounded p-1 text-slate-300 hover:bg-slate-100 hover:text-slate-700"
+              onClick={() => (allowInlineEdit ? setEditing((v) => !v) : onEdit(item))}
+              title={allowInlineEdit ? (editing ? "편집 닫기" : "메모 수정") : "편집"}
+              className={cn(
+                "rounded p-1 transition-colors hover:bg-slate-100",
+                editing ? "text-im-600" : "text-slate-300 hover:text-slate-700"
+              )}
             >
               <Pencil className="h-3.5 w-3.5" />
             </button>

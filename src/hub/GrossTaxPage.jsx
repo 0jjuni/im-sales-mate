@@ -555,7 +555,7 @@ function CustomerFollowups({ no }) {
         <div className={cn(CARD, "overflow-hidden")}>
           <ul className="divide-y divide-slate-100 py-1">
             {mine.map((item) => (
-              <FollowupRow key={item.id} item={item} onToggle={toggleDone} onUpdate={update} onRemove={remove} />
+              <FollowupRow key={item.id} item={item} onToggle={toggleDone} onUpdate={update} onRemove={remove} allowInlineEdit />
             ))}
           </ul>
           <Link
