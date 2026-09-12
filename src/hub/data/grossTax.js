@@ -211,11 +211,7 @@ const CUSTOMERS = {
       },
       { key: "housing", held: true, monthly: "10만원" },
       { key: "noran", held: false },
-      {
-        key: "cardPersonal",
-        held: true,
-        cards: [{ name: "iM K-패스카드", brand: "Master", type: "신용", monthly: 55 }],
-      },
+      { key: "cardPersonal", held: false },
       { key: "cardBiz", held: false },
     ],
   },
