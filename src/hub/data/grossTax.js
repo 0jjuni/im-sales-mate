@@ -21,6 +21,7 @@ export const SOURCES = {
   noran: { code: "노란우산", label: "노란우산공제" },
   cardPersonal: { code: "BC/당행", label: "개인 신용카드" },
   cardBiz: { code: "BC/당행", label: "개인사업자 신용카드" },
+  fund: { code: "당행", label: "펀드·ETF" },
 };
 
 /* 상품 상태 → 색/의미.
@@ -83,6 +84,12 @@ const CUSTOMERS = {
         note: "일시납 저축성보험(계약 10년 이상)은 종합과세 제한이 없습니다. 과세 예금을 비과세로 이전하도록 권유하세요.",
       },
       {
+        key: "fund",
+        held: true,
+        value: "3,200만원",
+        holdings: "국내주식형 펀드 2종",
+      },
+      {
         key: "isa",
         state: "restricted",
         metrics: [{ label: "당행 ISA", value: "보유(일반형)" }],
@@ -138,6 +145,12 @@ const CUSTOMERS = {
         note: "계약 10년 이상 유지 시 보험차익 비과세.",
       },
       {
+        key: "fund",
+        held: true,
+        value: "1,100만원",
+        holdings: "KODEX 200 ETF",
+      },
+      {
         key: "isa",
         state: "recommend",
         cta: { to: "/isa/calculator", label: "ISA 상담 시작" },
@@ -182,6 +195,12 @@ const CUSTOMERS = {
         state: "recommend",
         metrics: [{ label: "일시납 비과세 한도", value: "1억원", strong: true }],
         note: "일시납 저축성보험(계약 10년 이상)은 종합과세 제한이 없습니다. 과세 예금을 비과세로 이전하도록 권유하세요.",
+      },
+      {
+        key: "fund",
+        held: true,
+        value: "600만원",
+        holdings: "TIGER 미국S&P500",
       },
       {
         key: "isa",
@@ -299,6 +318,26 @@ export function viewProduct(product, manual, restricted = false) {
       state: "recommend",
       metrics: [{ label: "혜택", value: "청약 자격·자유적립" }],
       note: "주택청약종합저축은 소득 유형과 무관하게 가입할 수 있습니다. 소득공제 대상은 아니지만 내 집 마련 청약 자격 확보·자유적립 목적으로 권유하세요.",
+    };
+  }
+
+  if (product.key === "fund") {
+    if (product.held) {
+      return {
+        ...product,
+        state: "active",
+        metrics: [
+          { label: "평가금액", value: product.value || "—", strong: true },
+          ...(product.holdings ? [{ label: "보유 상품", value: product.holdings }] : []),
+        ],
+        note: "국내주식형 펀드·ETF 매매차익은 비과세입니다(분배금·배당은 과세). 여유자금 추가 운용은 투자상품 상담으로 연결하세요.",
+      };
+    }
+    return {
+      ...product,
+      state: "active",
+      metrics: [{ label: "펀드·ETF", value: "미보유", strong: true }],
+      note: "당행 펀드·ETF 미보유. 여유자금 운용은 맞춤 상품 제안의 투자상품 상담으로 안내하세요.",
     };
   }
 
@@ -557,10 +596,11 @@ export function deriveStrategy(data, manual) {
       detail:
         "배우자 6억, 자녀 5천만원(미성년 2천만원)까지 10년 단위 비과세 증여. 이자·배당 자산을 나눠 1인당 금융소득 기준을 낮춥니다.",
     });
+    /* 매매차익 비과세 전환은 상품(펀드·ETF) 권유 성격이라 '소득 분산'이 아니라 '맞춤 상품 제안'에 카드로 노출한다. */
     items.push({
-      group: "분산",
+      group: "제안",
       tag: "비과세 전환",
-      kind: "action",
+      kind: "sell",
       title: "국내주식형 펀드·ETF로 이자·배당 → 매매차익(비과세) 전환",
       detail:
         "국내 상장주식·주식형 펀드·ETF의 매매차익은 비과세입니다(분배금·배당은 과세). 과세되는 이자·배당 자산 일부를 매매차익 중심으로 옮겨 금융소득을 낮출 수 있습니다.",

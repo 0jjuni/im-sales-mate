@@ -1039,7 +1039,7 @@ function ResultView({ data }) {
               {head}{question}
               <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
                 {cta}
-                {item.tag === "주거래 전환" && <button type="button" onClick={()=>setModal({kind:"nconnect",title:"Npay 커넥트 단말기 안내"})} className={btn}>Npay 커넥트 혜택 보기</button>}
+                {item.tag === "주거래 전환" && <button type="button" onClick={()=>setModal({kind:"nconnect",title:"Npay 커넥트 단말기 안내"})} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-im-700 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-im-800">Npay 커넥트 혜택 보기<ArrowRight className="h-4 w-4"/></button>}
                 {item.key==="housing"&&<button type="button" onClick={()=>setModal({kind:"pdf",url:"/promo/housing.pdf",title:"주택청약종합저축 상품설명서"})} className={btn}>주택청약종합저축 설명서</button>}
                 {item.key==="housing"&&<button type="button" onClick={()=>setModal({kind:"pdf",url:"/promo/housing-cheongnyeon.pdf",title:"청년 주택드림 청약통장 상품설명서"})} className={btn}>청년 주택드림 설명서</button>}
               </div>
@@ -1076,7 +1076,7 @@ function ResultView({ data }) {
       {/* 상품설명서(PDF) 뷰어 · 발급요건/소득공제 확인 팝업 — 바로 다운로드가 아니라 먼저 띄워주고, PDF는 뷰어에서 저장·인쇄 선택 */}
       {modal && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 sm:p-6 print:hidden" onClick={() => setModal(null)}>
-          <div className={cn("flex max-h-full w-full flex-col overflow-hidden rounded-xl bg-white shadow-2xl", modal.kind === "pdf" ? "h-full max-w-4xl" : modal.kind === "deduction" ? "max-w-lg" : "max-w-md")} onClick={(e) => e.stopPropagation()}>
+          <div className={cn("flex max-h-full w-full flex-col overflow-hidden rounded-xl bg-white shadow-2xl", modal.kind === "pdf" ? "h-full max-w-4xl" : modal.kind === "nconnect" ? "max-w-2xl" : modal.kind === "deduction" ? "max-w-lg" : "max-w-md")} onClick={(e) => e.stopPropagation()}>
             <div className="flex flex-shrink-0 items-center justify-between gap-3 border-b border-slate-200 px-4 py-2.5">
               <div className="truncate text-[14px] font-bold text-slate-900">{modal.title}</div>
               <div className="flex flex-shrink-0 items-center gap-2">
@@ -1180,7 +1180,7 @@ export default function GrossTaxPage() {
         </button>
       </form>
 
-      {result && <div className="mb-5 flex flex-wrap gap-2">{SAMPLE_CUSTOMERS.map(c=><button key={c.customerNo} onClick={()=>{setInput(c.customerNo);runQuery(c.customerNo);}} aria-pressed={result.customerNo===c.customerNo} className={cn("min-h-11 rounded-lg border px-3 py-2 text-left text-sm",result.customerNo===c.customerNo?"border-im-600 bg-im-50 text-im-800":"border-slate-200 bg-white text-slate-600")}><span className="font-bold">{c.name}</span><span className="ml-2 text-xs">{c.tag}</span></button>)}</div>}
+      {result && <div className="mb-5 flex flex-wrap items-center gap-2"><span className="mr-0.5 text-[11px] font-medium text-slate-400">예시 고객</span>{SAMPLE_CUSTOMERS.map(c=><button key={c.customerNo} onClick={()=>{setInput(c.customerNo);runQuery(c.customerNo);}} aria-pressed={result.customerNo===c.customerNo} className={cn("min-h-11 rounded-lg border px-3 py-2 text-left text-sm",result.customerNo===c.customerNo?"border-im-600 bg-im-50 text-im-800":"border-slate-200 bg-white text-slate-600")}><span className="font-bold">{c.name}</span><span className="ml-2 text-xs">{c.tag}</span></button>)}</div>}
 
       {/* 결과 */}
       {result === undefined ? (
